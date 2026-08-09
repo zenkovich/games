@@ -5,6 +5,50 @@ project(o2Template LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# ---------------------------------------------------------------------------
+# Per-game identity
+#
+# Every game is a branch of this repo, so the name, bundle id and version can't
+# be constants here: two games sharing one bundle id replace each other when
+# installed on the same device. They come from GameInfo.json in the branch root;
+# any of them can still be overridden with -DGAME_BUNDLE_ID=... etc.
+# ---------------------------------------------------------------------------
+set(_game_info_file "${CMAKE_CURRENT_SOURCE_DIR}/GameInfo.json")
+if(EXISTS "${_game_info_file}" AND NOT CMAKE_VERSION VERSION_LESS 3.19)
+    file(READ "${_game_info_file}" _game_info_json)
+    foreach(_pair "GAME_TITLE:title" "GAME_BUNDLE_ID:bundleId"
+                  "GAME_VERSION:version" "GAME_BUILD_NUMBER:build")
+        string(REPLACE ":" ";" _pair "${_pair}")
+        list(GET _pair 0 _game_var)
+        list(GET _pair 1 _game_key)
+        string(JSON _game_value ERROR_VARIABLE _game_err GET "${_game_info_json}" "${_game_key}")
+        if(NOT _game_err AND NOT "${_game_value}" STREQUAL "" AND NOT ${_game_var})
+            set(${_game_var} "${_game_value}")
+        endif()
+    endforeach()
+endif()
+
+if(NOT GAME_TITLE)
+    set(GAME_TITLE "o2 Template")
+endif()
+if(NOT GAME_BUNDLE_ID)
+    set(GAME_BUNDLE_ID "com.o2.template")
+endif()
+if(NOT GAME_VERSION)
+    set(GAME_VERSION "1.0")
+endif()
+if(NOT GAME_BUILD_NUMBER)
+    set(GAME_BUILD_NUMBER "1")
+endif()
+message(STATUS "Game: ${GAME_TITLE} — ${GAME_BUNDLE_ID} ${GAME_VERSION} (${GAME_BUILD_NUMBER})")
+
+# iOS code signing. Empty team = unsigned build, which still compiles and is
+# enough to check the build; a real .ipa needs the team from your Apple
+# Developer account (see GAMES.md in the site repo).
+set(IOS_DEVELOPMENT_TEAM "" CACHE STRING "Apple Developer Team ID used to sign iOS builds")
+set(IOS_CODE_SIGN_STYLE "Automatic" CACHE STRING "Xcode signing style: Automatic or Manual")
+set(IOS_PROVISIONING_PROFILE "" CACHE STRING "Provisioning profile name (Manual signing only)")
+
 if(EMSCRIPTEN)
     set(O2_TESTS OFF CACHE BOOL "" FORCE)
     set(O2_EDITOR OFF CACHE BOOL "" FORCE)
@@ -180,13 +224,35 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 
     set_target_properties(Game PROPERTIES
         MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_GUI_IDENTIFIER "com.o2.template"
-        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${GAME_BUNDLE_ID}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${GAME_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${GAME_VERSION}"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/iOS/Game/Info.plist"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.o2.template"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${GAME_BUNDLE_ID}"
+        # The executable stays "Game"; these drive what the home screen and the
+        # OTA install dialog show, and what App Store Connect calls the build.
+        XCODE_ATTRIBUTE_GAME_DISPLAY_NAME "${GAME_TITLE}"
+        XCODE_ATTRIBUTE_MARKETING_VERSION "${GAME_VERSION}"
+        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "${GAME_BUILD_NUMBER}"
+        # `xcodebuild archive` collects products through the install action, not
+        # from the build directory. CMake targets default to SKIP_INSTALL=YES, so
+        # without these the archive is created but its Products/Applications is
+        # empty and -exportArchive has nothing to turn into an .ipa.
+        XCODE_ATTRIBUTE_SKIP_INSTALL "NO"
+        XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
+
+    if(IOS_DEVELOPMENT_TEAM)
+        set_target_properties(Game PROPERTIES
+            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${IOS_DEVELOPMENT_TEAM}"
+            XCODE_ATTRIBUTE_CODE_SIGN_STYLE "${IOS_CODE_SIGN_STYLE}"
+        )
+        if(IOS_PROVISIONING_PROFILE)
+            set_target_properties(Game PROPERTIES
+                XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${IOS_PROVISIONING_PROFILE}")
+        endif()
+    endif()
 
     # Add launch storyboard to the bundle
     target_sources(Game PRIVATE "Platforms/iOS/Game/Launch Screen.storyboard")
