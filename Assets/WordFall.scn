@@ -1,0 +1,33 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mName": "Bootstrap",
+                "Id": 17312208212841619407,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "WordFallBootstrap",
+                        "Data": {
+                            "mId": 7282376732287358351
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

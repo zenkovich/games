@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Word Fall — отчёт о разработке прототипа</title>
+<style>
+  :root { --wood: #8a5a2b; --amber: #c8641e; --cream: #faf3e3; --ink: #3d2a17; }
+  * { box-sizing: border-box; }
+  body { font-family: "Avenir Next", "Segoe UI", sans-serif; margin: 0; background: var(--cream); color: var(--ink); line-height: 1.55; }
+  header { background: linear-gradient(160deg, #8a5a2b, #b5804a); color: #fff7ea; padding: 42px 24px 34px; text-align: center; }
+  header h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: 1px; }
+  header p { margin: 0; opacity: .92; }
+  main { max-width: 980px; margin: 0 auto; padding: 26px 20px 60px; }
+  h2 { color: var(--amber); border-bottom: 2px solid #e6cfa8; padding-bottom: 6px; margin-top: 42px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  figure { margin: 0; background: #fff; border: 1px solid #e6cfa8; border-radius: 12px; padding: 10px; box-shadow: 0 3px 10px rgba(90,60,20,.08); }
+  figure img { width: 100%; border-radius: 8px; display: block; }
+  figcaption { font-size: 13px; color: #7a5c37; padding: 8px 4px 2px; text-align: center; }
+  table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; }
+  th, td { border: 1px solid #e6cfa8; padding: 8px 12px; text-align: left; font-size: 14px; }
+  th { background: #f3e3c3; }
+  code { background: #f3e8d2; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  .pill { display: inline-block; background: #3f9d4c; color: #fff; border-radius: 999px; padding: 2px 12px; font-size: 13px; margin-left: 8px; vertical-align: middle; }
+  .issue { background: #fff; border-left: 4px solid var(--amber); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+  .issue b { color: var(--amber); }
+  ul { padding-left: 22px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Word Fall (Эрудит)</h1>
+  <p>Пошаговая словесная головоломка: Scrabble × Match-3 × Тетрис — прототип на движке o2</p>
+</header>
+<main>
+
+<h2>Итог <span class="pill">326/326 тестов зелёные</span></h2>
+<p>Готов играбельный прототип: поле 7×8 буквенных плиток, свободный выбор букв по всему полю,
+бонус за компактность (кластерный множитель по 8-соседству), множитель длины слова, гравитация с
+падением и спавном из сбалансированного «мешка», ледяные блоки, 5 бустеров (молоток, перемешивание,
+подсказка, джокер, удвоитель), уровень с целью 300 очков за 12 ходов, попапы победы/поражения и
+рестарт. Словарь — ~460 русских существительных, проверка с джокер-матчингом.</p>
+
+<h2>Скриншоты игры</h2>
+<div class="grid2">
+  <figure><img src="ScreenShots/01_board.png" alt="Игровое поле"><figcaption>Игровое поле: HUD, панель слова, лёд, бустеры</figcaption></figure>
+  <figure><img src="ScreenShots/02_selection.png" alt="Выбор слова"><figcaption>Выбрано слово «КОТ» — подсветка плиток, зелёная валидация</figcaption></figure>
+  <figure><img src="ScreenShots/04_after_word.png" alt="После хода"><figcaption>После принятия: +12 очков, −1 ход, буквы упали, лёд съехал вниз</figcaption></figure>
+  <figure><img src="ScreenShots/05_hammer_aim.png" alt="Молоток"><figcaption>Режим прицела молотка</figcaption></figure>
+  <figure><img src="ScreenShots/06_win_popup.png" alt="Победа"><figcaption>Попап победы с рестартом</figcaption></figure>
+  <figure><img src="composite_main.png" alt="Композит"><figcaption>Python-композит для проверки раскладки до кода</figcaption></figure>
+</div>
+
+<h2>Концепты и арт</h2>
+<div class="grid2">
+  <figure><img src="Concepts/main_gameplay.png" alt="Концепт геймплея"><figcaption>Концепт основного экрана (Gemini Nano Banana 2)</figcaption></figure>
+  <figure><img src="Concepts/win_popup.png" alt="Концепт победы"><figcaption>Концепт окна победы — единый стиль через ref_paths</figcaption></figure>
+</div>
+<p>Спрайты генерировались по одному с прозрачностью (плитка, выделение, лёд, 5 бустеров, панель,
+кнопка, попап, фон, звезда), затем питон-скрипт тримил альфу и ресайзил в
+<code>Assets/WordFall/Sprites/</code>. Буквы и цифры — не в спрайтах, а движковым текстом
+(<code>debugFont.ttf</code>, кириллица покрыта полностью), поэтому поле полностью динамическое.</p>
+
+<h2>Этапы работы</h2>
+<table>
+  <tr><th>Этап</th><th>Результат</th></tr>
+  <tr><td>1. Разведка</td><td>Карта JS-API движка (фоновый агент), эталон Dragon Defense из git-истории</td></tr>
+  <tr><td>2. GDD</td><td><code>Work/GDD.md</code>: правила, очки, мешок, уровни, бустеры</td></tr>
+  <tr><td>3. Арт</td><td>2 концепта + 12 спрайтов в едином стиле, визуальная проверка каждого</td></tr>
+  <tr><td>4. Раскладка</td><td>Python-композит экрана из спрайтов, сверка с концептом</td></tr>
+  <tr><td>5. Архитектура</td><td><code>Work/Architecture.md</code>: C++ bootstrap + JS модель + JS вью</td></tr>
+  <tr><td>6. C++</td><td><code>WordFallBootstrap</code> строит сцену кодом; bootstrap-сцена <code>WordFall.scn</code> одна для игры и редактора</td></tr>
+  <tr><td>7. JS</td><td><code>WordFallGame.js</code>: WordModel (чистая логика) + вью-контроллер (onClick, синк, анимация падения)</td></tr>
+  <tr><td>8. Тесты</td><td>22 headless-теста модели + 6 UI-тестов с реальными кликами и скриншотами</td></tr>
+</table>
+
+<h2>Архитектура</h2>
+<ul>
+  <li><b>C++ bootstrap</b> — вся статика сцены: слои, камера, 56 кнопок-плиток (слои back/sel/letter/points/ice), HUD, бустеры, попап. Из JS создать это нельзя (нет биндингов шрифтов/ассетов) — и не нужно.</li>
+  <li><b>WordModel (JS)</b> — чистая, детерминированная (LCG-сид) логика без движка: тестируется headless через <code>o2Scripts.Eval</code>.</li>
+  <li><b>WordFallGame (JS)</b> — контроллер на <code>ScriptableComponent</code>: единственное событие движка в JS — <code>Button.onClick</code>, поэтому весь ввод построен на кнопках.</li>
+</ul>
+
+<h2>Сложности и решения</h2>
+<div class="issue"><b>Strict mode классов JS.</b> Присваивание <code>WordFall_instance = this</code> внутри метода класса кидает ReferenceError (тела классов всегда strict). Решение: <code>globalThis.WordFall_instance = this</code>.</div>
+<div class="issue"><b>GetParent() возвращает WeakRef.</b> В JS это непрозрачный объект без методов актора — «TypeError: not a function» при обходе сцены. Решение: относительные пути <code>GetChild("../Board/…")</code> от актора контроллера.</div>
+<div class="issue"><b>Sliced-спрайты кнопок разваливались.</b> Slice border 50px при высоте кнопки 56px вырождает центр. Решение: уменьшить исходники до 160×104 и slice до 22–24px.</div>
+<div class="issue"><b>CMake GLOB.</b> Новые .cpp не попадают в сборку без реконфигурации — <code>cmake --preset mac</code> перед сборкой.</div>
+<div class="issue"><b>Ассет JS в headless.</b> Первый lookup через asset-систему возвращал null; тесты читают исходник напрямую (<code>InFile</code> + <code>o2Scripts.Parse</code>) — путь, уже проверенный FoxModelTests.</div>
+<div class="issue"><b>Бейдж на сгенерированной кнопке.</b> Модель запекла счётчик «3» в иконку бустера — перегенерация с явным «no badge, no numbers»; счётчики зарядов — динамические лейблы.</div>
+
+<h2>Файлы прототипа</h2>
+<table>
+  <tr><th>Путь</th><th>Что</th></tr>
+  <tr><td><code>Sources/Game/WordFall/WordFallBootstrap.{h,cpp}</code></td><td>Сцена кодом + подключение JS</td></tr>
+  <tr><td><code>Sources/Game/GameApplication.cpp</code></td><td>Точка входа: сохранение/запуск bootstrap-сцены</td></tr>
+  <tr><td><code>Assets/Scripts/WordFallGame.js</code></td><td>Модель, словарь, вью-контроллер</td></tr>
+  <tr><td><code>Assets/WordFall/Sprites/</code></td><td>Спрайты игры</td></tr>
+  <tr><td><code>Assets/WordFall.scn</code></td><td>Bootstrap-сцена (игра и редактор)</td></tr>
+  <tr><td><code>Sources/GameTests/WordFallModelTests.cpp</code></td><td>22 headless-теста модели</td></tr>
+  <tr><td><code>Sources/GameUITests/WordFallUITests.cpp</code></td><td>6 UI-тестов с кликами и скриншотами</td></tr>
+  <tr><td><code>Work/GDD.md</code>, <code>Work/Architecture.md</code>, <code>Work/worklog.md</code></td><td>Документация</td></tr>
+</table>
+
+</main>
+</body>
+</html>
