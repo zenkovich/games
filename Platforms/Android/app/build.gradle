@@ -2,17 +2,45 @@ plugins {
     id 'com.android.application'
 }
 
+// Per-game identity. Every game is a branch of this repo, so the package name and
+// version come from GameInfo.json in the branch root — two games sharing one
+// applicationId would replace each other when installed on the same device.
+// `namespace` stays fixed: it is the package of the Java sources, not the app id.
+def gameInfoFile = file('../../../GameInfo.json')
+def gameInfo = gameInfoFile.exists()
+        ? new groovy.json.JsonSlurper().parse(gameInfoFile)
+        : [:]
+// -PgameApplicationId=... etc. let the publish pipeline override without editing
+// the branch; GameInfo.json stays the default for plain Studio / gradlew builds.
+def gameTitle = project.findProperty('gameTitle') ?: gameInfo.title ?: 'o2 Template'
+def gameApplicationId = project.findProperty('gameApplicationId') ?: gameInfo.bundleId ?: 'com.o2.template'
+def gameVersionName = project.findProperty('gameVersionName') ?: gameInfo.version ?: '1.0'
+def gameVersionCode = (project.findProperty('gameVersionCode') ?: gameInfo.build ?: 1) as int
+
+// Release signing. Without a keystore the release build falls back to the debug
+// key, which is fine locally and NOT fine for anything published: debug.keystore
+// is in the repo with a known password, so anyone could sign an "update" to your
+// app. Copy keystore.properties.example and fill it in to sign for real.
+def keystorePropsFile = file('../keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+def hasReleaseKeystore = keystoreProps.containsKey('storeFile')
+
 android {
     namespace 'com.o2.template'
     compileSdk 35
     ndkVersion '28.2.13676358'
 
     defaultConfig {
-        applicationId 'com.o2.template'
+        applicationId gameApplicationId
         minSdk 24
         targetSdk 35
-        versionCode 1
-        versionName '1.0'
+        versionCode gameVersionCode
+        versionName gameVersionName
+
+        manifestPlaceholders = [appLabel: gameTitle]
 
         ndk {
             abiFilters 'arm64-v8a'
@@ -44,6 +72,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasReleaseKeystore) {
+            release {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
     }
 
     buildTypes {
@@ -52,8 +88,15 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            minifyEnabled false
-            signingConfig signingConfigs.debug
+            // R8 strips the appcompat code the game never touches — most of the
+            // dex is that library. Keep rules live in proguard-rules.pro; the JNI
+            // ones matter, since a renamed native method breaks the link only at
+            // runtime.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
 
             // AGP configures the native build as RelWithDebInfo, which o2 still treats as a
             // development configuration and leaves the Tracy listener thread running
@@ -109,4 +152,13 @@ configurations.all {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
+}
+
+// Loud, because a debug-signed APK looks completely normal until someone else
+// signs an update to it.
+gradle.taskGraph.whenReady { graph ->
+    if (!hasReleaseKeystore && graph.allTasks.any { it.name.toLowerCase().contains('release') }) {
+        logger.warn('WARNING: no Platforms/Android/keystore.properties — the release APK is ' +
+                    'signed with the shared DEBUG key and must not be published.')
+    }
 }

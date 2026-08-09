@@ -1,6 +1,9 @@
 .gradle/
 build/
 local.properties
+# Release signing — never commit the keystore or its passwords
+keystore.properties
+*.jks
 .idea/
 *.iml
 app/build/

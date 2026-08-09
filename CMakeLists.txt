@@ -5,6 +5,43 @@ project(o2Template LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Per-game identity from the branch's GameInfo.json; -DGAME_* overrides it.
+# Games share this repo, so a constant bundle id would make them replace each
+# other on a device.
+set(_game_info_file "${CMAKE_CURRENT_SOURCE_DIR}/GameInfo.json")
+if(EXISTS "${_game_info_file}" AND NOT CMAKE_VERSION VERSION_LESS 3.19)
+    file(READ "${_game_info_file}" _game_info_json)
+    foreach(_pair "GAME_TITLE:title" "GAME_BUNDLE_ID:bundleId"
+                  "GAME_VERSION:version" "GAME_BUILD_NUMBER:build")
+        string(REPLACE ":" ";" _pair "${_pair}")
+        list(GET _pair 0 _game_var)
+        list(GET _pair 1 _game_key)
+        string(JSON _game_value ERROR_VARIABLE _game_err GET "${_game_info_json}" "${_game_key}")
+        if(NOT _game_err AND NOT "${_game_value}" STREQUAL "" AND NOT ${_game_var})
+            set(${_game_var} "${_game_value}")
+        endif()
+    endforeach()
+endif()
+
+if(NOT GAME_TITLE)
+    set(GAME_TITLE "o2 Template")
+endif()
+if(NOT GAME_BUNDLE_ID)
+    set(GAME_BUNDLE_ID "com.o2.template")
+endif()
+if(NOT GAME_VERSION)
+    set(GAME_VERSION "1.0")
+endif()
+if(NOT GAME_BUILD_NUMBER)
+    set(GAME_BUILD_NUMBER "1")
+endif()
+message(STATUS "Game: ${GAME_TITLE} — ${GAME_BUNDLE_ID} ${GAME_VERSION} (${GAME_BUILD_NUMBER})")
+
+# Empty team = unsigned build: compiles, but produces no installable .ipa.
+set(IOS_DEVELOPMENT_TEAM "" CACHE STRING "Apple Developer Team ID used to sign iOS builds")
+set(IOS_CODE_SIGN_STYLE "Automatic" CACHE STRING "Xcode signing style: Automatic or Manual")
+set(IOS_PROVISIONING_PROFILE "" CACHE STRING "Provisioning profile name (Manual signing only)")
+
 if(EMSCRIPTEN)
     set(O2_TESTS OFF CACHE BOOL "" FORCE)
     set(O2_EDITOR OFF CACHE BOOL "" FORCE)
@@ -23,6 +60,61 @@ endif()
 if(ANDROID)
     set(O2_TESTS OFF CACHE BOOL "" FORCE)
     set(O2_EDITOR OFF CACHE BOOL "" FORCE)
+
+    # Size: 42.6 -> 8.9 MB. Only the JNI entries need exporting; JNIEXPORT keeps them.
+    # Release only — AGP names that config RelWithDebInfo, and Debug must keep its
+    # symbols and its build speed.
+    option(O2_ANDROID_SIZE_OPT "Hide non-exported symbols and GC unused sections" ON)
+    if(O2_ANDROID_SIZE_OPT AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-fvisibility=hidden -fvisibility-inlines-hidden
+                            -ffunction-sections -fdata-sections
+                            -Oz -g0)
+
+        # The engine's try/catch is all in its WebAssembly-only sources.
+        option(O2_ANDROID_NO_EXCEPTIONS "Compile without C++ exceptions" ON)
+        # Off means no readable backtrace in native crash dumps.
+        option(O2_ANDROID_UNWIND "Keep unwind tables" OFF)
+        if(O2_ANDROID_NO_EXCEPTIONS)
+            add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>)
+            add_compile_definitions(PUGIXML_NO_EXCEPTIONS)
+        endif()
+        if(NOT O2_ANDROID_UNWIND)
+            add_compile_options(-fno-unwind-tables -fno-asynchronous-unwind-tables)
+        endif()
+
+        option(O2_ANDROID_LTO "Link with ThinLTO" ON)
+        if(O2_ANDROID_LTO)
+            add_compile_options(-flto=thin)
+            add_link_options(-flto=thin)
+        endif()
+
+        # icf=safe, not all: delegate removal compares raw function pointers.
+        # Packed relocations need API 23; minSdk here is 24.
+        add_link_options(-Wl,--gc-sections -Wl,--exclude-libs,ALL -Wl,--icf=safe
+                         -Wl,--pack-dyn-relocs=android)
+    endif()
+endif()
+
+# Release only — the mac Debug preset is the dev/editor build and needs its
+# symbols, its build speed and (for gtest) its exceptions.
+if(APPLE)
+    option(O2_APPLE_SIZE_OPT "Size-optimize Apple release builds" ON)
+    # Off: boost::stacktrace and utf8cpp reach the PCH here and both throw, while
+    # Mach-O's unwind data costs ~1 MB against 5.4 MB for ELF's .eh_frame.
+    option(O2_APPLE_NO_EXCEPTIONS "Apple release without C++ exceptions" OFF)
+    if(O2_APPLE_SIZE_OPT)
+        add_compile_options($<$<CONFIG:Release>:-Oz>
+                            $<$<CONFIG:Release>:-fvisibility=hidden>
+                            $<$<CONFIG:Release>:-fvisibility-inlines-hidden>
+                            $<$<CONFIG:Release>:-flto=thin>)
+        # -dead_strip is ld64's --gc-sections; unwind info stays, ObjC needs it.
+        add_link_options($<$<CONFIG:Release>:-flto=thin>
+                         $<$<CONFIG:Release>:-Wl,-dead_strip>)
+        if(O2_APPLE_NO_EXCEPTIONS)
+            add_compile_options($<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>:-fno-exceptions>)
+            add_compile_definitions($<$<CONFIG:Release>:PUGIXML_NO_EXCEPTIONS>)
+        endif()
+    endif()
 endif()
 
 option(O2_TESTS "Enables o2 tests with Google Test" ON)
@@ -53,6 +145,21 @@ endif()
 
 # o2 libraries
 add_subdirectory(o2)
+
+# Vendored CDT throws and has no switch for it, so its two includers keep
+# exceptions (and can't share the PCH, which is built without them).
+if((ANDROID AND O2_ANDROID_NO_EXCEPTIONS AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+   OR (APPLE AND O2_APPLE_NO_EXCEPTIONS))
+    foreach(_cdt_src "Scene/Components/MeshComponent.cpp"
+                     "Scene/Components/SkinningMeshComponent.cpp")
+        set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/${_cdt_src}"
+                     TARGET_DIRECTORY o2Framework
+                     APPEND PROPERTY COMPILE_OPTIONS -fexceptions -funwind-tables)
+        set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/${_cdt_src}"
+                     TARGET_DIRECTORY o2Framework
+                     PROPERTY SKIP_PRECOMPILE_HEADERS ON)
+    endforeach()
+endif()
 
 set(BIN_OUTPUTDIR "${CMAKE_CURRENT_SOURCE_DIR}/Bin/${O2_PLATFORM}")
 
@@ -180,13 +287,31 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 
     set_target_properties(Game PROPERTIES
         MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_GUI_IDENTIFIER "com.o2.template"
-        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${GAME_BUNDLE_ID}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${GAME_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${GAME_VERSION}"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/iOS/Game/Info.plist"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.o2.template"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${GAME_BUNDLE_ID}"
+        # Executable stays "Game"; these are what the home screen shows.
+        XCODE_ATTRIBUTE_GAME_DISPLAY_NAME "${GAME_TITLE}"
+        XCODE_ATTRIBUTE_MARKETING_VERSION "${GAME_VERSION}"
+        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "${GAME_BUILD_NUMBER}"
+        # Without these `xcodebuild archive` yields an empty Products/Applications.
+        XCODE_ATTRIBUTE_SKIP_INSTALL "NO"
+        XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
+
+    if(IOS_DEVELOPMENT_TEAM)
+        set_target_properties(Game PROPERTIES
+            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${IOS_DEVELOPMENT_TEAM}"
+            XCODE_ATTRIBUTE_CODE_SIGN_STYLE "${IOS_CODE_SIGN_STYLE}"
+        )
+        if(IOS_PROVISIONING_PROFILE)
+            set_target_properties(Game PROPERTIES
+                XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${IOS_PROVISIONING_PROFILE}")
+        endif()
+    endif()
 
     # Add launch storyboard to the bundle
     target_sources(Game PRIVATE "Platforms/iOS/Game/Launch Screen.storyboard")
