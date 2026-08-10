@@ -154,6 +154,28 @@ TEST_F(WordFallUI, SceneLoadedFromAssetRespondsToClicks)
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetSelected().length").GetValue<int>(), 2);
 }
 
+TEST_F(WordFallUI, BombActivationPlaysEffects)
+{
+	// бомба на средней букве слова: при принятии играют вспышка и летящие цифры
+	PlantKot();
+	EvalChecked(
+		"WordFall_instance.DebugGetModel()._grid[2][0].powerup = 'bomb';"
+		"WordFall_instance.SyncBoard();");
+	AppTestDriver::PumpFrames(1);
+
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	AppTestDriver::Click(Vec2F(135, 295)); // ПРИНЯТЬ
+
+	AppTestDriver::Wait(0.55f); // середина: взрыв отыграл, цифры со свечением в полёте
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "10_bomb_fx.png"));
+
+	AppTestDriver::Wait(3.0f); // вся последовательность начисления завершается
+	EXPECT_GE(EvalChecked("WordFall_instance.DebugGetModel().GetScore()").GetValue<int>(), 15); // 12 за КОТ + минимум 3 за взорванные буквы
+	EXPECT_TRUE(EvalChecked("WordFall_instance._fxAnims.length == 0").GetValue<bool>());
+}
+
 TEST_F(WordFallUI, PressedButtonShowsPressIn)
 {
 	// зажатая кнопка ПРИНЯТЬ — снимок вдавленного состояния
@@ -230,10 +252,13 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
-	EXPECT_TRUE(root->GetChild("Popup")->IsEnabled());
-	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetState()").GetValue<String>(), String("win"));
 
-	AppTestDriver::Wait(1.2f);
+	// победа зафиксирована сразу, но попап ждёт окончания анимации начисления очков
+	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetState()").GetValue<String>(), String("win"));
+	EXPECT_FALSE(root->GetChild("Popup")->IsEnabled());
+
+	AppTestDriver::Wait(2.8f); // цифры → счётчик → пауза → бар → попап
+	EXPECT_TRUE(root->GetChild("Popup")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "06_win_popup.png"));
 
 	AppTestDriver::Click(Vec2F(0, -80)); // ДАЛЬШЕ
@@ -283,9 +308,10 @@ TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
 	AppTestDriver::Click(Vec2F(135, 295)); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
-	// бомба на плитке, занявшей клетку последней буквы, и её иконка включена
+	// модель начислила бомбу сразу, вью — после отложенного исчезновения букв
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetTile(5, 0).powerup").GetValue<String>(),
 			  String("bomb"));
+	AppTestDriver::Wait(1.1f);
 
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);

@@ -28,6 +28,9 @@ public:
 	static constexpr int kMaxTasks = 5;
 	static constexpr int kWordSlots = 8;
 	static constexpr int kFlyers = 4;
+	static constexpr int kFxNumbers = 8;
+	static constexpr int kFxFlashes = 10;
+	static constexpr int kFxStars = 10;
 
 	// Creates the bootstrap actor in the current scene; used by the app and tests
 	static Ref<Actor> CreateBootstrapActor();
@@ -52,6 +55,7 @@ private:
 	void BuildTasks(const Ref<Actor>& root);
 	void BuildWordPanel(const Ref<Actor>& root);
 	void BuildBoosters(const Ref<Actor>& root);
+	void BuildFx(const Ref<Actor>& root);
 	void BuildPopup(const Ref<Actor>& root);
 	void BuildGameController(const Ref<Actor>& root);
 
@@ -91,6 +95,10 @@ private:
 	// Small letter tile (word slot / flying letter): back + letter + points layers
 	static Ref<Widget> CreateWordTile(const Ref<Actor>& parent, const String& name, float depth);
 
+	// Hidden effect widget with a single "img" layer, positioned and faded by JS
+	static Ref<Widget> CreateFxWidget(const Ref<Actor>& parent, const String& name, const String& image,
+									  const BorderI& slice, float depth);
+
 	static Ref<Label> CreateLabel(const Ref<Actor>& parent, const String& name, const WString& text,
 								  const Vec2F& rectMin, const Vec2F& rectMax, int height,
 								  const Color4& color, HorAlign horAlign);
@@ -122,6 +130,7 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PRIVATE().SIGNATURE(void, BuildTasks, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildWordPanel, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildBoosters, const Ref<Actor>&);
+    FUNCTION().PRIVATE().SIGNATURE(void, BuildFx, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildPopup, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildGameController, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Actor>, CreateContainer, const Ref<Actor>&, const String&);
@@ -136,6 +145,7 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateBoosterButton, const Ref<Actor>&, const String&, const String&, const Vec2F&, const Vec2F&, float);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateTileButton, const Ref<Actor>&, int, int);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Widget>, CreateWordTile, const Ref<Actor>&, const String&, float);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Widget>, CreateFxWidget, const Ref<Actor>&, const String&, const String&, const BorderI&, float);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Label>, CreateLabel, const Ref<Actor>&, const String&, const WString&, const Vec2F&, const Vec2F&, int, const Color4&, HorAlign);
 }
 END_META;

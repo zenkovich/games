@@ -136,6 +136,11 @@ save(cross, "ui_btn_cross.png")
 badge = crop_bbox(flood_key_white(Image.open(GEN + "badge.png")), pad=1)
 save(to_square(badge, margin=0.02).resize((72, 72), Image.LANCZOS), "ui_badge.png")
 
+# ---------------------------------------------------------------- fx
+for key, size in [("fx_flash", 256), ("fx_star", 128)]:
+    img = to_square(crop_bbox(Image.open(GEN + key + ".png").convert("RGBA"), pad=2), margin=0.02)
+    save(img.resize((size, size), Image.LANCZOS), "ui_%s.png" % key)
+
 # ---------------------------------------------------------------- powerups
 for key in ["bomb", "rocket", "wand"]:
     img = flood_key_white(Image.open(GEN + "powerup_%s.png" % key))

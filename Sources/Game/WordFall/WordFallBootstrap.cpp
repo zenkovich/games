@@ -83,6 +83,7 @@ void WordFallBootstrap::OnStart()
 	BuildTasks(root);
 	BuildWordPanel(root);
 	BuildBoosters(root);
+	BuildFx(root);
 	BuildPopup(root);
 	BuildGameController(root);
 
@@ -365,19 +366,20 @@ void WordFallBootstrap::BuildHud(const Ref<Actor>& root)
 {
 	auto hud = CreateContainer(root, "Hud");
 
+	// глубже плиток (10.x), чтобы спавн-плитки пролетали позади панели
 	CreateImageWidget(hud, "TopPanel", kSprites + "ui_panel_cream.png", Vec2F(0, 364), Vec2F(780, 64),
-					  Color4::White(), 2.0f, kCreamSlice);
+					  Color4::White(), 16.0f, kCreamSlice);
 
 	CreateLabel(hud, "LevelLabel", "Уровень 1", Vec2F(-375, 343), Vec2F(-245, 383), 20, kAccentColor, HorAlign::Middle);
 
 	CreateImageWidget(hud, "BarTrack", kSprites + "ui_bar_track.png", Vec2F(-100, 363), Vec2F(280, 36),
-					  Color4::White(), 3.0f, kBarTrackSlice);
+					  Color4::White(), 17.0f, kBarTrackSlice);
 	CreateImageWidget(hud, "BarFill", kSprites + "ui_bar_fill.png", Vec2F(-100, 363), Vec2F(274, 30),
-					  Color4::White(), 4.0f, kBarFillSlice);
+					  Color4::White(), 18.0f, kBarFillSlice);
 	CreateLabel(hud, "ScoreLabel", "0/250", Vec2F(-240, 345), Vec2F(40, 381), 18, kCaptionColor, HorAlign::Middle);
 
 	CreateImageWidget(hud, "MovesBox", kSprites + "ui_bar_track.png", Vec2F(160, 363), Vec2F(150, 36),
-					  Color4::White(), 3.0f, kBarTrackSlice);
+					  Color4::White(), 17.0f, kBarTrackSlice);
 	CreateLabel(hud, "MovesLabel", "Ходы: 12", Vec2F(85, 345), Vec2F(235, 381), 18, kCreamTextColor, HorAlign::Middle);
 }
 
@@ -404,7 +406,7 @@ void WordFallBootstrap::BuildWordPanel(const Ref<Actor>& root)
 	// единый задник по ширине поля с выемкой-лотком под плашки (из концепта);
 	// кнопки ПРИНЯТЬ и крестик — поверх правой части
 	CreateImageWidget(wordPanel, "Panel", kSprites + "ui_wordbar.png", Vec2F(0, 295), Vec2F(500, 72),
-					  Color4::White(), 5.0f);
+					  Color4::White(), 15.0f);
 
 	for (int i = 0; i < kWordSlots; i++)
 		CreateWordTile(wordPanel, String::Format("Slot%i", i), 25.0f);
@@ -448,6 +450,53 @@ void WordFallBootstrap::BuildBoosters(const Ref<Actor>& root)
 	}
 
 	CreateLabel(boosters, "ModeLabel", "", Vec2F(-610, -120), Vec2F(-290, -80), 16, kAccentColor, HorAlign::Left);
+}
+
+Ref<Widget> WordFallBootstrap::CreateFxWidget(const Ref<Actor>& parent, const String& name, const String& image,
+											  const BorderI& slice, float depth)
+{
+	auto widget = mmake<Widget>();
+	widget->SetName(name);
+	parent->AddChild(widget);
+	widget->SetLayer("UI");
+	widget->AddLayer("img", slice != BorderI() ? MakeSliced(kSprites + image, slice) : mmake<Sprite>(kSprites + image),
+					 Layout::BothStretch());
+	SetWidgetRect(widget, Vec2F(0, 0), Vec2F(10, 10));
+	SetWidgetDepth(widget, depth);
+	widget->SetEnabled(false);
+	return widget;
+}
+
+// Пулы виджетов для эффектов: летящие цифры очков, итоговая сумма, вспышки,
+// лучи ракеты, звёздочки палочки. JS включает, позиционирует и гасит
+void WordFallBootstrap::BuildFx(const Ref<Actor>& root)
+{
+	auto fx = CreateContainer(root, "Fx");
+
+	for (int i = 0; i < kFxNumbers; i++)
+	{
+		auto label = CreateLabel(fx, String::Format("FxScore%i", i), "", Vec2F(-30, -16), Vec2F(30, 16), 20,
+								 Color4(60, 150, 60), HorAlign::Middle);
+		SetWidgetDepth(label, 60.0f);
+		label->SetEnabled(false);
+	}
+
+	auto total = CreateLabel(fx, "FxTotal", "", Vec2F(-50, -20), Vec2F(50, 20), 26, Color4(60, 150, 60), HorAlign::Middle);
+	SetWidgetDepth(total, 61.0f);
+	total->SetEnabled(false);
+
+	for (int i = 0; i < kFxFlashes; i++)
+		CreateFxWidget(fx, String::Format("FxFlash%i", i), "ui_fx_flash.png", BorderI(), 55.0f);
+
+	// свечение под каждой летящей цифрой
+	for (int i = 0; i < kFxNumbers; i++)
+		CreateFxWidget(fx, String::Format("FxGlow%i", i), "ui_fx_flash.png", BorderI(), 59.0f);
+
+	for (int i = 0; i < kFxStars; i++)
+		CreateFxWidget(fx, String::Format("FxStar%i", i), "ui_fx_star.png", BorderI(), 56.0f);
+
+	CreateFxWidget(fx, "FxBeamH", "ui_bar_fill.png", kBarFillSlice, 54.0f);
+	CreateFxWidget(fx, "FxBeamV", "ui_bar_fill.png", kBarFillSlice, 54.0f);
 }
 
 void WordFallBootstrap::BuildPopup(const Ref<Actor>& root)

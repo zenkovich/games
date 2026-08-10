@@ -312,19 +312,27 @@ WordModel = class WordModel
         this._EnsureTasksAchievable();
     }
 
-    // Выкладывает слово горизонтально в случайном месте поля
+    // Раскладывает буквы слова по случайным клеткам поля — слово гарантированно
+    // собираемо, но не бросается в глаза, как выложенное в одну линию
     _SeedWord(word)
     {
-        var maxStartColumn = this._cols - word.length;
-        if (maxStartColumn < 0)
-            return;
-
-        var c0 = this._RandInt(maxStartColumn + 1);
-        var r = 2 + this._RandInt(4); // средние ряды — слово видно сразу
+        var used = {};
         for (var i = 0; i < word.length; i++)
         {
-            this._grid[c0 + i][r] = this._MakeTile(word[i]);
-            this._seededCells.push({ c: c0 + i, r: r });
+            var cell = null;
+            for (var attempt = 0; attempt < 60 && !cell; attempt++)
+            {
+                var c = this._RandInt(this._cols);
+                var r = this._RandInt(this._rows);
+                if (!used[c + "_" + r])
+                    cell = { c: c, r: r };
+            }
+            if (!cell)
+                return;
+
+            used[cell.c + "_" + cell.r] = true;
+            this._grid[cell.c][cell.r] = this._MakeTile(word[i]);
+            this._seededCells.push(cell);
         }
     }
 
@@ -780,7 +788,7 @@ WordModel = class WordModel
         return {
             ok: true, word: word, score: score, gain: gain, burned: cells,
             powerupsUsed: powerups.used, activated: powerups.activated, powerupEarned: earned,
-            iceBroken: iceBroken, repaired: repaired,
+            destroyed: powerups.destroyed, iceBroken: iceBroken, repaired: repaired,
             moved: collapse.moved, spawned: collapse.spawned, state: this._state
         };
     }
@@ -1255,7 +1263,12 @@ WordFallGame = class WordFallGame extends o2.Component
         this._boosterMode = null;   // null | "hammer" | "joker" | "doubler"
         this._fallAnims = [];       // { c, r, offset }
         this._flights = [];         // перелёты букв в панель слова
-        this._gainTimer = 0;
+        this._fxAnims = [];         // секвенсор эффектов: { delay, dur, apply, done, t }
+        this._displayScore = 0;     // счёт на экране отстаёт от модели до конца анимации
+        this._pendingPopup = null;  // попап ждёт окончания начисления очков
+        this._scoreFxActive = false;
+        this._pendingCollapse = null;
+        this._fxFlashNext = 0;
         this._wordFlashTimer = 0;
 
         this._cell = 68;
@@ -1358,6 +1371,37 @@ WordFallGame = class WordFallGame extends o2.Component
                 busy: false
             });
         }
+        this._widgets.fxScores = [];
+        for (var i = 0; i < 8; i++)
+            this._widgets.fxScores.push(this._Find("Fx/FxScore" + i));
+        this._widgets.fxTotal = this._Find("Fx/FxTotal");
+
+        this._widgets.fxFlashes = [];
+        for (var i = 0; i < 10; i++)
+        {
+            var flash = this._Find("Fx/FxFlash" + i);
+            this._widgets.fxFlashes.push({ widget: flash, img: flash.GetLayer("img") });
+        }
+
+        this._widgets.fxGlows = [];
+        for (var i = 0; i < 8; i++)
+        {
+            var glow = this._Find("Fx/FxGlow" + i);
+            this._widgets.fxGlows.push({ widget: glow, img: glow.GetLayer("img") });
+        }
+
+        this._widgets.fxStars = [];
+        for (var i = 0; i < 10; i++)
+        {
+            var star = this._Find("Fx/FxStar" + i);
+            this._widgets.fxStars.push({ widget: star, img: star.GetLayer("img") });
+        }
+
+        var beamH = this._Find("Fx/FxBeamH");
+        var beamV = this._Find("Fx/FxBeamV");
+        this._widgets.fxBeamH = { widget: beamH, img: beamH.GetLayer("img") };
+        this._widgets.fxBeamV = { widget: beamV, img: beamV.GetLayer("img") };
+
         this._widgets.modeLabel = this._Find("Boosters/ModeLabel");
         this._widgets.popup = this._Find("Popup");
         this._widgets.popupTitle = this._Find("Popup/Title");
@@ -1444,6 +1488,16 @@ WordFallGame = class WordFallGame extends o2.Component
     OnAccept()
     {
         var model = this._model;
+
+        // добить предыдущую анимацию начисления, пока модель ещё со старым счётом
+        this._FinishScoreFx();
+
+        // значения плиток нужны для летящих цифр — модель после хода их заменит
+        var pre = model.GetSelected().map(function(s) {
+            var tile = model.GetTile(s.c, s.r);
+            return { c: s.c, r: s.r, value: tile.joker ? 0 : tile.value * (tile.doubled ? 2 : 1) };
+        });
+
         var result = model.AcceptWord();
         if (!result.ok)
         {
@@ -1454,15 +1508,31 @@ WordFallGame = class WordFallGame extends o2.Component
         }
 
         this._CancelFlights();
-        this._StartFallAnims(result.moved, result.spawned);
+        this.SyncWord();
+        this.SyncTasks();
+        this.SyncHud();   // очки и бар остаются на _displayScore до конца анимации
 
-        this._widgets.gainLabel.SetText("+" + result.gain);
-        this._gainTimer = 1.6;
+        // буквы не исчезают сразу: играет подтверждение, цифры разлетаются,
+        // и только после этого поле обваливается и сыплются новые
+        this._pendingCollapse = { moved: result.moved, spawned: result.spawned };
+        var self = this;
+        var burnDelay = 0.2 + pre.length*0.1 + 0.15;
+        this._Fx(burnDelay, 0.01, function(k) {}, function() {
+            self._ApplyPendingCollapse();
+        });
 
-        this.SyncAll();
+        // вспышки подтверждения на плитках слова
+        for (var i = 0; i < pre.length; i++)
+        {
+            var pos = this._TilePos(pre[i].c, pre[i].r);
+            this._FlashFx(pos.x, pos.y, 26, 96, i*0.06, 0.4);
+        }
+
+        this._PlayPowerupFx(result);
+        this._PlayScoreFx(pre, result);
 
         if (result.state != "playing")
-            this._ShowPopup(result.state == "win");
+            this._pendingPopup = result.state == "win";
     }
 
     OnClear()
@@ -1512,6 +1582,8 @@ WordFallGame = class WordFallGame extends o2.Component
     // после поражения — рестарт текущего
     OnRestart()
     {
+        this._FinishScoreFx();
+
         if (this._model.GetState() == "win")
             this._levelIndex = this._IsLastLevel() ? 0 : this._levelIndex + 1;
 
@@ -1519,6 +1591,8 @@ WordFallGame = class WordFallGame extends o2.Component
         this._boosterMode = null;
         this._fallAnims = [];
         this._CancelFlights();
+        this._displayScore = 0;
+        this._pendingPopup = null;
         this._widgets.popup.SetEnabled(false);
         this.SyncAll();
     }
@@ -1762,13 +1836,13 @@ WordFallGame = class WordFallGame extends o2.Component
     SyncHud()
     {
         var model = this._model;
-        this._widgets.scoreLabel.SetText(model.GetScore() + "/" + model.GetTarget());
+        this._widgets.scoreLabel.SetText(this._displayScore + "/" + model.GetTarget());
         this._widgets.movesLabel.SetText("Ходы: " + model.GetMovesLeft());
         this._widgets.levelLabel.SetText("Уровень " + (this._levelIndex + 1));
         this.SyncTasks();
 
-        // заливка прогресс-бара очков
-        var progress = Math.max(0, Math.min(1, model.GetScore() / model.GetTarget()));
+        // заливка прогресс-бара очков — по экранному счёту
+        var progress = Math.max(0, Math.min(1, this._displayScore / model.GetTarget()));
         var fill = this._widgets.barFill;
         if (progress <= 0)
             fill.SetEnabled(false);
@@ -1791,9 +1865,297 @@ WordFallGame = class WordFallGame extends o2.Component
             doubler: "Удвоитель: кликните плитку"
         };
         this._widgets.modeLabel.SetText(this._boosterMode ? modeTexts[this._boosterMode] : "");
+    }
 
-        if (this._gainTimer <= 0)
-            this._widgets.gainLabel.SetText("");
+    // --- секвенсор эффектов: каждый элемент { delay, dur, apply(k), done } ---
+
+    _Fx(delay, dur, apply, done)
+    {
+        this._fxAnims.push({ delay: delay, dur: Math.max(dur, 0.001), apply: apply, done: done || null, t: 0 });
+    }
+
+    _UpdateFx(dt)
+    {
+        if (this._fxAnims.length == 0)
+            return;
+
+        var alive = [];
+        for (var i = 0; i < this._fxAnims.length; i++)
+        {
+            var a = this._fxAnims[i];
+            a.t += dt;
+            var k = (a.t - a.delay) / a.dur;
+            if (k < 0)
+            {
+                alive.push(a);
+                continue;
+            }
+            if (k >= 1)
+            {
+                a.apply(1);
+                if (a.done)
+                    a.done();
+            }
+            else
+            {
+                a.apply(k*k*(3 - 2*k)); // smoothstep
+                alive.push(a);
+            }
+        }
+        this._fxAnims = alive;
+    }
+
+    // Последовательность начисления: цифры с горящих плиток летят в счётчик «+N»,
+    // сумма накапливается, выдерживается пауза, итог летит в прогресс-бар — и
+    // только тогда обновляются очки и заполнение бара
+    _PlayScoreFx(pre, result)
+    {
+        var self = this;
+        var gainX = 300, gainY = 295;   // чуть левее счётчика — цифры влетают в него
+        var launchDelay = 0.2;          // цифры стартуют после вспышки подтверждения
+        var stagger = 0.1, flight = 0.5;
+
+        this._scoreFxActive = true;
+        this._widgets.gainLabel.SetText("");
+        var running = 0;
+
+        var count = Math.min(pre.length, this._widgets.fxScores.length);
+        for (var i = 0; i < count; i++)
+        {
+            (function(idx) {
+                var cell = pre[idx];
+                var label = self._widgets.fxScores[idx];
+                var glow = self._widgets.fxGlows[idx];
+                var from = self._TilePos(cell.c, cell.r);
+                label.SetText("+" + cell.value);
+
+                self._Fx(launchDelay + idx*stagger, flight, function(k) {
+                    label.SetEnabled(true);
+                    glow.widget.SetEnabled(true);
+                    var x = from.x + (gainX - from.x)*k;
+                    var y = from.y + (gainY - from.y)*k + 70*Math.sin(Math.PI*k);
+                    self._SetWidgetRect(label, x, y, 40);
+                    // свечение под цифрой: разгорается на старте, тает у цели
+                    self._SetWidgetRect(glow.widget, x, y + 2, 46 + 18*Math.sin(Math.PI*k));
+                    glow.img.transparency = 0.9*(k < 0.75 ? 1 : 1 - (k - 0.75)/0.25);
+                }, function() {
+                    label.SetEnabled(false);
+                    glow.widget.SetEnabled(false);
+                    glow.img.transparency = 1;
+                    running += cell.value;
+                    self._widgets.gainLabel.SetText("+" + running);
+                    // эффект влёта в счётчик
+                    self._FlashFx(gainX + 24, gainY, 24, 70, 0, 0.25);
+                });
+            })(i);
+        }
+
+        var lastArrive = launchDelay + (count > 0 ? (count - 1)*stagger : 0) + flight;
+
+        // полная сумма — с очками от пауэрапов
+        this._Fx(lastArrive + 0.1, 0.05, function(k) {}, function() {
+            self._widgets.gainLabel.SetText("+" + result.gain);
+        });
+
+        // пауза, затем итог летит в прогресс-бар
+        var total = this._widgets.fxTotal;
+        this._Fx(lastArrive + 0.75, 0.5, function(k) {
+            total.SetText("+" + result.gain);
+            total.SetEnabled(true);
+            self._widgets.gainLabel.SetText("");
+            var x = gainX + (self._barX - gainX)*k;
+            var y = gainY + (self._barY - gainY)*k + 50*Math.sin(Math.PI*k);
+            self._SetWidgetRect(total, x, y, 60);
+        }, function() {
+            total.SetEnabled(false);
+            self._FillBarTo(self._model.GetScore());
+        });
+    }
+
+    // плавное дозаполнение бара до нового счёта; затем отложенный попап
+    _FillBarTo(score)
+    {
+        var self = this;
+        var from = this._displayScore;
+        this._Fx(0, 0.35, function(k) {
+            self._displayScore = Math.round(from + (score - from)*k);
+            self.SyncHud();
+        }, function() {
+            self._displayScore = score;
+            self._scoreFxActive = false;
+            self.SyncHud();
+            if (self._pendingPopup !== null)
+            {
+                self._ShowPopup(self._pendingPopup);
+                self._pendingPopup = null;
+            }
+        });
+    }
+
+    // отложенный обвал поля после подтверждения слова
+    _ApplyPendingCollapse()
+    {
+        if (!this._pendingCollapse)
+            return;
+
+        var collapse = this._pendingCollapse;
+        this._pendingCollapse = null;
+        this._StartFallAnims(collapse.moved, collapse.spawned);
+        this.SyncBoard();
+        this.SyncSelection();
+    }
+
+    // мгновенно доводит текущую последовательность до конечного состояния
+    _FinishScoreFx()
+    {
+        if (!this._scoreFxActive && this._fxAnims.length == 0 && this._pendingPopup === null &&
+            !this._pendingCollapse)
+            return;
+
+        this._fxAnims = [];
+        this._ApplyPendingCollapse();
+        for (var i = 0; i < this._widgets.fxScores.length; i++)
+            this._widgets.fxScores[i].SetEnabled(false);
+        for (var i = 0; i < this._widgets.fxGlows.length; i++)
+        {
+            this._widgets.fxGlows[i].widget.SetEnabled(false);
+            this._widgets.fxGlows[i].img.transparency = 1;
+        }
+        this._widgets.fxTotal.SetEnabled(false);
+        this._HidePowerupFx();
+        this._widgets.gainLabel.SetText("");
+        this._displayScore = this._model.GetScore();
+        this._scoreFxActive = false;
+        this.SyncHud();
+
+        if (this._pendingPopup !== null)
+        {
+            this._ShowPopup(this._pendingPopup);
+            this._pendingPopup = null;
+        }
+    }
+
+    // --- эффекты пауэрапов: вспышка бомбы, лучи ракеты, звёзды палочки ---
+
+    _PlayPowerupFx(result)
+    {
+        var self = this;
+        var used = result.powerupsUsed || [];
+        var starIndex = 0;
+
+        for (var i = 0; i < used.length; i++)
+        {
+            (function(pu, delay) {
+                var pos = self._TilePos(pu.c, pu.r);
+
+                if (pu.kind == "bomb")
+                {
+                    self._FlashFx(pos.x, pos.y, 40, 220, delay, 0.55);
+
+                    // маленькие отголоски на взорванных клетках
+                    var destroyed = result.destroyed || [];
+                    for (var d = 0; d < destroyed.length && d < 4; d++)
+                    {
+                        var dPos = self._TilePos(destroyed[d].c, destroyed[d].r);
+                        self._FlashFx(dPos.x, dPos.y, 20, 80, delay + 0.12 + d*0.05, 0.3);
+                    }
+                }
+                else if (pu.kind == "rocket")
+                {
+                    self._FlashFx(pos.x, pos.y, 30, 120, delay, 0.35);
+                    self._BeamFx(self._widgets.fxBeamH, true, pos, delay);
+                    self._BeamFx(self._widgets.fxBeamV, false, pos, delay);
+                }
+                else if (pu.kind == "wand")
+                {
+                    self._FlashFx(pos.x, pos.y, 30, 150, delay, 0.4);
+                    var activated = result.activated || [];
+                    for (var a = 0; a < activated.length && starIndex < self._widgets.fxStars.length; a++)
+                    {
+                        var sPos = self._TilePos(activated[a].c, activated[a].r);
+                        self._StarFx(self._widgets.fxStars[starIndex++], sPos, delay + 0.15 + a*0.08);
+                    }
+                }
+            })(used[i], i*0.25);
+        }
+    }
+
+    _FlashFx(x, y, fromSize, toSize, delay, dur)
+    {
+        var self = this;
+        var flash = this._widgets.fxFlashes[this._fxFlashNext % this._widgets.fxFlashes.length];
+        this._fxFlashNext++;
+
+        this._Fx(delay, dur, function(k) {
+            flash.widget.SetEnabled(true);
+            flash.img.transparency = 1 - k;
+            self._SetWidgetRect(flash.widget, x, y, fromSize + (toSize - fromSize)*k);
+        }, function() {
+            flash.widget.SetEnabled(false);
+            flash.img.transparency = 1;
+        });
+    }
+
+    _BeamFx(beam, horizontal, pos, delay)
+    {
+        var self = this;
+
+        this._Fx(delay, 0.3, function(k) {
+            beam.widget.SetEnabled(true);
+            beam.img.transparency = 1;
+            var layout = beam.widget.GetLayout();
+            if (horizontal)
+            {
+                var half = 20 + 225*k;
+                layout.SetOffsetMin(new Vec2(pos.x - half, pos.y - 17));
+                layout.SetOffsetMax(new Vec2(pos.x + half, pos.y + 17));
+            }
+            else
+            {
+                var half = 20 + 260*k;
+                layout.SetOffsetMin(new Vec2(pos.x - 17, pos.y - half));
+                layout.SetOffsetMax(new Vec2(pos.x + 17, pos.y + half));
+            }
+        });
+
+        // луч держится и растворяется
+        this._Fx(delay + 0.55, 0.25, function(k) {
+            beam.img.transparency = 1 - k;
+        }, function() {
+            beam.widget.SetEnabled(false);
+            beam.img.transparency = 1;
+        });
+    }
+
+    _StarFx(star, pos, delay)
+    {
+        var self = this;
+        this._Fx(delay, 0.5, function(k) {
+            star.widget.SetEnabled(true);
+            star.img.transparency = k < 0.7 ? 1 : 1 - (k - 0.7)/0.3;
+            self._SetWidgetRect(star.widget, pos.x, pos.y, 14 + 48*Math.sin(Math.PI*k));
+        }, function() {
+            star.widget.SetEnabled(false);
+            star.img.transparency = 1;
+        });
+    }
+
+    _HidePowerupFx()
+    {
+        for (var i = 0; i < this._widgets.fxFlashes.length; i++)
+        {
+            this._widgets.fxFlashes[i].widget.SetEnabled(false);
+            this._widgets.fxFlashes[i].img.transparency = 1;
+        }
+        for (var i = 0; i < this._widgets.fxStars.length; i++)
+        {
+            this._widgets.fxStars[i].widget.SetEnabled(false);
+            this._widgets.fxStars[i].img.transparency = 1;
+        }
+        this._widgets.fxBeamH.widget.SetEnabled(false);
+        this._widgets.fxBeamH.img.transparency = 1;
+        this._widgets.fxBeamV.widget.SetEnabled(false);
+        this._widgets.fxBeamV.img.transparency = 1;
     }
 
     _ShowPopup(win)
@@ -1850,6 +2212,7 @@ WordFallGame = class WordFallGame extends o2.Component
     Update(dt)
     {
         this._UpdateFlights(dt);
+        this._UpdateFx(dt);
 
         if (this._fallAnims.length > 0)
         {
@@ -1868,13 +2231,6 @@ WordFallGame = class WordFallGame extends o2.Component
                 }
             }
             this._fallAnims = alive;
-        }
-
-        if (this._gainTimer > 0)
-        {
-            this._gainTimer -= dt;
-            if (this._gainTimer <= 0)
-                this._widgets.gainLabel.SetText("");
         }
 
         if (this._wordFlashTimer > 0)
