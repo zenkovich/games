@@ -45,6 +45,10 @@ New tests go in the matching tier; shared helpers live in `o2/Tests/Sources/Supp
 
 ## Image generation tools (MCP `imagegen`)
 
+**Never draw or generate game art programmatically (PIL/ImageMagick/SVG etc.) — always produce
+it through the Gemini generation utility below.** Scripts are allowed only for mechanical
+processing of generated art: crop, resize, alpha cleanup, 9-slice assembly.
+
 For generating game sprites/assets use the MCP server `imagegen` (registered in `.mcp.json`,
 implemented in `o2/Tools/ImageGen/`, model Gemini Nano Banana 2). Tools:
 

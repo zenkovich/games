@@ -2,6 +2,7 @@
 
 #include "o2/Scene/Component.h"
 #include "o2/Utils/Math/Color.h"
+#include "o2/Utils/Math/Layout.h"
 
 using namespace o2;
 
@@ -16,13 +17,17 @@ namespace o2
 }
 
 // Entry point of the Word Fall prototype. Lives in the bootstrap scene; on start
-// it builds the whole game screen in code (board of tile buttons, HUD, word
-// panel, boosters, popup) and attaches the JS game controller.
+// it builds the whole game screen in code (board of tile buttons, HUD with score
+// progress bar, word slots panel, boosters, tasks panel, popup) and attaches the
+// JS game controller.
 class WordFallBootstrap: public Component
 {
 public:
 	static constexpr int kColumns = 7;
 	static constexpr int kRows = 8;
+	static constexpr int kMaxTasks = 5;
+	static constexpr int kWordSlots = 8;
+	static constexpr int kFlyers = 4;
 
 	// Creates the bootstrap actor in the current scene; used by the app and tests
 	static Ref<Actor> CreateBootstrapActor();
@@ -44,6 +49,7 @@ private:
 	void BuildLayersAndCamera();
 	void BuildBoard(const Ref<Actor>& root);
 	void BuildHud(const Ref<Actor>& root);
+	void BuildTasks(const Ref<Actor>& root);
 	void BuildWordPanel(const Ref<Actor>& root);
 	void BuildBoosters(const Ref<Actor>& root);
 	void BuildPopup(const Ref<Actor>& root);
@@ -63,15 +69,27 @@ private:
 
 	static Ref<Text> MakeText(int height, const Color4& color);
 
+	// Adds the press-in state: same-sprite dark tint overlay + shift-down animation.
+	// Call after SetWidgetRect — the shift tracks capture current layout offsets
+	static void AddPressedState(const Ref<Button>& button, const String& image,
+								const BorderI& slice, const Layout& layout, bool shift);
+
 	static Ref<Image> CreateImageWidget(const Ref<Actor>& parent, const String& name, const String& image,
 										const Vec2F& pos, const Vec2F& size, const Color4& color = Color4::White(),
 										float depth = 1.0f, const BorderI& slice = BorderI());
 
+	// Orange pill button with caption and press-in state
 	static Ref<Button> CreateButton(const Ref<Actor>& parent, const String& name, const Vec2F& pos, const Vec2F& size,
-									const WString& caption, int captionHeight, const String& icon,
-									const Vec2F& iconSize, float depth = 10.0f);
+									const WString& caption, int captionHeight, float depth = 10.0f);
+
+	// Round booster button from the concept sheet with press-in state
+	static Ref<Button> CreateBoosterButton(const Ref<Actor>& parent, const String& name, const String& key,
+										   const Vec2F& pos, const Vec2F& size, float depth);
 
 	static Ref<Button> CreateTileButton(const Ref<Actor>& parent, int column, int row);
+
+	// Small letter tile (word slot / flying letter): back + letter + points layers
+	static Ref<Widget> CreateWordTile(const Ref<Actor>& parent, const String& name, float depth);
 
 	static Ref<Label> CreateLabel(const Ref<Actor>& parent, const String& name, const WString& text,
 								  const Vec2F& rectMin, const Vec2F& rectMax, int height,
@@ -101,6 +119,7 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PRIVATE().SIGNATURE(void, BuildLayersAndCamera);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildBoard, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildHud, const Ref<Actor>&);
+    FUNCTION().PRIVATE().SIGNATURE(void, BuildTasks, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildWordPanel, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildBoosters, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildPopup, const Ref<Actor>&);
@@ -111,9 +130,12 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, SetWidgetDepth, const Ref<Widget>&, float);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Sprite>, MakeSliced, const String&, const BorderI&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Text>, MakeText, int, const Color4&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, AddPressedState, const Ref<Button>&, const String&, const BorderI&, const Layout&, bool);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Image>, CreateImageWidget, const Ref<Actor>&, const String&, const String&, const Vec2F&, const Vec2F&, const Color4&, float, const BorderI&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateButton, const Ref<Actor>&, const String&, const Vec2F&, const Vec2F&, const WString&, int, const String&, const Vec2F&, float);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateButton, const Ref<Actor>&, const String&, const Vec2F&, const Vec2F&, const WString&, int, float);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateBoosterButton, const Ref<Actor>&, const String&, const String&, const Vec2F&, const Vec2F&, float);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateTileButton, const Ref<Actor>&, int, int);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Widget>, CreateWordTile, const Ref<Actor>&, const String&, float);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Label>, CreateLabel, const Ref<Actor>&, const String&, const WString&, const Vec2F&, const Vec2F&, int, const Color4&, HorAlign);
 }
 END_META;

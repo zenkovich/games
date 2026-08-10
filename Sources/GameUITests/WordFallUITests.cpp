@@ -3,9 +3,12 @@
 
 #include "WordFall/WordFallBootstrap.h"
 #include "o2/Application/Application.h"
+#include "o2/Assets/Assets.h"
+#include "o2/Assets/Types/SceneAsset.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Scene/UI/Widgets/Button.h"
+#include "o2/Scene/UI/Widgets/Label.h"
 #include "o2/Scripts/ScriptEngine.h"
 #include "o2/Scripts/ScriptValue.h"
 #include "o2/Utils/Test/AppTestDriver.h"
@@ -85,6 +88,8 @@ TEST_F(WordFallUI, SceneBuildsBoardHudAndHiddenPopup)
 	}
 
 	EXPECT_TRUE(root->GetChild("Hud/ScoreLabel"));
+	EXPECT_TRUE(root->GetChild("Hud/LevelLabel"));
+	EXPECT_TRUE(root->GetChild("Tasks/Task0"));
 	EXPECT_TRUE(root->GetChild("WordPanel/AcceptBtn"));
 	EXPECT_TRUE(root->GetChild("Boosters/Booster4"));
 	EXPECT_FALSE(root->GetChild("Popup")->IsEnabled());
@@ -110,11 +115,58 @@ TEST_F(WordFallUI, ClickingTilesSelectsWord)
 	ClickTile(3, 0);
 
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().CurrentWord()").GetValue<String>(), String("КОТ"));
+
+	AppTestDriver::Wait(0.5f); // буквы долетают до панели слова
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "02_selection.png"));
+
+	// все три слота панели слова показаны
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	EXPECT_TRUE(root->GetChild("WordPanel/Slot0")->IsEnabled());
+	EXPECT_TRUE(root->GetChild("WordPanel/Slot2")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("WordPanel/Slot3")->IsEnabled());
 
 	// re-clicking the first letter drops the whole selection tail
 	ClickTile(1, 0);
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetSelected().length").GetValue<int>(), 0);
+}
+
+// Путь реального приложения: сцена загружается из WordFall.scn, как в
+// GameApplication::OnStarted, а не через CreateBootstrapActor
+TEST_F(WordFallUI, SceneLoadedFromAssetRespondsToClicks)
+{
+	EvalChecked("WordFall_instance = undefined;");
+	o2Scene.Clear(true);
+	o2Scene.UpdateDestroyingEntities();
+	AppTestDriver::PumpFrames(2);
+
+	auto sceneAsset = o2Assets.GetAssetRefByType<SceneAsset>(String("WordFall.scn"));
+	ASSERT_TRUE(sceneAsset);
+	sceneAsset->Load();
+	AppTestDriver::PumpFrames(10);
+
+	ASSERT_TRUE(EvalChecked("typeof WordFall_instance !== 'undefined'").GetValue<bool>());
+
+	PlantKot();
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+
+	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetSelected().length").GetValue<int>(), 2);
+}
+
+TEST_F(WordFallUI, PressedButtonShowsPressIn)
+{
+	// зажатая кнопка ПРИНЯТЬ — снимок вдавленного состояния
+	AppTestDriver::MoveCursor(Vec2F(135, 295));
+	AppTestDriver::PumpFrames(2);
+	AppTestDriver::PressCursor(Vec2F(135, 295));
+	AppTestDriver::PumpFrames(4);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "09_pressed.png"));
+	AppTestDriver::ReleaseCursor();
+	AppTestDriver::PumpFrames(2);
+
+	// пустое слово не принимается — состояние игры не изменилось
+	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetMovesLeft()").GetValue<int>(), 12);
 }
 
 TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
@@ -124,12 +176,12 @@ TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	AppTestDriver::Click(Vec2F(285, 295)); // ПРИНЯТЬ
+	AppTestDriver::Click(Vec2F(135, 295)); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "03_falling.png"));
 
-	// КОТ in a row: base 4 × cluster 3 = 12
+	// КОТ подряд: base 4 × кластер 3 = 12
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetScore()").GetValue<int>(), 12);
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetMovesLeft()").GetValue<int>(), 11);
 
@@ -143,7 +195,7 @@ TEST_F(WordFallUI, ClearButtonDropsSelection)
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 
-	AppTestDriver::Click(Vec2F(435, 295)); // СБРОС
+	AppTestDriver::Click(Vec2F(225, 295)); // СБРОС
 	AppTestDriver::PumpFrames(2);
 
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetSelected().length").GetValue<int>(), 0);
@@ -162,15 +214,18 @@ TEST_F(WordFallUI, HammerBoosterRemovesTileWithoutMove)
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetMovesLeft()").GetValue<int>(), 12);
 }
 
-TEST_F(WordFallUI, WinShowsPopupAndRestartStartsOver)
+TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 {
-	EvalChecked("WordFall_instance.DebugGetModel()._target = 10;");
+	// очки — обязательное условие; задачи уровня закрываем читом, оставляя только цель
+	EvalChecked(
+		"WordFall_instance.DebugGetModel()._target = 10;"
+		"WordFall_instance.DebugGetModel().DebugCompleteTasks();");
 	PlantKot();
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	AppTestDriver::Click(Vec2F(285, 295)); // ПРИНЯТЬ
+	AppTestDriver::Click(Vec2F(135, 295)); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	auto root = o2Scene.FindActor("WordFall");
@@ -181,12 +236,66 @@ TEST_F(WordFallUI, WinShowsPopupAndRestartStartsOver)
 	AppTestDriver::Wait(1.2f);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "06_win_popup.png"));
 
-	AppTestDriver::Click(Vec2F(0, -80)); // ЕЩЁ РАЗ
+	AppTestDriver::Click(Vec2F(0, -80)); // ДАЛЬШЕ
 	AppTestDriver::PumpFrames(3);
 
+	// после победы стартует следующий уровень кампании
 	EXPECT_FALSE(root->GetChild("Popup")->IsEnabled());
+	EXPECT_EQ(EvalChecked("WordFall_instance._levelIndex").GetValue<int>(), 1);
 	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetScore()").GetValue<int>(), 0);
-	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetMovesLeft()").GetValue<int>(), 12);
+	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetState()").GetValue<String>(), String("playing"));
+}
+
+TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
+{
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+
+	// уровень 1 содержит 3 задачи — первые три строки заполнены, остальные пустые
+	auto task0 = DynamicCast<Label>(root->GetChild("Tasks/Task0"));
+	auto task2 = DynamicCast<Label>(root->GetChild("Tasks/Task2"));
+	auto task3 = DynamicCast<Label>(root->GetChild("Tasks/Task3"));
+	ASSERT_TRUE(task0 && task2 && task3);
+	EXPECT_FALSE(task0->GetText().IsEmpty());
+	EXPECT_FALSE(task2->GetText().IsEmpty());
+	EXPECT_TRUE(task3->GetText().IsEmpty());
+
+	auto levelLabel = DynamicCast<Label>(root->GetChild("Hud/LevelLabel"));
+	ASSERT_TRUE(levelLabel);
+	EXPECT_EQ(levelLabel->GetText(), WString("Уровень 1"));
+
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "07_tasks_panel.png"));
+}
+
+TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
+{
+	EvalChecked(
+		"WordFall_instance.DebugSetTile(1, 0, 'Ч');"
+		"WordFall_instance.DebugSetTile(2, 0, 'А');"
+		"WordFall_instance.DebugSetTile(3, 0, 'Ш');"
+		"WordFall_instance.DebugSetTile(4, 0, 'К');"
+		"WordFall_instance.DebugSetTile(5, 0, 'А');");
+	AppTestDriver::PumpFrames(1);
+
+	for (int i = 1; i <= 5; i++)
+		ClickTile(i, 0);
+
+	AppTestDriver::Click(Vec2F(135, 295)); // ПРИНЯТЬ
+	AppTestDriver::PumpFrames(3);
+
+	// бомба на плитке, занявшей клетку последней буквы, и её иконка включена
+	EXPECT_EQ(EvalChecked("WordFall_instance.DebugGetModel().GetTile(5, 0).powerup").GetValue<String>(),
+			  String("bomb"));
+
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto tile = DynamicCast<Button>(root->GetChild("Board/Tile_5_0"));
+	ASSERT_TRUE(tile);
+	EXPECT_TRUE(tile->GetLayer("bomb")->IsEnabled());
+	EXPECT_FALSE(tile->GetLayer("rocket")->IsEnabled());
+
+	AppTestDriver::Wait(1.2f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "08_bomb_powerup.png"));
 }
 
 #endif // IS_SCRIPTING_SUPPORTED

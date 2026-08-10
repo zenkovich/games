@@ -151,25 +151,28 @@ TEST_F(WordFallModel, AdjacentClusterMultipliesScore)
 {
 	FillBoardWithStubs();
 	EvalChecked(
-		"wfm.DebugSetTile(0, 0, 'К');"  // К=2
-		"wfm.DebugSetTile(1, 0, 'О');"  // О=1
-		"wfm.DebugSetTile(2, 0, 'Т');"  // Т=1
+		"wfm.DebugSetTile(0, 0, 'К');"
+		"wfm.DebugSetTile(1, 0, 'О');"
+		"wfm.DebugSetTile(2, 0, 'Т');"
 		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);");
 
-	// contiguous cluster of 3 → base 4 × cluster 3
+	// компактная тройка: base 4 × кластер 3
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).total").GetValue<int>(), 12);
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).cluster").GetValue<int>(), 3);
 }
 
-TEST_F(WordFallModel, ScatteredLettersGetNoClusterBonus)
+TEST_F(WordFallModel, ScatteredSelectionAllowedWithoutClusterBonus)
 {
 	FillBoardWithStubs();
 	EvalChecked(
 		"wfm.DebugSetTile(0, 0, 'К');"
 		"wfm.DebugSetTile(3, 3, 'О');"
 		"wfm.DebugSetTile(6, 7, 'Т');"
-		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(3, 3); wfm.ToggleSelect(6, 7);");
+		"wfmRes = wfm.ToggleSelect(0, 0); wfmRes = wfm.ToggleSelect(3, 3); wfmRes = wfm.ToggleSelect(6, 7);");
 
+	// выбор свободный — разбросанные буквы допустимы, но без кластерного бонуса
+	EXPECT_EQ(EvalChecked("wfmRes").GetValue<String>(), String("added"));
+	EXPECT_EQ(EvalChecked("wfm.GetSelected().length").GetValue<int>(), 3);
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).cluster").GetValue<int>(), 1);
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).total").GetValue<int>(), 4);
 }
@@ -308,8 +311,10 @@ TEST_F(WordFallModel, HammerDestroysTileWithoutMoveCost)
 TEST_F(WordFallModel, ShufflePreservesLettersAndSkipsIce)
 {
 	FillBoardWithStubs();
+	// на поле должно быть собираемое слово, иначе страховка выполнимости
+	// подсеет буквы и изменит мультинабор
 	EvalChecked(
-		"wfm.DebugSetTile(0, 0, 'А'); wfm.DebugSetTile(1, 0, 'Б'); wfm.DebugSetTile(2, 0, 'В');"
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
 		"wfm.DebugSetTile(4, 4, 'Ю');"
 		"wfm._grid[4][4].ice = 1;"
 		"var before = [];"
@@ -334,7 +339,8 @@ TEST_F(WordFallModel, ShufflePreservesLettersAndSkipsIce)
 TEST_F(WordFallModel, HintFindsMostExpensiveWord)
 {
 	FillBoardWithStubs();
-	// only letters for КОТ (4 points base) and ФАКТ (11 points base × 1.25) are available
+	// буквы для КОТ (база 4) и ФАКТ (база 9 × 1.25) точно на поле; словарь большой —
+	// подсказка может найти и дороже (например КОФТА), проверяем нижнюю границу
 	EvalChecked(
 		"wfm.DebugSetTile(0, 0, 'К');"
 		"wfm.DebugSetTile(1, 0, 'О');"
@@ -346,8 +352,8 @@ TEST_F(WordFallModel, HintFindsMostExpensiveWord)
 		"wfh = wfm.UseHint();");
 
 	EXPECT_TRUE(EvalChecked("wfh.ok").GetValue<bool>());
-	EXPECT_EQ(EvalChecked("wfh.word").GetValue<String>(), String("ФАКТ"));
-	EXPECT_EQ(EvalChecked("wfm.GetSelected().length").GetValue<int>(), 4);
+	EXPECT_GE(EvalChecked("wfh.value").ToNumber(), 9.0f * 1.25f); // не хуже ФАКТ (база 9, ×1.25)
+	EXPECT_GE(EvalChecked("wfm.GetSelected().length").GetValue<int>(), 4);
 	EXPECT_EQ(EvalChecked("wfm.GetCharges(2)").GetValue<int>(), 2);
 
 	// the hinted selection must be accepted as a valid word
@@ -368,7 +374,7 @@ TEST_F(WordFallModel, JokerActsAsAnyLetter)
 	EXPECT_EQ(EvalChecked("wfm.CurrentWord()").GetValue<String>(), String("К?Т"));
 	EXPECT_EQ(EvalChecked("wfm.GetCharges(3)").GetValue<int>(), 2);
 
-	// joker contributes 0 points: base = К(2) + Т(1) = 3, cluster 3 → 9
+	// joker contributes 0 points: base = К(2) + Т(1) = 3, кластер 3 → 9
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).total").GetValue<int>(), 9);
 	EXPECT_TRUE(EvalChecked("wfm.AcceptWord().ok").GetValue<bool>());
 }
@@ -379,6 +385,422 @@ TEST_F(WordFallModel, JokerNotAllowedOnIce)
 	EvalChecked("wfm._grid[1][1].ice = 1;");
 	EXPECT_FALSE(EvalChecked("wfm.UseJoker(1, 1).ok").GetValue<bool>());
 	EXPECT_EQ(EvalChecked("wfm.GetCharges(3)").GetValue<int>(), 3);
+}
+
+TEST_F(WordFallModel, FiveLetterWordEarnsBombOnLastCell)
+{
+	FillBoardWithStubs();
+	EvalChecked(
+		"wfm.DebugSetTile(0, 0, 'Ч'); wfm.DebugSetTile(1, 0, 'А'); wfm.DebugSetTile(2, 0, 'Ш');"
+		"wfm.DebugSetTile(3, 0, 'К'); wfm.DebugSetTile(4, 0, 'А');"
+		"for (var i = 0; i < 5; i++) wfm.ToggleSelect(i, 0);"
+		"wfa = wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfa.ok").GetValue<bool>());
+	EXPECT_EQ(EvalChecked("wfa.powerupEarned").GetValue<String>(), String("bomb"));
+
+	// бонус прикрепился к плитке, занявшей клетку последней буквы слова
+	EXPECT_EQ(EvalChecked("wfm.GetTile(4, 0).powerup").GetValue<String>(), String("bomb"));
+}
+
+TEST_F(WordFallModel, LongerWordsEarnRocketAndWand)
+{
+	FillBoardWithStubs();
+	EvalChecked(
+		"var w = 'РАКЕТА';"
+		"for (var i = 0; i < 6; i++) { wfm.DebugSetTile(i, 0, w[i]); wfm.ToggleSelect(i, 0); }"
+		"wfa = wfm.AcceptWord();");
+
+	EXPECT_EQ(EvalChecked("wfa.powerupEarned").GetValue<String>(), String("rocket"));
+	EXPECT_EQ(EvalChecked("wfm.GetTile(5, 0).powerup").GetValue<String>(), String("rocket"));
+
+	EXPECT_EQ(EvalChecked("wfm.PowerupForLength(7)").GetValue<String>(), String("wand"));
+	EXPECT_EQ(EvalChecked("wfm.PowerupForLength(9)").GetValue<String>(), String("wand"));
+	EXPECT_TRUE(EvalChecked("wfm.PowerupForLength(4) === null").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, BombDestroysAreaAndAddsPoints)
+{
+	FillBoardWithStubs();
+	EvalChecked(
+		"wfm.DebugSetTile(1, 0, 'К'); wfm.DebugSetTile(2, 0, 'О'); wfm.DebugSetTile(3, 0, 'Т');"
+		"wfm._grid[2][0].powerup = 'bomb';"
+		"wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0); wfm.ToggleSelect(3, 0);"
+		"wfa = wfm.AcceptWord();");
+
+	// слово 12 + три взорванные Щ ряда выше по 5
+	EXPECT_EQ(EvalChecked("wfa.gain").GetValue<int>(), 27);
+	EXPECT_EQ(EvalChecked("wfm.GetScore()").GetValue<int>(), 27);
+	EXPECT_EQ(EvalChecked("wfa.powerupsUsed.length").GetValue<int>(), 1);
+
+	// сгорели 3 буквы слова и 3 клетки взрыва
+	EXPECT_EQ(EvalChecked("wfa.spawned.length").GetValue<int>(), 6);
+}
+
+TEST_F(WordFallModel, RocketActivatesCrossAndKeepsLetters)
+{
+	FillBoardWithStubs();
+	EvalChecked(
+		"wfm.DebugSetTile(1, 0, 'К'); wfm.DebugSetTile(2, 0, 'О'); wfm.DebugSetTile(3, 0, 'Т');"
+		"wfm._grid[2][0].powerup = 'rocket';"
+		"wfm._grid[2][5].ice = 1;"
+		"wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0); wfm.ToggleSelect(3, 0);"
+		"wfa = wfm.AcceptWord();");
+
+	// крест: 4 плитки ряда (без букв слова) + 7 плиток колонки, все Щ по 5
+	EXPECT_EQ(EvalChecked("wfa.activated.length").GetValue<int>(), 11);
+	EXPECT_EQ(EvalChecked("wfa.gain").GetValue<int>(), 12 + 55);
+
+	// активированные буквы остаются на поле — сгорело только слово
+	EXPECT_EQ(EvalChecked("wfa.spawned.length").GetValue<int>(), 3);
+
+	// ракета сняла лёд с задетой плитки
+	EXPECT_TRUE(EvalChecked("wfa.iceBroken.some(function(b) { return b.c == 2 && b.r == 5; })").GetValue<bool>());
+	EXPECT_EQ(EvalChecked("wfm.GetTile(2, 5).ice").GetValue<int>(), 0);
+}
+
+TEST_F(WordFallModel, WandActivatesAllSameLetters)
+{
+	FillBoardWithStubs();
+	EvalChecked(
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
+		"wfm.DebugSetTile(4, 4, 'К'); wfm.DebugSetTile(6, 7, 'К');"
+		"wfm._grid[0][0].powerup = 'wand';"
+		"wfm._grid[6][7].ice = 1;"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfa = wfm.AcceptWord();");
+
+	// активированы обе другие «К» (по 2 очка), сами остались на поле без льда
+	EXPECT_EQ(EvalChecked("wfa.activated.length").GetValue<int>(), 2);
+	EXPECT_EQ(EvalChecked("wfa.gain").GetValue<int>(), 12 + 4);
+	EXPECT_EQ(EvalChecked("wfa.spawned.length").GetValue<int>(), 3);
+	EXPECT_EQ(EvalChecked("wfm.GetTile(4, 4).letter").GetValue<String>(), String("К"));
+	EXPECT_EQ(EvalChecked("wfm.GetTile(6, 7).ice").GetValue<int>(), 0);
+}
+
+TEST_F(WordFallModel, WordTaskSeedsWordAndTracksProgress)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 100, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'word', word: 'КОТ' }] });");
+
+	// слово из задания обязательно выложено на поле
+	EXPECT_EQ(EvalChecked("wfm.GetSeededCells().length").GetValue<int>(), 3);
+	EXPECT_EQ(EvalChecked(
+		"wfm.GetSeededCells().map(function(s) { return wfm.GetTile(s.c, s.r).letter; }).join('')").GetValue<String>(),
+		String("КОТ"));
+
+	EvalChecked(
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, LengthTaskCountsWordsOfExactLength)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 1000, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'length', len: 4, count: 2 }] });"
+		"var w = 'АТОМ';"
+		"for (var i = 0; i < 4; i++) { wfm.DebugSetTile(i, 0, w[i]); wfm.ToggleSelect(i, 0); }"
+		"wfm.AcceptWord();");
+
+	EXPECT_EQ(EvalChecked("wfm.GetTasks()[0].progress").GetValue<int>(), 1);
+	EXPECT_FALSE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+
+	EvalChecked(
+		"var w = 'АТОМ';"
+		"for (var i = 0; i < 4; i++) { wfm.DebugSetTile(i, 0, w[i]); wfm.ToggleSelect(i, 0); }"
+		"wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, PowerupTaskCountsEarnedPowerups)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 1000, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'powerup', kind: 'bomb', count: 1 }] });"
+		"var w = 'ЧАШКА';"
+		"for (var i = 0; i < 5; i++) { wfm.DebugSetTile(i, 0, w[i]); wfm.ToggleSelect(i, 0); }"
+		"wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, ClearIceTaskCompletedByHammerWinsLevel)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 0, moves: 5, ice: [[3, 3]], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'clearIce' }] });");
+
+	EXPECT_FALSE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+	EXPECT_EQ(EvalChecked("wfm.GetState()").GetValue<String>(), String("playing"));
+
+	EvalChecked("wfm.UseHammer(3, 3);");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+	EXPECT_EQ(EvalChecked("wfm.GetState()").GetValue<String>(), String("win"));
+}
+
+TEST_F(WordFallModel, WinRequiresBothTasksAndScore)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 10, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'word', word: 'КОТ' }] });"
+		"wfm.DebugSetTile(0, 0, 'Д'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'М');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	// очков хватает, но задание не закрыто — победы нет
+	EXPECT_GE(EvalChecked("wfm.GetScore()").GetValue<int>(), 10);
+	EXPECT_EQ(EvalChecked("wfm.GetState()").GetValue<String>(), String("playing"));
+
+	EvalChecked(
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	EXPECT_EQ(EvalChecked("wfm.GetState()").GetValue<String>(), String("win"));
+}
+
+TEST_F(WordFallModel, SeededWordCellsNeverGetIce)
+{
+	EvalChecked(
+		"var allIce = [];"
+		"for (var c = 0; c < 7; c++)"
+		"    for (var r = 0; r < 8; r++)"
+		"        allIce.push([c, r]);"
+		"wfm.NewGame({ target: 100, moves: 5, ice: allIce, charges: [0, 0, 0, 0, 0],"
+		"              tasks: [{ type: 'word', word: 'РАКЕТА' }] });");
+
+	EXPECT_EQ(EvalChecked("wfm.GetSeededCells().length").GetValue<int>(), 6);
+	EXPECT_TRUE(EvalChecked(
+		"wfm.GetSeededCells().every(function(s) { return wfm.GetTile(s.c, s.r).ice == 0; })").GetValue<bool>());
+
+	EXPECT_EQ(EvalChecked(
+		"var ice = 0;"
+		"for (var c = 0; c < 7; c++)"
+		"    for (var r = 0; r < 8; r++)"
+		"        if (wfm.GetTile(c, r).ice > 0) ice++;"
+		"ice").GetValue<int>(), 50);
+}
+
+// Бот-проверка выигрываемости сгенерированных уровней. Стратегия: молотки —
+// добивание льда (когда льдин не больше зарядов или ходы на исходе), затем
+// приоритет незакрытых заданий: слово напрямую → пауэрап словом точной длины →
+// length-задача → слово, задевающее лёд → самое дорогое слово.
+TEST_F(WordFallModel, BotCanWinGeneratedLevels)
+{
+	EvalChecked(
+		"function wfIceCells(m)"
+		"{"
+		"    var out = [];"
+		"    for (var c = 0; c < 7; c++)"
+		"        for (var r = 0; r < 8; r++)"
+		"            if (m.GetTile(c, r).ice > 0) out.push({ c: c, r: r });"
+		"    return out;"
+		"}"
+		"function wfCellsForWord(m, word)"
+		"{"
+		"    var used = [];"
+		"    for (var i = 0; i < word.length; i++)"
+		"    {"
+		"        var cell = null;"
+		"        for (var c = 0; c < 7 && !cell; c++)"
+		"            for (var r = 0; r < 8 && !cell; r++)"
+		"            {"
+		"                var t = m.GetTile(c, r);"
+		"                if (t.ice == 0 && !t.joker && t.letter == word[i] &&"
+		"                    !used.some(function(u) { return u.c == c && u.r == r; }))"
+		"                    cell = { c: c, r: r };"
+		"            }"
+		"        for (var c = 0; c < 7 && !cell; c++)"
+		"            for (var r = 0; r < 8 && !cell; r++)"
+		"            {"
+		"                var t = m.GetTile(c, r);"
+		"                if (t.ice == 0 && t.joker &&"
+		"                    !used.some(function(u) { return u.c == c && u.r == r; }))"
+		"                    cell = { c: c, r: r };"
+		"            }"
+		"        if (!cell) return null;"
+		"        used.push(cell);"
+		"    }"
+		"    return used;"
+		"}"
+		"function wfTouchesIce(m, cells)"
+		"{"
+		"    for (var i = 0; i < cells.length; i++)"
+		"        for (var dc = -1; dc <= 1; dc++)"
+		"            for (var dr = -1; dr <= 1; dr++)"
+		"            {"
+		"                var c = cells[i].c + dc;"
+		"                var r = cells[i].r + dr;"
+		"                if (c >= 0 && c < 7 && r >= 0 && r < 8 && m.GetTile(c, r).ice > 0)"
+		"                    return true;"
+		"            }"
+		"    return false;"
+		"}"
+		"function wfPickMove(m)"
+		"{"
+		"    var tasks = m.GetTasks();"
+		"    for (var i = 0; i < tasks.length; i++)"
+		"    {"
+		"        var t = tasks[i];"
+		"        if (t.done) continue;"
+		"        if (t.type == 'word')"
+		"        {"
+		"            var cells = wfCellsForWord(m, t.word);"
+		"            if (cells) return cells;"
+		"        }"
+		"    }"
+		"    for (var i = 0; i < tasks.length; i++)"
+		"    {"
+		"        var t = tasks[i];"
+		"        if (t.done || t.type != 'powerup') continue;"
+		"        var len = WordFallConfig.powerupLengths[t.kind] || 5;"
+		"        var best = m.FindBestWord(len) || (t.kind == 'wand' ? m.FindBestWord(8) : null);"
+		"        if (best) return best.cells;"
+		"    }"
+		"    for (var i = 0; i < tasks.length; i++)"
+		"    {"
+		"        var t = tasks[i];"
+		"        if (t.done || t.type != 'length') continue;"
+		"        var best = m.FindBestWord(t.len);"
+		"        if (best) return best.cells;"
+		"    }"
+		"    var best = m.FindBestWord();"
+		"    var needIce = tasks.some(function(t) { return !t.done && t.type == 'clearIce'; });"
+		"    if (needIce && wfIceCells(m).length > 0)"
+		"    {"
+		"        var cands = [best, m.FindBestWord(4), m.FindBestWord(5), m.FindBestWord(6), m.FindBestWord(3)];"
+		"        for (var i = 0; i < cands.length; i++)"
+		"            if (cands[i] && wfTouchesIce(m, cands[i].cells)) return cands[i].cells;"
+		"    }"
+		"    return best ? best.cells : null;"
+		"}"
+		"function wfBot(levelIndex, seed)"
+		"{"
+		"    var m = new WordModel(seed);"
+		"    m.NewGame(WordFallLevels.Get(levelIndex));"
+		"    var seeded = m.GetSeededCells();"
+		"    if (seeded.length > 0)"
+		"    {"
+		"        for (var i = 0; i < seeded.length; i++) m.ToggleSelect(seeded[i].c, seeded[i].r);"
+		"        if (!m.AcceptWord().ok) m.ClearSelection();"
+		"    }"
+		"    var guard = 0;"
+		"    while (m.GetState() == 'playing' && guard++ < 90)"
+		"    {"
+		"        var ice = wfIceCells(m);"
+		"        if (m.GetCharges(0) > 0 && ice.length > 0 &&"
+		"            (ice.length <= m.GetCharges(0) || m.GetMovesLeft() <= 3))"
+		"        {"
+		"            m.UseHammer(ice[0].c, ice[0].r);"
+		"            continue;"
+		"        }"
+		"        var cells = wfPickMove(m);"
+		"        if (!cells)"
+		"        {"
+		"            if (m.GetCharges(1) > 0) { m.UseShuffle(); continue; }"
+		"            break;"
+		"        }"
+		"        m.ClearSelection();"
+		"        for (var i = 0; i < cells.length; i++) m.ToggleSelect(cells[i].c, cells[i].r);"
+		"        if (!m.AcceptWord().ok) break;"
+		"    }"
+		"    return m.GetState();"
+		"}");
+
+	// срез кампании: начало, середина, финал (все 100 в headless слишком долго;
+	// полный охват — node-прогоном, см. worklog)
+	const int levels[3] = { 0, 49, 99 };
+	for (int level : levels)
+	{
+		auto code = String::Format("wfBot(%i, %i)", level, 1000 + level*3);
+		EXPECT_EQ(EvalChecked(code.Data()).GetValue<String>(), String("win")) << "level " << level + 1;
+	}
+}
+
+TEST_F(WordFallModel, GeneratedLevelsAreValidAndDeterministic)
+{
+	EXPECT_TRUE(EvalChecked(
+		"var ok = true;"
+		"for (var i = 0; i < WordFallConfig.levelCount; i++)"
+		"{"
+		"    var l = WordFallLevels.Get(i);"
+		"    if (!(l.target > 0 && l.moves >= 12 && l.charges.length == 5)) ok = false;"
+		"    if (l.tasks.length < 3 || l.tasks.length > 5) ok = false;"
+		"    if (l.tasks[0].type != 'word') ok = false;"
+		"    for (var t = 0; t < l.tasks.length; t++)"
+		"        if (l.tasks[t].type == 'word' && !wfm.IsWordInDict(l.tasks[t].word)) ok = false;"
+		"    var hasClear = l.tasks.some(function(t) { return t.type == 'clearIce'; });"
+		"    if (hasClear && l.ice.length > 6) ok = false;"
+		"}"
+		"ok").GetValue<bool>());
+
+	// генерация детерминирована по индексу
+	EXPECT_TRUE(EvalChecked(
+		"JSON.stringify(WordFallLevels.Get(33)) == JSON.stringify(WordFallLevels.Get(33))").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, AnyWordsTaskCountsEveryWord)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 1000, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'anyWords', count: 2 }] });"
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	EXPECT_EQ(EvalChecked("wfm.GetTasks()[0].progress").GetValue<int>(), 1);
+	EXPECT_FALSE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+
+	EvalChecked(
+		"wfm.DebugSetTile(0, 0, 'Д'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'М');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, WordScoreTaskNeedsExpensiveWord)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 1000, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'wordScore', score: 50 }] });"
+		"wfm.DebugSetTile(0, 0, 'К'); wfm.DebugSetTile(1, 0, 'О'); wfm.DebugSetTile(2, 0, 'Т');"
+		"wfm.ToggleSelect(0, 0); wfm.ToggleSelect(1, 0); wfm.ToggleSelect(2, 0);"
+		"wfm.AcceptWord();");
+
+	// КОТ дал 12 — порог 50 не взят
+	EXPECT_FALSE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+
+	// ЧАШКА подряд: base 14 × 1.5 × кластер 5 = 105 ≥ 50
+	EvalChecked(
+		"var w = 'ЧАШКА';"
+		"for (var i = 0; i < 5; i++) { wfm.DebugSetTile(i, 0, w[i]); wfm.ToggleSelect(i, 0); }"
+		"wfm.AcceptWord();");
+
+	EXPECT_TRUE(EvalChecked("wfm.GetTasks()[0].done").GetValue<bool>());
+}
+
+TEST_F(WordFallModel, RepairPlantsMissingTaskLetters)
+{
+	EvalChecked(
+		"wfm.NewGame({ target: 1000, moves: 10, ice: [], charges: [3, 3, 3, 3, 3],"
+		"              tasks: [{ type: 'word', word: 'ФЛЯГА' }] });");
+
+	// ломаем поле: одних Щ — задание «ФЛЯГА» несобираемо
+	FillBoardWithStubs();
+	EXPECT_FALSE(EvalChecked("wfm._CanAssembleWord('ФЛЯГА')").GetValue<bool>());
+
+	// страховка подсевает недостающие буквы
+	EvalChecked("wfrep = wfm._EnsureTasksAchievable();");
+	EXPECT_TRUE(EvalChecked("wfm._CanAssembleWord('ФЛЯГА')").GetValue<bool>());
+	EXPECT_GE(EvalChecked("wfrep.length").GetValue<int>(), 5);
 }
 
 TEST_F(WordFallModel, DoublerDoublesLetterValue)
@@ -394,7 +816,7 @@ TEST_F(WordFallModel, DoublerDoublesLetterValue)
 	EXPECT_TRUE(EvalChecked("wfd.ok").GetValue<bool>());
 	EXPECT_EQ(EvalChecked("wfm.GetCharges(4)").GetValue<int>(), 2);
 
-	// base = К(2×2) + О(1) + Т(1) = 6, cluster 3 → 18
+	// base = К(2×2) + О(1) + Т(1) = 6, кластер 3 → 18
 	EXPECT_EQ(EvalChecked("wfm.ComputeScore(wfm.GetSelected()).total").GetValue<int>(), 18);
 }
 
