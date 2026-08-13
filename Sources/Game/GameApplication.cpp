@@ -1,10 +1,9 @@
 #include "o2/stdafx.h"
 #include "GameApplication.h"
 
-#include "Physics3DDemo.h"
-#include "o2/Assets/Assets.h"
+#include "SpaceEvolver/GameJsBridge.h"
+#include "SpaceEvolver/SpaceEvolverBootstrap.h"
 #include "o2/Render/Render.h"
-#include "o2/Scene/Scene.h"
 #include "o2/Utils/Debug/Debug.h"
 
 GameApplication::GameApplication(RefCounter* refCounter):
@@ -13,19 +12,16 @@ GameApplication::GameApplication(RefCounter* refCounter):
 
 void GameApplication::OnStarted()
 {
-	o2Application.SetWindowSize(Vec2I(1280, 800));
+	o2Application.SetWindowSize(Vec2I(space_evolver::kScreenWidth, space_evolver::kScreenHeight));
 
-	// The main scene shows a deferred 3D layer with a 2D overlay on top;
-	// the same scene is opened by the editor
-	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + String("Main.scn"));
-
-	// Example of the 3D physics API (Box3D): drops a few bodies onto the ground plane
-	demo::SpawnPhysics3DDemo();
+	space_evolver::RegisterGameJsApi();
+	space_evolver::BuildBootstrapScene();
+	space_evolver::SaveBootstrapSceneIfMissing();
 }
 
 void GameApplication::OnUpdate(float dt)
 {
-	o2Application.windowCaption = String("o2 Template") +
+	o2Application.windowCaption = String("Space Evolver: Galaxy Core") +
 		"; FPS: " + (String)((int)o2Time.GetFPS());
 }
 

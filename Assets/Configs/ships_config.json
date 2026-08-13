@@ -1,0 +1,32 @@
+{
+    "ships": [
+        {
+            "id": "viper_x",
+            "name": "Viper-X",
+            "sprite": "SpaceEvolver/ship_viper.png",
+            "blueprintsCost": 0,
+            "hpMult": 1.0, "damageMult": 1.0, "speedMult": 1.0, "rocketCooldownMult": 1.0
+        },
+        {
+            "id": "dreadnought",
+            "name": "Dreadnought",
+            "sprite": "SpaceEvolver/ship_dreadnought.png",
+            "blueprintsCost": 10,
+            "hpMult": 1.5, "damageMult": 1.0, "speedMult": 0.9, "rocketCooldownMult": 1.0
+        },
+        {
+            "id": "falcon",
+            "name": "Falcon",
+            "sprite": "SpaceEvolver/ship_falcon.png",
+            "blueprintsCost": 10,
+            "hpMult": 1.0, "damageMult": 1.0, "speedMult": 1.0, "rocketCooldownMult": 0.8
+        },
+        {
+            "id": "plasma_core",
+            "name": "Plasma Core",
+            "sprite": "SpaceEvolver/ship_plasma.png",
+            "blueprintsCost": 15,
+            "hpMult": 1.0, "damageMult": 1.3, "speedMult": 1.0, "rocketCooldownMult": 1.0
+        }
+    ]
+}

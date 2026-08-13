@@ -1,0 +1,25 @@
+{
+    "startCoins": 100,
+    "ship": {
+        "baseHp": 100,
+        "baseDamage": 12,
+        "baseRocketDamage": 30,
+        "magnetRadius": 90,
+        "fireRate": 3.0,
+        "moveLerpSpeed": 10.0,
+        "touchOffsetY": 120,
+        "speed": 900
+    },
+    "upgrades": {
+        "health":        { "label": "Health",         "baseCost": 50,  "costMult": 1.35, "perLevel": 30 },
+        "mainAttack":    { "label": "Main Attack",    "baseCost": 60,  "costMult": 1.40, "perLevel": 5 },
+        "rocketAttack":  { "label": "Rocket Attack",  "baseCost": 70,  "costMult": 1.40, "perLevel": 10 },
+        "magnetRadius":  { "label": "Magnet Radius",  "baseCost": 40,  "costMult": 1.50, "perLevel": 20 },
+        "offlineIncome": { "label": "Offline Income", "baseCost": 100, "costMult": 1.60, "perLevel": 1 }
+    },
+    "multipliers": {
+        "orbValue":  { "label": "Orb Value %",  "baseCost": 80, "costMult": 1.50, "perLevelPct": 10 },
+        "gateBoost": { "label": "Gate Boost %", "baseCost": 80, "costMult": 1.50, "perLevelPct": 10 }
+    },
+    "offline": { "maxHours": 8 }
+}

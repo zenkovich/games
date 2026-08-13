@@ -1,0 +1,13 @@
+{
+    "cannon": [
+        { "level": 1, "type": "single", "damageMult": 1.0, "fireRate": 3.0, "projSpeed": 700, "fanAngle": 0 },
+        { "level": 2, "type": "double", "damageMult": 1.0, "fireRate": 3.2, "projSpeed": 750, "fanAngle": 0 },
+        { "level": 3, "type": "fan",    "damageMult": 1.1, "fireRate": 3.4, "projSpeed": 800, "fanAngle": 15 },
+        { "level": 4, "type": "laser",  "damageMult": 3.5, "fireRate": 0,   "projSpeed": 0,   "fanAngle": 0 }
+    ],
+    "rockets": [
+        { "level": 1, "count": 1, "cooldown": 2.5, "damageMult": 1.0, "splashRadius": 0 },
+        { "level": 2, "count": 3, "cooldown": 3.0, "damageMult": 1.0, "splashRadius": 90 }
+    ],
+    "xp": { "orbsToLevelBase": 10, "orbsToLevelGrowth": 1.35 }
+}

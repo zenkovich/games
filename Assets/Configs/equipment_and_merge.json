@@ -1,0 +1,21 @@
+{
+    "slots": [
+        { "id": "engine",      "name": "Engine", "icon": "SpaceEvolver/eq_engine.png", "bonusStat": "speed" },
+        { "id": "armor",       "name": "Armor",  "icon": "SpaceEvolver/eq_armor.png",  "bonusStat": "hp" },
+        { "id": "weapon_chip", "name": "Chip",   "icon": "SpaceEvolver/eq_chip.png",   "bonusStat": "damage" },
+        { "id": "radar",       "name": "Radar",  "icon": "SpaceEvolver/eq_radar.png",  "bonusStat": "magnet" }
+    ],
+    "rarities": [
+        { "id": "common",    "name": "Common",    "color": [150, 150, 160], "bonusPct": 5 },
+        { "id": "uncommon",  "name": "Uncommon",  "color": [90, 200, 120],  "bonusPct": 10 },
+        { "id": "rare",      "name": "Rare",      "color": [80, 140, 240],  "bonusPct": 20 },
+        { "id": "epic",      "name": "Epic",      "color": [170, 90, 220],  "bonusPct": 35, "perk": "crit" },
+        { "id": "legendary", "name": "Legendary", "color": [255, 150, 50],  "bonusPct": 60, "perk": "reflect" }
+    ],
+    "perks": {
+        "crit":    { "name": "Critical hit", "critChance": 0.15, "critMult": 2.0 },
+        "reflect": { "name": "Damage reflect", "reflectPct": 0.3 }
+    },
+    "merge": { "count": 3, "successChance": 1.0 },
+    "shop": { "itemCost": 150 }
+}

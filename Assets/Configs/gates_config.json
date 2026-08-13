@@ -1,0 +1,21 @@
+{
+    "static": {
+        "spawnInterval": 7.0,
+        "speed": 120,
+        "buffs": [
+            { "type": "damage_boost",   "pct": 10, "label": "+10% DMG" },
+            { "type": "firerate_boost", "pct": 15, "label": "+15% RATE" }
+        ]
+    },
+    "target": {
+        "spawnInterval": 9.0,
+        "hp": 60,
+        "speedY": 60,
+        "sineAmplitude": 150,
+        "sineFrequency": 0.5,
+        "orbsMin": 5,
+        "orbsMax": 10,
+        "orbXp": 1,
+        "orbScatterImpulse": 220
+    }
+}

@@ -1,0 +1,410 @@
+<title>Space Evolver Prototype</title>
+<style>
+  /* Light is the base theme; the dark variant repaints only tokens. */
+  :root {
+    --ground: #f5f6fa;
+    --panel: #ffffff;
+    --panel-2: #eef1f8;
+    --ink: #141824;
+    --muted: #5d6579;
+    --line: #dde1ec;
+    --plasma: #0f6f96;   /* player plasma, desaturated for light ground */
+    --gate: #8a5b00;     /* buff gates */
+    --hostile: #b1263c;  /* enemies, problem markers */
+    --ok: #1c7a4a;
+    --shadow: 0 1px 2px rgba(20, 24, 36, .06), 0 8px 24px rgba(20, 24, 36, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0c0f17;
+      --panel: #141926;
+      --panel-2: #1b2130;
+      --ink: #e7ebf6;
+      --muted: #98a1b8;
+      --line: #252c3c;
+      --plasma: #5fd8ff;
+      --gate: #f2bd57;
+      --hostile: #ff7286;
+      --ok: #5fd39c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0c0f17;
+    --panel: #141926;
+    --panel-2: #1b2130;
+    --ink: #e7ebf6;
+    --muted: #98a1b8;
+    --line: #252c3c;
+    --plasma: #5fd8ff;
+    --gate: #f2bd57;
+    --hostile: #ff7286;
+    --ok: #5fd39c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 16.5px/1.65 "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  header { padding: 72px 0 30px; display: flex; flex-direction: column; gap: 14px; }
+  .eyebrow {
+    font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--plasma);
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(32px, 5vw, 46px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .lede { margin: 0; max-width: 62ch; color: var(--muted); font-size: 18px; }
+
+  section { display: flex; flex-direction: column; gap: 14px; padding: 34px 0 6px; }
+  section + section { border-top: 1px solid var(--line); }
+  h2 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h3 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -0.01em; }
+  p { margin: 0; max-width: 68ch; }
+  ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 68ch; }
+
+  code {
+    font: 500 0.88em/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--panel-2);
+    border-radius: 4px;
+    padding: 1.5px 5px;
+  }
+
+  /* telemetry strip: the run's hard numbers */
+  .telemetry {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .cell { background: var(--panel); padding: 15px 18px; display: flex; flex-direction: column; gap: 3px; }
+  .cell b {
+    font: 700 27px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .cell span { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+
+  .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+  figure {
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 9px 12px 11px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 11px 16px; vertical-align: top; }
+  tbody tr + tr td { border-top: 1px solid var(--line); }
+  thead th {
+    font: 600 11.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+  td:first-child { white-space: nowrap; }
+  td.wide { white-space: normal; }
+
+  .logs { display: flex; flex-direction: column; gap: 12px; }
+  .log {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--hostile);
+    border-radius: 9px;
+    padding: 15px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .log h3 { font-size: 16.5px; }
+  .log p { max-width: 74ch; }
+  .fix { color: var(--ok); }
+  .fix b { font-weight: 650; }
+
+  footer { padding-top: 26px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+  a { color: var(--plasma); }
+  a:focus-visible, :focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Прототип · движок o2 · 13 августа 2026</p>
+  <h1>Space Evolver: Galaxy Core</h1>
+  <p class="lede">Вертикальный шутер с автострельбой, эволюцией оружия прямо в бою и ангаром между забегами. Отчёт о том, что собрано, из чего сделана графика и обо что пришлось споткнуться.</p>
+</header>
+
+<section>
+  <h2>Итог</h2>
+  <div class="telemetry">
+    <div class="cell"><b>51</b><span>тест: 30 headless + 21 с рендером</span></div>
+    <div class="cell"><b>328</b><span>тестов ctest, все зелёные</span></div>
+    <div class="cell"><b>6</b><span>конфигов баланса</span></div>
+    <div class="cell"><b>23</b><span>спрайта, нарисованы кодом</span></div>
+    <div class="cell"><b>3</b><span>бага механики, найдены тестами</span></div>
+  </div>
+  <p>Игровой цикл из ТЗ работает целиком: забег → сбор орбов и монет → ангар → прокачка → новый забег. Игра стартует со сцены <code>Bootstrap</code>, которая собирается кодом и сохраняется как ассет, так что тот же запуск работает из редактора. Вся игровая логика — модули на JavaScript, C++ отвечает за мост к вводу, ассетам и персистентности.</p>
+</section>
+
+<section>
+  <h2>Забег</h2>
+  <div class="cols">
+    <div class="col">
+      <h3>Управление и оружие</h3>
+      <ul>
+        <li>Корабль следует за пальцем с вертикальным офсетом +120 px, чтобы палец не закрывал модель; стрельба автоматическая.</li>
+        <li>Главный калибр эволюционирует: одиночный выстрел → двойной залп → веер 15° → плазменный луч с DPS.</li>
+        <li>Ракеты наводятся на ближайшего врага, на втором уровне — кассетный залп из трёх со сплэшем.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Мир уровня</h3>
+      <ul>
+        <li>Статические ворота дают бафф до конца забега, ворота-мишени с HP ходят синусоидой и выбрасывают 5–10 орбов с разлётом.</li>
+        <li>Орбы притягиваются магнитом и качают внутриигровой уровень: чётные уровни усиливают пушку, нечётные — ракеты.</li>
+        <li>Волны врагов по конфигу, затем босс с полосой HP и веерными залпами.</li>
+        <li>Цифры урона вылетают при попаданиях; у врагов с HP ≥ 10 × DPS игрока появляется точная плашка HP.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Ангар</h2>
+  <ul>
+    <li>Семь линий прокачки за монеты по формуле <code>Cost = BaseCost × Multiplier^Level</code>, включая проценты Orb Value и Gate Boost.</li>
+    <li>Флот из четырёх кораблей со своими модификаторами; разблокировка за чертежи, падающие с боссов.</li>
+    <li>Экипировка по четырём слотам, редкости Common → Legendary, слияние «3 в 1»; Epic и Legendary дают перки крита и отражения урона.</li>
+    <li>Offline income с лимитом 8 часов начисляется при входе в ангар.</li>
+    <li>Урон, HP, ракеты и радиус магнита выведены числами — купленный апгрейд сразу двигает цифру на экране.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Экраны</h2>
+  <div class="shots">
+    <figure><img src="{{IMG:ScreenShots/01_hangar.png}}" alt="Экран ангара"><figcaption>Ангар: флот, прокачка, экипировка</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/04_run_start.png}}" alt="Начало забега"><figcaption>Забег: ворота-бафф, враги, ракета</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/06_run_fan.png}}" alt="Веерный залп"><figcaption>Третий уровень пушки — веер</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/07_run_laser.png}}" alt="Плазменный луч"><figcaption>Четвёртый уровень — луч, 42 DPS</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/08_boss_fight.png}}" alt="Бой с боссом"><figcaption>Босс: полоса HP и цифры урона</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/09_victory.png}}" alt="Экран победы"><figcaption>Победа: монеты и чертежи</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/11_defeat.png}}" alt="Экран поражения"><figcaption>Поражение: монеты сохраняются</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/03_hangar_merge.png}}" alt="Слияние экипировки"><figcaption>Слияние экипировки 3 в 1</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Графика</h2>
+  <p>MCP-сервер <code>imagegen</code> оказался недоступен: ключа Gemini нет ни в <code>o2/Tools/ImageGen/api_key.txt</code>, ни в переменной окружения. Весь арт нарисован процедурно скриптом на Pillow с четырёхкратным суперсэмплингом — градиентные полигоны корпусов, мягкие свечения под силуэтами, фон со звёздами и туманностями, тайлящийся по вертикали. Перед кодом собрал из спрайтов мокапы обоих экранов и потом сверял по ним вёрстку.</p>
+  <div class="shots">
+    <figure><img src="{{IMG:Art/sprites/sheet.png}}" alt="Контактный лист спрайтов"><figcaption>23 спрайта: корабли, враги, босс, снаряды, ворота, иконки</figcaption></figure>
+    <figure><img src="{{IMG:Concepts/mock_gameplay.png}}" alt="Мокап геймплея"><figcaption>Мокап геймплея, собранный до кода</figcaption></figure>
+    <figure><img src="{{IMG:Concepts/mock_hangar.png}}" alt="Мокап ангара"><figcaption>Мокап ангара</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Архитектура</h2>
+  <p>Сцена <code>Bootstrap</code> собирается в <code>SpaceEvolverBootstrap.cpp</code>: камера с кадром 540×960, слои Background / Game / UI и актор <code>Game</code> со скриптовым компонентом. Дальше всё живёт в JavaScript.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Модуль</th><th>Ответственность</th></tr></thead>
+      <tbody>
+        <tr><td><code>GameJsBridge.cpp</code></td><td class="wide">Глобальный объект <code>Bridge</code>: курсор, размер экрана, чтение конфигов, сохранение профиля, время, фабрики Label и Button, запуск JS-модулей</td></tr>
+        <tr><td><code>SE_Core.js</code></td><td class="wide">Фабрики акторов и виджетов, стейт-машина экранов, скроллящийся фон</td></tr>
+        <tr><td><code>SE_Meta.js</code></td><td class="wide">Профиль, стоимости апгрейдов, корабли, слияние, перки, offline income, производные боевые статы</td></tr>
+        <tr><td><code>SE_Run.js</code></td><td class="wide">Забег целиком: игрок, оружие, снаряды, враги, ворота, орбы, босс, HUD, экраны результата</td></tr>
+        <tr><td><code>SE_Hangar.js</code></td><td class="wide">Экран ангара и все его кнопки</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Логика отделена от отображения: флаг <code>SE.headless</code> отключает создание акторов и виджетов, поэтому полный забег — волны, попадания, эволюция оружия, бой с боссом — симулируется в headless-тестах без рендера.</p>
+</section>
+
+<section>
+  <h2>Обучение и обратная связь</h2>
+  <p>Первый забег ведёт игрока по четырём шагам: провести корабль пальцем, сбить врага, пролететь сквозь золотые ворота, разбить мишень и собрать сферы. Подсказка висит вверху экрана — внизу её закрывал бы палец. Пока обучение идёт, волны и обычный спавн ворот придержаны, так что на поле только то, чему учат. Пройденное запоминается в профиле и второй раз не показывается.</p>
+  <p>Каждый шаг сам выдаёт нужный объект и выдаёт заново, если игрок промахнулся. Это не украшение: при написании тестов выяснилось, что улетевшие мимо ворота оставляли обучение ждать объект, которого на поле уже нет.</p>
+  <div class="shots">
+    <figure><img src="{{IMG:ScreenShots/t01_step_drag.png}}" alt="Шаг обучения: управление"><figcaption>Шаг 1: провести корабль пальцем</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/t03_step_gate.png}}" alt="Шаг обучения: ворота"><figcaption>Шаг 3: замедленные ворота под первый пролёт</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/t05_tutorial_done.png}}" alt="Обучение пройдено"><figcaption>Финал: обучение записано в профиль</figcaption></figure>
+  </div>
+
+  <h3>Проход через ворота теперь виден</h3>
+  <p>Раньше о полученном баффе говорило только число в углу экрана. Теперь пролёт подтверждается на месте: золотая вспышка, разлёт искр, надпись баффа и новое численное значение урона прямо над кораблём — та самая связь «взял бонус → выросла цифра», ради которой в ТЗ и заведены numbers on the gun. Пройденные ворота сразу исчезают: до этого они продолжали лететь дальше и читались как ещё активные.</p>
+  <p>Заодно ворота слегка «дышат» масштабом, пока летят, а враги и мишени взрываются искрами.</p>
+  <div class="shots">
+    <figure><img src="{{IMG:ScreenShots/g14_gate_incoming.png}}" alt="Ворота приближаются"><figcaption>Ворота идут на корабль</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/g15_gate_buff_applied.png}}" alt="Подтверждение прохода"><figcaption>Момент прохода: вспышка, бафф и новое значение урона</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/g19_enemy_explosion.png}}" alt="Взрыв врага"><figcaption>Взрыв врага</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Баги механики, найденные тестами</h2>
+  <p>После первой сборки владелец заметил, что ворота не пропадают. Геймплейные тесты со скриншотами воспроизвели это и вытащили ещё два дефекта рядом.</p>
+  <div class="logs">
+
+    <div class="log">
+      <h3>Сущности «съедали» соседей при удалении</h3>
+      <p>Циклы обновления врагов и ворот шли по <code>this.enemies</code> и <code>this.gates</code>, а удаление внутри цикла делало <code>splice</code> того же массива. Индексы сдвигались, следующая сущность пропускалась: она не попадала в список выживших, но и её спрайт не уничтожался — и висел на экране до конца забега. За 40 секунд игры набиралось шесть спрайтов ворот при двух живых.</p>
+      <p class="fix"><b>Решение:</b> флаг <code>dead</code>, идемпотентное удаление и обход копии массива, поэтому удаление посреди кадра больше ничего не сдвигает.</p>
+    </div>
+
+    <div class="log">
+      <h3>Двойной лут от кассетного залпа</h3>
+      <p>Сплэш добивал врага, которого уже убила основная ракета того же залпа, и монеты с орбами начислялись дважды.</p>
+      <p class="fix"><b>Решение:</b> урон по мёртвой цели игнорируется; тест проверяет, что каждый враг платит ровно один раз.</p>
+    </div>
+
+    <div class="log">
+      <h3>Мёртвые сущности оставались целями</h3>
+      <p>Ракеты могли наводиться на убитого врага, пули и лазер — попадать в уничтоженные ворота.</p>
+      <p class="fix"><b>Решение:</b> выборка целей пропускает мёртвых.</p>
+    </div>
+
+  </div>
+  <div class="shots">
+    <figure><img src="{{IMG:ScreenShots/g09_playthrough_40s.png}}" alt="Сорок секунд игры"><figcaption>40 секунд игры после фикса: спрайтов ровно столько, сколько живых сущностей</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/g10_elite_hp_plate.png}}" alt="Плашка HP элитного врага"><figcaption>Элитный враг с точной плашкой HP</figcaption></figure>
+    <figure><img src="{{IMG:ScreenShots/g13_orbs_collected.png}}" alt="Собранные орбы"><figcaption>Сбор орбов поднял уровень до третьего</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Обо что споткнулись при интеграции</h2>
+  <div class="logs">
+
+    <div class="log">
+      <h3>Пустой кадр: ноль draw calls</h3>
+      <p>Самая долгая отладка. Сцена строилась, скрипты работали, камера регистрировалась — а кадр оставался прозрачным. Оказалось, что актор, созданный как <code>NotInScene</code>, после <code>AddChild</code> к сценовому родителю остаётся вне сцены и потому не регистрируется в слое как drawable.</p>
+      <p class="fix"><b>Решение:</b> создавать акторы сразу в сцене — <code>new o2.Actor(0)</code>. Камере дополнительно заданы <code>drawLayers.SetAllLayers()</code>, <code>SetFittedSize(540×960)</code> и pivot (0.5, 0.5), чтобы мировые координаты совпали с экранными.</p>
+    </div>
+
+    <div class="log">
+      <h3>Не рисовался ни один текст</h3>
+      <p>В проекте нет ассета <code>ui_style</code>, поэтому <code>o2UI.CreateLabel</code> и <code>CreateButton</code> отдают виджеты без слоёв, а конструктор <code>Label</code> по умолчанию ищет несуществующий <code>stdFont.ttf</code>.</p>
+      <p class="fix"><b>Решение:</b> мост собирает Label и Button вручную из <code>WidgetLayer</code> с <code>Text</code> на <code>debugFont.ttf</code>, кнопке добавлены слои <code>regular</code> и <code>caption</code>.</p>
+    </div>
+
+    <div class="log">
+      <h3>Компонент не находил свой класс</h3>
+      <p>Загрузчик <code>ScriptableComponent</code> ищет в глобале свойство с именем файла, а объявление <code>class SpaceEvolver</code> создаёт лексическую привязку и свойством глобала не становится.</p>
+      <p class="fix"><b>Решение:</b> <code>var SpaceEvolver = class extends o2.Component { … }</code>.</p>
+    </div>
+
+    <div class="log">
+      <h3>Три несовпадения JS-поверхности с C++</h3>
+      <p>Глубина отрисовки живёт на акторе, а не на <code>ImageComponent</code>. Публичные поля-указатели <code>transform</code> и <code>layout</code> в скрипт не пробрасываются — для них есть <code>GetTransform()</code> и <code>GetLayout()</code>. У <code>Widget::SetTransparency</code> и <code>Button::SetCaption</code> атрибута не было вовсе.</p>
+      <p class="fix"><b>Решение:</b> скрипты переведены на актор-центричные вызовы, методам движка <code>SetTransparency</code>, <code>SetCaption</code> и <code>Label::GetText</code> добавлен <code>@SCRIPTABLE</code> — без них не сделать затухание цифр урона и цены на кнопках.</p>
+    </div>
+
+    <div class="log">
+      <h3>Ангар оставался на экране во время забега</h3>
+      <p>На скриншоте забега поверх космоса висел весь интерфейс ангара. Причина: <code>OnStart</code> скриптового компонента приходил дважды, второй <code>Game.Start()</code> терял ссылку на первый ангар, и уничтожать его было уже некому.</p>
+      <p class="fix"><b>Решение:</b> guard <code>_started</code> в начале <code>OnStart</code>. Тест теперь проверяет, что после старта забега у игрового актора ровно три ребёнка.</p>
+    </div>
+
+    <div class="log">
+      <h3>Сохранённая сцена оказалась пустой</h3>
+      <p>Приложение сохраняло <code>Bootstrap.scn</code> сразу после сборки сцены, и в файле не было ни одного актора: только что созданные акторы попадают в корневой список сцены не сразу, а на ближайшем проходе добавленных сущностей.</p>
+      <p class="fix"><b>Решение:</b> вызывать <code>o2Scene.UpdateAddedEntities()</code> перед сохранением. Отдельный тест грузит сохранённый ассет и проверяет, что игра с него стартует — это и есть путь запуска из редактора.</p>
+    </div>
+
+    <div class="log">
+      <h3>Хрупкий UI-тест перетаскивания</h3>
+      <p><code>PumpFrames</code> гонит кадры с минимальной dt, поэтому лерп следования корабля за пальцем не успевал сойтись и тест падал на 45 пикселях расхождения.</p>
+      <p class="fix"><b>Решение:</b> ждать игровое время через <code>AppTestDriver::Wait(2.0f)</code>, а не считать кадры.</p>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>Тесты</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Набор</th><th>Что покрывает</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>SpaceEvolverLogic</code><br>20, headless</td>
+          <td class="wide">Парсинг конфигов; геометрический рост стоимости апгрейдов и связь с числом урона; разблокировка кораблей за чертежи и их модификаторы; слияние 3 в 1 и перки редкости; лимит offline income; сохранение профиля между сессиями; эволюция пушки и ракет; магнит и набор уровня; однократность баффа статических ворот; дроп орбов из ворот-мишеней; порог плашки HP элитных врагов; спавн волн, попадания, убийства и монеты; появление босса, его залпы и лут; поражение с сохранением монет</td>
+        </tr>
+        <tr>
+          <td><code>SpaceEvolverUI</code><br>9, реальный рендер</td>
+          <td class="wide">Старт в ангаре и непустой кадр; загрузка сохранённого <code>Bootstrap.scn</code>; покупка апгрейда двигает цифру урона; слияние в ангаре; старт забега со спавном врагов и очисткой ангара; перетаскивание корабля с проверкой вертикального офсета; переключение на веер и на луч; бой с боссом, полоса HP и экран победы; экран поражения с сохранением монет. Каждый тест сохраняет скриншот</td>
+        </tr>
+        <tr>
+          <td><code>SpaceEvolverTutorial</code><br>2, реальный рендер</td>
+          <td class="wide">Полный проход обучения по шагам — с настоящим перетаскиванием корабля, выдачей врага и ворот, записью результата в профиль и скриншотом каждого шага; второй забег обучение не показывает и сразу пускает волны</td>
+        </tr>
+        <tr>
+          <td><code>SpaceEvolverGameplay</code><br>10, реальный рендер</td>
+          <td class="wide">Уход ворот с поля без оставленных спрайтов; очистка убитых врагов и тех, кто пролетел мимо; сплэш без двойного лута; плашка HP элитного врага и её снятие; сбор орбов, рост уровня и эволюция пушки; бафф от пролёта через ворота; подтверждение прохода через ворота с их исчезновением; взрыв врага; чистое поле во втором забеге; сорок секунд реальной игры с перетаскиванием корабля, где число спрайтов сверяется с числом живых сущностей</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Полный <code>ctest</code> — 328 из 328. Важная деталь для повторного прогона: <code>o2EditorUITests</code> падают с SEGFAULT, если не собрана цель <code>BuildEditorAssets</code> — им нужны ассеты редактора, а не изменения игры.</p>
+</section>
+
+<section>
+  <h2>Что дальше</h2>
+  <ul>
+    <li>Заменить процедурный арт на сгенерированный, когда появится ключ к <code>imagegen</code>: пути к спрайтам вынесены в конфиги, менять код не придётся.</li>
+    <li>Карточки выбора апгрейда при повышении уровня вместо авто-апгрейда.</li>
+  <li>Озвучка эффектов: вспышки и взрывы просят звука.</li>
+    <li>Несколько секторов со своими волнами и боссами, партиклы взрывов и звук.</li>
+    <li>Полировка HUD: подпись ворот иногда перекрывает счётчик монет вверху экрана.</li>
+  </ul>
+</section>
+
+<footer>Исходники прототипа: <code>Sources/Game/SpaceEvolver/</code>, <code>Assets/Scripts/</code>, <code>Assets/Configs/</code>. Рабочие материалы — <code>Work/</code>.</footer>
+</div>

@@ -1,0 +1,77 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        },
+        {
+            "mName": "Background"
+        },
+        {
+            "mName": "Game"
+        },
+        {
+            "mName": "UI"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mName": "camera",
+                "fillColor": {
+                    "r": 10,
+                    "g": 10,
+                    "b": 26,
+                    "a": 255
+                },
+                "mType": "FittedSize",
+                "mFixedOrFittedSize": {
+                    "x": 540.0,
+                    "y": 960.0
+                },
+                "mUnits": "Pixels",
+                "Id": 17312208212841619407,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mName": "Game",
+                "Id": 7282376732287358351,
+                "Transform": {
+                    "size": {
+                        "x": 540.0,
+                        "y": 960.0,
+                        "z": 0.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "o2::ScriptableComponent",
+                        "Data": {
+                            "mId": 17977490943749615624,
+                            "mScript": {
+                                "id": "dbda0bcd3441f4e60389a37309085472",
+                                "path": "Scripts/SpaceEvolver.js"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

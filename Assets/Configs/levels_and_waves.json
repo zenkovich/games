@@ -1,0 +1,29 @@
+{
+    "enemyTypes": {
+        "drone":   { "sprite": "SpaceEvolver/enemy_drone.png",   "size": 56, "hp": 20,  "speed": 130, "damage": 15, "coins": 5,  "xpOrbs": 1, "movement": "straight" },
+        "striker": { "sprite": "SpaceEvolver/enemy_striker.png", "size": 64, "hp": 35,  "speed": 170, "damage": 20, "coins": 8,  "xpOrbs": 2, "movement": "sine" },
+        "tank":    { "sprite": "SpaceEvolver/enemy_tank.png",    "size": 84, "hp": 400, "speed": 60,  "damage": 35, "coins": 25, "xpOrbs": 4, "movement": "straight" }
+    },
+    "waves": [
+        { "enemy": "drone",   "count": 6,  "interval": 0.9, "delay": 1.5 },
+        { "enemy": "striker", "count": 5,  "interval": 1.0, "delay": 4.0 },
+        { "enemy": "drone",   "count": 10, "interval": 0.6, "delay": 4.0 },
+        { "enemy": "tank",    "count": 1,  "interval": 1.0, "delay": 5.0 },
+        { "enemy": "striker", "count": 8,  "interval": 0.7, "delay": 4.0 },
+        { "enemy": "drone",   "count": 12, "interval": 0.5, "delay": 4.0 }
+    ],
+    "boss": {
+        "sprite": "SpaceEvolver/boss.png",
+        "width": 220, "height": 156,
+        "hp": 2500, "contactDamage": 50,
+        "speedX": 110,
+        "volley": { "bullets": 5, "spreadAngle": 50, "interval": 1.6, "bulletSpeed": 260, "bulletDamage": 18 },
+        "loot": { "coins": 250, "blueprints": 3, "equipmentDrops": 1 },
+        "delayAfterWaves": 3.0
+    },
+    "run": {
+        "loopHpScale": 1.8,
+        "loopCoinScale": 1.4,
+        "eliteHpFactor": 10
+    }
+}
