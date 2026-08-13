@@ -39,6 +39,11 @@ namespace space_evolver
 
 	void SaveBootstrapSceneIfMissing()
 	{
+		// Only where the source assets live: a packaged build (WebAssembly, mobile) ships the
+		// built tree alone and has nowhere to save the authoring scene
+		if (!o2FileSystem.IsFolderExist(o2Assets.GetAssetsPath()))
+			return;
+
 		auto path = o2Assets.GetAssetsPath() + "Bootstrap.scn";
 		if (o2FileSystem.IsFileExist(path))
 			return;

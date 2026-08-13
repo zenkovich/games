@@ -3,6 +3,10 @@
 
 #include <ctime>
 
+#if defined(PLATFORM_WASM)
+#include <emscripten.h>
+#endif
+
 #include "o2/Application/Application.h"
 #include "o2/Application/Input.h"
 #include "o2/Assets/Assets.h"
@@ -23,6 +27,36 @@ namespace space_evolver
 {
 	static const String kSaveFileName = "space_evolver_save.json";
 	static const String kFontPath = "debugFont.ttf";
+
+	// In the browser the file system is an in-memory one, wiped on every page load, so the
+	// profile lives in localStorage instead — otherwise meta progression never survives a reload
+	static String LoadProfile()
+	{
+#if defined(PLATFORM_WASM)
+		return String(emscripten_run_script_string("(localStorage.getItem('space_evolver_save') || '')"));
+#else
+		return o2FileSystem.ReadFile(kSaveFileName);
+#endif
+	}
+
+	static void StoreProfile(const String& data)
+	{
+#if defined(PLATFORM_WASM)
+		EM_ASM({ localStorage.setItem('space_evolver_save', UTF8ToString($0)); }, data.Data());
+#else
+		o2FileSystem.WriteFile(kSaveFileName, data);
+#endif
+	}
+
+	static void ClearProfile()
+	{
+#if defined(PLATFORM_WASM)
+		EM_ASM({ localStorage.removeItem('space_evolver_save'); });
+#else
+		if (o2FileSystem.IsFileExist(kSaveFileName))
+			o2FileSystem.FileDelete(kSaveFileName);
+#endif
+	}
 
 	// The project ships no ui_style asset, so o2UI can't build styled widgets: the game's
 	// labels and buttons are assembled here from widget layers instead
@@ -59,8 +93,7 @@ namespace space_evolver
 
 	void ResetPersistentSave()
 	{
-		if (o2FileSystem.IsFileExist(kSaveFileName))
-			o2FileSystem.FileDelete(kSaveFileName);
+		ClearProfile();
 	}
 
 	void RegisterGameJsApi()
@@ -75,20 +108,15 @@ namespace space_evolver
 		bridge.SetProperty("GetScreenWidth", Function<float()>([]() { return (float)o2Application.GetContentSize().x; }));
 		bridge.SetProperty("GetScreenHeight", Function<float()>([]() { return (float)o2Application.GetContentSize().y; }));
 
+		// Built assets, not the source Assets folder: the WebAssembly bundle only ships the
+		// built tree, so reading from the source path returns nothing in the browser
 		bridge.SetProperty("LoadConfig", Function<String(const String&)>([](const String& name)
 		{
-			return o2FileSystem.ReadFile(o2Assets.GetAssetsPath() + "Configs/" + name);
+			return o2FileSystem.ReadFile(o2Assets.GetBuiltAssetsPath() + "Configs/" + name);
 		}));
 
-		bridge.SetProperty("LoadPersistent", Function<String()>([]()
-		{
-			return o2FileSystem.ReadFile(kSaveFileName);
-		}));
-
-		bridge.SetProperty("SavePersistent", Function<void(const String&)>([](const String& data)
-		{
-			o2FileSystem.WriteFile(kSaveFileName, data);
-		}));
+		bridge.SetProperty("LoadPersistent", Function<String()>([]() { return LoadProfile(); }));
+		bridge.SetProperty("SavePersistent", Function<void(const String&)>(&StoreProfile));
 
 		bridge.SetProperty("GetTimeSec", Function<float()>([]() { return (float)time(nullptr); }));
 
@@ -115,7 +143,14 @@ namespace space_evolver
 
 		bridge.SetProperty("RunScript", Function<void(const String&)>([](const String& name)
 		{
-			auto res = o2Scripts.Eval(o2FileSystem.ReadFile(o2Assets.GetAssetsPath() + "Scripts/" + name), name);
+			auto source = o2FileSystem.ReadFile(o2Assets.GetBuiltAssetsPath() + "Scripts/" + name);
+			if (source.IsEmpty())
+			{
+				o2Debug.LogError("RunScript: module not found - " + name);
+				return;
+			}
+
+			auto res = o2Scripts.Eval(source, name);
 			if (res.GetValueType() == ScriptValue::ValueType::Error)
 				o2Debug.LogError("RunScript " + name + ": " + res.GetError());
 		}));

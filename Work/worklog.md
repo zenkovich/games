@@ -93,6 +93,43 @@
   улетевшие мимо игрока, оставляли обучение ждать объект, которого больше нет. Факт прохождения
   пишется в профиль (`tutorialDone`).
 
+### WebAssembly: почему не работало
+
+Сборка линковалась, но в браузере игра не поднималась. Две причины, обе — про то, что пакетная
+сборка везёт с собой только собранное дерево ассетов:
+
+1. **Мост читал исходную папку `Assets/`.** `o2Assets.GetAssetsPath()` в WASM отдаёт `/Assets/`,
+   а в бандл попадает только `/Data/` и `/FrameworkData/` (см. `--preload-file BuiltAssets/WebAssembly@/`).
+   Конфиги и JS-модули не находились, `SE.cfg` оставался пустым, игра падала на старте. Теперь
+   `LoadConfig` и `RunScript` читают `o2Assets.GetBuiltAssetsPath()`, а `RunScript` ещё и логирует
+   отсутствующий модуль вместо тихого пропуска.
+2. **Профиль не переживал перезагрузку страницы.** В браузере файловая система — MEMFS, она
+   очищается при каждой загрузке, поэтому вся мета-прогрессия терялась. Под `PLATFORM_WASM`
+   профиль пишется в `localStorage`, на остальных платформах — по-прежнему в файл.
+
+Ещё `SaveBootstrapSceneIfMissing` теперь не пытается писать сцену там, где исходной папки
+`Assets/` нет.
+
+Проверено в реальном Chrome (headless, WebGL2 через SwiftShader) скриптом `Work/wasm_browser_check.py`:
+он поднимает http-сервер над `Bin/WebAssembly`, драйвит страницу по CDP, собирает консоль и снимает
+скриншоты. Результат: ангар рисуется, START RUN запускает забег с туториалом, покупка апгрейда
+сохраняется и переживает перезагрузку (`Work/ScreenShots/w0*.png`), исключений в консоли нет
+(единственный 404 — favicon).
+
+Регрессия закрыта headless-тестом `ConfigsAndModulesLoadWithoutTheSourceAssetsFolder`: он через
+`SetAssetsPathOverride` подсовывает несуществующую папку исходных ассетов — ровно та ситуация,
+что в пакетной сборке.
+
+Порядок сборки WASM (ассеты собираются хостовым инструментом):
+
+```
+Bin/Mac/AssetsBuilder -platform WebAssembly -source "$PWD/Assets/" \
+    -target "$PWD/BuiltAssets/WebAssembly/Data/" \
+    -target-tree "$PWD/BuiltAssets/WebAssembly/Data.json" \
+    -compressor-config "$PWD/o2/CompressToolsConfig.json"
+cmake --preset wasm && cmake --build --preset wasm -j 8
+```
+
 ### Тесты
 - `GameTests/SpaceEvolverLogic` — 30 headless-тестов: конфиги, формулы апгрейдов, корабли, merge,
   перки, offline income, персистентность, эволюция оружия, орбы/магнит, ворота, элитные HP,

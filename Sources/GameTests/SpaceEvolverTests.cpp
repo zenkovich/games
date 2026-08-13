@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include "SpaceEvolver/GameJsBridge.h"
+#include "o2/EngineSettings.h"
 #include "o2/Scripts/ScriptEngine.h"
 #include "o2/Scripts/ScriptValue.h"
 #include "o2/Utils/FileSystem/FileSystem.h"
@@ -69,6 +70,24 @@ TEST_F(SpaceEvolverLogic, ConfigsLoaded)
 	EXPECT_EQ((int)Num("SE.cfg.weapons.cannon.length"), 4);
 	EXPECT_EQ((int)Num("SE.cfg.ships.ships.length"), 4);
 	EXPECT_EQ(Str("SE.cfg.weapons.cannon[3].type"), "laser");
+}
+
+// A packaged build (WebAssembly, mobile) ships only the built asset tree. Reading configs or
+// script modules from the source Assets folder works on a dev machine and silently fails there
+TEST_F(SpaceEvolverLogic, ConfigsAndModulesLoadWithoutTheSourceAssetsFolder)
+{
+	SetAssetsPathOverride("no_source_assets_here/");
+
+	Eval("SE.cfg = null;"
+		 "Bridge.RunScript('SE_Configs.js');"
+		 "SE.LoadConfigs();");
+
+	EXPECT_TRUE(Flag("SE.cfg != null && SE.cfg.player != null && SE.cfg.levels != null"))
+		<< "configs must come from the built assets, not from the source folder";
+	EXPECT_TRUE(Flag("typeof SE.Fx === 'function' || typeof SE.Fx === 'object'"))
+		<< "script modules must be loadable from the built assets too";
+
+	SetAssetsPathOverride("");
 }
 
 TEST_F(SpaceEvolverLogic, UpgradeCostGrowsGeometrically)
