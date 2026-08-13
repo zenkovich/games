@@ -460,7 +460,9 @@ TEST_F(SpaceEvolverLogic, TutorialIsSkippedOnceItIsDone)
 TEST_F(SpaceEvolverLogic, PassingAGateConfirmsItAndRemovesIt)
 {
 	StartRun();
-	Eval("SE.run.gates = []; SE.run.fx.items = [];"
+	// Silence the waves: a kill during the wait would add explosion effects of its own
+	Eval("SE.run.gates = []; SE.run.enemies = []; SE.run.fx.items = [];"
+		 "SE.run.waveTimer = 1000; SE.run.gateStaticTimer = 1000; SE.run.gateTargetTimer = 1000;"
 		 "var sePg = SE.run.SpawnStaticGate();"
 		 "sePg.buff = { type: 'damage_boost', pct: 10, label: '+10% DMG' };"
 		 "sePg.x = SE.run.px; sePg.y = SE.run.py; sePg.speed = 0;");

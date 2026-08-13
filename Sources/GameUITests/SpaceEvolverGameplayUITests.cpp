@@ -4,6 +4,7 @@
 #include "SpaceEvolver/GameJsBridge.h"
 #include "SpaceEvolver/SpaceEvolverBootstrap.h"
 #include "o2/Application/Application.h"
+#include "o2/Application/Input.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Scripts/ScriptEngine.h"
@@ -147,6 +148,37 @@ TEST_F(SpaceEvolverGameplay, SplashKillDoesNotDoublePayOrLeaveSprites)
 	EXPECT_FLOAT_EQ(Num("SE.run.coins"), reward*2) << "each enemy pays exactly once";
 	EXPECT_EQ(LiveViews("enemy"), 0);
 	Shot("g06_splash_cleanup.png");
+}
+
+// A browser hands a touch whatever id it likes, and only a mouse is ever cursor zero: the ship
+// must follow an active pointer regardless of its id, or dragging does nothing on a phone
+TEST_F(SpaceEvolverGameplay, ShipFollowsATouchWithNonZeroCursorId)
+{
+	const CursorId touchId = 7;
+
+	Eval("SE.run.px = 0; SE.run.py = -200; SE.run.enemies = []; SE.run.waveTimer = 1000;");
+	AppTestDriver::PumpFrames(2);
+
+	o2Input.OnCursorPressed(Vec2F(150, -300), touchId);
+	AppTestDriver::PumpFrames(2);
+	EXPECT_TRUE(Flag("Bridge.IsCursorDown()")) << "a touch must read as an active pointer";
+
+	for (int i = 0; i < 10; i++)
+	{
+		o2Input.OnCursorMoved(Vec2F(150, -300), touchId);
+		AppTestDriver::Wait(0.2f);
+	}
+
+	float px = Num("SE.run.px");
+	float py = Num("SE.run.py");
+
+	o2Input.OnCursorReleased(touchId);
+	AppTestDriver::PumpFrames(2);
+
+	EXPECT_NEAR(px, 150.0f, 40.0f) << "the ship must follow the touch horizontally";
+	EXPECT_NEAR(py, -300.0f + 120.0f, 40.0f) << "and keep the vertical offset above the finger";
+	EXPECT_FALSE(Flag("Bridge.IsCursorDown()")) << "releasing the touch must stop the drag";
+	Shot("g20_touch_drag.png");
 }
 
 TEST_F(SpaceEvolverGameplay, EliteEnemyShowsItsHpPlateAndTakesItAway)

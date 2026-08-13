@@ -58,6 +58,28 @@ namespace space_evolver
 #endif
 	}
 
+	// Only a mouse is ever cursor zero; a touch carries whatever id the browser assigns, so
+	// asking for cursor zero finds nothing on a phone and the ship never follows the finger.
+	// Widgets are unaffected because the event system dispatches every cursor
+	static const Input::Cursor* PressedCursor()
+	{
+		for (auto& cursor : o2Input.GetCursors())
+		{
+			if (cursor.isPressed)
+				return &cursor;
+		}
+
+		return nullptr;
+	}
+
+	static Vec2F ActiveCursorPos()
+	{
+		if (auto* cursor = PressedCursor())
+			return cursor->position;
+
+		return o2Input.GetCursorPos();
+	}
+
 	// The project ships no ui_style asset, so o2UI can't build styled widgets: the game's
 	// labels and buttons are assembled here from widget layers instead
 	static Ref<Text> MakeText(const String& value, int height)
@@ -100,10 +122,15 @@ namespace space_evolver
 	{
 		auto bridge = ScriptValue::EmptyObject();
 
-		bridge.SetProperty("GetCursorX", Function<float()>([]() { return o2Input.GetCursorPos().x; }));
-		bridge.SetProperty("GetCursorY", Function<float()>([]() { return o2Input.GetCursorPos().y; }));
-		bridge.SetProperty("IsCursorDown", Function<bool()>([]() { return o2Input.IsCursorDown(); }));
-		bridge.SetProperty("IsCursorPressed", Function<bool()>([]() { return o2Input.IsCursorPressed(); }));
+		bridge.SetProperty("GetCursorX", Function<float()>([]() { return ActiveCursorPos().x; }));
+		bridge.SetProperty("GetCursorY", Function<float()>([]() { return ActiveCursorPos().y; }));
+		bridge.SetProperty("IsCursorDown", Function<bool()>([]() { return PressedCursor() != nullptr; }));
+
+		bridge.SetProperty("IsCursorPressed", Function<bool()>([]()
+		{
+			auto* cursor = PressedCursor();
+			return cursor && cursor->pressedTime < FLT_EPSILON;
+		}));
 
 		bridge.SetProperty("GetScreenWidth", Function<float()>([]() { return (float)o2Application.GetContentSize().x; }));
 		bridge.SetProperty("GetScreenHeight", Function<float()>([]() { return (float)o2Application.GetContentSize().y; }));
