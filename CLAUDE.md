@@ -92,3 +92,26 @@ contributor asks me to remember here in this file, not in host/private memory.
 Don't run `git commit` / `push` / `add` / `gh pr create` etc. by default — make changes and stop at
 "files modified"; the contributor reviews and commits. Git authorization is per-session only, never
 carried to future sessions.
+
+## Deploy to games.zenkovich.space
+
+This repo is a submodule of the site repo one level up, which owns the publish pipeline.
+From here:
+
+    python3 ../tools/games_pipeline.py deploy --repo gamesTemplate --platforms web,android
+
+`deploy` = build + copy into `games/<slug>/` + ship to the server. Use `build` or
+`publish` to stop earlier, `status` to see what would be built and whether the
+toolchains are ready.
+
+- `GameInfo.json` must describe *this* game. Left at the template's defaults it
+  publishes as "o2 Template" into `games/template/`.
+- `--fresh` after switching branches: ninja compares timestamps, and a game's sources
+  are often older than the previous game's objects — it will happily link the wrong game.
+- Delete `BuiltAssets/<platform>` when sprites were renamed or removed; asset builds add
+  and update but never delete.
+- Look at the game before deploying, not just at the build log.
+- iOS needs `ios.team_id` in the site repo's `games-config.json`; a publishable Android
+  build needs `Platforms/Android/keystore.properties`. Docker must be running to deploy.
+
+Reference: `GAMES.md` in the site repo.
