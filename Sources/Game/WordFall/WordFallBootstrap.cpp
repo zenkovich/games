@@ -1,11 +1,14 @@
 #include "o2/stdafx.h"
 #include "WordFallBootstrap.h"
 
-#include "o2/Animation/AnimationClip.h"
+#include "WordFallGameService.h"
+#include "WordFallUiFactory.h"
+#include "WordFallVfx.h"
 #include "o2/Assets/Assets.h"
+#include "o2/Assets/Types/ActorAsset.h"
 #include "o2/Assets/Types/JavaScriptAsset.h"
+#include "o2/Render/Material.h"
 #include "o2/Render/Sprite.h"
-#include "o2/Render/Text.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/CameraActor.h"
 #include "o2/Scene/Components/ImageComponent.h"
@@ -16,34 +19,48 @@
 #include "o2/Scene/UI/Widgets/Button.h"
 #include "o2/Scene/UI/Widgets/Image.h"
 #include "o2/Scene/UI/Widgets/Label.h"
+#include "o2/Scene/UI/Widget.h"
 #include "o2/Scripts/ScriptEngine.h"
+#include "o2/Utils/FileSystem/FileSystem.h"
 
-static const Vec2F kScreenSize(1280, 800);
+using F = WordFallUiFactory;
+
+static const Vec2F kScreenSize(768, 1376);
 static const String kSprites = "WordFall/Sprites/";
-static const String kFont = "WordFall/game_font.ttf";
+static const String kPrototypes = "WordFall/Prototypes/";
+static const String kScreenProto = "WordFall/Prototypes/GameScreen.proto";
 
-static const float kCellSize = 68.0f;
-static const float kTileSize = 64.0f;
-static const Vec2F kBoardCenter(0, -20);
+// шаг сетки 96 при плитке 82: зазор между плитками 14, столько же до бортов панели
+static const float kCellSize = 96.0f;
+static const Vec2F kBoardCenter(0, -121);
 
-static const Color4 kDarkTextColor(107, 66, 24);
-static const Color4 kPointsTextColor(138, 90, 42);
-static const Color4 kCaptionColor(255, 250, 240);
-static const Color4 kCreamTextColor(255, 240, 214);
-static const Color4 kAccentColor(198, 106, 31);
+static const BorderI kBoardSlice(40, 40, 40, 40);
+static const BorderI kTasksSlice(20, 16, 20, 36);
 
-static const BorderI kCreamSlice(28, 30, 28, 26);
-static const BorderI kBoardSlice(36, 36, 36, 36);
-static const BorderI kPillSlice(26, 28, 26, 24);
-static const BorderI kBarTrackSlice(18, 17, 18, 17);
-static const BorderI kBarFillSlice(15, 14, 15, 14);
+// Меняет спрайт инстанса кнопки-иконки: слои back и pressed внутренней кнопки
+static void SetIconButtonImage(const Ref<Actor>& iconButton, const String& image)
+{
+	auto button = DynamicCast<Button>(iconButton->GetChild("Btn"));
+	if (!button)
+		return;
 
-// плитка с запечённой тенью занимает ~91% канвы спрайта — слой расширен,
-// чтобы тень не сжималась в узкую полоску
-static const Layout kTileLayout = Layout::BothStretch(-5, -5, -5, -5);
+	if (auto back = button->GetLayer("back"))
+		back->SetDrawable(mmake<Sprite>(image));
+	if (auto pressed = button->GetLayer("pressed"))
+	{
+		auto dim = mmake<Sprite>(image);
+		dim->SetColor(Color4(24, 30, 52));
+		pressed->SetDrawable(dim);
+	}
+}
 
 Ref<Actor> WordFallBootstrap::CreateBootstrapActor()
 {
+	// сервисная нода с конфигами — часть сцены, видна и редактируется в редакторе
+	auto service = mmake<Actor>(ActorCreateMode::InScene);
+	service->SetName("GameService");
+	service->AddComponent<WordFallGameService>();
+
 	auto actor = mmake<Actor>(ActorCreateMode::InScene);
 	actor->SetName("Bootstrap");
 	actor->AddComponent<WordFallBootstrap>();
@@ -53,7 +70,7 @@ Ref<Actor> WordFallBootstrap::CreateBootstrapActor()
 void WordFallBootstrap::SaveBootstrapScene(const String& path)
 {
 	CreateBootstrapActor();
-	o2Scene.UpdateAddedEntities(); // register the actor in scene roots without starting it
+	o2Scene.UpdateAddedEntities(); // register actors in scene roots without starting them
 	o2Scene.Save(path);
 }
 
@@ -75,17 +92,10 @@ void WordFallBootstrap::OnStart()
 
 	BuildLayersAndCamera();
 
-	auto root = CreateContainer(nullptr, "WordFall");
-	CreateSprite(root, "BG", kSprites + "background.png", "BG", Vec2F(0, 0), kScreenSize);
+	auto service = FindOrCreateService();
+	auto root = InstantiateGameScreen();
 
-	BuildBoard(root);
-	BuildHud(root);
-	BuildTasks(root);
-	BuildWordPanel(root);
-	BuildBoosters(root);
-	BuildFx(root);
-	BuildPopup(root);
-	BuildGameController(root);
+	InjectViewDependencies(root, service);
 
 	Actor::SetDefaultCreationMode(prevMode);
 }
@@ -100,431 +110,442 @@ void WordFallBootstrap::BuildLayersAndCamera()
 	camera->SetName("ui camera");
 	camera->SetFittedSize(kScreenSize);
 	camera->fillBackground = true;
-	camera->fillColor = Color4(246, 235, 215);
+	camera->fillColor = Color4(101, 148, 208);
 	camera->drawLayers.SetLayers(layers);
 }
 
-Ref<Actor> WordFallBootstrap::CreateContainer(const Ref<Actor>& parent, const String& name)
+Ref<Actor> WordFallBootstrap::FindOrCreateService()
 {
-	auto actor = mmake<Actor>(ActorCreateMode::InScene);
-	actor->SetName(name);
-	if (parent)
-		parent->AddChild(actor);
-
-	actor->transform->SetSize2D(Vec2F(0, 0));
-	actor->transform->SetPosition2D(Vec2F(0, 0));
+	// в bootstrap-сцене сервис уже есть; в тестах и при прямом запуске — создаём
+	auto actor = o2Scene.FindActor("GameService");
+	if (!actor)
+	{
+		actor = mmake<Actor>(ActorCreateMode::InScene);
+		actor->SetName("GameService");
+		actor->AddComponent<WordFallGameService>();
+	}
 	return actor;
 }
 
-Ref<Actor> WordFallBootstrap::CreateSprite(const Ref<Actor>& parent, const String& name, const String& image,
-										   const String& layer, const Vec2F& pos, const Vec2F& size,
-										   const Color4& color)
+Ref<Actor> WordFallBootstrap::InstantiatePart(const String& assetPath, Ref<Actor>(*builder)())
 {
-	auto actor = mmake<Actor>(ActorCreateMode::InScene);
-	actor->SetName(name);
-	if (parent)
-		parent->AddChild(actor);
+	auto asset = o2Assets.GetAssetRefByType<ActorAsset>(assetPath);
 
-	actor->SetLayer(layer);
-
-	auto sprite = actor->AddComponent<ImageComponent>();
-	sprite->LoadFromImage(image, false);
-	if (color != Color4::White())
-		sprite->SetColor(color);
-
-	actor->transform->SetSize2D(size);
-	actor->transform->SetPosition2D(pos);
-	return actor;
-}
-
-void WordFallBootstrap::SetWidgetRect(const Ref<Widget>& widget, const Vec2F& pos, const Vec2F& size)
-{
-	widget->layout->anchorMin = Vec2F(0, 0);
-	widget->layout->anchorMax = Vec2F(0, 0);
-	widget->layout->offsetMin = pos - size*0.5f;
-	widget->layout->offsetMax = pos + size*0.5f;
-}
-
-void WordFallBootstrap::SetWidgetDepth(const Ref<Widget>& widget, float depth)
-{
-	// equal depths are ordered unpredictably inside a layer — set explicit ones
-	widget->SetDrawingDepthInheritFromParent(false);
-	widget->SetDrawingDepth(depth);
-}
-
-Ref<Sprite> WordFallBootstrap::MakeSliced(const String& image, const BorderI& slice)
-{
-	auto sprite = mmake<Sprite>(image);
-	sprite->SetMode(SpriteMode::Sliced);
-	sprite->SetSliceBorder(slice);
-	return sprite;
-}
-
-Ref<Text> WordFallBootstrap::MakeText(int height, const Color4& color)
-{
-	auto text = mmake<Text>(kFont);
-	text->SetHeight(height);
-	text->SetColor(color);
-	text->SetHorAlign(HorAlign::Middle);
-	text->SetVerAlign(VerAlign::Middle);
-	return text;
-}
-
-// Вдавливание: тот же спрайт кнопки, тонированный тёмным, проявляется поверх
-// (затемнение по силуэту), плюс анимация сдвига виджета вниз. Звать после
-// SetWidgetRect — офсеты кнопки попадают в треки анимации. Для плиток сдвиг
-// отключён: их layout анимирует JS при падении.
-void WordFallBootstrap::AddPressedState(const Ref<Button>& button, const String& image,
-										const BorderI& slice, const Layout& layout, bool shift)
-{
-	auto dim = slice != BorderI() ? MakeSliced(image, slice) : mmake<Sprite>(image);
-	dim->SetColor(Color4(58, 34, 12));
-	button->AddLayer("pressed", dim, layout);
-
-	auto clip = mmake<AnimationClip>();
-	*clip->AddTrack<float>("layer/pressed/transparency") = AnimationTrack<float>::EaseInOut(0.0f, 0.35f, 0.06f);
-
-	if (shift)
+	// ассета ещё нет (свежий чекаут): на десктопе собрать и сохранить прототип —
+	// сохранённый ассет попадает в кэш и сразу пригоден для инстанцирования
+#if defined PLATFORM_WINDOWS || defined PLATFORM_MAC || defined PLATFORM_LINUX
+	if (!asset || !asset->GetActor())
 	{
-		Vec2F offMin = button->layout->GetOffsetMin();
-		Vec2F offMax = button->layout->GetOffsetMax();
-		Vec2F pressShift(0, -4);
-		*clip->AddTrack<Vec2F>("layout/offsetMin") = AnimationTrack<Vec2F>::EaseInOut(offMin, offMin + pressShift, 0.06f);
-		*clip->AddTrack<Vec2F>("layout/offsetMax") = AnimationTrack<Vec2F>::EaseInOut(offMax, offMax + pressShift, 0.06f);
+		String fullPath = o2Assets.GetAssetsPath() + assetPath;
+		o2FileSystem.FolderCreate(o2FileSystem.GetParentPath(fullPath), false);
+		if (!o2FileSystem.IsFileExist(fullPath))
+		{
+			auto prevMode = Actor::GetDefaultCreationMode();
+			Actor::SetDefaultCreationMode(ActorCreateMode::NotInScene);
+			auto protoActor = builder();
+			Actor::SetDefaultCreationMode(prevMode);
+
+			auto protoAsset = mmake<ActorAsset>(protoActor);
+			protoAsset->Save(assetPath); // путь относительно Assets — базу подставит дерево ассетов
+
+			asset = o2Assets.GetAssetRefByType<ActorAsset>(assetPath);
+		}
+	}
+#endif
+
+	if (asset && asset->GetActor())
+	{
+		if (auto instance = asset->Instantiate())
+			return instance;
 	}
 
-	button->AddState("pressed", clip);
+	// файл есть, но в дереве ассетов его ещё нет (до пересборки ассетов) — прямая сборка
+	return builder();
 }
 
-Ref<Image> WordFallBootstrap::CreateImageWidget(const Ref<Actor>& parent, const String& name, const String& image,
-												const Vec2F& pos, const Vec2F& size, const Color4& color,
-												float depth, const BorderI& slice)
+Ref<Actor> WordFallBootstrap::InstantiateGameScreen()
 {
-	auto widget = mmake<Image>();
-	widget->SetName(name);
-	if (parent)
-		parent->AddChild(widget);
-
-	widget->SetLayer("UI");
-
-	auto sprite = slice != BorderI() ? MakeSliced(image, slice) : mmake<Sprite>(image);
-	if (color != Color4::White())
-		sprite->SetColor(color);
-	widget->SetImage(sprite);
-
-	SetWidgetRect(widget, pos, size);
-	SetWidgetDepth(widget, depth);
-	return widget;
+	// прототип экрана — редактируемый ассет; внутри — инстансы прототипов частей
+	// (плитки, слоты, кнопки, строки задач, эффекты) с прототип-линками
+	return InstantiatePart(kScreenProto, &WordFallBootstrap::BuildGameScreen);
 }
 
-Ref<Button> WordFallBootstrap::CreateButton(const Ref<Actor>& parent, const String& name, const Vec2F& pos,
-											const Vec2F& size, const WString& caption, int captionHeight,
-											float depth)
+Ref<Actor> WordFallBootstrap::BuildGameScreen()
 {
-	auto button = mmake<Button>();
-	button->SetName(name);
-	if (parent)
-		parent->AddChild(button);
+	auto root = mmake<Actor>();
+	root->SetName("WordFall");
+	root->transform->SetSize2D(Vec2F(0, 0));
+	root->transform->SetPosition2D(Vec2F(0, 0));
 
-	button->SetLayer("UI");
+	// фон вдвое шире экрана — закрывает поля на широких соотношениях сторон
+	auto bg = mmake<Actor>();
+	bg->SetName("BG");
+	root->AddChild(bg);
+	bg->SetLayer("BG");
+	auto bgSprite = bg->AddComponent<ImageComponent>();
+	bgSprite->LoadFromImage(kSprites + "background.png", false);
+	bg->transform->SetSize2D(Vec2F(kScreenSize.x*2.0f, kScreenSize.y));
+	bg->transform->SetPosition2D(Vec2F(0, 0));
 
-	button->AddLayer("back", MakeSliced(kSprites + "ui_btn_orange.png", kPillSlice), Layout::BothStretch());
+	// якорная база UI: логическая канва экрана, секции растягиваются внутри неё
+	auto screen = F::CreateSection(root, "Screen", Vec2F(0, 0), Vec2F(0, 0), kScreenSize);
 
-	if (!caption.IsEmpty())
+	BuildBoard(screen);
+	BuildHud(screen);
+	BuildTasks(screen);
+	BuildWordBar(screen);
+	BuildBoosters(screen);
+	BuildFx(screen);
+	BuildPopup(screen);
+
+	BuildVfx(root);
+
+	return root;
+}
+
+void WordFallBootstrap::BuildVfx(const Ref<Actor>& root)
+{
+	auto vfx = mmake<Actor>();
+	vfx->SetName("Vfx");
+	root->AddChild(vfx);
+	vfx->transform->SetSize2D(Vec2F(0, 0));
+	vfx->transform->SetPosition2D(Vec2F(0, 0));
+	vfx->AddComponent<WordFallVfx>();
+}
+
+void WordFallBootstrap::AttachView(const Ref<Actor>& sectionActor, const String& scriptPath)
+{
+	auto scriptable = sectionActor->AddComponent<ScriptableComponent>();
+	scriptable->SetScript(o2Assets.GetAssetRefByType<JavaScriptAsset>(scriptPath));
+}
+
+void WordFallBootstrap::InjectViewDependencies(const Ref<Actor>& root, const Ref<Actor>& service)
+{
+	if (!root)
+		return;
+
+	auto vfx = root->GetChild("Vfx");
+
+	const char* sections[] = { "Screen/Hud", "Screen/Tasks", "Screen/WordBar", "Screen/Board",
+							   "Screen/Boosters", "Screen/Fx", "Screen/Popup" };
+	for (auto path : sections)
 	{
-		auto text = MakeText(captionHeight, kCaptionColor);
-		// нижний обод пилюли — визуальный центр выше геометрического
-		button->AddLayer("caption", text, Layout::BothStretch(0, 5, 0, 0));
-		button->SetCaption(caption);
+		auto sectionActor = root->GetChild(path);
+		if (!sectionActor)
+			continue;
+
+		if (auto scriptable = sectionActor->GetComponent<ScriptableComponent>())
+		{
+			auto instance = scriptable->GetInstance();
+			if (instance.IsObject())
+			{
+				instance.SetProperty("serviceActor", ScriptValue(service));
+				instance.SetProperty("vfxActor", ScriptValue(vfx));
+			}
+		}
 	}
-
-	SetWidgetRect(button, pos, size);
-	SetWidgetDepth(button, depth);
-	AddPressedState(button, kSprites + "ui_btn_orange.png", kPillSlice, Layout::BothStretch(), true);
-	return button;
 }
 
-Ref<Button> WordFallBootstrap::CreateBoosterButton(const Ref<Actor>& parent, const String& name, const String& key,
-												   const Vec2F& pos, const Vec2F& size, float depth)
+void WordFallBootstrap::BuildBoard(const Ref<Widget>& screen)
 {
-	auto button = mmake<Button>();
-	button->SetName(name);
-	if (parent)
-		parent->AddChild(button);
+	// поле — сетка фиксированного размера, центрируется на экране
+	auto board = F::CreateSection(screen, "Board", Vec2F(0.5f, 0.5f), kBoardCenter,
+								  Vec2F(kCellSize*kColumns, kCellSize*kRows));
 
-	button->SetLayer("UI");
-	button->AddLayer("icon", mmake<Sprite>(kSprites + "ui_booster_" + key + ".png"), Layout::BothStretch());
-
-	SetWidgetRect(button, pos, size);
-	SetWidgetDepth(button, depth);
-	AddPressedState(button, kSprites + "ui_booster_" + key + ".png", BorderI(), Layout::BothStretch(), true);
-	return button;
-}
-
-Ref<Button> WordFallBootstrap::CreateTileButton(const Ref<Actor>& parent, int column, int row)
-{
-	auto button = mmake<Button>();
-	button->SetName(String::Format("Tile_%i_%i", column, row));
-	parent->AddChild(button);
-	button->SetLayer("UI");
-
-	button->AddLayer("back", mmake<Sprite>(kSprites + "ui_tile.png"), kTileLayout);
-
-	auto sel = button->AddLayer("sel", mmake<Sprite>(kSprites + "ui_tile_sel.png"), kTileLayout);
-	sel->SetEnabled(false);
-
-	// лёд под буквой: буква остаётся читаемой поверх кристалла (синеет цветом)
-	auto ice = button->AddLayer("ice", mmake<Sprite>(kSprites + "ui_ice.png"), kTileLayout);
-	ice->SetEnabled(false);
-
-	auto letter = MakeText(30, kDarkTextColor);
-	button->AddLayer("letter", letter, Layout::BothStretch(0, 4, 0, 0));
-
-	auto points = MakeText(13, kPointsTextColor);
-	points->SetHorAlign(HorAlign::Right);
-	button->AddLayer("points", points, Layout::Based(BaseCorner::RightBottom, Vec2F(26, 18), Vec2F(-13, 13)));
-
-	const char* powerups[3] = { "bomb", "rocket", "wand" };
-	for (auto name : powerups)
-	{
-		auto powerup = button->AddLayer(name, mmake<Sprite>(kSprites + "powerup_" + String(name) + ".png"),
-										Layout::Based(BaseCorner::LeftTop, Vec2F(28, 28), Vec2F(14, -12)));
-		powerup->SetEnabled(false);
-	}
-
-	SetWidgetRect(button, TilePosition(column, row), Vec2F(kTileSize, kTileSize));
-
-	// верхние ряды рисуются позже — их запечённая тень ложится на плитки ниже
-	SetWidgetDepth(button, 10.0f + row*0.1f);
-	AddPressedState(button, kSprites + "ui_tile.png", BorderI(), kTileLayout, false);
-	return button;
-}
-
-Ref<Widget> WordFallBootstrap::CreateWordTile(const Ref<Actor>& parent, const String& name, float depth)
-{
-	auto widget = mmake<Widget>();
-	widget->SetName(name);
-	parent->AddChild(widget);
-	widget->SetLayer("UI");
-
-	widget->AddLayer("back", mmake<Sprite>(kSprites + "ui_tile.png"), kTileLayout);
-
-	auto letter = MakeText(24, kDarkTextColor);
-	widget->AddLayer("letter", letter, Layout::BothStretch(0, 3, 0, 0));
-
-	auto points = MakeText(10, kPointsTextColor);
-	points->SetHorAlign(HorAlign::Right);
-	widget->AddLayer("points", points, Layout::Based(BaseCorner::RightBottom, Vec2F(18, 13), Vec2F(-9, 9)));
-
-	SetWidgetRect(widget, Vec2F(0, 295), Vec2F(48, 48));
-	SetWidgetDepth(widget, depth);
-	widget->SetEnabled(false);
-	return widget;
-}
-
-Ref<Label> WordFallBootstrap::CreateLabel(const Ref<Actor>& parent, const String& name, const WString& text,
-										  const Vec2F& rectMin, const Vec2F& rectMax, int height,
-										  const Color4& color, HorAlign horAlign)
-{
-	auto label = mmake<Label>();
-	label->SetName(name);
-	if (parent)
-		parent->AddChild(label);
-
-	label->SetLayer("UI");
-	label->SetFontAsset(AssetRef<FontAsset>(kFont));
-	label->SetHeight(height);
-	label->SetColor(color);
-	label->SetHorAlign(horAlign);
-	label->SetVerAlign(VerAlign::Middle);
-	label->layout->anchorMin = Vec2F(0, 0);
-	label->layout->anchorMax = Vec2F(0, 0);
-	label->layout->offsetMin = rectMin;
-	label->layout->offsetMax = rectMax;
-	label->SetText(text);
-	SetWidgetDepth(label, 20.0f);
-	return label;
-}
-
-void WordFallBootstrap::BuildBoard(const Ref<Actor>& root)
-{
-	auto board = CreateContainer(root, "Board");
-
-	// низ длиннее: в нижней границе слайса лежит запечённая тень — иначе видимый
-	// край панели подрезает нижний ряд плиток
-	CreateImageWidget(board, "Panel", kSprites + "ui_panel_board.png", Vec2F(0, -30), Vec2F(500, 576),
-					  Color4::White(), 1.0f, kBoardSlice);
+	// секция — габарит ячеек: край плитки в 7px от края секции, борт панели ещё в 7px
+	F::CreateStretchedImage(board, "Panel", kSprites + "ui_panel_board.png",
+							BorderF(7, 7, 7, 7), 1.0f, kBoardSlice);
 
 	for (int c = 0; c < kColumns; c++)
 	{
 		for (int r = 0; r < kRows; r++)
-			CreateTileButton(board, c, r);
+		{
+			auto tile = InstantiatePart(kPrototypes + "Tile.proto", &F::BuildTilePrototype);
+			tile->SetName(String::Format("Tile_%i_%i", c, r));
+			board->AddChild(tile);
+
+			auto widget = DynamicCast<Widget>(tile);
+			F::SetAnchoredRect(widget, Vec2F(0.5f, 0.5f),
+							   Vec2F((c - 3)*kCellSize, (r - 3.5f)*kCellSize),
+							   Vec2F(F::kTileSize, F::kTileSize));
+
+			// верхние ряды рисуются позже — их кромка ложится на плитки ниже
+			F::SetDepth(widget, 10.0f + r*0.1f);
+		}
 	}
+
+	AttachView(board, "Scripts/WordFall/WordFallBoardView.js");
 }
 
-void WordFallBootstrap::BuildHud(const Ref<Actor>& root)
+void WordFallBootstrap::BuildHud(const Ref<Widget>& screen)
 {
-	auto hud = CreateContainer(root, "Hud");
+	// верхний ряд растянут вдоль верхней кромки экрана
+	auto hud = mmake<Widget>();
+	hud->SetName("Hud");
+	screen->AddChild(hud);
+	hud->SetLayer("UI");
+	F::SetAnchors(hud, Vec2F(0, 1), Vec2F(1, 1), Vec2F(0, -160), Vec2F(0, -10));
 
-	// глубже плиток (10.x), чтобы спавн-плитки пролетали позади панели
-	CreateImageWidget(hud, "TopPanel", kSprites + "ui_panel_cream.png", Vec2F(0, 364), Vec2F(780, 64),
-					  Color4::White(), 16.0f, kCreamSlice);
+	// бокс уровня прижат к левому краю; подпись и число — его дети
+	auto levelBox = F::CreateImage(hud, "LevelBox", kSprites + "ui_level_box.png",
+								   Vec2F(0, 0.5f), Vec2F(0, 0), Vec2F(137, 116), 2.0f);
+	F::SetAnchors(levelBox, Vec2F(0, 0.5f), Vec2F(0, 0.5f), Vec2F(26, -58), Vec2F(163, 58));
+	F::CreateLabel(levelBox, "Caption", "УРОВЕНЬ", Vec2F(0.5f, 1.0f), Vec2F(0, -24), Vec2F(130, 30),
+				   15, F::kCaption, HorAlign::Middle, 3.0f, true);
+	F::CreateLabel(levelBox, "Value", "1", Vec2F(0.5f, 0.5f), Vec2F(0, -14), Vec2F(130, 56),
+				   34, F::kCaption, HorAlign::Middle, 3.0f, true);
 
-	CreateLabel(hud, "LevelLabel", "Уровень 1", Vec2F(-375, 343), Vec2F(-245, 383), 20, kAccentColor, HorAlign::Middle);
+	// панель очков по центру: подпись, прогресс и счёт — дети панели
+	auto scorePanel = F::CreateImage(hud, "ScorePanel", kSprites + "ui_score_panel.png",
+									 Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(375, 113), 2.0f);
+	F::CreateLabel(scorePanel, "Caption", "ОЧКИ", Vec2F(0.5f, 1.0f), Vec2F(0, -20), Vec2F(200, 28),
+				   16, F::kCaption, HorAlign::Middle, 3.0f, true);
+	F::CreateProgressBar(scorePanel, "Bar", kSprites + "ui_bar_fill.png",
+						 Vec2F(0.5f, 0.5f), Vec2F(0, -5), Vec2F(325, 34), 3.5f);
+	F::CreateLabel(scorePanel, "ScoreLabel", "0/250", Vec2F(0.5f, 0.5f), Vec2F(0, -5), Vec2F(310, 34),
+				   20, F::kCaption, HorAlign::Middle, 4.0f, true);
 
-	CreateImageWidget(hud, "BarTrack", kSprites + "ui_bar_track.png", Vec2F(-100, 363), Vec2F(280, 36),
-					  Color4::White(), 17.0f, kBarTrackSlice);
-	CreateImageWidget(hud, "BarFill", kSprites + "ui_bar_fill.png", Vec2F(-100, 363), Vec2F(274, 30),
-					  Color4::White(), 18.0f, kBarFillSlice);
-	CreateLabel(hud, "ScoreLabel", "0/250", Vec2F(-240, 345), Vec2F(40, 381), 18, kCaptionColor, HorAlign::Middle);
+	// бокс ходов прижат к правому краю
+	auto movesBox = F::CreateImage(hud, "MovesBox", kSprites + "ui_moves_box.png",
+								   Vec2F(1, 0.5f), Vec2F(0, 0), Vec2F(133, 114), 2.0f);
+	F::SetAnchors(movesBox, Vec2F(1, 0.5f), Vec2F(1, 0.5f), Vec2F(-159, -57), Vec2F(-26, 57));
+	F::CreateLabel(movesBox, "Caption", "ХОДЫ", Vec2F(0.5f, 1.0f), Vec2F(0, -24), Vec2F(130, 30),
+				   15, F::kCaption, HorAlign::Middle, 3.0f, true);
+	F::CreateLabel(movesBox, "Value", "12", Vec2F(0.5f, 0.5f), Vec2F(0, -14), Vec2F(130, 56),
+				   34, F::kCaption, HorAlign::Middle, 3.0f, true);
 
-	CreateImageWidget(hud, "MovesBox", kSprites + "ui_bar_track.png", Vec2F(160, 363), Vec2F(150, 36),
-					  Color4::White(), 17.0f, kBarTrackSlice);
-	CreateLabel(hud, "MovesLabel", "Ходы: 12", Vec2F(85, 345), Vec2F(235, 381), 18, kCreamTextColor, HorAlign::Middle);
+	AttachView(hud, "Scripts/WordFall/WordFallHudView.js");
 }
 
-void WordFallBootstrap::BuildTasks(const Ref<Actor>& root)
+void WordFallBootstrap::BuildTasks(const Ref<Widget>& screen)
 {
-	auto tasks = CreateContainer(root, "Tasks");
+	// панель задач растянута по ширине с полями, прижата под HUD
+	auto tasks = mmake<Widget>();
+	tasks->SetName("Tasks");
+	screen->AddChild(tasks);
+	tasks->SetLayer("UI");
+	F::SetAnchors(tasks, Vec2F(0, 1), Vec2F(1, 1), Vec2F(28, -296), Vec2F(-28, -168));
 
-	CreateImageWidget(tasks, "Panel", kSprites + "ui_panel_cream.png", Vec2F(-450, 90), Vec2F(350, 310),
-					  Color4::White(), 2.0f, kCreamSlice);
-	CreateLabel(tasks, "Title", "ЗАДАЧИ", Vec2F(-610, 200), Vec2F(-290, 240), 24, kAccentColor, HorAlign::Middle);
+	F::CreateStretchedImage(tasks, "Panel", kSprites + "ui_tasks_panel.png", BorderF(), 2.0f, kTasksSlice);
+	F::CreateLabel(tasks, "Title", "ЗАДАЧИ", Vec2F(0.5f, 1.0f), Vec2F(0, -13), Vec2F(320, 24),
+				   14, F::kCaption, HorAlign::Middle, 20.0f, true);
 
+	// строки задач (прототип TaskRow) в две колонки: левая — левая половина панели,
+	// правая — правая; вертикальную раскладку ведёт вьюха по своим полям
 	for (int i = 0; i < kMaxTasks; i++)
 	{
-		float top = 175.0f - i*44.0f;
-		CreateLabel(tasks, String::Format("Task%i", i), "", Vec2F(-595, top - 36), Vec2F(-305, top), 16,
-					kDarkTextColor, HorAlign::Left);
+		bool left = i % 2 == 0;
+		float rowY = -44.0f - (i/2)*32.0f;
+
+		auto row = InstantiatePart(kPrototypes + "TaskRow.proto", &F::BuildTaskRowPrototype);
+		row->SetName(String::Format("Task%i", i));
+		tasks->AddChild(row);
+
+		auto rowWidget = DynamicCast<Widget>(row);
+		F::SetAnchors(rowWidget, Vec2F(left ? 0.0f : 0.5f, 1.0f), Vec2F(left ? 0.5f : 1.0f, 1.0f),
+					  Vec2F(left ? 28.0f : 12.0f, rowY - 15.0f),
+					  Vec2F(left ? -12.0f : -28.0f, rowY + 15.0f));
+		F::SetDepth(rowWidget, 20.0f);
 	}
+
+	AttachView(tasks, "Scripts/WordFall/WordFallTasksView.js");
 }
 
-void WordFallBootstrap::BuildWordPanel(const Ref<Actor>& root)
+void WordFallBootstrap::BuildWordBar(const Ref<Widget>& screen)
 {
-	auto wordPanel = CreateContainer(root, "WordPanel");
+	// панель слова растянута по ширине: лоток тянется, кнопки прижаты к правому краю
+	auto wordBar = mmake<Widget>();
+	wordBar->SetName("WordBar");
+	screen->AddChild(wordBar);
+	wordBar->SetLayer("UI");
+	F::SetAnchors(wordBar, Vec2F(0, 1), Vec2F(1, 1), Vec2F(0, -410), Vec2F(0, -304));
 
-	// единый задник по ширине поля с выемкой-лотком под плашки (из концепта);
-	// кнопки ПРИНЯТЬ и крестик — поверх правой части
-	CreateImageWidget(wordPanel, "Panel", kSprites + "ui_wordbar.png", Vec2F(0, 295), Vec2F(500, 72),
-					  Color4::White(), 15.0f);
+	// слоты набираемого слова и счётчик «+N» — дети лотка
+	auto tray = F::CreateImage(wordBar, "Tray", kSprites + "ui_input_tray.png",
+							   Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(490, 100), 5.0f);
+	F::SetAnchors(tray, Vec2F(0, 0.5f), Vec2F(1, 0.5f), Vec2F(26, -50), Vec2F(-218, 50));
 
 	for (int i = 0; i < kWordSlots; i++)
-		CreateWordTile(wordPanel, String::Format("Slot%i", i), 25.0f);
+	{
+		auto slot = InstantiatePart(kPrototypes + "WordSlot.proto", &F::BuildWordSlotPrototype);
+		slot->SetName(String::Format("Slot%i", i));
+		tray->AddChild(slot);
+		F::SetDepth(DynamicCast<Widget>(slot), 25.0f);
+	}
 
+	F::CreateLabel(tray, "GainLabel", "", Vec2F(0.5f, 1.0f), Vec2F(0, 24), Vec2F(240, 40),
+				   24, Color4(255, 232, 120), HorAlign::Middle, 20.0f, true);
+
+	// флаеры перелёта букв живут в Screen — летят в экранных координатах над всем UI
 	for (int i = 0; i < kFlyers; i++)
-		CreateWordTile(wordPanel, String::Format("Flyer%i", i), 45.0f);
+	{
+		auto flyer = InstantiatePart(kPrototypes + "WordSlot.proto", &F::BuildWordSlotPrototype);
+		flyer->SetName(String::Format("Flyer%i", i));
+		screen->AddChild(flyer);
+		F::SetDepth(DynamicCast<Widget>(flyer), 45.0f);
+	}
 
-	CreateLabel(wordPanel, "GainLabel", "", Vec2F(275, 271), Vec2F(420, 319), 24, Color4(60, 150, 60), HorAlign::Left);
+	auto accept = InstantiatePart(kPrototypes + "IconButton.proto", &F::BuildIconButtonPrototype);
+	accept->SetName("AcceptBtn");
+	wordBar->AddChild(accept);
+	auto acceptWidget = DynamicCast<Widget>(accept);
+	F::SetAnchors(acceptWidget, Vec2F(1, 0.5f), Vec2F(1, 0.5f), Vec2F(-206, -48), Vec2F(-118, 47));
+	F::SetDepth(acceptWidget, 21.0f);
+	if (auto button = DynamicCast<Button>(accept->GetChild("Btn")))
+		F::SetDepth(button, 21.5f);
 
-	CreateButton(wordPanel, "AcceptBtn", Vec2F(128, 295), Vec2F(120, 52), "ПРИНЯТЬ", 17, 21.0f);
-
-	// сброс — круглая кнопка-крестик в стиле «Принять»
-	auto clear = mmake<Button>();
+	auto clear = InstantiatePart(kPrototypes + "IconButton.proto", &F::BuildIconButtonPrototype);
 	clear->SetName("ClearBtn");
-	wordPanel->AddChild(clear);
-	clear->SetLayer("UI");
-	clear->AddLayer("back", mmake<Sprite>(kSprites + "ui_btn_cross.png"), Layout::BothStretch());
-	SetWidgetRect(clear, Vec2F(218, 295), Vec2F(46, 46));
-	SetWidgetDepth(clear, 21.0f);
-	AddPressedState(clear, kSprites + "ui_btn_cross.png", BorderI(), Layout::BothStretch(), true);
+	wordBar->AddChild(clear);
+	auto clearWidget = DynamicCast<Widget>(clear);
+	F::SetAnchors(clearWidget, Vec2F(1, 0.5f), Vec2F(1, 0.5f), Vec2F(-104, -46), Vec2F(-12, 46));
+	F::SetDepth(clearWidget, 21.0f);
+	if (auto button = DynamicCast<Button>(clear->GetChild("Btn")))
+		F::SetDepth(button, 21.5f);
+	SetIconButtonImage(clear, kSprites + "ui_btn_cancel.png");
+
+	AttachView(wordBar, "Scripts/WordFall/WordFallWordPanelView.js");
 }
 
-void WordFallBootstrap::BuildBoosters(const Ref<Actor>& root)
+void WordFallBootstrap::BuildBoosters(const Ref<Widget>& screen)
 {
-	auto boosters = CreateContainer(root, "Boosters");
-
-	CreateImageWidget(boosters, "Panel", kSprites + "ui_panel_cream.png", Vec2F(0, -368), Vec2F(660, 64),
-					  Color4::White(), 2.0f, kCreamSlice);
+	// нижний ряд растянут вдоль нижней кромки экрана, кнопки центрированы внутри
+	auto boosters = mmake<Widget>();
+	boosters->SetName("Boosters");
+	screen->AddChild(boosters);
+	boosters->SetLayer("UI");
+	F::SetAnchors(boosters, Vec2F(0, 0), Vec2F(1, 0), Vec2F(0, 13), Vec2F(0, 163));
 
 	const char* keys[5] = { "hammer", "shuffle", "hint", "joker", "x2" };
 	for (int i = 0; i < 5; i++)
 	{
-		Vec2F pos(-180.0f + i*90.0f, -350.0f);
-		CreateBoosterButton(boosters, String::Format("Booster%i", i), keys[i], pos, Vec2F(78, 78), 10.0f);
+		auto booster = InstantiatePart(kPrototypes + "Booster.proto", &F::BuildBoosterPrototype);
+		booster->SetName(String::Format("Booster%i", i));
+		boosters->AddChild(booster);
 
-		CreateImageWidget(boosters, String::Format("Badge%i", i), kSprites + "ui_badge.png",
-						  pos + Vec2F(26, 26), Vec2F(32, 32), Color4::White(), 12.0f);
-		auto charge = CreateLabel(boosters, String::Format("Charge%i", i), "3",
-								  pos + Vec2F(10, 9), pos + Vec2F(42, 43), 15, kCreamTextColor, HorAlign::Middle);
-		SetWidgetDepth(charge, 13.0f);
+		auto widget = DynamicCast<Widget>(booster);
+		F::SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(-264.0f + i*132.0f, 0), Vec2F(120, 114));
+		F::SetDepth(widget, 10.0f + i);
+
+		// иконка бустера — свой спрайт для каждого инстанса прототипа
+		if (auto button = DynamicCast<Button>(booster->GetChild("Btn")))
+		{
+			String image = kSprites + "ui_booster_" + keys[i] + ".png";
+			if (auto icon = button->GetLayer("icon"))
+				icon->SetDrawable(mmake<Sprite>(image));
+			if (auto pressed = button->GetLayer("pressed"))
+			{
+				auto dim = mmake<Sprite>(image);
+				dim->SetColor(Color4(24, 30, 52));
+				pressed->SetDrawable(dim);
+			}
+		}
 	}
 
-	CreateLabel(boosters, "ModeLabel", "", Vec2F(-610, -120), Vec2F(-290, -80), 16, kAccentColor, HorAlign::Left);
+	F::CreateLabel(boosters, "ModeLabel", "", Vec2F(0.5f, 1.0f), Vec2F(0, 6), Vec2F(500, 36),
+				   17, F::kCaption, HorAlign::Middle, 20.0f, true);
+
+	AttachView(boosters, "Scripts/WordFall/WordFallBoostersView.js");
 }
 
-Ref<Widget> WordFallBootstrap::CreateFxWidget(const Ref<Actor>& parent, const String& name, const String& image,
-											  const BorderI& slice, float depth)
+// Пулы виджетов хореографии начисления очков и эффектов пауэрапов из прототипов:
+// вспышки, звёзды, свечение итога, лучи ракеты
+void WordFallBootstrap::BuildFx(const Ref<Widget>& screen)
 {
-	auto widget = mmake<Widget>();
-	widget->SetName(name);
-	parent->AddChild(widget);
-	widget->SetLayer("UI");
-	widget->AddLayer("img", slice != BorderI() ? MakeSliced(kSprites + image, slice) : mmake<Sprite>(kSprites + image),
-					 Layout::BothStretch());
-	SetWidgetRect(widget, Vec2F(0, 0), Vec2F(10, 10));
-	SetWidgetDepth(widget, depth);
-	widget->SetEnabled(false);
-	return widget;
-}
+	auto fx = mmake<Widget>();
+	fx->SetName("Fx");
+	screen->AddChild(fx);
+	fx->SetLayer("UI");
+	F::SetAnchors(fx, Vec2F(0, 0), Vec2F(1, 1), Vec2F(0, 0), Vec2F(0, 0));
 
-// Пулы виджетов для эффектов: летящие цифры очков, итоговая сумма, вспышки,
-// лучи ракеты, звёздочки палочки. JS включает, позиционирует и гасит
-void WordFallBootstrap::BuildFx(const Ref<Actor>& root)
-{
-	auto fx = CreateContainer(root, "Fx");
-
-	for (int i = 0; i < kFxNumbers; i++)
+	auto makePart = [&](const String& name, const String& proto, Ref<Actor>(*builder)(), float depth)
 	{
-		auto label = CreateLabel(fx, String::Format("FxScore%i", i), "", Vec2F(-30, -16), Vec2F(30, 16), 20,
-								 Color4(60, 150, 60), HorAlign::Middle);
-		SetWidgetDepth(label, 60.0f);
-		label->SetEnabled(false);
+		auto part = InstantiatePart(kPrototypes + proto, builder);
+		part->SetName(name);
+		fx->AddChild(part);
+
+		auto widget = DynamicCast<Widget>(part);
+		F::SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(32, 32));
+		F::SetDepth(widget, depth);
+		widget->SetEnabled(false);
+		return widget;
+	};
+
+	// буквы, летящие из лотка в прогресс-бар при принятии слова:
+	// траектория и анимация полёта живут в прототипе FxFlyingLetter
+	for (int i = 0; i < kWordSlots; i++)
+	{
+		auto letter = InstantiatePart(kPrototypes + "FxFlyingLetter.proto", &F::BuildFlyingLetterPrototype);
+		letter->SetName(String::Format("FxLetter%i", i));
+		fx->AddChild(letter);
+
+		auto widget = DynamicCast<Widget>(letter);
+		F::SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(64, 64));
+		F::SetDepth(widget, 61.0f);
+		widget->SetEnabled(false);
 	}
 
-	auto total = CreateLabel(fx, "FxTotal", "", Vec2F(-50, -20), Vec2F(50, 20), 26, Color4(60, 150, 60), HorAlign::Middle);
-	SetWidgetDepth(total, 61.0f);
+	// всплывающий «+N» у бара
+	auto total = F::CreateLabel(fx, "FxTotal", "", Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(90, 44),
+								26, F::kCaption, HorAlign::Middle, 63.0f, true);
 	total->SetEnabled(false);
 
-	for (int i = 0; i < kFxFlashes; i++)
-		CreateFxWidget(fx, String::Format("FxFlash%i", i), "ui_fx_flash.png", BorderI(), 55.0f);
+	for (int i = 0; i < 10; i++)
+		makePart(String::Format("FxFlash%i", i), "FxFlash.proto", &F::BuildFxFlashPrototype, 60.0f);
 
-	// свечение под каждой летящей цифрой
-	for (int i = 0; i < kFxNumbers; i++)
-		CreateFxWidget(fx, String::Format("FxGlow%i", i), "ui_fx_flash.png", BorderI(), 59.0f);
+	for (int i = 0; i < 10; i++)
+		makePart(String::Format("FxStar%i", i), "FxStar.proto", &F::BuildFxStarPrototype, 60.0f);
 
-	for (int i = 0; i < kFxStars; i++)
-		CreateFxWidget(fx, String::Format("FxStar%i", i), "ui_fx_star.png", BorderI(), 56.0f);
+	makePart("FxBeamH", "FxBeam.proto", &F::BuildFxBeamPrototype, 59.0f);
+	makePart("FxBeamV", "FxBeam.proto", &F::BuildFxBeamPrototype, 59.0f);
 
-	CreateFxWidget(fx, "FxBeamH", "ui_bar_fill.png", kBarFillSlice, 54.0f);
-	CreateFxWidget(fx, "FxBeamV", "ui_bar_fill.png", kBarFillSlice, 54.0f);
+	AttachView(fx, "Scripts/WordFall/WordFallFxView.js");
 }
 
-void WordFallBootstrap::BuildPopup(const Ref<Actor>& root)
+void WordFallBootstrap::BuildPopup(const Ref<Widget>& screen)
 {
-	auto popup = CreateContainer(root, "Popup");
+	auto popup = mmake<Widget>();
+	popup->SetName("Popup");
+	screen->AddChild(popup);
+	popup->SetLayer("UI");
+	F::SetAnchors(popup, Vec2F(0, 0), Vec2F(1, 1), Vec2F(0, 0), Vec2F(0, 0));
 
-	CreateImageWidget(popup, "Dim", kSprites + "white.png", Vec2F(0, 0), Vec2F(1300, 820),
-					  Color4(40, 25, 10, 170), 100.0f);
-	CreateImageWidget(popup, "Panel", kSprites + "popup_panel.png", Vec2F(0, 10), Vec2F(520, 390),
-					  Color4::White(), 101.0f);
+	// контент выключается отдельно — вьюха на всегда-активном Popup
+	auto content = mmake<Widget>();
+	content->SetName("Content");
+	popup->AddChild(content);
+	content->SetLayer("UI");
+	F::SetAnchors(content, Vec2F(0, 0), Vec2F(1, 1), Vec2F(-10, -10), Vec2F(10, 10));
 
-	auto title = CreateLabel(popup, "Title", "ПОБЕДА!", Vec2F(-220, 90), Vec2F(220, 150), 30, kAccentColor, HorAlign::Middle);
-	SetWidgetDepth(title, 102.0f);
+	// полупрозрачность — прозрачностью виджета: альфу цвета спрайта затирает
+	// апдейт прозрачности слоёв, а прозрачность виджета сериализуется и клонируется
+	auto dim = F::CreateStretchedImage(content, "Dim", kSprites + "white.png", BorderF(), 100.0f,
+									   BorderI(), Color4(14, 26, 52, 255));
+	dim->SetTransparency(170.0f/255.0f);
 
-	auto scoreLine = CreateLabel(popup, "ScoreLine", "", Vec2F(-220, 20), Vec2F(220, 70), 24, kDarkTextColor, HorAlign::Middle);
-	SetWidgetDepth(scoreLine, 102.0f);
+	F::CreateImage(content, "Panel", kSprites + "ui_panel_board.png", Vec2F(0.5f, 0.5f), Vec2F(0, 10),
+				   Vec2F(520, 400), 101.0f, kBoardSlice);
 
-	CreateButton(popup, "RestartBtn", Vec2F(0, -80), Vec2F(220, 64), "ЕЩЁ РАЗ", 22, 102.0f);
+	F::CreateLabel(content, "Title", "ПОБЕДА!", Vec2F(0.5f, 0.5f), Vec2F(0, 125), Vec2F(460, 60),
+				   32, F::kCaption, HorAlign::Middle, 102.0f, true);
+	F::CreateLabel(content, "ScoreLine", "", Vec2F(0.5f, 0.5f), Vec2F(0, 55), Vec2F(440, 50),
+				   24, F::kAccent, HorAlign::Middle, 102.0f, true);
 
-	popup->SetEnabled(false);
-}
+	auto restart = InstantiatePart(kPrototypes + "PillButton.proto", &F::BuildPillButtonPrototype);
+	restart->SetName("RestartBtn");
+	content->AddChild(restart);
+	auto restartWidget = DynamicCast<Widget>(restart);
+	F::SetAnchoredRect(restartWidget, Vec2F(0.5f, 0.5f), Vec2F(0, -80), Vec2F(220, 64));
+	F::SetDepth(restartWidget, 102.0f);
+	if (auto button = DynamicCast<Button>(restart->GetChild("Btn")))
+	{
+		F::SetDepth(button, 102.5f);
+		button->SetCaption("ЕЩЁ РАЗ");
+	}
 
-void WordFallBootstrap::BuildGameController(const Ref<Actor>& root)
-{
-	auto game = CreateContainer(root, "Game");
+	content->SetEnabled(false);
 
-	auto scriptable = game->AddComponent<ScriptableComponent>();
-	scriptable->SetScript(o2Assets.GetAssetRefByType<JavaScriptAsset>(String("Scripts/WordFallGame.js")));
+	AttachView(popup, "Scripts/WordFall/WordFallPopupView.js");
 }
 // --- META ---
 

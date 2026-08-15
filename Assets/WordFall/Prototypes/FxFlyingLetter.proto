@@ -1,0 +1,370 @@
+{
+    "mActor": {
+        "Type": "o2::Widget",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "FxFlyingLetter",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "mEnabled": false,
+            "Id": 3861436853962269371,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -32.0,
+                    "y": -32.0
+                },
+                "offsetMax": {
+                    "x": 32.0,
+                    "y": 32.0
+                }
+            },
+            "Children": [
+                {
+                    "Type": "o2::Actor",
+                    "Data": {
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Sparks",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 7117912718668311923,
+                        "Transform": {
+                            "size": {
+                                "x": 10.0,
+                                "y": 10.0,
+                                "z": 0.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "Components": [
+                            {
+                                "Type": "o2::ParticlesEmitterComponent",
+                                "Data": {
+                                    "mDuration": 0.5,
+                                    "mEndTime": 0.5,
+                                    "mParticlesSource": {
+                                        "Type": "o2::SingleSpriteParticleSource",
+                                        "Value": {
+                                            "image": {
+                                                "id": "0105bd0ea11908668b9a8fea8e1841e2",
+                                                "path": "WordFall/Sprites/vfx_spark.png"
+                                            }
+                                        }
+                                    },
+                                    "mShape": {
+                                        "Type": "o2::CircleParticlesEmitterShape",
+                                        "Value": {}
+                                    },
+                                    "mParticlesNumLimit": 60,
+                                    "mParticlesLifetime": 0.4000000059604645,
+                                    "mEmitParticlesPerSecond": 90.0,
+                                    "mInitialAngleRange": 360.0,
+                                    "mInitialSize": 0.3499999940395355,
+                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSpeed": 80.0,
+                                    "mInitialSpeedRangle": 40.0,
+                                    "mId": 17042099302992493122,
+                                    "mSize": {
+                                        "x": 10.0,
+                                        "y": 10.0,
+                                        "z": 0.0
+                                    },
+                                    "mPivot": {
+                                        "x": 0.5,
+                                        "y": 0.5,
+                                        "z": 0.0
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Type": "o2::Actor",
+                    "Data": {
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Burst",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 3186997535089398807,
+                        "Transform": {
+                            "size": {
+                                "x": 10.0,
+                                "y": 10.0,
+                                "z": 0.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "Components": [
+                            {
+                                "Type": "o2::ParticlesEmitterComponent",
+                                "Data": {
+                                    "mDuration": 0.44999998807907107,
+                                    "mEndTime": 0.44999998807907107,
+                                    "mParticlesSource": {
+                                        "Type": "o2::SingleSpriteParticleSource",
+                                        "Value": {
+                                            "image": {
+                                                "id": "0105bd0ea11908668b9a8fea8e1841e2",
+                                                "path": "WordFall/Sprites/vfx_spark.png"
+                                            }
+                                        }
+                                    },
+                                    "mShape": {
+                                        "Type": "o2::CircleParticlesEmitterShape",
+                                        "Value": {}
+                                    },
+                                    "mParticlesNumLimit": 30,
+                                    "mParticlesLifetime": 0.3499999940395355,
+                                    "mEmitParticlesPerSecond": 300.0,
+                                    "mInitialAngleRange": 360.0,
+                                    "mInitialSize": 0.3499999940395355,
+                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSpeed": 260.0,
+                                    "mInitialSpeedRangle": 120.0,
+                                    "mId": 5075220236324616261,
+                                    "mSize": {
+                                        "x": 10.0,
+                                        "y": 10.0,
+                                        "z": 0.0
+                                    },
+                                    "mPivot": {
+                                        "x": 0.5,
+                                        "y": 0.5,
+                                        "z": 0.0
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Components": [
+                {
+                    "Type": "o2::AnimationComponent",
+                    "Data": {
+                        "mStates": [
+                            {
+                                "Type": "o2::AnimationState",
+                                "Value": {
+                                    "name": "flight",
+                                    "autoPlay": false,
+                                    "mask": {},
+                                    "mAnimation": {
+                                        "id": "b1a12166095cc30e9eb4b14ed4ec5ada",
+                                        "path": "WordFall/Prototypes/FxFlyingLetterFlight.anim"
+                                    }
+                                }
+                            }
+                        ],
+                        "mId": 5618597999148786227
+                    }
+                },
+                {
+                    "Type": "o2::FlightTrajectoryComponent",
+                    "Data": {
+                        "spline": {
+                            "Type": "o2::Spline",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 4646490711180175623,
+                                        "nextSupport": {
+                                            "x": 85.0,
+                                            "y": 60.0
+                                        }
+                                    },
+                                    {
+                                        "uid": 5520128523441956036,
+                                        "position": 278.7152404785156,
+                                        "value": {
+                                            "x": 170.0,
+                                            "y": 120.0
+                                        },
+                                        "valueRange": 90.0,
+                                        "prevSupport": {
+                                            "x": -103.60504150390625,
+                                            "y": -9.539082527160645
+                                        },
+                                        "nextSupport": {
+                                            "x": 103.60504150390625,
+                                            "y": 9.539082527160645
+                                        }
+                                    },
+                                    {
+                                        "uid": 13389620852816469287,
+                                        "position": 606.0126342773438,
+                                        "value": {
+                                            "x": 400.0,
+                                            "y": 0.0
+                                        },
+                                        "prevSupport": {
+                                            "x": -115.0,
+                                            "y": 60.0
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "mId": 10465322619576678137
+                    }
+                }
+            ],
+            "InternalWidgets": [],
+            "Layers": [
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "back",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
+                                    "path": "WordFall/Sprites/ui_tile.png"
+                                }
+                            }
+                        },
+                        "mUID": 15892068377860901209
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": 0.0,
+                                "y": 5.0
+                            }
+                        },
+                        "name": "letter",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 74,
+                                    "g": 48,
+                                    "b": 34,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 36,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Middle"
+                            }
+                        },
+                        "mUID": 3354288434717251551,
+                        "mDepth": 1.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mAnchorMax": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mOffsetMin": {
+                                "x": -33.0,
+                                "y": 11.0
+                            },
+                            "mOffsetMax": {
+                                "x": -11.0,
+                                "y": 26.0
+                            }
+                        },
+                        "name": "points",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 150,
+                                    "g": 108,
+                                    "b": 70,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 12,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Right"
+                            }
+                        },
+                        "mUID": 7372941074381445418,
+                        "mDepth": 2.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": -14.0,
+                                "y": -14.0
+                            },
+                            "mOffsetMax": {
+                                "x": 14.0,
+                                "y": 14.0
+                            }
+                        },
+                        "name": "star",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mColor": {
+                                    "r": 255,
+                                    "g": 255,
+                                    "b": 255,
+                                    "a": 0
+                                },
+                                "mImageAsset": {
+                                    "id": "92b41457fc656cc13c9f63dcab3f2b21",
+                                    "path": "WordFall/Sprites/ui_fx_star.png"
+                                }
+                            }
+                        },
+                        "mUID": 7701022328416503637,
+                        "mTransparency": 0.0,
+                        "mDepth": 3.0
+                    }
+                }
+            ],
+            "States": []
+        }
+    }
+}

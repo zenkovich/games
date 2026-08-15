@@ -1,0 +1,85 @@
+{
+    "mActor": {
+        "Type": "o2::Widget",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "TaskRow",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "Id": 11643560923709707230,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -160.0,
+                    "y": -15.0
+                },
+                "offsetMax": {
+                    "x": 160.0,
+                    "y": 15.0
+                }
+            },
+            "Children": [
+                {
+                    "Type": "o2::Label",
+                    "Data": {
+                        "mDrawingDepth": 20.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Text",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 2057899530724614576,
+                        "Transform": {
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "text",
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mFontAssetId": "8d8ed66fd6814bce8878d2824c90b746",
+                                            "mHeight": 16,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle"
+                                        }
+                                    },
+                                    "mUID": 250517844605434333
+                                }
+                            }
+                        ],
+                        "States": []
+                    }
+                }
+            ],
+            "InternalWidgets": [],
+            "Layers": [],
+            "States": []
+        }
+    }
+}

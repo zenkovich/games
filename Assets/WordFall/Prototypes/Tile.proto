@@ -1,0 +1,349 @@
+{
+    "mActor": {
+        "Type": "o2::Button",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "Tile",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "Id": 16254812514703140191,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -44.0,
+                    "y": -44.0
+                },
+                "offsetMax": {
+                    "x": 44.0,
+                    "y": 44.0
+                }
+            },
+            "InternalWidgets": [],
+            "Layers": [
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "back",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
+                                    "path": "WordFall/Sprites/ui_tile.png"
+                                }
+                            }
+                        },
+                        "mUID": 11561612570525132302
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "sel",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "cdeff26c848b0c3dc671f2ce0eed54b0",
+                                    "path": "WordFall/Sprites/ui_tile_sel.png"
+                                }
+                            }
+                        },
+                        "mUID": 3208776638278778420,
+                        "mEnabled": false,
+                        "mDepth": 1.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "ice",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "811a09e84c4ef146dfa9a39e398a087c",
+                                    "path": "WordFall/Sprites/ui_ice.png"
+                                }
+                            }
+                        },
+                        "mUID": 16242162826660439330,
+                        "mEnabled": false,
+                        "mDepth": 2.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": 0.0,
+                                "y": 6.0
+                            }
+                        },
+                        "name": "letter",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 74,
+                                    "g": 48,
+                                    "b": 34,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 44,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Middle"
+                            }
+                        },
+                        "mUID": 14191529216679808814,
+                        "mDepth": 3.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mAnchorMax": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mOffsetMin": {
+                                "x": -46.0,
+                                "y": 16.0
+                            },
+                            "mOffsetMax": {
+                                "x": -16.0,
+                                "y": 36.0
+                            }
+                        },
+                        "name": "points",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 150,
+                                    "g": 108,
+                                    "b": 70,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 15,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Right"
+                            }
+                        },
+                        "mUID": 13905610538258557802,
+                        "mDepth": 4.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mAnchorMax": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mOffsetMin": {
+                                "x": 17.0,
+                                "y": -47.0
+                            },
+                            "mOffsetMax": {
+                                "x": 49.0,
+                                "y": -15.0
+                            }
+                        },
+                        "name": "bomb",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "36a031a62e2743e0ab05b8aab3e8fadb",
+                                    "path": "WordFall/Sprites/powerup_bomb.png"
+                                }
+                            }
+                        },
+                        "mUID": 6381827785900690059,
+                        "mEnabled": false,
+                        "mDepth": 5.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mAnchorMax": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mOffsetMin": {
+                                "x": 17.0,
+                                "y": -47.0
+                            },
+                            "mOffsetMax": {
+                                "x": 49.0,
+                                "y": -15.0
+                            }
+                        },
+                        "name": "rocket",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "98a2f1200c694dadbc45375716c7d791",
+                                    "path": "WordFall/Sprites/powerup_rocket.png"
+                                }
+                            }
+                        },
+                        "mUID": 9784482029454680183,
+                        "mEnabled": false,
+                        "mDepth": 6.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mAnchorMax": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "mOffsetMin": {
+                                "x": 17.0,
+                                "y": -47.0
+                            },
+                            "mOffsetMax": {
+                                "x": 49.0,
+                                "y": -15.0
+                            }
+                        },
+                        "name": "wand",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "cf4b7a9fe1414ecc8e6c1af0b55fd6cf",
+                                    "path": "WordFall/Sprites/powerup_wand.png"
+                                }
+                            }
+                        },
+                        "mUID": 68839721172139875,
+                        "mEnabled": false,
+                        "mDepth": 7.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "pressed",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mColor": {
+                                    "r": 24,
+                                    "g": 30,
+                                    "b": 52,
+                                    "a": 0
+                                },
+                                "mImageAsset": {
+                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
+                                    "path": "WordFall/Sprites/ui_tile.png"
+                                }
+                            }
+                        },
+                        "mUID": 13032179892088382336,
+                        "mTransparency": 0.0,
+                        "mDepth": 8.0
+                    }
+                }
+            ],
+            "States": [
+                {
+                    "Type": "o2::WidgetState",
+                    "Value": {
+                        "name": "pressed",
+                        "mAnimation": {
+                            "instance": {
+                                "Type": "o2::AnimationAsset",
+                                "Value": {
+                                    "animation": {
+                                        "Type": "o2::AnimationClip",
+                                        "Value": {
+                                            "mTracks": [
+                                                {
+                                                    "Type": "o2::AnimationTrack<float>",
+                                                    "Value": {
+                                                        "path": "layer/pressed/transparency",
+                                                        "curve": {
+                                                            "Type": "o2::Curve",
+                                                            "Value": {
+                                                                "mKeys": [
+                                                                    {
+                                                                        "uid": 2570359957965525235,
+                                                                        "rightSupportPosition": 0.024000000208616258,
+                                                                        "supportsType": "Broken"
+                                                                    },
+                                                                    {
+                                                                        "uid": 12012589312602132683,
+                                                                        "value": 0.3499999940395355,
+                                                                        "position": 0.05999999865889549,
+                                                                        "leftSupportPosition": -0.05999999865889549,
+                                                                        "supportsType": "Broken"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "mDuration": 0.05999999865889549
+                                        }
+                                    }
+                                }
+                            },
+                            "meta": {
+                                "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                "Value": {
+                                    "mId": "865b9dcf32f7e7e877d10d13f3684081"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

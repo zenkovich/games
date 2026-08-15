@@ -10,8 +10,30 @@
         {
             "Type": "o2::Actor",
             "Value": {
+                "mName": "GameService",
+                "Id": 17977490943749615624,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "WordFallGameService",
+                        "Data": {
+                            "mId": 12828182460854521602
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
                 "mName": "Bootstrap",
-                "Id": 17312208212841619407,
+                "Id": 1017529143344760227,
                 "Transform": {
                     "pivot": {
                         "x": 0.5,
@@ -23,7 +45,7 @@
                     {
                         "Type": "WordFallBootstrap",
                         "Data": {
-                            "mId": 7282376732287358351
+                            "mId": 16089907497082805644
                         }
                     }
                 ]

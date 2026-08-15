@@ -1,0 +1,54 @@
+{
+    "mActor": {
+        "Type": "o2::Widget",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "FxStar",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "Id": 13616090599734059456,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -16.0,
+                    "y": -16.0
+                },
+                "offsetMax": {
+                    "x": 16.0,
+                    "y": 16.0
+                }
+            },
+            "InternalWidgets": [],
+            "Layers": [
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "img",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "92b41457fc656cc13c9f63dcab3f2b21",
+                                    "path": "WordFall/Sprites/ui_fx_star.png"
+                                }
+                            }
+                        },
+                        "mUID": 12207610332819381855
+                    }
+                }
+            ],
+            "States": []
+        }
+    }
+}

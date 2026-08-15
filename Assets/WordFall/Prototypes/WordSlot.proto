@@ -1,0 +1,129 @@
+{
+    "mActor": {
+        "Type": "o2::Button",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "WordSlot",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "mEnabled": false,
+            "Id": 14355020501234992579,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -32.0,
+                    "y": -32.0
+                },
+                "offsetMax": {
+                    "x": 32.0,
+                    "y": 32.0
+                }
+            },
+            "InternalWidgets": [],
+            "Layers": [
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "back",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
+                                    "path": "WordFall/Sprites/ui_tile.png"
+                                }
+                            }
+                        },
+                        "mUID": 4128448556526700507
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": 0.0,
+                                "y": 5.0
+                            }
+                        },
+                        "name": "letter",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 74,
+                                    "g": 48,
+                                    "b": 34,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 36,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Middle"
+                            }
+                        },
+                        "mUID": 1510065131290030845,
+                        "mDepth": 1.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mAnchorMax": {
+                                "x": 1.0,
+                                "y": 0.0
+                            },
+                            "mOffsetMin": {
+                                "x": -33.0,
+                                "y": 11.0
+                            },
+                            "mOffsetMax": {
+                                "x": -11.0,
+                                "y": 26.0
+                            }
+                        },
+                        "name": "points",
+                        "mDrawable": {
+                            "Type": "o2::Text",
+                            "Value": {
+                                "mColor": {
+                                    "r": 150,
+                                    "g": 108,
+                                    "b": 70,
+                                    "a": 255
+                                },
+                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                "mHeight": 12,
+                                "mSymbolsDistCoef": 1.0,
+                                "mLinesDistanceCoef": 1.0,
+                                "mVerAlign": "Middle",
+                                "mHorAlign": "Right"
+                            }
+                        },
+                        "mUID": 16631259521022466570,
+                        "mDepth": 2.0
+                    }
+                }
+            ],
+            "States": []
+        }
+    }
+}

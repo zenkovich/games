@@ -14,7 +14,7 @@ GameApplication::GameApplication(RefCounter* refCounter):
 
 void GameApplication::OnStarted()
 {
-	o2Application.SetWindowSize(Vec2I(1280, 800));
+	o2Application.SetWindowSize(Vec2I(768, 1376));
 
 	// Word Fall builds its scene in code from the bootstrap component; the saved
 	// bootstrap scene keeps the editor entry point equal to the game one.

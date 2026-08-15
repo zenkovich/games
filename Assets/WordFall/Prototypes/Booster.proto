@@ -1,0 +1,366 @@
+{
+    "mActor": {
+        "Type": "o2::Widget",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "Booster",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "Id": 14654579214851067912,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -60.0,
+                    "y": -57.0
+                },
+                "offsetMax": {
+                    "x": 60.0,
+                    "y": 57.0
+                }
+            },
+            "Children": [
+                {
+                    "Type": "o2::Button",
+                    "Data": {
+                        "mDrawingDepth": 10.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Btn",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 10305090529176374475,
+                        "Transform": {
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "icon",
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "4412af2f9cd92bdc443c7647d490bf8d",
+                                                "path": "WordFall/Sprites/ui_booster_hammer.png"
+                                            }
+                                        }
+                                    },
+                                    "mUID": 135761317594901495
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "pressed",
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mColor": {
+                                                "r": 24,
+                                                "g": 30,
+                                                "b": 52,
+                                                "a": 0
+                                            },
+                                            "mImageAsset": {
+                                                "id": "4412af2f9cd92bdc443c7647d490bf8d",
+                                                "path": "WordFall/Sprites/ui_booster_hammer.png"
+                                            }
+                                        }
+                                    },
+                                    "mUID": 18358727641420350871,
+                                    "mTransparency": 0.0,
+                                    "mDepth": 1.0
+                                }
+                            }
+                        ],
+                        "States": [
+                            {
+                                "Type": "o2::WidgetState",
+                                "Value": {
+                                    "name": "pressed",
+                                    "mAnimation": {
+                                        "instance": {
+                                            "Type": "o2::AnimationAsset",
+                                            "Value": {
+                                                "animation": {
+                                                    "Type": "o2::AnimationClip",
+                                                    "Value": {
+                                                        "mTracks": [
+                                                            {
+                                                                "Type": "o2::AnimationTrack<float>",
+                                                                "Value": {
+                                                                    "path": "layer/pressed/transparency",
+                                                                    "curve": {
+                                                                        "Type": "o2::Curve",
+                                                                        "Value": {
+                                                                            "mKeys": [
+                                                                                {
+                                                                                    "uid": 10154203618981847101,
+                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "supportsType": "Broken"
+                                                                                },
+                                                                                {
+                                                                                    "uid": 15137166501055270839,
+                                                                                    "value": 0.3499999940395355,
+                                                                                    "position": 0.05999999865889549,
+                                                                                    "leftSupportPosition": -0.05999999865889549,
+                                                                                    "supportsType": "Broken"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "Type": "o2::AnimationTrack<o2::Vec2F>",
+                                                                "Value": {
+                                                                    "path": "layout/offsetMin",
+                                                                    "timeCurve": {
+                                                                        "Type": "o2::Curve",
+                                                                        "Value": {
+                                                                            "mKeys": [
+                                                                                {
+                                                                                    "uid": 15704502298300588507,
+                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "supportsType": "Broken"
+                                                                                },
+                                                                                {
+                                                                                    "uid": 17039965555335561445,
+                                                                                    "value": 1.0,
+                                                                                    "position": 0.05999999865889549,
+                                                                                    "leftSupportPosition": -0.05999999865889549,
+                                                                                    "supportsType": "Broken"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "spline": {
+                                                                        "Type": "o2::Spline",
+                                                                        "Value": {
+                                                                            "mKeys": [
+                                                                                {
+                                                                                    "uid": 11983805380848004287,
+                                                                                    "supportsType": "Broken"
+                                                                                },
+                                                                                {
+                                                                                    "uid": 15098605226866515366,
+                                                                                    "position": 4.0,
+                                                                                    "value": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -4.0
+                                                                                    },
+                                                                                    "supportsType": "Broken"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "Type": "o2::AnimationTrack<o2::Vec2F>",
+                                                                "Value": {
+                                                                    "path": "layout/offsetMax",
+                                                                    "timeCurve": {
+                                                                        "Type": "o2::Curve",
+                                                                        "Value": {
+                                                                            "mKeys": [
+                                                                                {
+                                                                                    "uid": 9879530197593411225,
+                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "supportsType": "Broken"
+                                                                                },
+                                                                                {
+                                                                                    "uid": 390447351712755894,
+                                                                                    "value": 1.0,
+                                                                                    "position": 0.05999999865889549,
+                                                                                    "leftSupportPosition": -0.05999999865889549,
+                                                                                    "supportsType": "Broken"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "spline": {
+                                                                        "Type": "o2::Spline",
+                                                                        "Value": {
+                                                                            "mKeys": [
+                                                                                {
+                                                                                    "uid": 8414067730192872974,
+                                                                                    "supportsType": "Broken"
+                                                                                },
+                                                                                {
+                                                                                    "uid": 5050001841514538433,
+                                                                                    "position": 4.0,
+                                                                                    "value": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -4.0
+                                                                                    },
+                                                                                    "supportsType": "Broken"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        ],
+                                                        "mDuration": 0.05999999865889549
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                            "Value": {
+                                                "mId": "4a1c13550e0bb27cfbd32c7d9526e3dc"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Type": "o2::Image",
+                    "Data": {
+                        "mDrawingDepth": 12.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Badge",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 12560549758656054237,
+                        "Transform": {
+                            "anchorMin": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMin": {
+                                "x": -32.0,
+                                "y": -34.0
+                            },
+                            "offsetMax": {
+                                "x": 4.0,
+                                "y": 2.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "image",
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "3821eb7094ad012ae5f70c3a5e99dd33",
+                                                "path": "WordFall/Sprites/ui_badge.png"
+                                            }
+                                        }
+                                    },
+                                    "mUID": 3327422564056848897
+                                }
+                            }
+                        ],
+                        "States": []
+                    }
+                },
+                {
+                    "Type": "o2::Label",
+                    "Data": {
+                        "mDrawingDepth": 13.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Charge",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 10315525236195693256,
+                        "Transform": {
+                            "anchorMin": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMin": {
+                                "x": -31.0,
+                                "y": -32.0
+                            },
+                            "offsetMax": {
+                                "x": 3.0,
+                                "y": 2.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "text",
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mColor": {
+                                                "r": 255,
+                                                "g": 244,
+                                                "b": 220,
+                                                "a": 255
+                                            },
+                                            "mText": "3",
+                                            "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
+                                            "mHeight": 16,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle",
+                                            "mHorAlign": "Middle"
+                                        }
+                                    },
+                                    "mUID": 8367232552610277808
+                                }
+                            }
+                        ],
+                        "States": []
+                    }
+                }
+            ],
+            "InternalWidgets": [],
+            "Layers": [],
+            "States": []
+        }
+    }
+}

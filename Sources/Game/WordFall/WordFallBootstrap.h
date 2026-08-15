@@ -1,25 +1,19 @@
 #pragma once
 
 #include "o2/Scene/Component.h"
-#include "o2/Utils/Math/Color.h"
-#include "o2/Utils/Math/Layout.h"
 
 using namespace o2;
 
 namespace o2
 {
-	class Button;
-	class Image;
-	class Label;
-	class Sprite;
-	class Text;
+	class ActorAsset;
 	class Widget;
 }
 
-// Entry point of the Word Fall prototype. Lives in the bootstrap scene; on start
-// it builds the whole game screen in code (board of tile buttons, HUD with score
-// progress bar, word slots panel, boosters, tasks panel, popup) and attaches the
-// JS game controller.
+// Точка входа Word Fall. Живёт в bootstrap-сцене вместе с сервисной нодой
+// GameService (конфиги кампании редактируются в редакторе). На старте
+// инстанцирует прототип экрана геймплея WordFall/Prototypes/GameScreen.proto
+// (при отсутствии — собирает и сохраняет его) и инжектит зависимости вьюх
 class WordFallBootstrap: public Component
 {
 public:
@@ -28,17 +22,14 @@ public:
 	static constexpr int kMaxTasks = 5;
 	static constexpr int kWordSlots = 8;
 	static constexpr int kFlyers = 4;
-	static constexpr int kFxNumbers = 8;
-	static constexpr int kFxFlashes = 10;
-	static constexpr int kFxStars = 10;
 
-	// Creates the bootstrap actor in the current scene; used by the app and tests
+	// Создаёт акторы bootstrap-сцены (Bootstrap + GameService); используется игрой и тестами
 	static Ref<Actor> CreateBootstrapActor();
 
-	// Builds a minimal scene with only the bootstrap actor and saves it to path
+	// Собирает минимальную bootstrap-сцену и сохраняет её в path
 	static void SaveBootstrapScene(const String& path);
 
-	// Center of a board tile in screen coordinates (origin at screen center)
+	// Центр плитки поля в экранных координатах (центр экрана — (0,0))
 	static Vec2F TilePosition(int column, int row);
 
 	SERIALIZABLE(WordFallBootstrap);
@@ -50,58 +41,31 @@ private:
 	void OnStart() override;
 
 	void BuildLayersAndCamera();
-	void BuildBoard(const Ref<Actor>& root);
-	void BuildHud(const Ref<Actor>& root);
-	void BuildTasks(const Ref<Actor>& root);
-	void BuildWordPanel(const Ref<Actor>& root);
-	void BuildBoosters(const Ref<Actor>& root);
-	void BuildFx(const Ref<Actor>& root);
-	void BuildPopup(const Ref<Actor>& root);
-	void BuildGameController(const Ref<Actor>& root);
+	Ref<Actor> FindOrCreateService();
 
-	static Ref<Actor> CreateContainer(const Ref<Actor>& parent, const String& name);
+	// Экран геймплея: инстанс прототипа; свежий чекаут — прямая сборка и сохранение прототипа
+	Ref<Actor> InstantiateGameScreen();
 
-	static Ref<Actor> CreateSprite(const Ref<Actor>& parent, const String& name, const String& image,
-								   const String& layer, const Vec2F& pos, const Vec2F& size,
-								   const Color4& color = Color4::White());
+	// Инстанс прототипа части UI; при отсутствии ассета — сборка билдером (+сохранение на десктопе)
+	static Ref<Actor> InstantiatePart(const String& assetPath, Ref<Actor>(*builder)());
 
-	static void SetWidgetRect(const Ref<Widget>& widget, const Vec2F& pos, const Vec2F& size);
+	// Полная сборка дерева экрана: BG, Screen с секциями и вьюхами, Vfx
+	static Ref<Actor> BuildGameScreen();
 
-	static void SetWidgetDepth(const Ref<Widget>& widget, float depth);
+	static void BuildBoard(const Ref<Widget>& screen);
+	static void BuildHud(const Ref<Widget>& screen);
+	static void BuildTasks(const Ref<Widget>& screen);
+	static void BuildWordBar(const Ref<Widget>& screen);
+	static void BuildBoosters(const Ref<Widget>& screen);
+	static void BuildFx(const Ref<Widget>& screen);
+	static void BuildPopup(const Ref<Widget>& screen);
+	static void BuildVfx(const Ref<Actor>& root);
 
-	static Ref<Sprite> MakeSliced(const String& image, const BorderI& slice);
+	// Вешает JS-вьюху на секцию (зависимости инжектятся после инстанцирования)
+	static void AttachView(const Ref<Actor>& sectionActor, const String& scriptPath);
 
-	static Ref<Text> MakeText(int height, const Color4& color);
-
-	// Adds the press-in state: same-sprite dark tint overlay + shift-down animation.
-	// Call after SetWidgetRect — the shift tracks capture current layout offsets
-	static void AddPressedState(const Ref<Button>& button, const String& image,
-								const BorderI& slice, const Layout& layout, bool shift);
-
-	static Ref<Image> CreateImageWidget(const Ref<Actor>& parent, const String& name, const String& image,
-										const Vec2F& pos, const Vec2F& size, const Color4& color = Color4::White(),
-										float depth = 1.0f, const BorderI& slice = BorderI());
-
-	// Orange pill button with caption and press-in state
-	static Ref<Button> CreateButton(const Ref<Actor>& parent, const String& name, const Vec2F& pos, const Vec2F& size,
-									const WString& caption, int captionHeight, float depth = 10.0f);
-
-	// Round booster button from the concept sheet with press-in state
-	static Ref<Button> CreateBoosterButton(const Ref<Actor>& parent, const String& name, const String& key,
-										   const Vec2F& pos, const Vec2F& size, float depth);
-
-	static Ref<Button> CreateTileButton(const Ref<Actor>& parent, int column, int row);
-
-	// Small letter tile (word slot / flying letter): back + letter + points layers
-	static Ref<Widget> CreateWordTile(const Ref<Actor>& parent, const String& name, float depth);
-
-	// Hidden effect widget with a single "img" layer, positioned and faded by JS
-	static Ref<Widget> CreateFxWidget(const Ref<Actor>& parent, const String& name, const String& image,
-									  const BorderI& slice, float depth);
-
-	static Ref<Label> CreateLabel(const Ref<Actor>& parent, const String& name, const WString& text,
-								  const Vec2F& rectMin, const Vec2F& rectMax, int height,
-								  const Color4& color, HorAlign horAlign);
+	// Инжектит serviceActor/vfxActor в инстансы вьюх инстанцированного экрана
+	static void InjectViewDependencies(const Ref<Actor>& root, const Ref<Actor>& service);
 
 	REF_COUNTERABLE_IMPL(Component);
 };
@@ -125,28 +89,20 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PUBLIC().SIGNATURE_STATIC(Vec2F, TilePosition, int, int);
     FUNCTION().PRIVATE().SIGNATURE(void, OnStart);
     FUNCTION().PRIVATE().SIGNATURE(void, BuildLayersAndCamera);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildBoard, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildHud, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildTasks, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildWordPanel, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildBoosters, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildFx, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildPopup, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE(void, BuildGameController, const Ref<Actor>&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Actor>, CreateContainer, const Ref<Actor>&, const String&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Actor>, CreateSprite, const Ref<Actor>&, const String&, const String&, const String&, const Vec2F&, const Vec2F&, const Color4&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, SetWidgetRect, const Ref<Widget>&, const Vec2F&, const Vec2F&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, SetWidgetDepth, const Ref<Widget>&, float);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Sprite>, MakeSliced, const String&, const BorderI&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Text>, MakeText, int, const Color4&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, AddPressedState, const Ref<Button>&, const String&, const BorderI&, const Layout&, bool);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Image>, CreateImageWidget, const Ref<Actor>&, const String&, const String&, const Vec2F&, const Vec2F&, const Color4&, float, const BorderI&);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateButton, const Ref<Actor>&, const String&, const Vec2F&, const Vec2F&, const WString&, int, float);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateBoosterButton, const Ref<Actor>&, const String&, const String&, const Vec2F&, const Vec2F&, float);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Button>, CreateTileButton, const Ref<Actor>&, int, int);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Widget>, CreateWordTile, const Ref<Actor>&, const String&, float);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Widget>, CreateFxWidget, const Ref<Actor>&, const String&, const String&, const BorderI&, float);
-    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Label>, CreateLabel, const Ref<Actor>&, const String&, const WString&, const Vec2F&, const Vec2F&, int, const Color4&, HorAlign);
+    FUNCTION().PRIVATE().SIGNATURE(Ref<Actor>, FindOrCreateService);
+    FUNCTION().PRIVATE().SIGNATURE(Ref<Actor>, InstantiateGameScreen);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Actor>, InstantiatePart, const String&, Ref<Actor> (*)());
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(Ref<Actor>, BuildGameScreen);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildBoard, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildHud, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildTasks, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildWordBar, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildBoosters, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildFx, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildPopup, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildVfx, const Ref<Actor>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, AttachView, const Ref<Actor>&, const String&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, InjectViewDependencies, const Ref<Actor>&, const Ref<Actor>&);
 }
 END_META;
 // --- END META ---

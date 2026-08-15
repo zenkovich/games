@@ -21,7 +21,7 @@
                     "anchors": {
                         "left": 0.0,
                         "bottom": 0.0,
-                        "right": 0.6764985918998718,
+                        "right": 0.7129772305488586,
                         "top": 1.0
                     },
                     "childs": [
@@ -77,7 +77,7 @@
                 },
                 {
                     "anchors": {
-                        "left": 0.6764985918998718,
+                        "left": 0.7129772305488586,
                         "bottom": 0.0,
                         "right": 1.0,
                         "top": 1.0
@@ -86,10 +86,10 @@
                         "properties window",
                         "game window"
                     ],
-                    "active": "properties window"
+                    "active": "game window"
                 }
             ]
         }
     },
-    "mLastLoadedScene": "Main.scn"
+    "mLastLoadedScene": "WordFall.scn"
 }
