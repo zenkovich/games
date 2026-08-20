@@ -3,6 +3,7 @@
 #include "Core/PlayerProgress.h"
 #include "Core/WordDictionary.h"
 #include "Core/WordFallConfigs.h"
+#include "Core/WordBoardMotion.h"
 #include "Core/WordLevel.h"
 #include "o2/Scene/Component.h"
 #include "o2/Scripts/ScriptValue.h"
@@ -49,7 +50,7 @@ public:
 	// Число рядов @SCRIPTABLE
 	int GetRows() const;
 
-	// Плитка: {letter, value, ice, doubled, joker, powerup} @SCRIPTABLE
+	// Плитка: {letter, value, ice, stone, doubled, joker, powerup} @SCRIPTABLE
 	ScriptValue GetTile(int column, int row);
 
 	// Выбор: [{c, r}] @SCRIPTABLE
@@ -81,6 +82,23 @@ public:
 
 	// Ревизия состояния: растёт при каждой мутации — вьюхи синкаются по ней @SCRIPTABLE
 	int GetRevision() const;
+
+	// --- модель движения плиток при обвале: вью только читает её состояние ---
+
+	// Запускает анимацию обвала по последнему ходу @SCRIPTABLE
+	void StartCollapseAnimation();
+
+	// Идёт ли анимация обвала @SCRIPTABLE
+	bool IsCollapseAnimating();
+
+	// Вертикальный офсет плитки в клетках (0 — на месте) @SCRIPTABLE
+	float GetTileFallOffset(int column, int row);
+
+	// Плитка ещё за верхней границей поля — вью её прячет @SCRIPTABLE
+	bool IsTileFallHidden(int column, int row);
+
+	// Мгновенно доставляет плитки на места @SCRIPTABLE
+	void FinishCollapseAnimation();
 
 	// Результат последнего принятого слова/молотка — для анимаций @SCRIPTABLE
 	ScriptValue GetLastMove();
@@ -120,10 +138,19 @@ public:
 	void DebugSetPowerup(int column, int row, const String& kind);
 
 	// @SCRIPTABLE
+	void DebugSetStone(int column, int row);
+
+	// @SCRIPTABLE
 	void DebugSetTargetScore(int target);
 
 	// @SCRIPTABLE
 	void DebugCompleteTasks();
+
+	// Последний результат хода для C++ тестов
+	const WordMoveResult& GetLastMoveResult() const { return mLastMove; }
+
+	float fallSpeedCells = 9.5f;   // скорость падения, клеток/с @SERIALIZABLE @EDITOR_PROPERTY
+	float fallCascadeDelay = 0.05f; // пауза стартов плиток колонки @SERIALIZABLE @EDITOR_PROPERTY
 
 	// Прямой доступ к ядру для C++ тестов
 	WordLevel& GetLevel();
@@ -141,8 +168,10 @@ private:
 	bool mStarted = false;
 	int mRevision = 0;
 	WordMoveResult mLastMove;
+	WordBoardMotion mMotion; // модель падения плиток: офсеты, каскад, видимость
 
 	void OnStart() override;
+	void OnUpdate(float dt) override;
 
 	void EnsureStarted();
 	ScriptValue MoveResultToScript(const WordMoveResult& result) const;
@@ -164,6 +193,8 @@ CLASS_FIELDS_META(WordFallGameService)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(levels);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(randomSeed);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(String("wordfall_progress.json")).NAME(progressPath);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(9.5f).NAME(fallSpeedCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0.05f).NAME(fallCascadeDelay);
     FIELD().PRIVATE().NAME(mDictionary);
     FIELD().PRIVATE().NAME(mLevel);
     FIELD().PRIVATE().NAME(mProgress);
@@ -171,6 +202,7 @@ CLASS_FIELDS_META(WordFallGameService)
     FIELD().PRIVATE().DEFAULT_VALUE(false).NAME(mStarted);
     FIELD().PRIVATE().DEFAULT_VALUE(0).NAME(mRevision);
     FIELD().PRIVATE().NAME(mLastMove);
+    FIELD().PRIVATE().NAME(mMotion);
 }
 END_META;
 CLASS_METHODS_META(WordFallGameService)
@@ -195,6 +227,11 @@ CLASS_METHODS_META(WordFallGameService)
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(String, GetCurrentWord);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, IsCurrentWordValid);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(int, GetRevision);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, StartCollapseAnimation);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, IsCollapseAnimating);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(float, GetTileFallOffset, int, int);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, IsTileFallHidden, int, int);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, FinishCollapseAnimation);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(ScriptValue, GetLastMove);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(String, ToggleSelect, int, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, ClearSelection);
@@ -206,12 +243,15 @@ CLASS_METHODS_META(WordFallGameService)
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, UseDoubler, int, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetTile, int, int, const String&);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetPowerup, int, int, const String&);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetStone, int, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetTargetScore, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugCompleteTasks);
+    FUNCTION().PUBLIC().SIGNATURE(const WordMoveResult&, GetLastMoveResult);
     FUNCTION().PUBLIC().SIGNATURE(WordLevel&, GetLevel);
     FUNCTION().PUBLIC().SIGNATURE(const WordDictionary&, GetDictionary);
     FUNCTION().PUBLIC().SIGNATURE(PlayerProgress&, GetProgress);
     FUNCTION().PRIVATE().SIGNATURE(void, OnStart);
+    FUNCTION().PRIVATE().SIGNATURE(void, OnUpdate, float);
     FUNCTION().PRIVATE().SIGNATURE(void, EnsureStarted);
     FUNCTION().PRIVATE().SIGNATURE(ScriptValue, MoveResultToScript, const WordMoveResult&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(ScriptValue, CellsToScript, const Vector<Vec2I>&);

@@ -13,6 +13,38 @@ void WordFallGameService::OnStart()
 	EnsureStarted();
 }
 
+void WordFallGameService::OnUpdate(float dt)
+{
+	mMotion.Update(dt);
+}
+
+void WordFallGameService::StartCollapseAnimation()
+{
+	EnsureStarted();
+	mMotion.Configure(boardConfig.columns, boardConfig.rows, fallSpeedCells, fallCascadeDelay, 0.6f);
+	mMotion.StartCollapse(mLastMove.moved, mLastMove.spawned);
+}
+
+bool WordFallGameService::IsCollapseAnimating()
+{
+	return mMotion.IsAnimating();
+}
+
+float WordFallGameService::GetTileFallOffset(int column, int row)
+{
+	return mMotion.GetOffset(Vec2I(column, row));
+}
+
+bool WordFallGameService::IsTileFallHidden(int column, int row)
+{
+	return mMotion.IsHidden(Vec2I(column, row));
+}
+
+void WordFallGameService::FinishCollapseAnimation()
+{
+	mMotion.Finish();
+}
+
 void WordFallGameService::EnsureStarted()
 {
 	if (mStarted)
@@ -72,6 +104,7 @@ ScriptValue WordFallGameService::GetTile(int column, int row)
 	result.SetProperty("letter", ScriptValue(String(tile.letter)));
 	result.SetProperty("value", ScriptValue(tile.value*(tile.doubled ? 2 : 1)));
 	result.SetProperty("ice", ScriptValue(tile.ice));
+	result.SetProperty("stone", ScriptValue(tile.stone));
 	result.SetProperty("doubled", ScriptValue(tile.doubled));
 	result.SetProperty("joker", ScriptValue(tile.joker));
 	result.SetProperty("powerup", ScriptValue(String(tile.powerup)));
@@ -169,6 +202,7 @@ String WordFallGameService::ToggleSelect(int column, int row)
 	{
 		case WordBoard::SelectResult::Added: return "added";
 		case WordBoard::SelectResult::Removed: return "removed";
+		case WordBoard::SelectResult::Blocked: return "blocked";
 		default: return "iced";
 	}
 }
@@ -244,6 +278,13 @@ void WordFallGameService::DebugSetTile(int column, int row, const String& letter
 	mRevision++;
 }
 
+void WordFallGameService::DebugSetStone(int column, int row)
+{
+	EnsureStarted();
+	mLevel.GetBoard().DebugSetStone(Vec2I(column, row));
+	mRevision++;
+}
+
 void WordFallGameService::DebugSetPowerup(int column, int row, const String& kind)
 {
 	EnsureStarted();
@@ -298,6 +339,16 @@ ScriptValue WordFallGameService::MoveResultToScript(const WordMoveResult& result
 		item.SetProperty("kind", ScriptValue(use.kind));
 		item.SetProperty("c", ScriptValue(use.cell.x));
 		item.SetProperty("r", ScriptValue(use.cell.y));
+
+		auto targets = ScriptValue::EmptyArray();
+		for (auto& target : use.targets)
+		{
+			auto cell = ScriptValue::EmptyObject();
+			cell.SetProperty("c", ScriptValue(target.x));
+			cell.SetProperty("r", ScriptValue(target.y));
+			targets.AddElement(cell);
+		}
+		item.SetProperty("targets", targets);
 		used.AddElement(item);
 	}
 	script.SetProperty("powerupsUsed", used);

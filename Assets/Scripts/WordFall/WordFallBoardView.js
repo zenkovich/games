@@ -8,7 +8,8 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     constructor()
     {
         super();
-        this.fallSpeed = 900;   // скорость падения плиток, px/с
+        // падение считает C++ модель (WordBoardMotion в сервисе) — вью только
+        // отображает офсеты и видимость плиток
         this.cellSize = 96;     // шаг сетки — источник раскладки плиток
         this.tileSize = 88;     // размер плитки в ячейке
         this.boardCenterY = -121; // центр секции Board в экранных координатах
@@ -16,7 +17,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this._svc = null;
         this._vfx = null;
         this._tiles = null;
-        this._fallAnims = [];
+        this._collapsing = false; // модель анимирует обвал — рисуем офсеты
+        this._hintQueue = [];   // клетки подсказки, выбираются по одной
+        this._hintTimer = 0;
         this._pendingCollapse = null; // обвал ждёт окончания подтверждения слова
         this._lastRevision = -1;
         this._columns = 7;
@@ -45,13 +48,15 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                 var btn = this._actor.GetChild("Tile_" + c + "_" + r);
                 this._tiles[c][r] = {
                     btn: btn,
+                    back: btn.GetLayer("back"),
                     letter: btn.GetLayer("letter").drawable,
                     points: btn.GetLayer("points").drawable,
                     sel: btn.GetLayer("sel"),
                     ice: btn.GetLayer("ice"),
+                    stone: btn.GetLayer("stone"),
                     bomb: btn.GetLayer("bomb"),
                     rocket: btn.GetLayer("rocket"),
-                    wand: btn.GetLayer("wand")
+                    fireworks: btn.GetLayer("fireworks")
                 };
 
                 (function(cc, rr) {
@@ -122,13 +127,27 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                 var index = svc.GetSelection().length - 1;
                 wordPanel.OnLetterPicked(c, r, index, this.TileWorldPos(c, r));
             }
+
         }
+    }
+
+    // Прячет плитку немедленно (взрыв бонуса до обвала); SyncBoard вернёт её
+    HideTileVisual(c, r)
+    {
+        this._tiles[c][r].btn.SetEnabled(false);
+    }
+
+    // Подсказка: выбирает клетки по одной, буквы штатно улетают в лоток
+    SelectAnimated(cells)
+    {
+        this._hintQueue = cells.slice();
+        this._hintTimer = 0;
     }
 
     // Мгновенные анимации результата (молоток)
     PlayMoveResult(result)
     {
-        this._StartFallAnims(result.moved, result.spawned);
+        this._BeginCollapseView();
 
         for (var i = 0; i < result.burned.length; i++)
         {
@@ -143,8 +162,8 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     HoldCollapse(result)
     {
         this._pendingCollapse = { moved: result.moved, spawned: result.spawned,
-                                  burned: result.burned, activated: result.activated,
-                                  extra: result.extraScore };
+                                  destroyed: result.destroyed, activated: result.activated,
+                                  iceBroken: result.iceBroken };
     }
 
     ApplyPendingCollapse()
@@ -155,51 +174,55 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         var collapse = this._pendingCollapse;
         this._pendingCollapse = null;
 
-        this._StartFallAnims(collapse.moved, collapse.spawned);
-
         if (this._vfx)
         {
-            for (var i = 0; i < collapse.burned.length; i++)
-            {
-                var pos = this.TileWorldPos(collapse.burned[i].c, collapse.burned[i].r);
-                this._vfx.PlayBurn(pos.x, pos.y);
-            }
+            // искрят только реально задетые: снятая броня и сколотый лёд;
+            // буквы слова уже улетели в лоток — на их клетках эффектов нет
             for (var i = 0; i < collapse.activated.length; i++)
             {
                 var pos = this.TileWorldPos(collapse.activated[i].c, collapse.activated[i].r);
                 this._vfx.PlayBurn(pos.x, pos.y);
             }
-            if (collapse.extra > 0 && collapse.burned.length > 0)
+            for (var i = 0; i < collapse.iceBroken.length; i++)
             {
-                var last = collapse.burned[collapse.burned.length - 1];
-                var pos = this.TileWorldPos(last.c, last.r);
-                this._vfx.PlayExplosion(pos.x, pos.y);
+                var pos = this.TileWorldPos(collapse.iceBroken[i].c, collapse.iceBroken[i].r);
+                this._vfx.PlayBurn(pos.x, pos.y);
             }
         }
 
+        // порядок важен: сначала новые буквы, затем — офсеты модели в этом же
+        // кадре, чтобы плитки не показались на конечных местах
         this.SyncBoard();
         this.SyncSelection();
+        this._BeginCollapseView();
     }
 
     SyncTile(c, r)
     {
         var tile = this._svc.GetTile(c, r);
         var view = this._tiles[c][r];
+        var isBonus = tile.powerup != "";
 
-        view.letter.text = tile.joker ? "?" : tile.letter;
+        // бонус занимает слот: буквы и номинала нет, крупная иконка по центру
+        view.letter.text = isBonus ? "" : tile.joker ? "?" : tile.letter;
         view.letter.color = tile.joker ? new Color4(160, 90, 200, 255)
-                          : tile.ice > 0 ? new Color4(44, 106, 158, 255)   // буква на льду синеет
+                          : tile.ice > 0 ? new Color4(44, 106, 158, 255)    // на льду синеет
+                          : tile.stone > 0 ? new Color4(245, 245, 248, 255) // на камне светлеет
                           : new Color4(74, 48, 34, 255);
 
-        view.points.text = tile.joker ? "" : ("" + tile.value);
+        view.points.text = (isBonus || tile.joker) ? "" : ("" + tile.value);
         view.points.color = tile.doubled ? new Color4(215, 150, 20, 255)
                           : tile.ice > 0 ? new Color4(64, 124, 172, 255)
+                          : tile.stone > 0 ? new Color4(200, 200, 210, 255)
                           : new Color4(150, 108, 70, 255);
 
+        // бонус рисуется без плашки-подложки — только иконка
+        view.back.SetEnabled(!isBonus);
         view.ice.SetEnabled(tile.ice > 0);
+        view.stone.SetEnabled(tile.stone > 0);
         view.bomb.SetEnabled(tile.powerup == "bomb");
         view.rocket.SetEnabled(tile.powerup == "rocket");
-        view.wand.SetEnabled(tile.powerup == "wand");
+        view.fireworks.SetEnabled(tile.powerup == "fireworks");
     }
 
     SyncBoard()
@@ -242,25 +265,27 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         layout.SetOffsetMax(new Vec2(pos.x + half, pos.y + extraY + half));
     }
 
-    _StartFallAnims(moved, spawned)
+    // Запуск отображения обвала: офсеты и видимость применяются сразу, в этом
+    // же кадре — иначе новые буквы промигивают на конечных местах до падения
+    _BeginCollapseView()
     {
-        for (var i = 0; i < this._fallAnims.length; i++)
-            this._SetTileRect(this._fallAnims[i].c, this._fallAnims[i].r, 0);
-        this._fallAnims = [];
+        this._svc.StartCollapseAnimation();
+        this._collapsing = true;
+        this._ApplyCollapseView();
+    }
 
-        for (var i = 0; i < moved.length; i++)
+    // Отображение текущего состояния модели падения
+    _ApplyCollapseView()
+    {
+        for (var c = 0; c < this._columns; c++)
         {
-            var m = moved[i];
-            this._fallAnims.push({ c: m.c, r: m.toR, offset: (m.fromR - m.toR)*this.cellSize });
+            for (var r = 0; r < this._rows; r++)
+            {
+                var offset = this._svc.GetTileFallOffset(c, r)*this.cellSize;
+                this._SetTileRect(c, r, offset);
+                this._tiles[c][r].btn.SetEnabled(!this._svc.IsTileFallHidden(c, r));
+            }
         }
-        for (var i = 0; i < spawned.length; i++)
-        {
-            var s = spawned[i];
-            this._fallAnims.push({ c: s.c, r: s.r, offset: (this._rows - s.r)*this.cellSize + 60 });
-        }
-
-        for (var i = 0; i < this._fallAnims.length; i++)
-            this._SetTileRect(this._fallAnims[i].c, this._fallAnims[i].r, this._fallAnims[i].offset);
     }
 
     Update(dt)
@@ -280,22 +305,37 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             }
         }
 
-        if (this._fallAnims.length > 0)
+        if (this._hintQueue.length > 0)
         {
-            var alive = [];
-            for (var i = 0; i < this._fallAnims.length; i++)
+            this._hintTimer -= dt;
+            if (this._hintTimer <= 0)
             {
-                var a = this._fallAnims[i];
-                a.offset -= this.fallSpeed*dt;
-                if (a.offset <= 0)
-                    this._SetTileRect(a.c, a.r, 0);
-                else
+                var cell = this._hintQueue.shift();
+                this._hintTimer = 0.14;
+                var action = this._svc.ToggleSelect(cell.c, cell.r);
+                if (action == "added")
                 {
-                    this._SetTileRect(a.c, a.r, a.offset);
-                    alive.push(a);
+                    var wordPanel = WordFallViews.wordPanel;
+                    if (wordPanel)
+                    {
+                        var index = this._svc.GetSelection().length - 1;
+                        wordPanel.OnLetterPicked(cell.c, cell.r, index, this.TileWorldPos(cell.c, cell.r));
+                    }
                 }
             }
-            this._fallAnims = alive;
+        }
+
+        if (this._collapsing)
+        {
+            var animating = this._svc.IsCollapseAnimating();
+            this._ApplyCollapseView();
+
+            if (!animating)
+            {
+                this._collapsing = false;
+                this.SyncBoard();
+                this.SyncSelection();
+            }
         }
     }
 };

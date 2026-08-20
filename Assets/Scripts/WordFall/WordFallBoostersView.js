@@ -67,7 +67,18 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
         if (mode == "shuffle")
             svc.UseShuffle();
         else if (mode == "hint")
-            svc.UseHint();
+        {
+            // подсказка: сервис находит слово, вью разбирает выбор и
+            // прощёлкивает буквы по одной — они штатно улетают в лоток
+            if (svc.UseHint())
+            {
+                var cells = svc.GetSelection();
+                svc.ClearSelection();
+                var board = WordFallViews.board;
+                if (board)
+                    board.SelectAnimated(cells);
+            }
+        }
         else
         {
             this._aimMode = mode;

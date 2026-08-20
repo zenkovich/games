@@ -10,7 +10,9 @@
 #include "o2/Assets/Types/ImageAsset.h"
 #include "o2/Utils/FileSystem/FileSystem.h"
 #include "o2/Render/Material.h"
+#include "o2/Render/Particles/ParticlesEffects.h"
 #include "o2/Render/Particles/ParticlesEmitterShapes.h"
+#include "o2/Utils/Math/ColorGradient.h"
 #include "o2/Scene/Components/AnimationComponent.h"
 #include "o2/Scene/Components/FlightTrajectoryComponent.h"
 #include "o2/Scene/Components/ParticlesEmitterComponent.h"
@@ -256,6 +258,81 @@ static Ref<Actor> BuildFxImage(const String& name, const String& image, const Co
 	return widget;
 }
 
+// Сохранённый клип-ассет с защитой от «призрака» дерева ассетов (запись без данных)
+static AssetRef<AnimationAsset> EnsureAnimAsset(const String& path, const Ref<AnimationClip>& clip)
+{
+	auto asset = o2Assets.GetAssetRefByType<AnimationAsset>(path);
+	auto isValid = [&]() { return asset && asset->animation && !asset->animation->GetTracks().IsEmpty(); };
+
+#if defined PLATFORM_WINDOWS || defined PLATFORM_MAC || defined PLATFORM_LINUX
+	if (!isValid())
+	{
+		String fullPath = o2Assets.GetAssetsPath() + path;
+		o2FileSystem.FolderCreate(o2FileSystem.GetParentPath(fullPath), false);
+		mmake<AnimationAsset>(clip)->Save(path);
+		asset = o2Assets.GetAssetRefByType<AnimationAsset>(path);
+	}
+#endif
+
+	return isValid() ? asset : AssetRef<AnimationAsset>();
+}
+
+// Градиент затухания частиц от заданного цвета к прозрачному
+static Ref<ParticlesColorEffect> MakeFadeGradient(const Color4& from, const Color4& mid)
+{
+	auto gradient = mmake<ColorGradient>();
+	gradient->InsertKey(0.0f, from);
+	gradient->InsertKey(0.35f, Color4(mid.r, mid.g, mid.b, 210));
+	gradient->InsertKey(1.0f, Color4(mid.r, mid.g, mid.b, 0));
+	auto colorEffect = mmake<ParticlesColorEffect>();
+	colorEffect->colorGradient = gradient;
+	return colorEffect;
+}
+
+// Дочерний актор с burst-эмиттером цветного салюта
+static Ref<Actor> AddSaluteBurst(const Ref<Actor>& parent, const String& name,
+								 const Color4& color, float depth)
+{
+	auto actor = mmake<Actor>(ActorCreateMode::NotInScene);
+	actor->SetName(name);
+	parent->AddChild(actor);
+	actor->SetLayer("UI");
+	actor->transform->SetSize2D(Vec2F(10, 10));
+	actor->SetDrawingDepthInheritFromParent(false);
+	actor->SetDrawingDepth(depth);
+
+	auto burst = actor->AddComponent<ParticlesEmitterComponent>();
+	auto source = mmake<SingleSpriteParticleSource>();
+	source->image = o2Assets.GetAssetRefByType<ImageAsset>(kSprites + "vfx_spark.png");
+	burst->SetParticlesSource(source);
+	burst->SetShape(mmake<CircleParticlesEmitterShape>());
+	burst->SetDuration(0.1f);
+	burst->SetParticlesLifetime(0.45f);
+	burst->SetParticlesPerSecond(140.0f);
+	burst->SetMaxParticles(14);
+	burst->SetInitialSpeed(260.0f);
+	burst->SetInitialSpeedRange(140.0f);
+	burst->SetInitialSize(0.35f);
+	burst->SetInitialSizeRange(0.15f);
+	burst->SetInitialAngle(0.0f);
+	burst->SetInitialAngleRange(360.0f);
+	burst->SetEmitParticlesMoveDirectionRange(360.0f);
+	burst->SetParticlesRelativity(false); // искры остаются в мире, не следуют за актором
+	burst->AddEffect(MakeFadeGradient(Color4(255, 255, 255, 255), color));
+
+	auto gravity = mmake<ParticlesGravityEffect>();
+	gravity->SetGravity(Vec3F(0, -600, 0));
+	burst->AddEffect(gravity);
+
+	auto damping = mmake<ParticlesDampingEffect>();
+	damping->SetDamping(2.4f);
+	burst->AddEffect(damping);
+
+	burst->SetLoop(Loop::None);
+	burst->Stop();
+	return actor;
+}
+
 Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 {
 	// плашка буквы, летящая в прогресс-бар: траекторию ведёт FlightTrajectory,
@@ -288,6 +365,18 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	trajectory->spline->AppendKey(Vec2F(170, 120), 90.0f);
 	trajectory->spline->AppendKey(Vec2F(400, 0), 0.0f);
 
+	// бело-голубое затухание искр к концу жизни
+	auto makeSparkGradient = []()
+	{
+		auto gradient = mmake<ColorGradient>();
+		gradient->InsertKey(0.0f, Color4(255, 255, 255, 255));
+		gradient->InsertKey(0.45f, Color4(170, 215, 255, 235));
+		gradient->InsertKey(1.0f, Color4(140, 190, 255, 0));
+		auto colorEffect = mmake<ParticlesColorEffect>();
+		colorEffect->colorGradient = gradient;
+		return colorEffect;
+	};
+
 	// эмиттер на дочернем акторе: ParticlesEmitterComponent прямо на виджете
 	// падает при клонировании (OnTransformUpdated на недостроенном WidgetLayout)
 	auto sparks = mmake<Actor>(ActorCreateMode::NotInScene);
@@ -295,6 +384,10 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	widget->AddChild(sparks);
 	sparks->SetLayer("UI");
 	sparks->transform->SetSize2D(Vec2F(10, 10));
+	// частицы — самостоятельный drawable слоя: без явной глубины они рисуются
+	// под виджетами HUD (прогресс-баром)
+	sparks->SetDrawingDepthInheritFromParent(false);
+	sparks->SetDrawingDepth(62.0f);
 
 	auto emitter = sparks->AddComponent<ParticlesEmitterComponent>();
 	auto source = mmake<SingleSpriteParticleSource>();
@@ -303,14 +396,26 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	emitter->SetShape(mmake<CircleParticlesEmitterShape>());
 	emitter->SetDuration(kFlightDuration);
 	emitter->SetParticlesLifetime(0.4f);
-	emitter->SetParticlesPerSecond(90.0f);
-	emitter->SetMaxParticles(60);
+	emitter->SetParticlesPerSecond(50.0f);
+	emitter->SetMaxParticles(30);
 	emitter->SetInitialSpeed(80.0f);
 	emitter->SetInitialSpeedRange(40.0f);
 	emitter->SetInitialSize(0.35f);
 	emitter->SetInitialSizeRange(0.15f);
 	emitter->SetInitialAngle(0.0f);
 	emitter->SetInitialAngleRange(360.0f);
+	emitter->SetEmitParticlesMoveDirectionRange(360.0f); // разлёт во все стороны, не вправо
+	emitter->SetParticlesRelativity(false); // след тянется за плашкой, а не летит с ней
+	emitter->AddEffect(makeSparkGradient());
+
+	auto trailGravity = mmake<ParticlesGravityEffect>();
+	trailGravity->SetGravity(Vec3F(0, -350, 0));
+	emitter->AddEffect(trailGravity);
+
+	auto trailDamping = mmake<ParticlesDampingEffect>();
+	trailDamping->SetDamping(1.8f);
+	emitter->AddEffect(trailDamping);
+
 	emitter->SetLoop(Loop::None);
 	emitter->Stop();
 
@@ -320,6 +425,8 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	widget->AddChild(burstActor);
 	burstActor->SetLayer("UI");
 	burstActor->transform->SetSize2D(Vec2F(10, 10));
+	burstActor->SetDrawingDepthInheritFromParent(false);
+	burstActor->SetDrawingDepth(62.5f);
 
 	auto burst = burstActor->AddComponent<ParticlesEmitterComponent>();
 	auto burstSource = mmake<SingleSpriteParticleSource>();
@@ -328,14 +435,26 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	burst->SetShape(mmake<CircleParticlesEmitterShape>());
 	burst->SetDuration(0.1f);
 	burst->SetParticlesLifetime(0.35f);
-	burst->SetParticlesPerSecond(300.0f);
-	burst->SetMaxParticles(30);
+	burst->SetParticlesPerSecond(180.0f);
+	burst->SetMaxParticles(16);
 	burst->SetInitialSpeed(260.0f);
 	burst->SetInitialSpeedRange(120.0f);
 	burst->SetInitialSize(0.35f);
 	burst->SetInitialSizeRange(0.15f);
 	burst->SetInitialAngle(0.0f);
 	burst->SetInitialAngleRange(360.0f);
+	burst->SetEmitParticlesMoveDirectionRange(360.0f);
+	burst->SetParticlesRelativity(false);
+	burst->AddEffect(makeSparkGradient());
+
+	auto burstGravity = mmake<ParticlesGravityEffect>();
+	burstGravity->SetGravity(Vec3F(0, -600, 0));
+	burst->AddEffect(burstGravity);
+
+	auto burstDamping = mmake<ParticlesDampingEffect>();
+	burstDamping->SetDamping(2.4f);
+	burst->AddEffect(burstDamping);
+
 	burst->SetLoop(Loop::None);
 	burst->Stop();
 
@@ -382,24 +501,26 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	burstTrack->SetBeginTime(kFlightDuration);
 
 	// стейт сериализует анимацию ссылкой на ассет — встроенный в память клип
-	// потерялся бы при загрузке прототипа с диска, поэтому клип сохраняется .anim-ом
+	// потерялся бы при загрузке прототипа с диска, поэтому клип сохраняется .anim-ом.
+	// валидность обязательна: дерево ассетов не удаляет записи, и по старому id
+	// может вернуться «призрак» без данных
 	static const String kFlightAnim = "WordFall/Prototypes/FxFlyingLetterFlight.anim";
 	auto animAsset = o2Assets.GetAssetRefByType<AnimationAsset>(kFlightAnim);
+	auto animAssetValid = [&]() {
+		return animAsset && animAsset->animation && !animAsset->animation->GetTracks().IsEmpty();
+	};
 #if defined PLATFORM_WINDOWS || defined PLATFORM_MAC || defined PLATFORM_LINUX
-	if (!animAsset)
+	if (!animAssetValid())
 	{
 		String fullPath = o2Assets.GetAssetsPath() + kFlightAnim;
 		o2FileSystem.FolderCreate(o2FileSystem.GetParentPath(fullPath), false);
-		if (!o2FileSystem.IsFileExist(fullPath))
-		{
-			mmake<AnimationAsset>(clip)->Save(kFlightAnim);
-			animAsset = o2Assets.GetAssetRefByType<AnimationAsset>(kFlightAnim);
-		}
+		mmake<AnimationAsset>(clip)->Save(kFlightAnim);
+		animAsset = o2Assets.GetAssetRefByType<AnimationAsset>(kFlightAnim);
 	}
 #endif
 
 	Ref<IAnimationState> state;
-	if (animAsset)
+	if (animAssetValid())
 	{
 		auto assetState = mmake<AnimationState>("flight");
 		assetState->SetAnimation(animAsset);
@@ -419,9 +540,110 @@ Ref<Actor> WordFallUiFactory::BuildFxFlashPrototype()
 	return BuildFxImage("FxFlash", "ui_fx_flash.png", Color4::White());
 }
 
-Ref<Actor> WordFallUiFactory::BuildFxStarPrototype()
+Ref<Actor> WordFallUiFactory::BuildFxRocketPrototype()
 {
-	return BuildFxImage("FxStar", "ui_fx_star.png", Color4::White());
+	// ракета бонуса: летит по FlightTrajectoryComponent в случайную плашку,
+	// оставляя искровый след; на прилёте — разноцветный салют суб-треками
+	auto widget = mmake<Widget>();
+	widget->SetName("FxRocket");
+	widget->SetLayer("UI");
+	widget->AddLayer("img", mmake<Sprite>(kSprites + "powerup_rocket.png"), Layout::BothStretch());
+	SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(44, 52));
+
+	auto animation = widget->AddComponent<AnimationComponent>();
+
+	auto trajectory = widget->AddComponent<FlightTrajectoryComponent>();
+	trajectory->spline = mmake<Spline>();
+	trajectory->spline->AppendKey(Vec2F(0, 0), 0.0f);
+	trajectory->spline->AppendKey(Vec2F(140, 180), 120.0f);
+	trajectory->spline->AppendKey(Vec2F(400, 0), 0.0f);
+
+	// искровый след ракеты
+	auto sparks = mmake<Actor>(ActorCreateMode::NotInScene);
+	sparks->SetName("Sparks");
+	widget->AddChild(sparks);
+	sparks->SetLayer("UI");
+	sparks->transform->SetSize2D(Vec2F(10, 10));
+	sparks->SetDrawingDepthInheritFromParent(false);
+	sparks->SetDrawingDepth(63.0f);
+
+	auto trail = sparks->AddComponent<ParticlesEmitterComponent>();
+	auto trailSource = mmake<SingleSpriteParticleSource>();
+	trailSource->image = o2Assets.GetAssetRefByType<ImageAsset>(kSprites + "vfx_spark.png");
+	trail->SetParticlesSource(trailSource);
+	trail->SetShape(mmake<CircleParticlesEmitterShape>());
+	trail->SetDuration(kRocketFlightDuration);
+	trail->SetParticlesLifetime(0.35f);
+	trail->SetParticlesPerSecond(70.0f);
+	trail->SetMaxParticles(40);
+	trail->SetInitialSpeed(70.0f);
+	trail->SetInitialSpeedRange(40.0f);
+	trail->SetInitialSize(0.3f);
+	trail->SetInitialSizeRange(0.12f);
+	trail->SetInitialAngle(0.0f);
+	trail->SetInitialAngleRange(360.0f);
+	trail->SetEmitParticlesMoveDirectionRange(360.0f);
+	trail->SetParticlesRelativity(false); // шлейф остаётся позади ракеты
+	trail->AddEffect(MakeFadeGradient(Color4(255, 245, 200, 255), Color4(255, 190, 120, 220)));
+
+	auto trailGravity = mmake<ParticlesGravityEffect>();
+	trailGravity->SetGravity(Vec3F(0, -350, 0));
+	trail->AddEffect(trailGravity);
+
+	auto trailDamping = mmake<ParticlesDampingEffect>();
+	trailDamping->SetDamping(1.8f);
+	trail->AddEffect(trailDamping);
+
+	trail->SetLoop(Loop::None);
+	trail->Stop();
+
+	// три цвета салюта на прилёте — казуально-мультяшный фейерверк
+	AddSaluteBurst(widget, "BurstPink", Color4(255, 110, 190, 235), 63.5f);
+	AddSaluteBurst(widget, "BurstYellow", Color4(255, 220, 90, 235), 63.5f);
+	AddSaluteBurst(widget, "BurstBlue", Color4(110, 210, 255, 235), 63.5f);
+
+	auto clip = mmake<AnimationClip>();
+
+	*clip->AddTrack<float>("component/o2::FlightTrajectoryComponent/position") =
+		AnimationTrack<float>::EaseInOut(0.0f, 1.0f, kRocketFlightDuration);
+
+	// лёгкое покачивание и разгонный «прыжок» масштаба
+	auto scale = clip->AddTrack<Vec2F>("transform/scale2D");
+	scale->spline->AppendKey(Vec2F(0.8f, 0.8f));
+	scale->spline->AppendKey(Vec2F(1.15f, 1.15f));
+	scale->spline->AppendKey(Vec2F(1.0f, 1.0f));
+	*scale->timeCurve = Curve::EaseInOut(0.0f, 1.0f, kRocketFlightDuration);
+
+	auto angle = clip->AddTrack<float>("transform/angleDegrees");
+	angle->AddKey(0.0f, 18.0f);
+	angle->AddKey(kRocketFlightDuration*0.5f, 0.0f);
+	angle->AddKey(kRocketFlightDuration, -24.0f);
+
+	clip->AddTrack("child/Sparks/component/o2::ParticlesEmitterComponent", TypeOf(ParticlesEmitterComponent));
+
+	const char* burstNames[3] = { "BurstPink", "BurstYellow", "BurstBlue" };
+	for (auto burstName : burstNames)
+	{
+		auto burstTrack = DynamicCast<AnimationSubTrack>(
+			clip->AddTrack(String("child/") + burstName + "/component/o2::ParticlesEmitterComponent",
+						   TypeOf(ParticlesEmitterComponent)));
+		burstTrack->SetBeginTime(kRocketFlightDuration);
+	}
+
+	Ref<IAnimationState> state;
+	if (auto animAsset = EnsureAnimAsset("WordFall/Prototypes/FxRocketFlight.anim", clip))
+	{
+		auto assetState = mmake<AnimationState>("flight");
+		assetState->SetAnimation(animAsset);
+		state = animation->AddState(assetState);
+	}
+	else // ассет недоступен (headless-тесты) — клип из памяти
+		state = animation->AddState("flight", clip, AnimationMask(), 1.0f);
+
+	state->autoPlay = false;
+
+	widget->SetEnabled(false);
+	return widget;
 }
 
 Ref<Actor> WordFallUiFactory::BuildFxGlowPrototype()
@@ -445,7 +667,7 @@ Ref<Actor> WordFallUiFactory::BuildFxGlowPrototype()
 
 Ref<Actor> WordFallUiFactory::BuildFxBeamPrototype()
 {
-	return BuildFxImage("FxBeam", "ui_bar_fill.png", Color4(255, 190, 70));
+	return BuildFxImage("FxBeam", "ui_bar_fill.png", Color4(170, 215, 255));
 }
 
 Ref<HorizontalProgress> WordFallUiFactory::CreateProgressBar(const Ref<Actor>& parent, const String& name,
@@ -458,8 +680,8 @@ Ref<HorizontalProgress> WordFallUiFactory::CreateProgressBar(const Ref<Actor>& p
 		parent->AddChild(progress);
 
 	progress->SetLayer("UI");
-	// 9-slice: скруглённые торцы заливки не тянутся, растягивается середина
-	progress->AddLayer("bar", MakeSliced(fillImage, BorderI(17, 0, 17, 0)), Layout::BothStretch());
+	// 9-slice: скруглённые торцы пилюли (14px) не тянутся, растягивается середина
+	progress->AddLayer("bar", MakeSliced(fillImage, BorderI(14, 0, 14, 0)), Layout::BothStretch());
 
 	SetAnchoredRect(progress, anchor, pos, size);
 	SetDepth(progress, depth);
@@ -479,9 +701,12 @@ Ref<Actor> WordFallUiFactory::BuildTilePrototype()
 	auto sel = button->AddLayer("sel", mmake<Sprite>(kSprites + "ui_tile_sel.png"), kTileLayout);
 	sel->SetEnabled(false);
 
-	// лёд под буквой: буква поверх кристалла синеет цветом
+	// ледяная и каменная плашки закрывают обычную; буква рисуется поверх своим стилем
 	auto ice = button->AddLayer("ice", mmake<Sprite>(kSprites + "ui_ice.png"), kTileLayout);
 	ice->SetEnabled(false);
+
+	auto stone = button->AddLayer("stone", mmake<Sprite>(kSprites + "ui_stone.png"), kTileLayout);
+	stone->SetEnabled(false);
 
 	auto letter = MakeText(44, kDarkText, true);
 	button->AddLayer("letter", letter, Layout::BothStretch(0, 6, 0, 0));
@@ -490,11 +715,12 @@ Ref<Actor> WordFallUiFactory::BuildTilePrototype()
 	points->SetHorAlign(HorAlign::Right);
 	button->AddLayer("points", points, Layout::Based(BaseCorner::RightBottom, Vec2F(30, 20), Vec2F(-16, 16)));
 
-	const char* powerups[3] = { "bomb", "rocket", "wand" };
+	// бонус занимает слот вместо буквы — крупная иконка по центру плашки
+	const char* powerups[3] = { "bomb", "rocket", "fireworks" };
 	for (auto name : powerups)
 	{
 		auto powerup = button->AddLayer(name, mmake<Sprite>(kSprites + "powerup_" + String(name) + ".png"),
-										Layout::Based(BaseCorner::LeftTop, Vec2F(32, 32), Vec2F(17, -15)));
+										Layout::Based(BaseCorner::Center, Vec2F(66, 66), Vec2F(0, 0)));
 		powerup->SetEnabled(false);
 	}
 

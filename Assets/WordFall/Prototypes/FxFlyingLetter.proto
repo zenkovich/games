@@ -11,7 +11,7 @@
                 }
             },
             "mEnabled": false,
-            "Id": 3861436853962269371,
+            "Id": 17733167622469290296,
             "Transform": {
                 "anchorMin": {
                     "x": 0.5,
@@ -34,6 +34,7 @@
                 {
                     "Type": "o2::Actor",
                     "Data": {
+                        "mDrawingDepth": 62.0,
                         "mInheritDrawingDepthFromParent": false,
                         "mName": "Sparks",
                         "mSceneLayer": {
@@ -42,7 +43,7 @@
                                 "mName": "UI"
                             }
                         },
-                        "Id": 7117912718668311923,
+                        "Id": 7358256605403493049,
                         "Transform": {
                             "size": {
                                 "x": 10.0,
@@ -74,15 +75,77 @@
                                         "Type": "o2::CircleParticlesEmitterShape",
                                         "Value": {}
                                     },
-                                    "mParticlesNumLimit": 60,
+                                    "mEffects": [
+                                        {
+                                            "Type": "o2::ParticlesColorEffect",
+                                            "Value": {
+                                                "colorGradient": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 849229907755758701
+                                                            },
+                                                            {
+                                                                "uid": 13761035204197993593
+                                                            },
+                                                            {
+                                                                "uid": 8562757657266109048,
+                                                                "color": {
+                                                                    "r": 170,
+                                                                    "g": 215,
+                                                                    "b": 255,
+                                                                    "a": 235
+                                                                },
+                                                                "position": 0.44999998807907107
+                                                            },
+                                                            {
+                                                                "uid": 3976562246449368227,
+                                                                "position": 1.0
+                                                            },
+                                                            {
+                                                                "uid": 13708185711875359304,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 190,
+                                                                    "b": 255,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesGravityEffect",
+                                            "Value": {
+                                                "mGravity": {
+                                                    "x": 0.0,
+                                                    "y": -350.0,
+                                                    "z": 0.0
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesDampingEffect",
+                                            "Value": {
+                                                "mDamping": 1.7999999523162842
+                                            }
+                                        }
+                                    ],
+                                    "mParticlesNumLimit": 30,
+                                    "mIsParticlesRelative": false,
                                     "mParticlesLifetime": 0.4000000059604645,
-                                    "mEmitParticlesPerSecond": 90.0,
+                                    "mEmitParticlesPerSecond": 50.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
                                     "mInitialSizeRange": 0.15000000596046449,
                                     "mInitialSpeed": 80.0,
                                     "mInitialSpeedRangle": 40.0,
-                                    "mId": 17042099302992493122,
+                                    "mInitialMoveDirectionRange": 360.0,
+                                    "mId": 8286751673707183961,
                                     "mSize": {
                                         "x": 10.0,
                                         "y": 10.0,
@@ -101,6 +164,7 @@
                 {
                     "Type": "o2::Actor",
                     "Data": {
+                        "mDrawingDepth": 62.5,
                         "mInheritDrawingDepthFromParent": false,
                         "mName": "Burst",
                         "mSceneLayer": {
@@ -109,7 +173,7 @@
                                 "mName": "UI"
                             }
                         },
-                        "Id": 3186997535089398807,
+                        "Id": 3049048712198317030,
                         "Transform": {
                             "size": {
                                 "x": 10.0,
@@ -141,15 +205,77 @@
                                         "Type": "o2::CircleParticlesEmitterShape",
                                         "Value": {}
                                     },
-                                    "mParticlesNumLimit": 30,
+                                    "mEffects": [
+                                        {
+                                            "Type": "o2::ParticlesColorEffect",
+                                            "Value": {
+                                                "colorGradient": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 984306806577410911
+                                                            },
+                                                            {
+                                                                "uid": 15474710190771963528
+                                                            },
+                                                            {
+                                                                "uid": 2345978789949297899,
+                                                                "color": {
+                                                                    "r": 170,
+                                                                    "g": 215,
+                                                                    "b": 255,
+                                                                    "a": 235
+                                                                },
+                                                                "position": 0.44999998807907107
+                                                            },
+                                                            {
+                                                                "uid": 2400440098841189200,
+                                                                "position": 1.0
+                                                            },
+                                                            {
+                                                                "uid": 12630604449827566607,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 190,
+                                                                    "b": 255,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesGravityEffect",
+                                            "Value": {
+                                                "mGravity": {
+                                                    "x": 0.0,
+                                                    "y": -600.0,
+                                                    "z": 0.0
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesDampingEffect",
+                                            "Value": {
+                                                "mDamping": 2.4000000953674318
+                                            }
+                                        }
+                                    ],
+                                    "mParticlesNumLimit": 16,
+                                    "mIsParticlesRelative": false,
                                     "mParticlesLifetime": 0.3499999940395355,
-                                    "mEmitParticlesPerSecond": 300.0,
+                                    "mEmitParticlesPerSecond": 180.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
                                     "mInitialSizeRange": 0.15000000596046449,
                                     "mInitialSpeed": 260.0,
                                     "mInitialSpeedRangle": 120.0,
-                                    "mId": 5075220236324616261,
+                                    "mInitialMoveDirectionRange": 360.0,
+                                    "mId": 12020494038911955924,
                                     "mSize": {
                                         "x": 10.0,
                                         "y": 10.0,
@@ -178,13 +304,13 @@
                                     "autoPlay": false,
                                     "mask": {},
                                     "mAnimation": {
-                                        "id": "b1a12166095cc30e9eb4b14ed4ec5ada",
+                                        "id": "e1b5fe05b2cce5f9dd6f10c872330038",
                                         "path": "WordFall/Prototypes/FxFlyingLetterFlight.anim"
                                     }
                                 }
                             }
                         ],
-                        "mId": 5618597999148786227
+                        "mId": 12600533448910624789
                     }
                 },
                 {
@@ -195,14 +321,14 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 4646490711180175623,
+                                        "uid": 9709160247346338538,
                                         "nextSupport": {
                                             "x": 85.0,
                                             "y": 60.0
                                         }
                                     },
                                     {
-                                        "uid": 5520128523441956036,
+                                        "uid": 4394073587338692065,
                                         "position": 278.7152404785156,
                                         "value": {
                                             "x": 170.0,
@@ -219,7 +345,7 @@
                                         }
                                     },
                                     {
-                                        "uid": 13389620852816469287,
+                                        "uid": 10456562407806659144,
                                         "position": 606.0126342773438,
                                         "value": {
                                             "x": 400.0,
@@ -233,7 +359,7 @@
                                 ]
                             }
                         },
-                        "mId": 10465322619576678137
+                        "mId": 6462974980097165047
                     }
                 }
             ],
@@ -252,7 +378,7 @@
                                 }
                             }
                         },
-                        "mUID": 15892068377860901209
+                        "mUID": 8351386576671212652
                     }
                 },
                 {
@@ -282,7 +408,7 @@
                                 "mHorAlign": "Middle"
                             }
                         },
-                        "mUID": 3354288434717251551,
+                        "mUID": 8760110720597581920,
                         "mDepth": 1.0
                     }
                 },
@@ -325,7 +451,7 @@
                                 "mHorAlign": "Right"
                             }
                         },
-                        "mUID": 7372941074381445418,
+                        "mUID": 17694867571146327086,
                         "mDepth": 2.0
                     }
                 },
@@ -358,7 +484,7 @@
                                 }
                             }
                         },
-                        "mUID": 7701022328416503637,
+                        "mUID": 6834560298507176873,
                         "mTransparency": 0.0,
                         "mDepth": 3.0
                     }

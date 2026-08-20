@@ -493,8 +493,9 @@ void WordFallBootstrap::BuildFx(const Ref<Widget>& screen)
 	for (int i = 0; i < 10; i++)
 		makePart(String::Format("FxFlash%i", i), "FxFlash.proto", &F::BuildFxFlashPrototype, 60.0f);
 
+	// ракеты бонусов: одиночная и залп фейерверка (до 10 одновременно)
 	for (int i = 0; i < 10; i++)
-		makePart(String::Format("FxStar%i", i), "FxStar.proto", &F::BuildFxStarPrototype, 60.0f);
+		makePart(String::Format("FxRocket%i", i), "FxRocket.proto", &F::BuildFxRocketPrototype, 64.0f);
 
 	makePart("FxBeamH", "FxBeam.proto", &F::BuildFxBeamPrototype, 59.0f);
 	makePart("FxBeamV", "FxBeam.proto", &F::BuildFxBeamPrototype, 59.0f);

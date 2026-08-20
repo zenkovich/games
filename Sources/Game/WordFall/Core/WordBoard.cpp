@@ -12,7 +12,7 @@ void WordBoard::Init(const WordBoardConfig& config, unsigned int seed)
 		mSeed = 1;
 }
 
-void WordBoard::Fill(const Vector<Vec2I>& iceCells, const WString& seededWord)
+void WordBoard::Fill(const Vector<Vec2I>& iceCells, const Vector<Vec2I>& stoneCells, const WString& seededWord)
 {
 	mSelection.Clear();
 	mSeededCells.Clear();
@@ -41,6 +41,22 @@ void WordBoard::Fill(const Vector<Vec2I>& iceCells, const WString& seededWord)
 		if (IsValidCell(cell) && !mSeededCells.Contains(cell))
 			mGrid[cell.x][cell.y].ice = 1;
 	}
+
+	for (auto& cell : stoneCells)
+	{
+		if (IsValidCell(cell) && !mSeededCells.Contains(cell) && mGrid[cell.x][cell.y].ice == 0)
+			mGrid[cell.x][cell.y].stone = 1;
+	}
+}
+
+bool WordBoard::IsTileUsable(const WordTile& tile)
+{
+	return tile.ice == 0 && tile.stone == 0 && tile.powerup.IsEmpty() && !tile.letter.IsEmpty();
+}
+
+bool WordBoard::IsTileOccupied(const WordTile& tile)
+{
+	return !tile.letter.IsEmpty() || !tile.powerup.IsEmpty();
 }
 
 int WordBoard::GetColumns() const { return mConfig.columns; }
@@ -59,8 +75,12 @@ const Vector<Vec2I>& WordBoard::GetSeededCells() const { return mSeededCells; }
 
 WordBoard::SelectResult WordBoard::ToggleSelect(const Vec2I& cell)
 {
-	if (mGrid[cell.x][cell.y].ice > 0)
+	auto& tile = mGrid[cell.x][cell.y];
+	if (tile.ice > 0)
 		return SelectResult::Iced;
+
+	if (tile.stone > 0 || !tile.powerup.IsEmpty())
+		return SelectResult::Blocked;
 
 	int index = mSelection.IndexOf(cell);
 	if (index >= 0)
@@ -72,6 +92,33 @@ WordBoard::SelectResult WordBoard::ToggleSelect(const Vec2I& cell)
 
 	mSelection.Add(cell);
 	return SelectResult::Added;
+}
+
+// Принятое слово скалывает слой льда у соседей сгоревших букв (камень не задевает)
+Vector<Vec2I> WordBoard::DamageIceAround(const Vector<Vec2I>& cells, const Vector<Vec2I>& skipCells)
+{
+	Vector<Vec2I> broken;
+	for (auto& cell : cells)
+	{
+		for (int dc = -1; dc <= 1; dc++)
+		{
+			for (int dr = -1; dr <= 1; dr++)
+			{
+				Vec2I target(cell.x + dc, cell.y + dr);
+				if (!IsValidCell(target) || target == cell || skipCells.Contains(target))
+					continue;
+
+				auto& tile = mGrid[target.x][target.y];
+				if (tile.ice > 0)
+				{
+					tile.ice--;
+					if (tile.ice == 0 && !broken.Contains(target))
+						broken.Add(target);
+				}
+			}
+		}
+	}
+	return broken;
 }
 
 void WordBoard::ClearSelection()
@@ -159,12 +206,14 @@ WordMoveResult WordBoard::AcceptWord(const WordDictionary& dictionary)
 
 	CollapseAndSpawn(destroyed, result.moved, result.spawned);
 
-	// длинное слово — пауэрап на плитке, занявшей клетку последней буквы
+	// длинное слово — бонус-плитка в клетке последней буквы (занимает слот вместо буквы)
 	result.powerupEarned = PowerupForLength(cells.Count());
 	if (!result.powerupEarned.IsEmpty())
 	{
 		auto last = cells.Last();
-		mGrid[last.x][last.y].powerup = WString(result.powerupEarned);
+		auto& bonusTile = mGrid[last.x][last.y];
+		bonusTile = WordTile();
+		bonusTile.powerup = WString(result.powerupEarned);
 	}
 
 	mSelection.Clear();
@@ -192,7 +241,7 @@ bool WordBoard::ShuffleLetters()
 	{
 		for (int r = 0; r < mConfig.rows; r++)
 		{
-			if (mGrid[c][r].ice == 0)
+			if (IsTileUsable(mGrid[c][r]))
 				cells.Add(Vec2I(c, r));
 		}
 	}
@@ -219,7 +268,7 @@ bool WordBoard::ShuffleLetters()
 bool WordBoard::MakeJoker(const Vec2I& cell)
 {
 	auto& tile = mGrid[cell.x][cell.y];
-	if (tile.ice > 0 || tile.joker)
+	if (!IsTileUsable(tile) || tile.joker)
 		return false;
 
 	tile.joker = true;
@@ -230,7 +279,7 @@ bool WordBoard::MakeJoker(const Vec2I& cell)
 bool WordBoard::MakeDoubled(const Vec2I& cell)
 {
 	auto& tile = mGrid[cell.x][cell.y];
-	if (tile.ice > 0 || tile.joker || tile.doubled)
+	if (!IsTileUsable(tile) || tile.joker || tile.doubled)
 		return false;
 
 	tile.doubled = true;
@@ -259,7 +308,7 @@ static int CountBoardLetters(const WordBoard& board, int columns, int rows,
 		for (int r = 0; r < rows; r++)
 		{
 			auto& tile = board.GetTile(Vec2I(c, r));
-			if (tile.ice > 0)
+			if (!WordBoard::IsTileUsable(tile))
 				continue;
 
 			if (tile.joker)
@@ -295,7 +344,7 @@ bool WordBoard::FindBestWord(const WordDictionary& dictionary, int requiredLengt
 		for (int r = 0; r < mConfig.rows; r++)
 		{
 			auto& tile = mGrid[c][r];
-			if (tile.ice == 0 && !tile.letter.IsEmpty())
+			if (IsTileUsable(tile))
 				pool.Add({ Vec2I(c, r), tile.letter[0], TileValue(tile), tile.joker });
 		}
 	}
@@ -460,7 +509,7 @@ void WordBoard::PlantMissingLetters(const WString& word, Vector<Vec2I>& repaired
 			{
 				Vec2I candidate(RandomInt(mConfig.columns), RandomInt(mConfig.rows));
 				auto& tile = mGrid[candidate.x][candidate.y];
-				if (tile.ice > 0 || !tile.powerup.IsEmpty() || repaired.Contains(candidate))
+				if (tile.ice > 0 || tile.stone > 0 || !tile.powerup.IsEmpty() || repaired.Contains(candidate))
 					continue;
 				cell = candidate;
 			}
@@ -499,7 +548,14 @@ void WordBoard::DebugSetTile(const Vec2I& cell, const WString& letter)
 
 void WordBoard::DebugSetPowerup(const Vec2I& cell, const String& kind)
 {
-	mGrid[cell.x][cell.y].powerup = WString(kind);
+	auto& tile = mGrid[cell.x][cell.y];
+	tile = WordTile();
+	tile.powerup = WString(kind);
+}
+
+void WordBoard::DebugSetStone(const Vec2I& cell)
+{
+	mGrid[cell.x][cell.y].stone = 1;
 }
 
 float WordBoard::Random01()
@@ -609,8 +665,8 @@ int WordBoard::TileValue(const WordTile& tile) const
 
 String WordBoard::PowerupForLength(int length) const
 {
-	if (length >= mConfig.wandWordLength)
-		return "wand";
+	if (length >= mConfig.fireworksWordLength)
+		return "fireworks";
 	if (length >= mConfig.rocketWordLength)
 		return "rocket";
 	if (length >= mConfig.bombWordLength)
@@ -623,17 +679,39 @@ WordBoard::PowerupActivation WordBoard::ActivatePowerups(const Vector<Vec2I>& ce
 	PowerupActivation result;
 	Vector<Vec2I> destroyedKeys = cells;
 
+	// бонусы активируются буквой слова по соседству (8 клеток)
+	Vector<Vec2I> bonusCells;
 	for (auto& cell : cells)
 	{
-		WString kind = mGrid[cell.x][cell.y].powerup;
-		if (kind.IsEmpty())
-			continue;
+		for (int dc = -1; dc <= 1; dc++)
+		{
+			for (int dr = -1; dr <= 1; dr++)
+			{
+				Vec2I target(cell.x + dc, cell.y + dr);
+				if (!IsValidCell(target) || bonusCells.Contains(target))
+					continue;
 
-		result.used.Add({ String(kind), cell });
+				if (!mGrid[target.x][target.y].powerup.IsEmpty())
+					bonusCells.Add(target);
+			}
+		}
+	}
+
+	for (auto& cell : bonusCells)
+	{
+		WString kind = mGrid[cell.x][cell.y].powerup;
+		WordPowerupUse use{ String(kind), cell };
+
+		// бонус-плитка сгорает вместе с активацией
+		if (!destroyedKeys.Contains(cell))
+		{
+			destroyedKeys.Add(cell);
+			result.destroyed.Add(cell);
+		}
 
 		if (kind == WString("bomb"))
 		{
-			// уничтожает 3×3, очки взорванных букв — в счёт
+			// 3×3: буквы взрываются, камни разбиваются (плитка остаётся)
 			for (int dc = -1; dc <= 1; dc++)
 			{
 				for (int dr = -1; dr <= 1; dr++)
@@ -642,86 +720,104 @@ WordBoard::PowerupActivation WordBoard::ActivatePowerups(const Vector<Vec2I>& ce
 					if (!IsValidCell(target) || destroyedKeys.Contains(target))
 						continue;
 
-					destroyedKeys.Add(target);
 					auto& tile = mGrid[target.x][target.y];
+					if (tile.letter.IsEmpty() && tile.powerup.IsEmpty())
+						continue;
+
 					result.extraScore += TileValue(tile);
+
+					if (tile.stone > 0)
+					{
+						tile.stone = 0;
+						if (!result.activated.Contains(target))
+							result.activated.Add(target);
+						continue;
+					}
+
 					if (tile.ice > 0)
+					{
+						tile.ice = 0;
 						result.iceBroken.Add(target);
+					}
+
+					destroyedKeys.Add(target);
 					result.destroyed.Add(target);
 				}
 			}
 		}
 		else if (kind == WString("rocket"))
 		{
-			// крест: задетые буквы активируются, но остаются на поле
-			for (int c = 0; c < mConfig.columns; c++)
-				ActivateTile(Vec2I(c, cell.y), destroyedKeys, result);
-			for (int r = 0; r < mConfig.rows; r++)
-				ActivateTile(Vec2I(cell.x, r), destroyedKeys, result);
+			FireRocket(cell, destroyedKeys, result, use);
 		}
-		else if (kind == WString("wand"))
+		else if (kind == WString("fireworks"))
 		{
-			// активирует все такие же буквы по всему полю
-			WString letter = mGrid[cell.x][cell.y].letter;
-			for (int c = 0; c < mConfig.columns; c++)
-			{
-				for (int r = 0; r < mConfig.rows; r++)
-				{
-					auto& tile = mGrid[c][r];
-					if (tile.letter == letter && !tile.joker)
-						ActivateTile(Vec2I(c, r), destroyedKeys, result);
-				}
-			}
+			// залп из десяти ракет по случайным плиткам
+			for (int i = 0; i < 10; i++)
+				FireRocket(cell, destroyedKeys, result, use);
 		}
+
+		result.used.Add(use);
 	}
+
 	return result;
 }
 
-void WordBoard::ActivateTile(const Vec2I& cell, Vector<Vec2I>& destroyedKeys, PowerupActivation& result)
+// Ракета летит в случайную плитку: буква сгорает, камень или лёд разбивается
+void WordBoard::FireRocket(const Vec2I& from, Vector<Vec2I>& destroyedKeys, PowerupActivation& result,
+						   WordPowerupUse& use)
 {
-	if (destroyedKeys.Contains(cell) || result.activated.Contains(cell))
+	Vector<Vec2I> candidates;
+	for (int c = 0; c < mConfig.columns; c++)
+	{
+		for (int r = 0; r < mConfig.rows; r++)
+		{
+			Vec2I cell(c, r);
+			auto& tile = mGrid[c][r];
+			if (tile.letter.IsEmpty() || destroyedKeys.Contains(cell) ||
+				result.activated.Contains(cell) || use.targets.Contains(cell))
+			{
+				continue;
+			}
+
+			candidates.Add(cell);
+		}
+	}
+
+	if (candidates.IsEmpty())
 		return;
 
-	auto& tile = mGrid[cell.x][cell.y];
+	Vec2I target = candidates[RandomInt(candidates.Count())];
+	auto& tile = mGrid[target.x][target.y];
+
+	use.targets.Add(target);
 	result.extraScore += TileValue(tile);
+
+	if (tile.stone > 0)
+	{
+		tile.stone = 0;
+		result.activated.Add(target);
+		return;
+	}
+
 	if (tile.ice > 0)
 	{
 		tile.ice = 0;
-		result.iceBroken.Add(cell);
+		result.iceBroken.Add(target);
+		result.activated.Add(target);
+		return;
 	}
-	result.activated.Add(cell);
-}
 
-Vector<Vec2I> WordBoard::DamageIceAround(const Vector<Vec2I>& cells, const Vector<Vec2I>& skipCells)
-{
-	Vector<Vec2I> broken;
-	for (auto& cell : cells)
-	{
-		for (int dc = -1; dc <= 1; dc++)
-		{
-			for (int dr = -1; dr <= 1; dr++)
-			{
-				Vec2I target(cell.x + dc, cell.y + dr);
-				if (!IsValidCell(target) || skipCells.Contains(target) || broken.Contains(target))
-					continue;
-
-				auto& tile = mGrid[target.x][target.y];
-				if (tile.ice > 0)
-				{
-					tile.ice--;
-					if (tile.ice == 0)
-						broken.Add(target);
-				}
-			}
-		}
-	}
-	return broken;
+	destroyedKeys.Add(target);
+	result.destroyed.Add(target);
 }
 
 void WordBoard::CollapseAndSpawn(const Vector<Vec2I>& removed, Vector<WordTileMove>& moved, Vector<Vec2I>& spawned)
 {
 	for (auto& cell : removed)
+	{
 		mGrid[cell.x][cell.y].letter.Clear();
+		mGrid[cell.x][cell.y].powerup.Clear();
+	}
 
 	for (int c = 0; c < mConfig.columns; c++)
 	{
@@ -729,7 +825,7 @@ void WordBoard::CollapseAndSpawn(const Vector<Vec2I>& removed, Vector<WordTileMo
 		Vector<int> fromRows;
 		for (int r = 0; r < mConfig.rows; r++)
 		{
-			if (!mGrid[c][r].letter.IsEmpty())
+			if (IsTileOccupied(mGrid[c][r]))
 			{
 				stack.Add(mGrid[c][r]);
 				fromRows.Add(r);
@@ -780,6 +876,7 @@ void WordBoard::SeedWord(const WString& word)
 ENUM_META(WordBoard::SelectResult, WordBoard__SelectResult)
 {
     ENUM_ENTRY(Added);
+    ENUM_ENTRY(Blocked);
     ENUM_ENTRY(Iced);
     ENUM_ENTRY(Removed);
 }

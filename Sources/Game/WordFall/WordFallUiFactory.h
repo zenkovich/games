@@ -28,7 +28,8 @@ class WordFallUiFactory
 public:
 	static constexpr float kTileSize = 88.0f;
 	static constexpr float kSlotSize = 64.0f;
-	static constexpr float kFlightDuration = 0.45f; // длительность анимации полёта буквы в бар
+	static constexpr float kFlightDuration = 0.45f;       // длительность анимации полёта буквы в бар
+	static constexpr float kRocketFlightDuration = 0.8f;  // небыстрый полёт ракеты в цель
 
 	// Виджет-контейнер секции с якорем в родителе
 	static Ref<Widget> CreateSection(const Ref<Actor>& parent, const String& name,
@@ -66,8 +67,8 @@ public:
 	static Ref<Actor> BuildPillButtonPrototype();
 	static Ref<Actor> BuildTaskRowPrototype();
 	static Ref<Actor> BuildFlyingLetterPrototype();
+	static Ref<Actor> BuildFxRocketPrototype();
 	static Ref<Actor> BuildFxFlashPrototype();
-	static Ref<Actor> BuildFxStarPrototype();
 	static Ref<Actor> BuildFxGlowPrototype();
 	static Ref<Actor> BuildFxBeamPrototype();
 

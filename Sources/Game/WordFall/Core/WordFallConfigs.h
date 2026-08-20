@@ -65,6 +65,7 @@ public:
 	int targetScore = 250;              // цель по очкам — обязательное условие @SERIALIZABLE @EDITOR_PROPERTY
 	int moves = 12;                     // лимит ходов @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<Vec2I> iceCells;             // клетки со льдом @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> stoneCells;           // клетки с камнем (ломается только бонусами) @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<int> boosterCharges;         // заряды бустеров (молоток/перемешать/подсказка/джокер/удвоитель) @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<WordTaskConfig> tasks;       // задачи уровня (1..5) @SERIALIZABLE @EDITOR_PROPERTY
 
@@ -85,7 +86,7 @@ public:
 	int maxConsonantRun = 4;         // максимум согласных подряд в колонке @SERIALIZABLE @EDITOR_PROPERTY
 	int bombWordLength = 5;          // длина слова для бомбы @SERIALIZABLE @EDITOR_PROPERTY
 	int rocketWordLength = 6;        // длина слова для ракеты @SERIALIZABLE @EDITOR_PROPERTY
-	int wandWordLength = 7;          // длина слова для палочки @SERIALIZABLE @EDITOR_PROPERTY
+	int fireworksWordLength = 7;     // длина слова для фейерверка @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<LetterDef> letters;       // мешок букв @SERIALIZABLE @EDITOR_PROPERTY
 
 	WordBoardConfig();
@@ -162,6 +163,7 @@ CLASS_FIELDS_META(WordLevelConfig)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(250).NAME(targetScore);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(12).NAME(moves);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(iceCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(stoneCells);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(boosterCharges);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(tasks);
 }
@@ -186,7 +188,7 @@ CLASS_FIELDS_META(WordBoardConfig)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(4).NAME(maxConsonantRun);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(5).NAME(bombWordLength);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(6).NAME(rocketWordLength);
-    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(7).NAME(wandWordLength);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(7).NAME(fireworksWordLength);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(letters);
 }
 END_META;

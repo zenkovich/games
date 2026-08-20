@@ -73,6 +73,17 @@ WordLevelConfig WordFallLevels::Generate(int index, const WordDictionary& dictio
 		config.iceCells.Add(cell);
 	}
 
+	// камни появляются с пятого уровня, медленно нарастая
+	int stoneCount = index >= 4 ? Math::Min(1 + (index - 4)/10, 4) : 0;
+	while (config.stoneCells.Count() < stoneCount && guard++ < 600)
+	{
+		Vec2I cell(rng.NextInt(boardConfig.columns), rng.NextInt(boardConfig.rows));
+		if (usedCells.Contains(cell))
+			continue;
+		usedCells.Add(cell);
+		config.stoneCells.Add(cell);
+	}
+
 	// обязательное слово-задание (оно же сидится на поле)
 	config.tasks.Add(WordTaskConfig::MakeWord(String(PickTaskWord(3 + rng.NextInt(3), rng, dictionary, boardConfig))));
 
@@ -99,7 +110,7 @@ WordLevelConfig WordFallLevels::Generate(int index, const WordDictionary& dictio
 		{
 			Vector<String> kinds = index < 10 ? Vector<String>{ "bomb" }
 							 : index < 25 ? Vector<String>{ "bomb", "rocket" }
-							 : Vector<String>{ "bomb", "rocket", "wand" };
+							 : Vector<String>{ "bomb", "rocket", "fireworks" };
 			config.tasks.Add(WordTaskConfig::MakePowerup(kinds[rng.NextInt(kinds.Count())], 1));
 		}
 		else if (kind == "clearIce")

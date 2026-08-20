@@ -7,6 +7,7 @@
 #include "o2/Assets/Assets.h"
 #include "o2/Assets/Types/SceneAsset.h"
 #include "o2/Scene/Actor.h"
+#include "o2/Scene/Components/AnimationComponent.h"
 #include "o2/Scene/Components/FlightTrajectoryComponent.h"
 #include "o2/Scene/Components/ParticlesEmitterComponent.h"
 #include "o2/Scene/Scene.h"
@@ -203,6 +204,50 @@ TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "04_after_word.png"));
 }
 
+// Повторные сборы: хвост прошлой анимации полёта не должен гасить свежую
+// плашку (мигание) — на старте каждого сбора буква полностью видима
+TEST_F(WordFallUI, ConsecutiveWordsKeepFlyingLettersVisible)
+{
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto flyer = DynamicCast<Widget>(root->GetChild("Screen/Fx/FxLetter0"));
+	ASSERT_TRUE(flyer);
+
+	for (int word = 0; word < 3; word++)
+	{
+		PlantKot();
+		ClickTile(1, 0);
+		ClickTile(2, 0);
+		ClickTile(3, 0);
+
+		Click(Vec2F(222, 331)); // ПРИНЯТЬ
+		AppTestDriver::PumpFrames(2);
+
+		// плашка встала на место слота: видима, звезда скрыта
+		EXPECT_TRUE(flyer->IsEnabled()) << "word " << word;
+		EXPECT_GT(flyer->GetLayer("back")->GetTransparency(), 0.9f) << "word " << word;
+		EXPECT_LT(flyer->GetLayer("star")->GetTransparency(), 0.1f) << "word " << word;
+
+		// первая половина полёта: буква всё ещё видима
+		AppTestDriver::Wait(0.15f);
+		EXPECT_GT(flyer->GetLayer("back")->GetTransparency(), 0.5f) << "word " << word;
+
+		if (word == 2)
+		{
+			// серия кадров третьего сбора для визуальной проверки динамики
+			EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "10_multi_word_a.png"));
+			AppTestDriver::Wait(0.15f);
+			EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "10_multi_word_b.png"));
+			AppTestDriver::Wait(0.15f);
+			EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "10_multi_word_c.png"));
+			AppTestDriver::Wait(0.15f);
+			EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "10_multi_word_d.png"));
+		}
+
+		AppTestDriver::Wait(2.0f); // хореография и падение доигрываются
+	}
+}
+
 TEST_F(WordFallUI, ClearButtonDropsSelection)
 {
 	PlantKot();
@@ -305,10 +350,20 @@ TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
 	Click(Vec2F(222, 331)); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
-	// бомба в модели — сразу; иконка на плитке — после отложенного обвала
-	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(5, 0)).powerup, WString("bomb"));
+	// бомба в модели — сразу, занимает слот вместо буквы
+	auto& bonusTile = mService->GetLevel().GetBoard().GetTile(Vec2I(5, 0));
+	EXPECT_EQ(bonusTile.powerup, WString("bomb"));
+	EXPECT_TRUE(bonusTile.letter.IsEmpty());
 
-	AppTestDriver::Wait(2.5f); // подтверждение слова и обвал доигрываются
+	// кадры обвала: каскад колонок, спавны входят из-за верха без наложений
+	AppTestDriver::Wait(0.45f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "13_fall_a.png"));
+	AppTestDriver::Wait(0.15f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "13_fall_b.png"));
+	AppTestDriver::Wait(0.15f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "13_fall_c.png"));
+
+	AppTestDriver::Wait(1.8f); // подтверждение слова и обвал доигрываются
 
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
@@ -318,6 +373,95 @@ TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
 	EXPECT_FALSE(tile->GetLayer("rocket")->IsEnabled());
 
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "08_bomb_powerup.png"));
+}
+
+// Ракета-бонус активируется соседней буквой: ракета летит в цель по компоненту
+// траектории, разбитый выбором лёд искрит, камень остаётся до бонуса
+TEST_F(WordFallUI, RocketBonusFliesToTarget)
+{
+	PlantKot();
+	mService->DebugSetPowerup(1, 1, "rocket"); // сосед буквы «К»
+	mService->DebugSetStone(5, 5);
+	AppTestDriver::PumpFrames(2);
+
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+
+	// каменная плитка видима слоем и не выбирается кликом
+	auto stoneTile = DynamicCast<Button>(root->GetChild("Screen/Board/Tile_5_5"));
+	ASSERT_TRUE(stoneTile);
+	EXPECT_TRUE(stoneTile->GetLayer("stone")->IsEnabled());
+	ClickTile(5, 5);
+	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 0);
+
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::PumpFrames(3);
+
+	auto& move = mService->GetLastMoveResult();
+	ASSERT_EQ(move.powerupsUsed.Count(), 1);
+	EXPECT_EQ(move.powerupsUsed[0].kind, String("rocket"));
+	ASSERT_EQ(move.powerupsUsed[0].targets.Count(), 1);
+
+	// ракета в полёте (после паузы этапа): виджет включён и едет по траектории
+	AppTestDriver::Wait(0.65f);
+	auto rocket = root->GetChild("Screen/Fx/FxRocket0");
+	ASSERT_TRUE(rocket);
+	EXPECT_TRUE(rocket->IsEnabled());
+	auto trajectory = rocket->GetComponent<FlightTrajectoryComponent>();
+	ASSERT_TRUE(trajectory);
+	EXPECT_GT(trajectory->position, 0.0f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11_rocket_flight.png"));
+
+	// прилёт: салют выпущен; серия кадров — искры разлетаются, тормозят и опадают
+	AppTestDriver::Wait(0.55f);
+	auto burst = rocket->GetChild("BurstPink");
+	ASSERT_TRUE(burst);
+	auto burstEmitter = burst->GetComponent<ParticlesEmitterComponent>();
+	ASSERT_TRUE(burstEmitter);
+	EXPECT_GT(burstEmitter->GetParticlesCount(), 0);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11b_rocket_burst.png"));
+	AppTestDriver::Wait(0.12f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11c_burst_fall.png"));
+	AppTestDriver::Wait(0.15f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11d_burst_settle.png"));
+
+	AppTestDriver::Wait(2.0f);
+}
+
+// Выбор буквы рядом со льдом и камнем ничего не разбивает — лёд скалывается
+// только принятым словом, камень остаётся до бонуса
+TEST_F(WordFallUI, SelectionDoesNotBreakIceOrStone)
+{
+	PlantKot();
+	mService->GetLevel().GetBoard().GetTileEditable(Vec2I(2, 1)).ice = 1;
+	mService->DebugSetStone(0, 1);
+	AppTestDriver::PumpFrames(2);
+
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+
+	ClickTile(1, 0); // сосед льда и камня — оба на месте
+	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(2, 1)).ice, 1);
+	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(0, 1)).stone, 1);
+
+	auto iceTile = DynamicCast<Button>(root->GetChild("Screen/Board/Tile_2_1"));
+	ASSERT_TRUE(iceTile);
+	EXPECT_TRUE(iceTile->GetLayer("ice")->IsEnabled());
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "12_ice_survives_select.png"));
+
+	// лёд скалывается только после принятия слова
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::PumpFrames(3);
+	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(2, 1)).ice, 0);
+	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(0, 1)).stone, 1);
+
+	AppTestDriver::Wait(2.0f);
 }
 
 TEST_F(WordFallUI, PressedButtonShowsPressIn)

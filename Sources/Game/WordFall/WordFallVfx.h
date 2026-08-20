@@ -26,6 +26,9 @@ public:
 	// Бело-голубые искры прилёта очков в прогресс-бар @SCRIPTABLE
 	void PlayScoreHit(float x, float y);
 
+	// Разноцветный салют-фейерверк @SCRIPTABLE
+	void PlayFirework(float x, float y);
+
 	SERIALIZABLE(WordFallVfx);
 	CLONEABLE_REF(WordFallVfx);
 
@@ -33,6 +36,8 @@ private:
 	static constexpr int kBurnPoolSize = 10;
 
 	Vector<Ref<ParticlesEmitterComponent>> mBurnPool;
+	Vector<Vector<Ref<ParticlesEmitterComponent>>> mFireworkPool; // тройки цветных эмиттеров
+	int mNextFirework = 0;
 	Ref<ParticlesEmitterComponent> mExplosion;
 	Ref<ParticlesEmitterComponent> mWin;
 	Ref<ParticlesEmitterComponent> mScoreHit;
@@ -59,6 +64,8 @@ CLASS_FIELDS_META(WordFallVfx)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0.35f).NAME(burnParticleSize);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0.55f).NAME(explosionParticleSize);
     FIELD().PRIVATE().NAME(mBurnPool);
+    FIELD().PRIVATE().NAME(mFireworkPool);
+    FIELD().PRIVATE().DEFAULT_VALUE(0).NAME(mNextFirework);
     FIELD().PRIVATE().NAME(mExplosion);
     FIELD().PRIVATE().NAME(mWin);
     FIELD().PRIVATE().NAME(mScoreHit);
@@ -73,6 +80,7 @@ CLASS_METHODS_META(WordFallVfx)
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, PlayExplosion, float, float);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, PlayWin);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, PlayScoreHit, float, float);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, PlayFirework, float, float);
     FUNCTION().PRIVATE().SIGNATURE(void, OnStart);
     FUNCTION().PRIVATE().SIGNATURE(Ref<ParticlesEmitterComponent>, CreateEmitter, const String&, float, float, float, int);
     FUNCTION().PRIVATE().SIGNATURE(void, PlayAt, const Ref<ParticlesEmitterComponent>&, float, float);

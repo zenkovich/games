@@ -18,6 +18,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this.barWorldY = 331;
         this.tileSize = 88;         // стартовый размер летящей буквы
 
+        this.slotSlideSpeed = 14; // скорость плавного сдвига слотов, 1/с
+
         this._svc = null;
         this._slots = [];
         this._flyers = [];
@@ -40,7 +42,10 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             this._slots.push({
                 widget: slot,
                 letter: slot.GetLayer("letter").drawable,
-                points: slot.GetLayer("points").drawable
+                points: slot.GetLayer("points").drawable,
+                x: 0,
+                targetX: 0,
+                placed: false
             });
 
             // клик по слоту снимает выбор с этой буквы и хвоста — буквы возвращаются на поле
@@ -199,14 +204,23 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             if (i >= count)
             {
                 slot.widget.SetEnabled(false);
+                slot.placed = false;
                 continue;
             }
 
             this._FillLetterView(slot, svc.GetTile(selected[i].c, selected[i].r));
             slot.letter.color = letterColor;
 
+            // ранее стоявшие слоты съезжают на новые места плавно (в Update),
+            // впервые появившийся — сразу на своём месте
             var pos = this._SlotPos(i, count);
-            this._SetRect(slot.widget, pos.x, pos.y, this.slotSize);
+            slot.targetX = pos.x;
+            if (!slot.placed)
+            {
+                slot.placed = true;
+                slot.x = pos.x;
+                this._SetRect(slot.widget, slot.x, 0, this.slotSize);
+            }
 
             // пока буква летит в этот слот — слот скрыт
             var flying = false;
@@ -285,6 +299,17 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             return;
 
         this._UpdateFlights(dt);
+
+        // плавный сдвиг слотов к целевым местам
+        for (var i = 0; i < this._slots.length; i++)
+        {
+            var slot = this._slots[i];
+            if (!slot.placed || Math.abs(slot.targetX - slot.x) < 0.5)
+                continue;
+
+            slot.x += (slot.targetX - slot.x)*Math.min(1, this.slotSlideSpeed*dt);
+            this._SetRect(slot.widget, slot.x, 0, this.slotSize);
+        }
 
         var revision = this._svc.GetRevision();
         if (revision != this._lastRevision)

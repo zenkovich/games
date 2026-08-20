@@ -86,6 +86,24 @@
                 {
                     "Type": "o2::WidgetLayer",
                     "Value": {
+                        "name": "stone",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "1c278e3aa2b44c21a0d9d0284cd5972c",
+                                    "path": "WordFall/Sprites/ui_stone.png"
+                                }
+                            }
+                        },
+                        "mUID": 14191529216679808814,
+                        "mEnabled": false,
+                        "mDepth": 3.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
                         "layout": {
                             "mOffsetMin": {
                                 "x": 0.0,
@@ -110,8 +128,8 @@
                                 "mHorAlign": "Middle"
                             }
                         },
-                        "mUID": 14191529216679808814,
-                        "mDepth": 3.0
+                        "mUID": 13905610538258557802,
+                        "mDepth": 4.0
                     }
                 },
                 {
@@ -153,8 +171,8 @@
                                 "mHorAlign": "Right"
                             }
                         },
-                        "mUID": 13905610538258557802,
-                        "mDepth": 4.0
+                        "mUID": 6381827785900690059,
+                        "mDepth": 5.0
                     }
                 },
                 {
@@ -162,20 +180,20 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 1.0
+                                "x": 0.5,
+                                "y": 0.5
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 1.0
+                                "x": 0.5,
+                                "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": 17.0,
-                                "y": -47.0
+                                "x": -33.0,
+                                "y": -33.0
                             },
                             "mOffsetMax": {
-                                "x": 49.0,
-                                "y": -15.0
+                                "x": 33.0,
+                                "y": 33.0
                             }
                         },
                         "name": "bomb",
@@ -185,42 +203,6 @@
                                 "mImageAsset": {
                                     "id": "36a031a62e2743e0ab05b8aab3e8fadb",
                                     "path": "WordFall/Sprites/powerup_bomb.png"
-                                }
-                            }
-                        },
-                        "mUID": 6381827785900690059,
-                        "mEnabled": false,
-                        "mDepth": 5.0
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "layout": {
-                            "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 1.0
-                            },
-                            "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 1.0
-                            },
-                            "mOffsetMin": {
-                                "x": 17.0,
-                                "y": -47.0
-                            },
-                            "mOffsetMax": {
-                                "x": 49.0,
-                                "y": -15.0
-                            }
-                        },
-                        "name": "rocket",
-                        "mDrawable": {
-                            "Type": "o2::Sprite",
-                            "Value": {
-                                "mImageAsset": {
-                                    "id": "98a2f1200c694dadbc45375716c7d791",
-                                    "path": "WordFall/Sprites/powerup_rocket.png"
                                 }
                             }
                         },
@@ -234,35 +216,71 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 1.0
+                                "x": 0.5,
+                                "y": 0.5
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 1.0
+                                "x": 0.5,
+                                "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": 17.0,
-                                "y": -47.0
+                                "x": -33.0,
+                                "y": -33.0
                             },
                             "mOffsetMax": {
-                                "x": 49.0,
-                                "y": -15.0
+                                "x": 33.0,
+                                "y": 33.0
                             }
                         },
-                        "name": "wand",
+                        "name": "rocket",
                         "mDrawable": {
                             "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "cf4b7a9fe1414ecc8e6c1af0b55fd6cf",
-                                    "path": "WordFall/Sprites/powerup_wand.png"
+                                    "id": "98a2f1200c694dadbc45375716c7d791",
+                                    "path": "WordFall/Sprites/powerup_rocket.png"
                                 }
                             }
                         },
                         "mUID": 68839721172139875,
                         "mEnabled": false,
                         "mDepth": 7.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -33.0,
+                                "y": -33.0
+                            },
+                            "mOffsetMax": {
+                                "x": 33.0,
+                                "y": 33.0
+                            }
+                        },
+                        "name": "fireworks",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "53b97dff62834abdb69ebe4c87e9076d",
+                                    "path": "WordFall/Sprites/powerup_fireworks.png"
+                                }
+                            }
+                        },
+                        "mUID": 13032179892088382336,
+                        "mEnabled": false,
+                        "mDepth": 8.0
                     }
                 },
                 {
@@ -284,9 +302,9 @@
                                 }
                             }
                         },
-                        "mUID": 13032179892088382336,
+                        "mUID": 2570359957965525235,
                         "mTransparency": 0.0,
-                        "mDepth": 8.0
+                        "mDepth": 9.0
                     }
                 }
             ],
@@ -312,12 +330,12 @@
                                                             "Value": {
                                                                 "mKeys": [
                                                                     {
-                                                                        "uid": 2570359957965525235,
+                                                                        "uid": 12012589312602132683,
                                                                         "rightSupportPosition": 0.024000000208616258,
                                                                         "supportsType": "Broken"
                                                                     },
                                                                     {
-                                                                        "uid": 12012589312602132683,
+                                                                        "uid": 8138034840528835754,
                                                                         "value": 0.3499999940395355,
                                                                         "position": 0.05999999865889549,
                                                                         "leftSupportPosition": -0.05999999865889549,
@@ -337,7 +355,7 @@
                             "meta": {
                                 "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
                                 "Value": {
-                                    "mId": "865b9dcf32f7e7e877d10d13f3684081"
+                                    "mId": "965b8363528720de863f69d8bcdfd4fb"
                                 }
                             }
                         }

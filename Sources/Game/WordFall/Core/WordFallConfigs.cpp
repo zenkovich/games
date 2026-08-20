@@ -86,7 +86,7 @@ bool WordBoardConfig::operator==(const WordBoardConfig& other) const
 {
 	return columns == other.columns && rows == other.rows && vowels == other.vowels &&
 		maxConsonantRun == other.maxConsonantRun && bombWordLength == other.bombWordLength &&
-		rocketWordLength == other.rocketWordLength && wandWordLength == other.wandWordLength &&
+		rocketWordLength == other.rocketWordLength && fireworksWordLength == other.fireworksWordLength &&
 		letters == other.letters;
 }
 

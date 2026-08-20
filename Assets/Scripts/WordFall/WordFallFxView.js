@@ -11,6 +11,9 @@ WordFallFxView = class WordFallFxView extends o2.Component
         this.letterStagger = 0.08; // задержка между стартами букв
         this.letterFlight = 0.45;  // время полёта буквы в бар
         this.collapseDelay = 0.15; // обвал поля (ячейки уже пустые)
+        this.rocketFlight = 0.8;   // полёт ракеты бонуса — небыстрый, чтобы читался
+        this.rocketStagger = 0.15; // задержка между ракетами фейерверка
+        this.bonusPause = 0.3;     // общая пауза между этапами бонусов и перед обвалом
 
         this._svc = null;
         this._vfx = null;
@@ -37,9 +40,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
             this._letters.push({
                 widget: letter,
                 letter: letter.GetLayer("letter").drawable,
-                points: letter.GetLayer("points").drawable,
-                tileLayers: [letter.GetLayer("back"), letter.GetLayer("letter"), letter.GetLayer("points")],
-                starLayer: letter.GetLayer("star")
+                points: letter.GetLayer("points").drawable
             });
         }
 
@@ -50,12 +51,9 @@ WordFallFxView = class WordFallFxView extends o2.Component
             this._flashes.push({ widget: flash, img: flash.GetLayer("img") });
         }
 
-        this._stars = [];
+        this._rockets = [];
         for (var i = 0; i < 10; i++)
-        {
-            var star = this._actor.GetChild("FxStar" + i);
-            this._stars.push({ widget: star, img: star.GetLayer("img") });
-        }
+            this._rockets.push({ widget: this._actor.GetChild("FxRocket" + i), busy: false });
 
         var beamH = this._actor.GetChild("FxBeamH");
         var beamV = this._actor.GetChild("FxBeamV");
@@ -90,13 +88,13 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
         this._busy = true;
 
-        // ячейки поля опустели ещё при выборе — обвал почти сразу
-        this._Fx(this.collapseDelay, 0.01, function(k) {}, function() {
+        // бонусы играют этапами; обвал поля — после последнего эффекта с паузой
+        var bonusEnd = this._PlayPowerupFx(result);
+        var collapseAt = bonusEnd > 0 ? bonusEnd + this.bonusPause : this.collapseDelay;
+        this._Fx(collapseAt, 0.01, function(k) {}, function() {
             if (board)
                 board.ApplyPendingCollapse();
         });
-
-        this._PlayPowerupFx(result);
 
         // звёзды влетают в кончик текущей заливки прогресс-бара
         var barX = hud ? hud.BarTipWorldX() : 0;
@@ -169,13 +167,20 @@ WordFallFxView = class WordFallFxView extends o2.Component
         if (!trajectory)
             return;
 
+        // хвост прошлого полёта держит слои растворёнными (микшер стейта пишет
+        // последние значения треков каждый кадр, даже остановленный) — глушим
+        // стейт весом: с нулевым весом микшер возвращает исходные значения слоёв
+        var anim = view.widget.GetComponent("o2::AnimationComponent");
+        if (anim)
+        {
+            anim.Stop("flight");
+            var state = anim.GetState("flight");
+            if (state)
+                state.SetWeight(0);
+        }
+
         trajectory.SetPoints(fromX, fromY, toX, toY);
         trajectory.SetPosition(0); // сброс в старт + новое смещение в коридоре сплайна
-
-        // прошлый полёт оставил слои растворёнными — вернуть плашку, спрятать звезду
-        for (var i = 0; i < view.tileLayers.length; i++)
-            view.tileLayers[i].transparency = 1;
-        view.starLayer.transparency = 0;
 
         view.widget.SetEnabled(true);
     }
@@ -184,56 +189,131 @@ WordFallFxView = class WordFallFxView extends o2.Component
     _StartFlight(view)
     {
         var anim = view.widget.GetComponent("o2::AnimationComponent");
-        if (anim)
-            anim.RewindAndPlay("flight");
+        if (!anim)
+            return;
+
+        var state = anim.GetState("flight");
+        if (state)
+            state.SetWeight(1);
+        anim.RewindAndPlay("flight");
     }
 
-    // Эффекты сработавших пауэрапов
+    // Эффекты сработавших бонусов этапами: пауза → эффект → пауза → обвал.
+    // Возвращает время окончания последнего эффекта (0 — бонусов не было)
     _PlayPowerupFx(result)
     {
         var self = this;
         var board = WordFallViews.board;
         if (!board)
-            return;
+            return 0;
 
         var used = result.powerupsUsed || [];
-        var starIndex = 0;
+        if (used.length == 0)
+            return 0;
 
+        var time = 0;
         for (var i = 0; i < used.length; i++)
         {
-            (function(pu, delay) {
-                var pos = board.TileWorldPos(pu.c, pu.r);
+            var pu = used[i];
+            var pos = board.TileWorldPos(pu.c, pu.r);
+            time += this.bonusPause; // пауза перед этапом бонуса
 
-                if (pu.kind == "bomb")
-                {
-                    self.Flash(pos.x, pos.y, 40, 220, delay, 0.55);
+            if (pu.kind == "bomb")
+            {
+                (function(pu, pos, at) {
+                    self._Fx(at, 0.01, function(k) {}, function() {
+                        // взрыв: салют, вспышка, зона 3×3 пустеет сразу
+                        board.HideTileVisual(pu.c, pu.r);
+                        var destroyed = result.destroyed || [];
+                        for (var d = 0; d < destroyed.length; d++)
+                            board.HideTileVisual(destroyed[d].c, destroyed[d].r);
 
-                    // маленькие отголоски на взорванных клетках
-                    var destroyed = result.destroyed || [];
-                    for (var d = 0; d < destroyed.length && d < 4; d++)
-                    {
-                        var dPos = board.TileWorldPos(destroyed[d].c, destroyed[d].r);
-                        self.Flash(dPos.x, dPos.y, 20, 80, delay + 0.12 + d*0.05, 0.3);
-                    }
-                }
-                else if (pu.kind == "rocket")
+                        self.Flash(pos.x, pos.y, 40, 200, 0, 0.5);
+                        if (self._vfx)
+                            self._vfx.PlayFirework(pos.x, pos.y);
+                    });
+                })(pu, pos, time);
+
+                time += 0.15;
+            }
+            else if (pu.kind == "rocket" || pu.kind == "fireworks")
+            {
+                var targets = pu.targets || [];
+                var lastArrive = time;
+                for (var t = 0; t < targets.length; t++)
                 {
-                    self.Flash(pos.x, pos.y, 30, 120, delay, 0.35);
-                    self._BeamFx(self._beamH, true, pos, delay);
-                    self._BeamFx(self._beamV, false, pos, delay);
+                    var target = board.TileWorldPos(targets[t].c, targets[t].r);
+                    var launchAt = time + t*this.rocketStagger;
+                    this._LaunchRocket(pu, targets[t], pos, target, launchAt);
+                    lastArrive = launchAt + this.rocketFlight;
                 }
-                else if (pu.kind == "wand")
-                {
-                    self.Flash(pos.x, pos.y, 30, 150, delay, 0.4);
-                    var activated = result.activated || [];
-                    for (var a = 0; a < activated.length && starIndex < self._stars.length; a++)
-                    {
-                        var sPos = board.TileWorldPos(activated[a].c, activated[a].r);
-                        self._StarFx(self._stars[starIndex++], sPos, delay + 0.15 + a*0.08);
-                    }
-                }
-            })(used[i], i*0.25);
+                time = lastArrive + 0.1;
+            }
         }
+
+        return time;
+    }
+
+    // Полёт ракеты бонуса: траектория и салют на прилёте живут в прототипе FxRocket.
+    // На взлёте плитка бонуса гаснет — летит тот же спрайт, без визуального разрыва
+    _LaunchRocket(bonus, targetCell, from, to, delay)
+    {
+        var view = null;
+        for (var i = 0; i < this._rockets.length; i++)
+        {
+            if (!this._rockets[i].busy)
+            {
+                view = this._rockets[i];
+                break;
+            }
+        }
+        if (!view)
+            return;
+
+        view.busy = true;
+        var self = this;
+        var board = WordFallViews.board;
+
+        this._Fx(delay, 0.01, function(k) {}, function() {
+            var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
+            var anim = view.widget.GetComponent("o2::AnimationComponent");
+            if (!trajectory || !anim)
+                return;
+
+            if (board)
+                board.HideTileVisual(bonus.c, bonus.r);
+
+            anim.Stop("flight");
+            trajectory.SetPoints(from.x, from.y, to.x, to.y);
+            trajectory.SetPosition(0);
+            view.widget.SetEnabled(true);
+
+            var state = anim.GetState("flight");
+            if (state)
+                state.SetWeight(1);
+            anim.RewindAndPlay("flight");
+        });
+
+        // попадание: клетка гаснет сразу, вспышка (салют выпускают суб-треки)
+        this._Fx(delay + this.rocketFlight, 0.01, function(k) {}, function() {
+            if (board)
+                board.HideTileVisual(targetCell.c, targetCell.r);
+            self.Flash(to.x, to.y, 24, 110, 0, 0.3);
+        });
+
+        // спрятать ракету после разлёта салюта
+        this._Fx(delay + this.rocketFlight + 0.55, 0.01, function(k) {}, function() {
+            var anim = view.widget.GetComponent("o2::AnimationComponent");
+            if (anim)
+            {
+                anim.Stop("flight");
+                var state = anim.GetState("flight");
+                if (state)
+                    state.SetWeight(0);
+            }
+            view.widget.SetEnabled(false);
+            view.busy = false;
+        });
     }
 
     Flash(x, y, fromSize, toSize, delay, dur)
@@ -281,19 +361,6 @@ WordFallFxView = class WordFallFxView extends o2.Component
         });
     }
 
-    _StarFx(star, pos, delay)
-    {
-        var self = this;
-        this._Fx(delay, 0.5, function(k) {
-            star.widget.SetEnabled(true);
-            star.img.transparency = k < 0.7 ? 1 : 1 - (k - 0.7)/0.3;
-            self._SetRect(star.widget, pos.x, pos.y, 14 + 48*Math.sin(Math.PI*k));
-        }, function() {
-            star.widget.SetEnabled(false);
-            star.img.transparency = 1;
-        });
-    }
-
     // Мгновенно доводит текущую последовательность до конечного состояния
     Finish()
     {
@@ -317,10 +384,10 @@ WordFallFxView = class WordFallFxView extends o2.Component
             this._flashes[i].widget.SetEnabled(false);
             this._flashes[i].img.transparency = 1;
         }
-        for (var i = 0; i < this._stars.length; i++)
+        for (var i = 0; i < this._rockets.length; i++)
         {
-            this._stars[i].widget.SetEnabled(false);
-            this._stars[i].img.transparency = 1;
+            this._rockets[i].widget.SetEnabled(false);
+            this._rockets[i].busy = false;
         }
         this._beamH.widget.SetEnabled(false);
         this._beamH.img.transparency = 1;

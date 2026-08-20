@@ -14,10 +14,11 @@ struct WordTile
 {
 	WString letter;   // буква (одна)
 	int value = 0;    // номинал
-	int ice = 0;      // слоёв льда
+	int ice = 0;      // слоёв льда (буква видна, выбор запрещён)
+	int stone = 0;    // камень (ломается только бонусами)
 	bool doubled = false;
 	bool joker = false;
-	WString powerup;  // "" | "bomb" | "rocket" | "wand"
+	WString powerup;  // "" | "bomb" | "rocket" | "fireworks" — бонус занимает слот вместо буквы
 };
 
 // Сработавший пауэрап
@@ -25,6 +26,7 @@ struct WordPowerupUse
 {
 	String kind;
 	Vec2I cell;
+	Vector<Vec2I> targets; // цели ракет (rocket/fireworks) — для анимации полёта
 };
 
 // Перемещение плитки при гравитации
@@ -67,7 +69,7 @@ public:
 	void Init(const WordBoardConfig& config, unsigned int seed);
 
 	// Новое поле: заполнение из мешка, сид слова, лёд
-	void Fill(const Vector<Vec2I>& iceCells, const WString& seededWord);
+	void Fill(const Vector<Vec2I>& iceCells, const Vector<Vec2I>& stoneCells, const WString& seededWord);
 
 	int GetColumns() const;
 	int GetRows() const;
@@ -80,7 +82,7 @@ public:
 	const Vector<Vec2I>& GetSeededCells() const;
 
 	// Свободный выбор: клик добавляет букву, повторный — снимает её и хвост
-	enum class SelectResult { Added, Removed, Iced };
+	enum class SelectResult { Added, Removed, Iced, Blocked };
 	SelectResult ToggleSelect(const Vec2I& cell);
 	void ClearSelection();
 
@@ -109,7 +111,7 @@ public:
 
 	// --- выполнимость заданий: примитивы для страховки уровня ---
 
-	// Собираемо ли слово из букв поля (лёд исключён, джокеры добирают дефицит)
+	// Собираемо ли слово из букв поля (лёд/камень/бонусы исключены, джокеры добирают дефицит)
 	bool CanAssembleWord(const WString& word) const;
 
 	// Существует ли собираемое слово словаря (опц. точной длины)
@@ -129,9 +131,16 @@ public:
 
 	static float LengthMultiplier(int length);
 
+	// Плитка пригодна для сбора слов: есть буква, нет льда, камня и бонуса
+	static bool IsTileUsable(const WordTile& tile);
+
+	// Плитка занимает клетку (буква или бонус) — для гравитации
+	static bool IsTileOccupied(const WordTile& tile);
+
 	// Для тестов
 	void DebugSetTile(const Vec2I& cell, const WString& letter);
 	void DebugSetPowerup(const Vec2I& cell, const String& kind);
+	void DebugSetStone(const Vec2I& cell);
 
 private:
 	WordBoardConfig mConfig;
@@ -164,6 +173,8 @@ private:
 	};
 	PowerupActivation ActivatePowerups(const Vector<Vec2I>& cells);
 	void ActivateTile(const Vec2I& cell, Vector<Vec2I>& destroyedKeys, PowerupActivation& result);
+	void FireRocket(const Vec2I& from, Vector<Vec2I>& destroyedKeys, PowerupActivation& result,
+					WordPowerupUse& use);
 
 	Vector<Vec2I> DamageIceAround(const Vector<Vec2I>& cells, const Vector<Vec2I>& skipCells);
 	void CollapseAndSpawn(const Vector<Vec2I>& removed, Vector<WordTileMove>& moved, Vector<Vec2I>& spawned);

@@ -231,17 +231,39 @@ TEST_F(WordFallCore, InvalidWordIsRejected)
 	EXPECT_EQ(level.GetMovesLeft(), 12);
 }
 
-TEST_F(WordFallCore, BurningWordBreaksAdjacentIce)
+TEST_F(WordFallCore, AcceptedWordBreaksAdjacentIceSelectionDoesNot)
 {
 	FillBoardWithStubs();
 	Plant("КОТ");
 	Board().GetTileEditable(Vec2I(1, 1)).ice = 1;  // диагональный сосед сгорающего ряда
 	Board().GetTileEditable(Vec2I(5, 5)).ice = 1;  // далеко — должен остаться
-	SelectRow(3);
 
+	// сам выбор лёд не трогает
+	SelectRow(3);
+	EXPECT_EQ(Board().GetTile(Vec2I(1, 1)).ice, 1);
+
+	// лёд скалывается только при принятии слова
 	auto result = level.AcceptWord(dictionary);
-	EXPECT_EQ(result.iceBroken.Count(), 1);
-	EXPECT_EQ(Board().CountIce(), 1);
+	EXPECT_TRUE(result.ok);
+	EXPECT_TRUE(result.iceBroken.Contains(Vec2I(1, 1)));
+	EXPECT_EQ(Board().GetTile(Vec2I(1, 1)).ice, 0);
+	EXPECT_EQ(Board().GetTile(Vec2I(5, 5)).ice, 1);
+}
+
+TEST_F(WordFallCore, StoneSurvivesSelectionAndAcceptedWord)
+{
+	FillBoardWithStubs();
+	Plant("КОТ");
+	Board().DebugSetStone(Vec2I(1, 1));
+
+	EXPECT_EQ(Board().ToggleSelect(Vec2I(1, 1)), WordBoard::SelectResult::Blocked);
+
+	// ни выбор, ни принятое слово камень не разбивают — только бонусы;
+	// после обвала каменная плитка падает на освободившийся ряд ниже
+	SelectRow(3);
+	auto result = level.AcceptWord(dictionary);
+	EXPECT_TRUE(result.ok);
+	EXPECT_EQ(Board().GetTile(Vec2I(1, 0)).stone, 1);
 }
 
 TEST_F(WordFallCore, WinRequiresTasksAndScore)
@@ -358,7 +380,7 @@ TEST_F(WordFallCore, FiveLetterWordEarnsBombOnLastCell)
 	EXPECT_EQ(Board().GetTile(Vec2I(4, 0)).powerup, WString("bomb"));
 }
 
-TEST_F(WordFallCore, LongerWordsEarnRocketAndWand)
+TEST_F(WordFallCore, LongerWordsEarnRocketAndFireworks)
 {
 	FillBoardWithStubs();
 	Plant("РАКЕТА");
@@ -366,55 +388,98 @@ TEST_F(WordFallCore, LongerWordsEarnRocketAndWand)
 
 	auto result = level.AcceptWord(dictionary);
 	EXPECT_EQ(result.powerupEarned, String("rocket"));
-	EXPECT_EQ(Board().GetTile(Vec2I(5, 0)).powerup, WString("rocket"));
+
+	// бонус занимает слот вместо буквы и не выбирается
+	auto& bonusTile = Board().GetTile(Vec2I(5, 0));
+	EXPECT_EQ(bonusTile.powerup, WString("rocket"));
+	EXPECT_TRUE(bonusTile.letter.IsEmpty());
+	EXPECT_EQ(Board().ToggleSelect(Vec2I(5, 0)), WordBoard::SelectResult::Blocked);
 }
 
-TEST_F(WordFallCore, BombDestroysAreaAndAddsPoints)
+TEST_F(WordFallCore, BombActivatedByNeighborLetterDestroysArea)
 {
 	FillBoardWithStubs();
-	Plant("КОТ", 0, 1);
-	Board().DebugSetPowerup(Vec2I(2, 0), "bomb");
-	SelectRow(3, 0, 1);
+	Plant("КОТ", 1, 0);
+	Board().DebugSetPowerup(Vec2I(1, 0), "bomb"); // сосед буквы «О» снизу
+	SelectRow(3, 1, 0);
 
 	auto result = level.AcceptWord(dictionary);
-	// слово 12 + три взорванные Щ ряда выше по 5
-	EXPECT_EQ(result.gain, 27);
-	EXPECT_EQ(level.GetScore(), 27);
-	EXPECT_EQ(result.spawned.Count(), 6);
+	EXPECT_TRUE(result.ok);
+	ASSERT_EQ(result.powerupsUsed.Count(), 1);
+	EXPECT_EQ(result.powerupsUsed[0].kind, String("bomb"));
+
+	// бомба-плитка сгорела вместе с областью, очки взорванных букв в счёт
+	EXPECT_TRUE(result.destroyed.Contains(Vec2I(1, 0)));
+	EXPECT_GT(result.extraScore, 0);
+	EXPECT_TRUE(Board().GetTile(Vec2I(1, 0)).powerup.IsEmpty());
 }
 
-TEST_F(WordFallCore, RocketActivatesCrossAndKeepsLetters)
+TEST_F(WordFallCore, BombBreaksStoneButKeepsTile)
 {
 	FillBoardWithStubs();
-	Plant("КОТ", 0, 1);
-	Board().DebugSetPowerup(Vec2I(2, 0), "rocket");
-	Board().GetTileEditable(Vec2I(2, 5)).ice = 1;
-	SelectRow(3, 0, 1);
+	Plant("КОТ", 1, 0);
+	Board().DebugSetPowerup(Vec2I(1, 0), "bomb");
+	Board().DebugSetStone(Vec2I(0, 0)); // в зоне 3×3 бомбы
+	SelectRow(3, 1, 0);
 
 	auto result = level.AcceptWord(dictionary);
-	// крест: 4 плитки ряда + 7 колонки, все Щ по 5
-	EXPECT_EQ(result.activated.Count(), 11);
-	EXPECT_EQ(result.gain, 12 + 55);
-	EXPECT_EQ(result.spawned.Count(), 3);
-	EXPECT_TRUE(result.iceBroken.Contains(Vec2I(2, 5)));
+	EXPECT_TRUE(result.ok);
+	EXPECT_EQ(Board().GetTile(Vec2I(0, 0)).stone, 0);
+	EXPECT_FALSE(Board().GetTile(Vec2I(0, 0)).letter.IsEmpty());
+	EXPECT_TRUE(result.activated.Contains(Vec2I(0, 0)));
 }
 
-TEST_F(WordFallCore, WandActivatesAllSameLetters)
+TEST_F(WordFallCore, RocketFliesToRandomLetter)
 {
 	FillBoardWithStubs();
-	Plant("КОТ");
-	Board().DebugSetTile(Vec2I(4, 4), WString("К"));
-	Board().DebugSetTile(Vec2I(6, 7), WString("К"));
-	Board().DebugSetPowerup(Vec2I(0, 0), "wand");
-	Board().GetTileEditable(Vec2I(6, 7)).ice = 1;
-	SelectRow(3);
+	Plant("КОТ", 1, 0);
+	Board().DebugSetPowerup(Vec2I(1, 0), "rocket");
+	SelectRow(3, 1, 0);
 
 	auto result = level.AcceptWord(dictionary);
-	EXPECT_EQ(result.activated.Count(), 2);
-	EXPECT_EQ(result.gain, 12 + 4);
-	EXPECT_EQ(result.spawned.Count(), 3);
-	EXPECT_EQ(Board().GetTile(Vec2I(4, 4)).letter, WString("К"));
-	EXPECT_EQ(Board().GetTile(Vec2I(6, 7)).ice, 0);
+	EXPECT_TRUE(result.ok);
+	ASSERT_EQ(result.powerupsUsed.Count(), 1);
+	EXPECT_EQ(result.powerupsUsed[0].kind, String("rocket"));
+
+	// одна цель: буква удалена (или разбита броня), бонус-плитка сгорела
+	ASSERT_EQ(result.powerupsUsed[0].targets.Count(), 1);
+	auto target = result.powerupsUsed[0].targets[0];
+	EXPECT_TRUE(result.destroyed.Contains(target) || result.activated.Contains(target));
+	EXPECT_TRUE(result.destroyed.Contains(Vec2I(1, 0)));
+}
+
+TEST_F(WordFallCore, FireworksLaunchesTenRockets)
+{
+	FillBoardWithStubs();
+	Plant("КОТ", 1, 0);
+	Board().DebugSetPowerup(Vec2I(1, 0), "fireworks");
+	SelectRow(3, 1, 0);
+
+	auto result = level.AcceptWord(dictionary);
+	EXPECT_TRUE(result.ok);
+	ASSERT_EQ(result.powerupsUsed.Count(), 1);
+	EXPECT_EQ(result.powerupsUsed[0].kind, String("fireworks"));
+	EXPECT_EQ(result.powerupsUsed[0].targets.Count(), 10);
+
+	// все цели различны и обработаны
+	auto& targets = result.powerupsUsed[0].targets;
+	for (int i = 0; i < targets.Count(); i++)
+	{
+		for (int j = i + 1; j < targets.Count(); j++)
+			EXPECT_NE(targets[i], targets[j]);
+		EXPECT_TRUE(result.destroyed.Contains(targets[i]) || result.activated.Contains(targets[i]));
+	}
+}
+
+TEST_F(WordFallCore, BonusTileFallsWithGravity)
+{
+	FillBoardWithStubs();
+	Board().DebugSetPowerup(Vec2I(3, 1), "bomb");
+
+	// молоток сносит плитку под бонусом — бонус падает вниз, а не исчезает
+	level.UseHammer(Vec2I(3, 0), dictionary);
+	EXPECT_EQ(Board().GetTile(Vec2I(3, 0)).powerup, WString("bomb"));
+	EXPECT_TRUE(Board().GetTile(Vec2I(3, 0)).letter.IsEmpty());
 }
 
 TEST_F(WordFallCore, WordTaskSeedsWordAndTracksProgress)

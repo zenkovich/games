@@ -93,6 +93,9 @@ Don't run `git commit` / `push` / `add` / `gh pr create` etc. by default — mak
 "files modified"; the contributor reviews and commits. Git authorization is per-session only, never
 carried to future sessions.
 
+Never add self-mentions to commits (no `Co-Authored-By: Claude ...` or similar trailers) — commit
+messages describe the change only.
+
 ## Deploy to games.zenkovich.space
 
 This repo is a submodule of the site repo one level up, which owns the publish pipeline.

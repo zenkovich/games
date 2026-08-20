@@ -38,7 +38,7 @@ void WordLevel::Start(const WordLevelConfig& config, const WordBoardConfig& boar
 	if (!taskWords.IsEmpty())
 		seededWord = taskWords[0];
 
-	mBoard.Fill(config.iceCells, seededWord);
+	mBoard.Fill(config.iceCells, config.stoneCells, seededWord);
 	RefreshIceTasks();
 	EnsureTasksAchievable(dictionary);
 }
@@ -230,9 +230,9 @@ Vector<Vec2I> WordLevel::EnsureTasksAchievable(const WordDictionary& dictionary)
 			mBoard.PlantMissingLetters(mBoard.RandomDictWord(dictionary, task.config.length), repaired);
 		else if (type == WordTaskType::Powerup)
 		{
-			int length = task.config.powerupKind == "rocket" ? 6 : task.config.powerupKind == "wand" ? 7 : 5;
+			int length = task.config.powerupKind == "rocket" ? 6 : task.config.powerupKind == "fireworks" ? 7 : 5;
 			bool achievable = mBoard.AnyWordExists(dictionary, length) ||
-				(task.config.powerupKind == "wand" && mBoard.AnyWordExists(dictionary, 8));
+				(task.config.powerupKind == "fireworks" && mBoard.AnyWordExists(dictionary, 8));
 			if (!achievable)
 				mBoard.PlantMissingLetters(mBoard.RandomDictWord(dictionary, length), repaired);
 		}
