@@ -171,12 +171,14 @@ TEST_F(SpaceEvolverGameplay, ShipFollowsATouchWithNonZeroCursorId)
 
 	float px = Num("SE.run.px");
 	float py = Num("SE.run.py");
+	float touchLane = Num("SE.cfg.player.ship.touchShipY");
 
 	o2Input.OnCursorReleased(touchId);
 	AppTestDriver::PumpFrames(2);
 
 	EXPECT_NEAR(px, 150.0f, 40.0f) << "the ship must follow the touch horizontally";
-	EXPECT_NEAR(py, -300.0f + 120.0f, 40.0f) << "and keep the vertical offset above the finger";
+	EXPECT_NEAR(py, touchLane, 15.0f) << "a finger puts the ship in the lower lane, close to the touch";
+	EXPECT_LT(touchLane, Num("SE.cfg.player.ship.cursorShipY")) << "the touch lane sits below the mouse one";
 	EXPECT_FALSE(Flag("Bridge.IsCursorDown()")) << "releasing the touch must stop the drag";
 	Shot("g20_touch_drag.png");
 }

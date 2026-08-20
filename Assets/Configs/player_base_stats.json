@@ -4,11 +4,24 @@
         "baseHp": 100,
         "baseDamage": 12,
         "baseRocketDamage": 30,
-        "magnetRadius": 90,
+        "magnetRadius": 150,
         "fireRate": 3.0,
-        "moveLerpSpeed": 10.0,
-        "touchOffsetY": 120,
+        "moveLerpSpeed": 12.0,
+        "cursorShipY": -300,
+        "touchShipY": -355,
+        "laneLerpSpeed": 6.0,
         "speed": 900
+    },
+    "world": {
+        "runScrollSpeed": 120,
+        "hangarScrollSpeed": 20
+    },
+    "orbs": {
+        "magnetPull": 2400,
+        "collectRadius": 62,
+        "towardPlayerBias": 0.7,
+        "scrollFactor": 0.85,
+        "drag": 1.5
     },
     "upgrades": {
         "health":        { "label": "Health",         "baseCost": 50,  "costMult": 1.35, "perLevel": 30 },

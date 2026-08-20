@@ -42,8 +42,8 @@ SE.Tutorial = class
                 {
                     let gate = run.SpawnStaticGate();
                     gate.x = 0;
-                    gate.y = SE.H/2 - 40;
-                    gate.speed = 80; // slower than usual, so a first-timer can line the ship up
+                    gate.y = SE.H/2 - 240; // close enough that the lesson doesn't stall waiting
+                    gate.speed = 110;
                 },
                 NeedsProvide: function(run) { return run.gates.length == 0; },
                 IsComplete: function(run, tut) { return run.gateBuffsTaken > 0; }
@@ -54,8 +54,8 @@ SE.Tutorial = class
                 Provide: function(run)
                 {
                     let gate = run.SpawnTargetGate();
-                    gate.y = SE.H/2 - 80;
-                    gate.speed = 40;
+                    gate.y = SE.H/2 - 220;
+                    gate.speed = 50;
                     gate.hp = Math.max(1, run.PlayerDps() * 1.5);
                     gate.maxHp = gate.hp;
                 },

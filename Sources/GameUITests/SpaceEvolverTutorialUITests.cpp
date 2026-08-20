@@ -101,12 +101,16 @@ TEST_F(SpaceEvolverTutorial, FirstRunTeachesEveryStepAndThenGetsOutOfTheWay)
 	// Fly the ship into the gate. The step keeps handing out gates while the player misses,
 	// so more than one may end up collected — what matters is that passing registers
 	Eval("SE.run.px = SE.run.gates[0].x;");
-	Simulate(600);
+	for (int i = 0; i < 40 && (int)Num("SE.run.gateBuffsTaken") == 0; i++)
+		Simulate(30);
+
 	EXPECT_GE((int)Num("SE.run.gateBuffsTaken"), 1);
 
 	// Step 4: a target gate to break for orbs
 	EXPECT_EQ(Str("SE.run.tutorial.CurrentStep().id"), "orbs");
-	ASSERT_GE((int)Num("SE.run.gates.filter(function(g) { return g.gateType == 'target'; }).length"), 1)
+	// Autofire may already have broken the target gate, and then its orbs are on the field
+	ASSERT_GE((int)Num("SE.run.gates.filter(function(g) { return g.gateType == 'target'; }).length"
+					   " + SE.run.orbEntities.length"), 1)
 		<< "the orbs step must put a target gate on the field";
 	Shot("t04_step_orbs.png");
 

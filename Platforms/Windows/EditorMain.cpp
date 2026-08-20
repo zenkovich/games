@@ -6,6 +6,8 @@
 #include "o2Editor/ToolsPanel.h"
 #include "o2Editor/Windows/WindowsManager.h"
 
+#include "SpaceEvolver/GameJsBridge.h"
+
 using namespace o2;
 
 DECLARE_SINGLETON(Editor::WindowsManager);
@@ -27,6 +29,11 @@ int main()
 
 	auto app = mmake<Editor::EditorApplication>();
 	app->Initialize();
+
+	// The game's scripts talk to the engine through this bridge; without it a scene opened in
+	// the editor comes up empty and its script errors on every frame
+	space_evolver::RegisterGameJsApi();
+
 	app->Launch();
 
 	return 0;

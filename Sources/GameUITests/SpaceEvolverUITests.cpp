@@ -4,8 +4,10 @@
 #include "SpaceEvolver/GameJsBridge.h"
 #include "SpaceEvolver/SpaceEvolverBootstrap.h"
 #include "o2/Application/Application.h"
+#include "o2/Render/Render.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/CameraActor.h"
+#include "o2/Scene/Components/ScriptableComponent.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Scripts/ScriptEngine.h"
 #include "o2/Scripts/ScriptValue.h"
@@ -114,6 +116,67 @@ TEST_F(SpaceEvolverUI, SavedBootstrapSceneAssetRunsTheGame)
 	EXPECT_GT(CountDistinctColors(bitmap), 8) << "the scene asset must render the hangar";
 }
 
+// The editor opens the scene without the game's C++ entry point ever running. The scene must
+// still load and hold its actors, and the script must go quiet instead of erroring every frame
+TEST_F(SpaceEvolverUI, BootstrapSceneSurvivesWithoutTheBridge)
+{
+	o2Scene.Clear(true);
+	o2Scene.UpdateDestroyingEntities();
+	Eval("delete globalThis.Bridge; SE = undefined;");
+	AppTestDriver::PumpFrames(2);
+
+	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + String("Bootstrap.scn"));
+	AppTestDriver::PumpFrames(8);
+
+	auto gameActor = o2Scene.FindActor("Game");
+	ASSERT_TRUE(gameActor) << "the scene hierarchy must still hold its actors";
+	EXPECT_TRUE(o2Scene.FindActor("camera"));
+	EXPECT_TRUE(Flag("typeof SE === 'undefined' || SE === undefined || SE.game === undefined"))
+		<< "no bridge means no game, but also no crash";
+
+	// The component must not consider itself started: a started one calls into the missing
+	// game every frame, and the editor drowns in script errors
+	auto scriptable = gameActor->GetComponent<ScriptableComponent>();
+	ASSERT_TRUE(scriptable);
+	EXPECT_FALSE(scriptable->GetInstance().GetProperty("_started").GetValue<bool>())
+		<< "the script must stay idle instead of failing every frame";
+
+	// registering the bridge is what the editor entry point does, and then the game comes up
+	space_evolver::RegisterGameJsApi();
+	o2Scene.Clear(true);
+	o2Scene.UpdateDestroyingEntities();
+	AppTestDriver::PumpFrames(2);
+
+	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + String("Bootstrap.scn"));
+	AppTestDriver::PumpFrames(8);
+
+	EXPECT_EQ(Str("SE.game.state"), "hangar") << "with the bridge the scene builds the game";
+}
+
+// The editor's Game window draws the scene into an offscreen target. If the scene left the render
+// state changed, everything drawn after it — the editor's own UI — would come out wrong
+TEST_F(SpaceEvolverUI, DrawingTheSceneIntoARenderTargetLeavesTheRenderStateClean)
+{
+	AppTestDriver::PumpFrames(3);
+
+	Camera cameraBefore = o2Render.GetCamera();
+	Vec2I resolutionBefore = o2Render.GetResolution();
+
+	TextureRef target(Vec2I(256, 256), TextureFormat::R8G8B8A8, Texture::Usage::RenderTarget);
+	o2Render.BindRenderTexture(target);
+	o2Scene.Draw();
+	o2Render.UnbindRenderTexture();
+
+	EXPECT_EQ(o2Render.GetResolution(), resolutionBefore) << "the target must be released";
+	EXPECT_NEAR(o2Render.GetCamera().GetSize2D().x, cameraBefore.GetSize2D().x, 1.0f)
+		<< "the scene must restore the camera it found";
+
+	Ref<Bitmap> bitmap = AppTestDriver::TakeScreenshot();
+	ASSERT_TRUE(bitmap);
+	EXPECT_GT(CountDistinctColors(bitmap), 8) << "the next frame must still render normally";
+	Shot("12_after_offscreen_draw.png");
+}
+
 TEST_F(SpaceEvolverUI, HangarUpgradeRaisesDamageNumber)
 {
 	Eval("SE.meta.profile.coins = 100000; SE.game.hangar.Refresh();");
@@ -165,23 +228,26 @@ TEST_F(SpaceEvolverUI, StartRunSpawnsGameplay)
 	Shot("04_run_start.png");
 }
 
-TEST_F(SpaceEvolverUI, DragMovesShipWithVerticalOffset)
+TEST_F(SpaceEvolverUI, DragSteersTheShipHorizontallyOnly)
 {
 	Eval("SE.game.StartRun();");
 	AppTestDriver::PumpFrames(3);
+	AppTestDriver::Wait(1.0f);
 
-	// press below the ship and drag right: the ship must end up above the finger.
+	float laneY = Num("SE.cfg.player.ship.cursorShipY");
+
+	// drag diagonally: the ship must track the horizontal move and ignore the vertical one.
 	// The follow is a lerp, so give it game time to converge, not just frames
-	AppTestDriver::PressCursor(Vec2F(-120, -300));
-	AppTestDriver::MoveCursor(Vec2F(40, -300), 8);
+	AppTestDriver::PressCursor(Vec2F(-120, -420));
+	AppTestDriver::MoveCursor(Vec2F(40, -120), 8);
 	AppTestDriver::Wait(2.0f);
 
 	float px = Num("SE.run.px");
 	float py = Num("SE.run.py");
 	AppTestDriver::ReleaseCursor();
 
-	EXPECT_NEAR(px, 40.0f, 30.0f) << "ship must follow the finger to the right";
-	EXPECT_NEAR(py, -300.0f + 120.0f, 30.0f) << "ship rides above the touch point";
+	EXPECT_NEAR(px, 40.0f, 30.0f) << "ship must follow the cursor to the right";
+	EXPECT_NEAR(py, laneY, 10.0f) << "ship must stay in its lane, whatever the cursor does";
 	Shot("05_run_drag.png");
 }
 

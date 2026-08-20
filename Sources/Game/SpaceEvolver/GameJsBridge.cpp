@@ -132,6 +132,13 @@ namespace space_evolver
 			return cursor && cursor->pressedTime < FLT_EPSILON;
 		}));
 
+		// A mouse is always cursor zero, so a non-zero id means a finger is driving
+		bridge.SetProperty("IsTouchPointer", Function<bool()>([]()
+		{
+			auto* cursor = PressedCursor();
+			return cursor && cursor->id != 0;
+		}));
+
 		bridge.SetProperty("GetScreenWidth", Function<float()>([]() { return (float)o2Application.GetContentSize().x; }));
 		bridge.SetProperty("GetScreenHeight", Function<float()>([]() { return (float)o2Application.GetContentSize().y; }));
 

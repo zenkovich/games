@@ -161,7 +161,8 @@ SE.Game = class
         // scrolling space background
         if (!SE.headless && this.bgs.length == 2)
         {
-            let speed = this.state == "run" ? 120 : 20;
+            let world = SE.cfg.player.world;
+            let speed = this.state == "run" ? world.runScrollSpeed : world.hangarScrollSpeed;
             this.scroll += speed * dt;
             let base = -(this.scroll % SE.H); // two tiles at base and base+H always cover the screen
             for (let i = 0; i < 2; i++)

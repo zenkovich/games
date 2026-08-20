@@ -196,16 +196,20 @@ SE.Run = class
         this.UpdateHud();
     }
 
+    // The ship holds its lane: steering is horizontal only, and the lane sits lower under a
+    // finger than under a mouse cursor, which would otherwise leave the ship far above the touch
     UpdatePlayer(dt)
     {
+        let ship = SE.cfg.player.ship;
+
         if (Bridge.IsCursorDown())
         {
-            let tx = Bridge.GetCursorX();
-            let ty = Bridge.GetCursorY() + SE.cfg.player.ship.touchOffsetY;
-            let k = Math.min(1, SE.cfg.player.ship.moveLerpSpeed * dt);
-            this.px += (tx - this.px) * k;
-            this.py += (ty - this.py) * k;
+            let k = Math.min(1, ship.moveLerpSpeed * dt);
+            this.px += (Bridge.GetCursorX() - this.px) * k;
         }
+
+        let lane = Bridge.IsTouchPointer() ? ship.touchShipY : ship.cursorShipY;
+        this.py += (lane - this.py) * Math.min(1, ship.laneLerpSpeed * dt);
 
         this.px = SE.clamp(this.px, -SE.W/2 + 40, SE.W/2 - 40);
         this.py = SE.clamp(this.py, -SE.H/2 + 60, SE.H/2 - 120);
@@ -794,13 +798,25 @@ SE.Run = class
     }
 
     // ------------------------------------------------------------------ orbs & xp
+    OrbScrollSpeed()
+    {
+        return SE.cfg.player.world.runScrollSpeed * SE.cfg.player.orbs.scrollFactor;
+    }
+
+    // Orbs scatter, but most of the impulse is aimed at the ship so drops come to the player
     SpawnOrb(x, y, impulse)
     {
+        let cfg = SE.cfg.player.orbs;
         let a = Math.random() * 6.28;
+        let dx = this.px - x, dy = this.py - y;
+        let len = Math.max(1, Math.sqrt(dx*dx + dy*dy));
+        let scatter = impulse * (1 - cfg.towardPlayerBias) * Math.random();
+        let toward = impulse * cfg.towardPlayerBias;
+
         let o = {
             x: x, y: y,
-            vx: Math.cos(a) * impulse * Math.random(),
-            vy: Math.sin(a) * impulse * Math.random(),
+            vx: Math.cos(a) * scatter + dx/len * toward,
+            vy: Math.sin(a) * scatter + dy/len * toward,
             view: null
         };
 
@@ -815,6 +831,7 @@ SE.Run = class
 
     UpdateOrbs(dt)
     {
+        let cfg = SE.cfg.player.orbs;
         let magnet = this.stats.magnetRadius;
         let alive = [];
         for (let i = 0; i < this.orbEntities.length; i++)
@@ -825,17 +842,18 @@ SE.Run = class
 
             if (dist < magnet)
             {
-                let pull = 900;
-                o.vx += dx/Math.max(1, dist) * pull * dt;
-                o.vy += dy/Math.max(1, dist) * pull * dt;
+                o.vx += dx/Math.max(1, dist) * cfg.magnetPull * dt;
+                o.vy += dy/Math.max(1, dist) * cfg.magnetPull * dt;
             }
 
-            o.vx *= (1 - Math.min(1, 1.5 * dt));
-            o.vy *= (1 - Math.min(1, 1.5 * dt));
+            o.vx *= (1 - Math.min(1, cfg.drag * dt));
+            o.vy *= (1 - Math.min(1, cfg.drag * dt));
             o.x += o.vx * dt;
-            o.y += o.vy * dt - 40 * dt;
 
-            if (dist < 30)
+            // orbs drift down with the starfield, a touch slower so they read as a nearer layer
+            o.y += o.vy * dt - this.OrbScrollSpeed() * dt;
+
+            if (dist < cfg.collectRadius)
             {
                 this.CollectOrb();
                 this.KillView(o);

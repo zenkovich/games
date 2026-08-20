@@ -14,6 +14,13 @@ var SpaceEvolver = class extends o2.Component
         if (this._started) // the component may receive OnStart more than once per scene
             return;
 
+        // Without the C++ bridge nothing can be loaded; report once instead of failing every frame
+        if (typeof Bridge === 'undefined')
+        {
+            print("SpaceEvolver: the Bridge API is not registered, the game stays idle");
+            return;
+        }
+
         this._started = true;
 
         Bridge.RunScript("SE_Core.js");

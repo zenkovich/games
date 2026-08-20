@@ -487,14 +487,60 @@ TEST_F(SpaceEvolverLogic, EffectsDoNotAccumulateOverALongRun)
 	EXPECT_LE((int)Num("SE.run.fx.Count()"), 80) << "short-lived effects must expire";
 }
 
-TEST_F(SpaceEvolverLogic, ShipFollowsCursorWithVerticalOffset)
+TEST_F(SpaceEvolverLogic, ShipSettlesIntoItsLaneAndStaysThere)
 {
 	StartRun();
-	// no cursor input in headless: the ship holds its start position and stays inside the field
-	Step(60);
+	Step(120); // no cursor input in headless: the ship just settles into its lane
+
 	EXPECT_LE(Math::Abs(Num("SE.run.px")), 540.0f/2);
-	EXPECT_GE(Num("SE.run.py"), -960.0f/2);
-	EXPECT_FLOAT_EQ(Num("SE.cfg.player.ship.touchOffsetY"), 120.0f);
+	EXPECT_NEAR(Num("SE.run.py"), Num("SE.cfg.player.ship.cursorShipY"), 1.0f);
+
+	Eval("SE.run.py = 0;"); // nothing may leave the ship off its lane
+	Step(120);
+	EXPECT_NEAR(Num("SE.run.py"), Num("SE.cfg.player.ship.cursorShipY"), 1.0f);
+}
+
+TEST_F(SpaceEvolverLogic, OrbsScrollWithTheStarfieldSlightlySlower)
+{
+	StartRun();
+	// far above and away from the ship, so only the scroll moves it
+	Eval("SE.run.orbEntities = []; SE.run.px = -200; SE.run.py = -300;"
+		 "SE.run.SpawnOrb(200, 400, 0);");
+
+	float startY = Num("SE.run.orbEntities[0].y");
+	Step(60); // one second
+
+	float travelled = startY - Num("SE.run.orbEntities[0].y");
+	float scroll = Num("SE.cfg.player.world.runScrollSpeed");
+	float expected = scroll * Num("SE.cfg.player.orbs.scrollFactor");
+
+	EXPECT_NEAR(travelled, expected, 12.0f) << "orbs must drift down at the parallax speed";
+	EXPECT_LT(travelled, scroll) << "and stay a touch slower than the background";
+	EXPECT_GT(travelled, scroll*0.6f) << "but close enough to read as the same flow";
+}
+
+TEST_F(SpaceEvolverLogic, OrbsDriftTowardsThePlayerAndAreEasyToCollect)
+{
+	StartRun();
+	Eval("SE.run.orbEntities = []; SE.run.px = 0; SE.run.py = -300;"
+		 "SE.run.SpawnOrb(200, 100, 200);"); // dropped far up and to the right
+
+	float startDist = Num("Math.sqrt(Math.pow(SE.run.orbEntities[0].x - SE.run.px, 2) +"
+						  "          Math.pow(SE.run.orbEntities[0].y - SE.run.py, 2))");
+	Step(6);
+
+	EXPECT_TRUE(Flag("SE.run.orbEntities.length == 0 ||"
+					 "Math.sqrt(Math.pow(SE.run.orbEntities[0].x - SE.run.px, 2) +"
+					 "          Math.pow(SE.run.orbEntities[0].y - SE.run.py, 2)) < " + (String)startDist))
+		<< "a fresh orb must already be heading for the ship";
+
+	// A drop landing inside the magnet radius is collected quickly
+	Eval("SE.run.orbEntities = []; SE.run.orbs = 0;"
+		 "SE.run.SpawnOrb(SE.run.px + 120, SE.run.py + 60, 0);");
+	Step(60);
+
+	EXPECT_EQ((int)Num("SE.run.orbEntities.length"), 0) << "the magnet must pull it in within a second";
+	EXPECT_GT(Num("SE.run.orbs + SE.run.xpLevel"), 1.0f);
 }
 
 #endif // IS_SCRIPTING_SUPPORTED
