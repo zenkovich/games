@@ -8,8 +8,11 @@ if (!sid) {
     sid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
     sessionStorage.setItem('o2sid', sid);
 }
-document.cookie = 'o2sid=' + sid + '; Path=/; SameSite=Strict';
-window.o2fsEndpoint = '/api';
+// The page may be served from the host root or under a path prefix
+// (games.host/<slug>/editor/). Everything network-facing hangs off o2Base.
+window.o2Base = location.pathname.replace(/\/[^\/]*$/, '');
+document.cookie = 'o2sid=' + sid + '; Path=' + (window.o2Base || '/') + '; SameSite=Strict';
+window.o2fsEndpoint = window.o2Base + '/api';
 
 var statusEl = document.getElementById('status');
 var statusText = document.getElementById('status-text');
@@ -25,7 +28,7 @@ function setStatus(text, frac) {
 
 // ---- snapshot streaming ------------------------------------------
 function loadSnapshot(done, fail) {
-    fetch('/api/fs/snapshot').then(function (resp) {
+    fetch(o2Base + '/api/fs/snapshot').then(function (resp) {
         if (!resp.ok) throw new Error('snapshot HTTP ' + resp.status);
         var total = +resp.headers.get('X-Uncompressed-Length') || 0;
         var reader = resp.body.getReader();

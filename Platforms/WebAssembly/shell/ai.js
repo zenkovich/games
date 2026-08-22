@@ -371,10 +371,10 @@
     }];
 
     // ---------- tool implementations ----------
-    function fileUrl(path) { return '/api/assets/file?path=' + encodeURIComponent(path); }
+    function fileUrl(path) { return o2Base + '/api/assets/file?path=' + encodeURIComponent(path); }
 
     function toolListFiles(a) {
-        return fetch('/api/fs/list?dir=' + encodeURIComponent(a.dir || '')).then(function (r) {
+        return fetch(o2Base + '/api/fs/list?dir=' + encodeURIComponent(a.dir || '')).then(function (r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
         }).then(function (d) {
@@ -420,7 +420,7 @@
     }
 
     function toolSearchFiles(a) {
-        var q = '/api/assets/search?q=' + encodeURIComponent(a.query || '');
+        var q = o2Base + '/api/assets/search?q=' + encodeURIComponent(a.query || '');
         if (a.glob) q += '&glob=' + encodeURIComponent(a.glob);
         if (a.regex) q += '&regex=1';
         return fetch(q).then(function (r) {
@@ -471,7 +471,7 @@
 
     // ---- the engine checkout: read-only, shared, never the user's session ----
     function toolSearchEngine(a) {
-        var q = '/api/engine/search?q=' + encodeURIComponent(a.query || '');
+        var q = o2Base + '/api/engine/search?q=' + encodeURIComponent(a.query || '');
         if (a.glob) q += '&glob=' + encodeURIComponent(a.glob);
         if (a.regex) q += '&regex=1';
         return fetch(q).then(function (r) { return r.json(); }).then(function (d) {
@@ -481,7 +481,7 @@
     }
 
     function toolReadEngineFile(a) {
-        return fetch('/api/engine/file?path=' + encodeURIComponent(a.path)).then(function (r) {
+        return fetch(o2Base + '/api/engine/file?path=' + encodeURIComponent(a.path)).then(function (r) {
             return r.json();
         }).then(function (d) {
             if (d.error) throw new Error(d.error);
@@ -490,7 +490,7 @@
     }
 
     function toolListEngineDir(a) {
-        return fetch('/api/engine/list?dir=' + encodeURIComponent(a.dir || '')).then(function (r) {
+        return fetch(o2Base + '/api/engine/list?dir=' + encodeURIComponent(a.dir || '')).then(function (r) {
             return r.json();
         }).then(function (d) {
             if (d.error) throw new Error(d.error);
@@ -548,7 +548,7 @@
     }
 
     function toolFileOp(a) {
-        return fetch('/api/assets/op', {
+        return fetch(o2Base + '/api/assets/op', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ op: a.op, path: a.path, path2: a.path2 }),
         }).then(function (r) {
@@ -970,7 +970,7 @@
     var lastReview = null;
     function trace(kind, data) {
         try {
-            fetch('/api/agent/log', {
+            fetch(o2Base + '/api/agent/log', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(Object.assign({ t: new Date().toISOString(), run: runSeq, kind: kind }, data)),
             }).catch(function () {});
