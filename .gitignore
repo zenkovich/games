@@ -6,6 +6,8 @@
 /build-ios-sim
 /build-wasm
 /build-wasm-debug
+/build-wasm-editor
+/build-wasm-editor-debug
 /build-android
 /build-android-release
 cmake-build-*

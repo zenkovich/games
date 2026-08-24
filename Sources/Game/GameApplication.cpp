@@ -1,11 +1,32 @@
 #include "o2/stdafx.h"
 #include "GameApplication.h"
 
-#include "Physics3DDemo.h"
-#include "o2/Assets/Assets.h"
+#include "BrainFarm/BrainFarmBootstrap.h"
+#include "BrainFarm/GameJsBridge.h"
 #include "o2/Render/Render.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Utils/Debug/Debug.h"
+
+#if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
+#include <mach/mach.h>
+#endif
+
+namespace
+{
+	size_t ResidentMemoryMb()
+	{
+#if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
+		mach_task_basic_info info;
+		mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
+		if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&info, &count) != KERN_SUCCESS)
+			return 0;
+
+		return info.resident_size/(1024*1024);
+#else
+		return 0;
+#endif
+	}
+}
 
 GameApplication::GameApplication(RefCounter* refCounter):
 	Application(refCounter)
@@ -13,20 +34,29 @@ GameApplication::GameApplication(RefCounter* refCounter):
 
 void GameApplication::OnStarted()
 {
-	o2Application.SetWindowSize(Vec2I(1280, 800));
+	// Portrait window emulates the mobile aspect on desktop
+	o2Application.SetWindowSize(Vec2I(450, 800));
 
-	// The main scene shows a deferred 3D layer with a 2D overlay on top;
-	// the same scene is opened by the editor
-	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + String("Main.scn"));
-
-	// Example of the 3D physics API (Box3D): drops a few bodies onto the ground plane
-	demo::SpawnPhysics3DDemo();
+	brain_farm::RegisterGameJsApi();
+	brain_farm::BuildBootstrapScene();
+	brain_farm::SaveBootstrapSceneIfMissing();
 }
 
 void GameApplication::OnUpdate(float dt)
 {
-	o2Application.windowCaption = String("o2 Template") +
+	o2Application.windowCaption = String("Sahur's Brain Farm") +
 		"; FPS: " + (String)((int)o2Time.GetFPS());
+
+	// Perf heartbeat in the log: catches memory growth and FPS drops in real runs
+	mPerfLogTimer += dt;
+	if (mPerfLogTimer >= 5.0f)
+	{
+		mPerfLogTimer = 0.0f;
+		o2Debug.Log(String("perf: FPS ") + (String)((int)o2Time.GetFPS()) +
+					", RSS " + (String)(int)ResidentMemoryMb() + " MB" +
+					", draw calls " + (String)o2Render.GetDrawCallsCount() +
+					", triangles " + (String)o2Render.GetDrawnPrimitives());
+	}
 }
 
 void GameApplication::OnDraw()

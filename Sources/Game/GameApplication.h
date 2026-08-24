@@ -18,4 +18,7 @@ protected:
 
 	// Called on drawing
 	void OnDraw() override;
+
+private:
+	float mPerfLogTimer = 0.0f;
 };

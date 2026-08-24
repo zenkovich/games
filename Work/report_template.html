@@ -1,0 +1,381 @@
+<title>Sahur's Brain Farm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+    --paper: #F4F7EF;
+    --card: #FFFFFF;
+    --ink: #24301F;
+    --muted: #5C6B52;
+    --line: #DCE3D2;
+    --grass: #5E9A40;
+    --brain: #D9718F;
+    --wood: #8A5A33;
+    --gold: #C99A2E;
+    --code-bg: #EDF1E5;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --paper: #161B12;
+        --card: #1F2618;
+        --ink: #E6ECDD;
+        --muted: #9AAA8C;
+        --line: #333E29;
+        --grass: #7CBB5C;
+        --brain: #E78BA6;
+        --wood: #C58A55;
+        --gold: #D9B054;
+        --code-bg: #232C1B;
+    }
+}
+:root[data-theme="dark"] {
+    --paper: #161B12;
+    --card: #1F2618;
+    --ink: #E6ECDD;
+    --muted: #9AAA8C;
+    --line: #333E29;
+    --grass: #7CBB5C;
+    --brain: #E78BA6;
+    --wood: #C58A55;
+    --gold: #D9B054;
+    --code-bg: #232C1B;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 80px; }
+header.hero { padding: 30px 0 6px; }
+.kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--grass);
+    margin-bottom: 10px;
+}
+h1 {
+    font-family: Rubik, "Arial Rounded MT Bold", sans-serif;
+    font-weight: 800;
+    font-size: clamp(34px, 6vw, 52px);
+    line-height: 1.05;
+    margin: 0 0 14px;
+    text-wrap: balance;
+}
+h1 .pink { color: var(--brain); }
+.lede { font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0 0 8px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--muted);
+}
+.badge b { color: var(--ink); font-weight: 600; }
+
+h2 {
+    font-family: Rubik, sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    margin: 56px 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-wrap: balance;
+}
+h2 .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--grass);
+}
+.sub { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+
+.shots { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
+.shot { flex: 1 1 180px; max-width: 236px; }
+.shot img {
+    width: 100%;
+    display: block;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 26px rgba(30, 46, 16, 0.14);
+}
+.shot figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+figure { margin: 0; }
+
+.models { display: flex; flex-wrap: wrap; gap: 14px; margin: 20px 0; }
+.model { flex: 1 1 130px; max-width: 168px; text-align: center; }
+.model img {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #1c2027;
+    display: block;
+}
+.model figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.model .lic { color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+
+.cardgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 20px 0; }
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+}
+.card h3 {
+    margin: 0 0 8px;
+    font-family: Rubik, sans-serif;
+    font-size: 16.5px;
+    font-weight: 600;
+}
+.card p { margin: 0; font-size: 14.5px; color: var(--muted); }
+.card p + p { margin-top: 8px; }
+.card .fix { color: var(--ink); }
+.card .fix::before {
+    content: "фикс";
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--grass);
+    margin-right: 8px;
+}
+code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    border-radius: 5px;
+    padding: 1px 5px;
+}
+ul.clean { margin: 12px 0; padding-left: 22px; }
+ul.clean li { margin: 6px 0; }
+ul.clean li::marker { color: var(--grass); }
+
+table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14.5px; }
+.tablewrap { overflow-x: auto; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+}
+td b { font-weight: 600; }
+.ok { color: var(--grass); font-weight: 600; white-space: nowrap; }
+
+.pipeline { display: flex; flex-wrap: wrap; gap: 0 6px; align-items: center; margin: 18px 0; font-size: 14px; }
+.pipeline .step {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin: 4px 0;
+    white-space: nowrap;
+}
+.pipeline .arr { color: var(--brain); font-weight: 700; }
+
+footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+footer a { color: var(--grass); }
+</style>
+
+<div class="wrap">
+<header class="hero">
+    <div class="kicker">o2 engine · 3D demo · отчёт о разработке</div>
+    <h1>Sahur's <span class="pink">Brain</span> Farm</h1>
+    <p class="lede">Демо мобильной игры в стиле stacking ad playable: фермер собирает мозги с плантаций,
+    носит их стопкой на спине и продаёт зомби, стоящим в очереди у прилавка. Полное 3D на движке o2:
+    скелетные GLB-персонажи, перспективная камера, deferred-рендер с тенями, виртуальный джойстик.</p>
+    <div class="badges">
+        <span class="badge">движок <b>o2 / C++20</b></span>
+        <span class="badge">логика <b>JavaScript</b></span>
+        <span class="badge">рендер <b>deferred + shadow map</b></span>
+        <span class="badge">тесты <b>8 сьют, все зелёные</b></span>
+        <span class="badge">перф <b>60 FPS, память плоская</b></span>
+        <span class="badge">ассеты <b>CC0 / CC-BY</b></span>
+    </div>
+</header>
+
+<h2><span class="num">01</span>Игровой цикл</h2>
+<p class="sub">Один джойстик — весь геймплей завязан на позицию персонажа: подошёл к грядке — собрал,
+подошёл к прилавку — выложил, встал на ценник — купил новую плантацию.</p>
+<div class="shots">
+    <figure class="shot"><img src="{{img:ScreenShots/01_scene_first_build.png}}" alt="Старт: ферма, прилавок, плашка денег">
+        <figcaption>Старт: лужайка, прилавок с битой-пасхалкой, HUD с деньгами</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/02_joystick_run.png}}" alt="Бег с плавающим джойстиком">
+        <figcaption>Плавающий джойстик: база встаёт под палец, персонаж бежит со спины</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/03_harvested_stack.png}}" alt="Стопка мозгов за спиной">
+        <figcaption>Сбор: созревшие мозги перелетают в стопку за спиной (лимит 8)</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/04_counter_stocked.png}}" alt="Мозги выложены на прилавок">
+        <figcaption>Сдача: у прилавка стопка перетекает на витрину, зомби идут через калитку</figcaption></figure>
+</div>
+<div class="shots">
+    <figure class="shot"><img src="{{img:ScreenShots/07_stand_area.png}}" alt="Очередь зомби у прилавка">
+        <figcaption>Очередь: зомби подходят с той стороны прилавка и платят по $10</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/06a_buy_zone.png}}" alt="Зона покупки с ценой $100">
+        <figcaption>Зона покупки: стоишь на диске — деньги списываются, ценник тает</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/06_plantation1_unlocked.png}}" alt="Открытая вторая плантация">
+        <figcaption>Куплено: вторая плантация открыта и уже растит урожай</figcaption></figure>
+    <figure class="shot"><img src="{{img:ScreenShots/probe_face_down.png}}" alt="Проверка разворота персонажа">
+        <figcaption>Регрессия разворота: бег на камеру — лицом, от камеры — спиной</figcaption></figure>
+</div>
+
+<h2><span class="num">02</span>Свободные 3D-ассеты и конвейер импорта</h2>
+<p class="sub">Все модели — с poly.pizza (Quaternius CC0, Poly by Google и др. CC-BY). Движковый GLB-парсер
+читает только первый примитив и первый скин, а новые персонажи Quaternius состоят из 4–5 мешей
+с материалами-цветами без текстур — поэтому написан офлайн-конвейер <code>Work/Models/glbtool.py</code>.</p>
+<div class="pipeline">
+    <span class="step">poly.pizza GLB</span><span class="arr">→</span>
+    <span class="step">repack: слияние примитивов и скинов</span><span class="arr">→</span>
+    <span class="step">цвета материалов → палитро-полоска</span><span class="arr">→</span>
+    <span class="step">одно-примитивный GLB + PNG</span><span class="arr">→</span>
+    <span class="step">SkinnedMeshComponent</span>
+</div>
+<div class="pipeline">
+    <span class="step">статика GLB</span><span class="arr">→</span>
+    <span class="step">toobj: трансформы нод, Z-up бейк, нормали</span><span class="arr">→</span>
+    <span class="step">OBJ + палитра/текстуры</span><span class="arr">→</span>
+    <span class="step">Mesh3DComponent</span>
+</div>
+<p class="sub">Палитра — полоска 16 ячеек высотой в 1 ряд с UV на v=0.5: такой атлас не боится
+вертикального флипа текстур между конвенциями glTF и GL. Каждая модель проверялась собственным
+софтверным рендером (<code>render_preview.py</code>, чистый python) до захода в движок.</p>
+<div class="models">
+    <figure class="model"><img src="{{img:Models/preview_farmer_bind.png}}" alt="Фермер, бинд-поза">
+        <figcaption>Farmer — игрок<br><span class="lic">CC0 · Quaternius</span></figcaption></figure>
+    <figure class="model"><img src="{{img:Models/preview_farmer_run.png}}" alt="Фермер, кадр бега">
+        <figcaption>клип Run из 24 анимаций<br><span class="lic">repack: 12 прим → 1</span></figcaption></figure>
+    <figure class="model"><img src="{{img:Models/preview_zombie_walk.png}}" alt="Зомби, кадр походки">
+        <figcaption>Animated Zombie<br><span class="lic">CC-BY 3.0 · Quaternius</span></figcaption></figure>
+    <figure class="model"><img src="{{img:Models/preview_brain2.png}}" alt="Мозг">
+        <figcaption>Brain (перекрашен)<br><span class="lic">CC-BY 3.0 · Google</span></figcaption></figure>
+    <figure class="model"><img src="{{img:Models/preview_stand.png}}" alt="Прилавок">
+        <figcaption>Market Stand<br><span class="lic">CC0 · Quaternius</span></figcaption></figure>
+</div>
+<p class="sub">Мем-персонажа «тум-тум-тум-сахур» в свободном доступе с пригодной лицензией не нашлось
+(Sketchfab требует аккаунт, AI-генерации не ригнуты) — роль исполняет CC0-фермер, а бейсбольная бита
+лежит у прилавка как пасхалка. Полная атрибуция — в <code>Work/Models/CREDITS.md</code>.</p>
+
+<h2><span class="num">03</span>Архитектура</h2>
+<p class="sub">Паттерн предыдущей игры на этом шаблоне, расширенный на 3D: C++ строит сцену кодом,
+тонкий мост отдаёт JS всё, чего не хватает в биндингах, логика целиком в скриптах.</p>
+<ul class="clean">
+    <li><b>BrainFarmBootstrap.cpp</b> — вся сцена через API движка: слои «3D»/«2D», перспективная
+        камера с <code>DeferredPipeline</code> (ShadowMapPass в комплекте), солнце, локация, плантации,
+        прилавок, зоны покупки, игрок и шаблоны для клонирования. Сцена сохраняется в
+        <code>Bootstrap.scn</code> для редактора.</li>
+    <li><b>GameJsBridge.cpp</b> — глобальный <code>Bridge</code>: мультитач-ввод,
+        <code>PlayAnim</code>, <code>SpawnZombie/SpawnBrain</code>, float-геттеры мировых координат
+        и проекции в HUD, фабрики виджетов, загрузчик модулей.</li>
+    <li><b>Assets/Scripts</b> — 8 JS-модулей: игрок со стопкой, плантации, прилавок,
+        очередь зомби, зоны покупки, HUD, полёты предметов по дуге, камера-следование.</li>
+    <li><b>Персонажи</b> — <code>SkinnedMeshComponent</code> с GPU-скиннингом; glTF Y-up ставится
+        в Z-up мир дочерним актором «Visual» (X+90°), яв — чистый поворот родителя.</li>
+</ul>
+
+<h2><span class="num">04</span>Сага отладки</h2>
+<p class="sub">Каждый баг находился скриншотными UI-тестами и добивался инструментированной пробой;
+все шесть закрыты, три превратились в постоянные регрессии.</p>
+<div class="cardgrid">
+    <div class="card"><h3>Мозги-невидимки</h3>
+        <p>Логика работала, стопка росла, но ни одного мозга на экране. Печать вершин показала меш,
+        схлопнутый в точку: <code>SetScale</code> принимает Vec3F, а JS-<code>Vec2</code>
+        маршалится в него нулями.</p>
+        <p class="fix">BF.setScale через поштучные SetScaleX/Y/Z.</p></div>
+    <div class="card"><h3>undefined-координаты</h3>
+        <p>Vec3F/Vec2F, возвращаемые из движка в JS (<code>GetWorldPosition</code>), приходят с
+        undefined-полями — полёты предметов улетали в NaN.</p>
+        <p class="fix">float-геттеры в мосту: WorldPosX/Y/Z, WorldToScreenX/Y.</p></div>
+    <div class="card"><h3>Зомби-великан</h3>
+        <p>Зомби отрендерился восьмиметровым: у экспортов Quaternius арматура со scale 100–107,
+        и бинд-поза зомби крупнее фермерской. Реальный скиннед-габарит посчитан офлайн: 7.08 м.</p>
+        <p class="fix">визуальный актор зомби отмасштабирован 0.25 → человеческий рост.</p></div>
+    <div class="card"><h3>Зомби не того цвета</h3>
+        <p>Текстура зомби — полоска-палитра, где V выбирает цвет: любые сомнения в конвенции
+        флипа решил A/B-тест двумя зомби в одном кадре.</p>
+        <p class="fix">GLB-путь сэмплит по glTF-конвенции (оригинал верен); PNG сосны для
+        OBJ-пути перевёрнуты.</p></div>
+    <div class="card"><h3>Колонны вместо ценников</h3>
+        <p>Диски зон покупки стояли гигантскими жёлтыми цилиндрами: ось примитива
+        <code>Cylinder</code> в движке — вдоль Y, а не Z.</p>
+        <p class="fix">поворот X+90° и высота по Y → плоский пад на земле.</p></div>
+    <div class="card"><h3>«Мозги на заборе»</h3>
+        <p>Два мозга словно лежали на ограде у нижнего края кадра. Печать мировых позиций стока
+        прилавка показала: это грядка в экстремальной перспективе, ложная тревога.</p>
+        <p class="fix">не баг — подтверждено инструментами, оставлено как есть.</p></div>
+</div>
+
+<h2><span class="num">05</span>Профилировка: память и FPS</h2>
+<p class="sub">Жалоба: со временем билд съедает память, FPS падает до 20. Диагностика — soak-тест
+непрерывной игры с замерами кадра/RSS/акторов, фазовая изоляция (голая сцена → статичные меши →
+скиннед) и macOS <code>leaks</code>/<code>heap</code> на живом процессе. Найдены и закрыты
+четыре движковые проблемы и одна игровая.</p>
+<div class="cardgrid">
+    <div class="card"><h3>Ретир Metal-буферов (Mac + iOS)</h3>
+        <p>При переполнении кадрового буфера свежий MTLBuffer ретейнился дважды, а освобождался
+        один раз; хвостовой буфер кадра терялся совсем. 3D-сцена гнала ~220К вершин/кадр →
+        <b>~8.4 МБ/кадр</b>, 4.4 ГБ за 7 секунд и OOM.</p>
+        <p class="fix">владение передаётся retired-списку, хвостовые буферы ретирятся при начале кадра.</p></div>
+    <div class="card"><h3>Поток рендера без autorelease-пула</h3>
+        <p>Каждый кадр MTLCommandBuffer + 4 контекста ретейнились навечно (+2743 объекта за 45 с) —
+        остаточный дрейф ~0.15 МБ/с даже после первого фикса. Нашлось диффом <code>heap -s</code>.</p>
+        <p class="fix">кадровые NSAutoreleasePool в обоих путях рендера, Mac и iOS.</p></div>
+    <div class="card"><h3>Кадровые буферы 65535 вершин</h3>
+        <p>Реликт 16-битных индексов (VertexIndex давно uint): кадр в 150–250К вершин переполнял
+        буферы 2–3 раза за кадр — аллокационный чурн на каждом переполнении.</p>
+        <p class="fix">кадровые буферы ×4 на Mac — типичный кадр влезает целиком.</p></div>
+    <div class="card"><h3>Двойное перестроение мешей за кадр</h3>
+        <p>Переключение raw-albedo между shadow- и G-buffer-пассами перестраивало каждый меш дважды
+        за кадр — даже полностью статичный (CPU-трансформация всех вершин).</p>
+        <p class="fix">raw-albedo влияет только на запечённый ламберт → перестроение пропускается
+        для нешейдед-мешей во всех трёх компонентах.</p></div>
+    <div class="card"><h3>Мозг на 3070 треугольников</h3>
+        <p>До 26 экземпляров тяжёлой модели в кадре. Децимация кластеризацией вершин
+        (<code>decimate_obj.py</code>) до 614 треугольников — в игровом размере неотличимо.</p>
+        <p class="fix">12 статичных мозгов: 6.3 мс/кадр → 1.1 мс.</p></div>
+    <div class="card"><h3>Результат</h3>
+        <p>Реальный билд, 3 минуты непрерывной игры: <b>FPS 58–60, RSS 200 МБ без роста</b>
+        (было: деградация кадра 5→46 мс и рост памяти до убийства процесса системой).</p>
+        <p class="fix">телеметрия FPS/RSS теперь пишется в лог каждые 5 с; soak и изоляция
+        остались регрессионными тестами.</p></div>
+</div>
+
+<h2><span class="num">06</span>Масштаб сцены под редактор</h2>
+<p class="sub">Мир переведён из метров в движковую конвенцию <b>100 юнитов = 1 метр</b>
+(<code>kUnitsPerMeter</code> в C++, <code>BF.M</code> в JS): персонажи ~180 юнитов, земля
+2600×3200 — тот же порядок, что в демо-сценах движка, поэтому 3D-навигация и сетка редактора
+работают комфортно. Статические OBJ перезапечены офлайн, GLB-персонажи масштабируются на
+Visual-акторе, Bootstrap.scn пересохранён.</p>
+
+<h2><span class="num">07</span>Тесты</h2>
+<p class="sub">Гейм-логика гоняется в headless, картинка и ввод — в реальном окне через AppTestDriver
+со скриншотами в <code>Work/ScreenShots</code>.</p>
+<div class="tablewrap"><table>
+<tr><th>Сьюта</th><th>Что проверяет</th><th>Статус</th></tr>
+<tr><td><b>GameUITests/BrainFarmPerf</b></td><td>soak непрерывной игры: плоская память, ограниченные сущности, кадр в бюджете 60 FPS</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameUITests/BrainFarmPerfIsolation</b></td><td>фазовая изоляция аллокаций: голая сцена / статичные меши / скейл / скиннед / однопоточный рендер</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>o2RenderTests/RenderFrameOverflowMemory</b></td><td>движковая регрессия: переполнение кадровых буферов не течёт (было +2.5 ГБ / 300 кадров)</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameTests/BrainFarmAssets</b></td><td>все OBJ загружаются с вменяемыми габаритами; GLB — кости и клипы на месте</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameTests/BrainFarmLogic</b></td><td>рост и лимит стопки, полный цикл сбор → прилавок → продажа → деньги, зона покупки списывает ровно цену</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameUITests/BrainFarmScene</b></td><td>сцена строится и рендерится не пустым кадром; драг джойстика двигает игрока и включает Run</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameUITests/BrainFarmGameplay</b></td><td>скриншотный тур полного цикла, включая летящую в HUD монету</td><td class="ok">✓ passed</td></tr>
+<tr><td><b>GameUITests/BrainFarmJsBridge</b></td><td>регрессия маршалинга: скейл, мировые позиции, разворот персонажа</td><td class="ok">✓ passed</td></tr>
+</table></div>
+<p class="sub">Приложение Game запускается и живёт (проверено 12-секундным прогоном, лог чистый);
+мост регистрируется и в редакторе, так что Bootstrap.scn открывается там со работающей игрой.</p>
+
+<footer>
+    Сделано на движке <b>o2</b> · арт HUD нарисован программно (imagegen был недоступен — нет ключа API) ·
+    модели: Quaternius (CC0), Poly by Google (CC-BY 3.0), Pichuliru (CC0), Zsky (CC-BY 3.0) —
+    полный список в CREDITS.md
+</footer>
+</div>

@@ -1,0 +1,2933 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        },
+        {
+            "mName": "3D"
+        },
+        {
+            "mName": "2D"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "camera3d",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "drawLayers": {
+                    "mAllLayers": false,
+                    "mLayers": [
+                        "3D"
+                    ]
+                },
+                "fillColor": {
+                    "r": 150,
+                    "g": 200,
+                    "b": 235,
+                    "a": 255
+                },
+                "mType": "Perspective",
+                "mPipeline": {
+                    "Type": "o2::DeferredPipeline",
+                    "Value": {
+                        "mPasses": [
+                            {
+                                "Type": "o2::ShadowMapPass",
+                                "Value": {}
+                            },
+                            {
+                                "Type": "o2::GBufferPass",
+                                "Value": {}
+                            },
+                            {
+                                "Type": "o2::DeferredLightingPass",
+                                "Value": {}
+                            },
+                            {
+                                "Type": "o2::Scene3DTransparentPass",
+                                "Value": {
+                                    "useDepthTest": false
+                                }
+                            },
+                            {
+                                "Type": "o2::Scene2DPass",
+                                "Value": {}
+                            }
+                        ]
+                    }
+                },
+                "mFov": 0.7853981852531433,
+                "mNearClip": 10.0,
+                "mFarClip": 10000.0,
+                "Id": 17312208212841619407,
+                "Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": -560.0,
+                        "z": 720.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    },
+                    "eulerAngles": {
+                        "x": 0.6632251143455505,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "sun",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 7282376732287358351,
+                "Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 1000.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    },
+                    "eulerAngles": {
+                        "x": 0.6108652353286743,
+                        "y": 0.0,
+                        "z": 0.4363323152065277
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "o2::LightComponent",
+                        "Data": {
+                            "mColor": {
+                                "r": 255,
+                                "g": 250,
+                                "b": 235,
+                                "a": 255
+                            },
+                            "mId": 17977490943749615624
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "ui camera",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "2D"
+                    }
+                },
+                "drawLayers": {
+                    "mAllLayers": false,
+                    "mLayers": [
+                        "2D"
+                    ]
+                },
+                "fillBackground": false,
+                "mType": "FittedSize",
+                "mFixedOrFittedSize": {
+                    "x": 540.0,
+                    "y": 960.0
+                },
+                "mUnits": "Pixels",
+                "Id": 12828182460854521602,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Location",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 1017529143344760227,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Ground",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 16089907497082805644,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": 50.0,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::MeshPrimitiveComponent",
+                                    "Data": {
+                                        "mPrimitiveType": "Plane",
+                                        "mSize": {
+                                            "x": 2600.0,
+                                            "y": 3200.0,
+                                            "z": 0.0
+                                        },
+                                        "mColor": {
+                                            "r": 122,
+                                            "g": 178,
+                                            "b": 92,
+                                            "a": 255
+                                        },
+                                        "mId": 16737327686114420646
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Fences",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 16316530202060620956,
+                            "Transform": {
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceL",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 16388754844301404544,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -410.0,
+                                                "y": -390.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 3599178862171537251
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceR",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 16827676182474713212,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 410.0,
+                                                "y": -390.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 5610215749674361999
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceL",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 8191892631445415312,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -410.0,
+                                                "y": 160.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 10765250529848269441
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceR",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 3410982344496581256,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 410.0,
+                                                "y": 160.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 14957145075856199585
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceL",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 2097712306137168687,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -410.0,
+                                                "y": 710.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 4451541721928376440
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceR",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 16254812514703140191,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 410.0,
+                                                "y": 710.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.5707963705062867
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 13607222451755608098
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceB",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 18149670415045464028,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -360.0,
+                                                "y": 860.0000610351563,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 11561612570525132302
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceB",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 3208776638278778420,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 360.0,
+                                                "y": 860.0000610351563,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 16242162826660439330
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceF",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 14191529216679808814,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -160.0,
+                                                "y": -700.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 13905610538258557802
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "FenceF",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 6381827785900690059,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 160.0,
+                                                "y": -700.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "eb3749219819f09d0a2857015be1f6d3",
+                                                        "path": "Models/Fence.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "46d8887357cb33f131c56e9e653bb5b1",
+                                                        "path": "Models/FencePalette.png"
+                                                    },
+                                                    "mId": 9784482029454680183
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Pines",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 68839721172139875,
+                            "Transform": {
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine0",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 13032179892088382336,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -560.0,
+                                                "y": 250.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 0.800000011920929,
+                                                "y": 0.800000011920929,
+                                                "z": 0.800000011920929
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 2570359957965525235,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 12012589312602132683
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 8138034840528835754,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 11698967222575262065
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine1",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 10373704744898939529,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 580.0,
+                                                "y": -150.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 0.9300000071525574,
+                                                "y": 0.9300000071525574,
+                                                "z": 0.9300000071525574
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 1.0471975803375245
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 6585366165408233877,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 5876858482561429745
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 2965146837342963075,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 10075874675450229700
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine2",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 14724012899663205962,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -520.0,
+                                                "y": -550.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 1.059999942779541,
+                                                "y": 1.059999942779541,
+                                                "z": 1.059999942779541
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 2.094395160675049
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 12579654723517957490,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 7821648975580706798
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 14871172359203614230,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 3915834737980356898
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine3",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 1160555816024545614,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 540.0,
+                                                "y": 600.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 0.800000011920929,
+                                                "y": 0.800000011920929,
+                                                "z": 0.800000011920929
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 3.1415927410125734
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 16583631891767778624,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 4645905696670381976
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 13440462736828931354,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 454623037071318228
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine4",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 5145005053253896259,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -220.0,
+                                                "y": 1030.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 0.9300000071525574,
+                                                "y": 0.9300000071525574,
+                                                "z": 0.9300000071525574
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 4.188790321350098
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 5101347871068780014,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 12670795445365627013
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 2606292234900166981,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 16664742865940073761
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Pine5",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 6692955729685435680,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 280.0,
+                                                "y": 1080.0,
+                                                "z": 0.0
+                                            },
+                                            "scale": {
+                                                "x": 1.059999942779541,
+                                                "y": 1.059999942779541,
+                                                "z": 1.059999942779541
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 0.0,
+                                                "y": 0.0,
+                                                "z": 5.235987663269043
+                                            }
+                                        },
+                                        "Children": [
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Trunk",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 6789426452683051175,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "d8427ba36d7bb5a140addada366e7c8e",
+                                                                    "path": "Models/PineTrunk.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "a4a59fd9664948966750c17ac2d59baa",
+                                                                    "path": "Models/PineBark.png"
+                                                                },
+                                                                "mId": 14435051261328949257
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "Type": "o2::Actor",
+                                                "Data": {
+                                                    "mInheritDrawingDepthFromParent": false,
+                                                    "mName": "Leaves",
+                                                    "mSceneLayer": {
+                                                        "Type": "o2::SceneLayer",
+                                                        "Value": {
+                                                            "mName": "3D"
+                                                        }
+                                                    },
+                                                    "Id": 3984845332076582669,
+                                                    "Transform": {
+                                                        "pivot": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.0
+                                                        }
+                                                    },
+                                                    "Components": [
+                                                        {
+                                                            "Type": "o2::Mesh3DComponent",
+                                                            "Data": {
+                                                                "mMeshAsset": {
+                                                                    "id": "093de2a2f11af971e95f56a4abfc5ccc",
+                                                                    "path": "Models/PineLeaves.obj"
+                                                                },
+                                                                "mTexture": {
+                                                                    "id": "ab71ab7bb0a64160b3a8e54269326ed9",
+                                                                    "path": "Models/PineLeavesTex.png"
+                                                                },
+                                                                "mId": 11141202302586127934
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Stand",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 717511249293111435,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": 460.0,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                },
+                                "eulerAngles": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 3.1415927410125734
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::Mesh3DComponent",
+                                    "Data": {
+                                        "mMeshAsset": {
+                                            "id": "a90c573b5030016fd25d96f83b391537",
+                                            "path": "Models/Stand.obj"
+                                        },
+                                        "mTexture": {
+                                            "id": "176fc1ddca8eb8ec9b5313d621719e4b",
+                                            "path": "Models/StandPalette.png"
+                                        },
+                                        "mId": 9236422507940136968
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Bat",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 12538158313523018152,
+                            "Transform": {
+                                "position": {
+                                    "x": 115.0,
+                                    "y": 385.0,
+                                    "z": 5.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                },
+                                "eulerAngles": {
+                                    "x": 1.5707963705062867,
+                                    "y": 0.0,
+                                    "z": 0.9599310755729675
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::Mesh3DComponent",
+                                    "Data": {
+                                        "mMeshAsset": {
+                                            "id": "568f77e35572707bcffeffd3a6b8d778",
+                                            "path": "Models/Bat.obj"
+                                        },
+                                        "mTexture": {
+                                            "id": "f079ee0f84687baebd7366252526ebe8",
+                                            "path": "Models/BatPalette.png"
+                                        },
+                                        "mId": 12980545940571073890
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "CounterSpots",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 12610626137436786988,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": 425.0,
+                                    "z": 95.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot0",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 5841934658038769434,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -62.0,
+                                                "y": 0.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot1",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 11756822749242704036,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -37.0,
+                                                "y": 0.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot2",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 17368262723319182322,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -12.0,
+                                                "y": 0.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot3",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 15369641470049977190,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -56.0,
+                                                "y": 18.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot4",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 608634110873212129,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -31.0,
+                                                "y": 18.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot5",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 856846739381711452,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -6.000000476837158,
+                                                "y": 18.0,
+                                                "z": 0.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Plantations",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 9408260125643813770,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Plantation0",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 3776274285960550425,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": -160.0,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Bed",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 8124466572344532250,
+                                        "Transform": {
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "94c28f74d5138fe3aeb53b30542ff70c",
+                                                        "path": "Models/Dirt.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "99e5f7171b371e6b04ae27e22bc5808f",
+                                                        "path": "Models/DirtPalette.png"
+                                                    },
+                                                    "mId": 3924027907639272173
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot0",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 13767364646947170099,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 15149294025687980660
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot1",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 7254664433637090429,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 16259413155105110001
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot2",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 18012414765703043649,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 7401490717040322681
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot3",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 3576310569082155816,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 7737593762259365877
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Plantation1",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "mEnabled": false,
+                            "Id": 5003004540443299995,
+                            "Transform": {
+                                "position": {
+                                    "x": -200.0,
+                                    "y": -430.0000305175781,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Bed",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 10461874342050503724,
+                                        "Transform": {
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "94c28f74d5138fe3aeb53b30542ff70c",
+                                                        "path": "Models/Dirt.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "99e5f7171b371e6b04ae27e22bc5808f",
+                                                        "path": "Models/DirtPalette.png"
+                                                    },
+                                                    "mId": 4583683553158612942
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot0",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 6278298572990672772,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 843620785870038338
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot1",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 15663879065799270288,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 2347680513784215544
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot2",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 8873120153551265144,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 10128724289966675967
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot3",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 9352871615493706821,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 14654705425179138423
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Plantation2",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "mEnabled": false,
+                            "Id": 2324316967541866703,
+                            "Transform": {
+                                "position": {
+                                    "x": 200.0,
+                                    "y": -430.0000305175781,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Bed",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 6169034364578900364,
+                                        "Transform": {
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "94c28f74d5138fe3aeb53b30542ff70c",
+                                                        "path": "Models/Dirt.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "99e5f7171b371e6b04ae27e22bc5808f",
+                                                        "path": "Models/DirtPalette.png"
+                                                    },
+                                                    "mId": 2398387449107724683
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot0",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 10084238894395008675,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 13331603371511775608
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot1",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 14905357938901697882,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": -30.000001907348634,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 12458577953787326888
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot2",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 6211412839704040978,
+                                        "Transform": {
+                                            "position": {
+                                                "x": -45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 3698089591783588101
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Spot3",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "mEnabled": false,
+                                        "Id": 11861378263984532557,
+                                        "Transform": {
+                                            "position": {
+                                                "x": 45.0,
+                                                "y": 35.0,
+                                                "z": 5.0
+                                            },
+                                            "scale": {
+                                                "x": 0.009999999776482582,
+                                                "y": 0.009999999776482582,
+                                                "z": 0.009999999776482582
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::Mesh3DComponent",
+                                                "Data": {
+                                                    "mMeshAsset": {
+                                                        "id": "0d717da7a7ea646c6a714733033190fd",
+                                                        "path": "Models/Brain.obj"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                                        "path": "Models/BrainPalette.png"
+                                                    },
+                                                    "mId": 9495475234434356519
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "BuyZones",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 1681551514850379387,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "BuyZone1",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 7784087124800856637,
+                            "Transform": {
+                                "position": {
+                                    "x": -200.0,
+                                    "y": -430.0000305175781,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                },
+                                "eulerAngles": {
+                                    "x": 1.5707963705062867,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::MeshPrimitiveComponent",
+                                    "Data": {
+                                        "mPrimitiveType": "Cylinder",
+                                        "mSize": {
+                                            "x": 170.0,
+                                            "y": 6.0,
+                                            "z": 170.0
+                                        },
+                                        "mColor": {
+                                            "r": 255,
+                                            "g": 244,
+                                            "b": 180,
+                                            "a": 255
+                                        },
+                                        "mId": 6332579747242658758
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "BuyZone2",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 3319499541881276934,
+                            "Transform": {
+                                "position": {
+                                    "x": 200.0,
+                                    "y": -430.0000305175781,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                },
+                                "eulerAngles": {
+                                    "x": 1.5707963705062867,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::MeshPrimitiveComponent",
+                                    "Data": {
+                                        "mPrimitiveType": "Cylinder",
+                                        "mSize": {
+                                            "x": 170.0,
+                                            "y": 6.0,
+                                            "z": 170.0
+                                        },
+                                        "mColor": {
+                                            "r": 255,
+                                            "g": 244,
+                                            "b": 180,
+                                            "a": 255
+                                        },
+                                        "mId": 13523095091013790232
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Player",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 12560450579191945819,
+                "Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": -20.0,
+                        "z": 0.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Visual",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 9821620639256367255,
+                            "Transform": {
+                                "scale": {
+                                    "x": 100.0,
+                                    "y": 100.0,
+                                    "z": 100.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                },
+                                "eulerAngles": {
+                                    "x": 1.5707963705062867,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::SkinnedMeshComponent",
+                                    "Data": {
+                                        "mModel": {
+                                            "id": "5d91130b7db6824f10563b76de3c970d",
+                                            "path": "Models/Farmer.glb"
+                                        },
+                                        "mTexture": {
+                                            "id": "c837ad2da8c6913e5db72147a301e2c6",
+                                            "path": "Models/FarmerPalette.png"
+                                        },
+                                        "mId": 4715951373473358090
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "Stack",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "Id": 996884395641398546,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": 35.0,
+                                    "z": 95.0
+                                },
+                                "scale": {
+                                    "x": 0.550000011920929,
+                                    "y": 0.550000011920929,
+                                    "z": 0.550000011920929
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Zombies",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 12208132384917004814,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "ZombieTemplate",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "mEnabled": false,
+                            "Id": 1729620273058321722,
+                            "Transform": {
+                                "position": {
+                                    "x": 0.0,
+                                    "y": 1200.0,
+                                    "z": 0.0
+                                },
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Children": [
+                                {
+                                    "Type": "o2::Actor",
+                                    "Data": {
+                                        "mInheritDrawingDepthFromParent": false,
+                                        "mName": "Visual",
+                                        "mSceneLayer": {
+                                            "Type": "o2::SceneLayer",
+                                            "Value": {
+                                                "mName": "3D"
+                                            }
+                                        },
+                                        "Id": 13210058568506962617,
+                                        "Transform": {
+                                            "scale": {
+                                                "x": 25.0,
+                                                "y": 25.0,
+                                                "z": 25.0
+                                            },
+                                            "pivot": {
+                                                "x": 0.5,
+                                                "y": 0.5,
+                                                "z": 0.0
+                                            },
+                                            "eulerAngles": {
+                                                "x": 1.5707963705062867,
+                                                "y": 0.0,
+                                                "z": 0.0
+                                            }
+                                        },
+                                        "Components": [
+                                            {
+                                                "Type": "o2::SkinnedMeshComponent",
+                                                "Data": {
+                                                    "mModel": {
+                                                        "id": "a6d6a52a1ba48e4877739f5774be2df9",
+                                                        "path": "Models/Zombie.glb"
+                                                    },
+                                                    "mTexture": {
+                                                        "id": "2582bf5a8ff5ac279f28f09f24bd0e42",
+                                                        "path": "Models/ZombieTex.png"
+                                                    },
+                                                    "mId": 6566558183946911775
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Templates",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 9568726380376324302,
+                "Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": -500.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Children": [
+                    {
+                        "Type": "o2::Actor",
+                        "Data": {
+                            "mInheritDrawingDepthFromParent": false,
+                            "mName": "BrainTemplate",
+                            "mSceneLayer": {
+                                "Type": "o2::SceneLayer",
+                                "Value": {
+                                    "mName": "3D"
+                                }
+                            },
+                            "mEnabled": false,
+                            "Id": 8621522286846168789,
+                            "Transform": {
+                                "pivot": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.0
+                                }
+                            },
+                            "Components": [
+                                {
+                                    "Type": "o2::Mesh3DComponent",
+                                    "Data": {
+                                        "mMeshAsset": {
+                                            "id": "0d717da7a7ea646c6a714733033190fd",
+                                            "path": "Models/Brain.obj"
+                                        },
+                                        "mTexture": {
+                                            "id": "f6c23ce9ab6e9f547606afeb006b5940",
+                                            "path": "Models/BrainPalette.png"
+                                        },
+                                        "mId": 16892193964620818812
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Flights",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "3D"
+                    }
+                },
+                "Id": 17933158707712925206,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Game",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "2D"
+                    }
+                },
+                "Id": 2149652442473699932,
+                "Transform": {
+                    "size": {
+                        "x": 540.0,
+                        "y": 960.0,
+                        "z": 0.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "o2::ScriptableComponent",
+                        "Data": {
+                            "mId": 14563222419309092539,
+                            "mScript": {
+                                "id": "0a7fe397b5813939f8da46fce1aa6289",
+                                "path": "Scripts/BrainFarm.js"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
