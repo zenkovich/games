@@ -1,5 +1,7 @@
 {
-    "physics": {},
+    "physics": {
+        "scale": 20.0
+    },
     "physics3D": {
         "gravity": {
             "x": 0.0,

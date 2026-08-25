@@ -1,0 +1,43 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mName": "Game",
+                "Id": 17312208212841619407,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "o2::ScriptableComponent",
+                        "Data": {
+                            "mId": 7282376732287358351,
+                            "mScript": {
+                                "id": "3004646dc3d54bc88642182df9255662",
+                                "path": "Scripts/GameModel.js"
+                            }
+                        }
+                    },
+                    {
+                        "Type": "ColorTownGame",
+                        "Data": {
+                            "mId": 17977490943749615624
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

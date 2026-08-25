@@ -86,10 +86,10 @@
                         "properties window",
                         "game window"
                     ],
-                    "active": "properties window"
+                    "active": "game window"
                 }
             ]
         }
     },
-    "mLastLoadedScene": "Main.scn"
+    "mLastLoadedScene": "Bootstrap.scn"
 }
