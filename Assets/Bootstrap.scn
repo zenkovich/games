@@ -1,0 +1,97 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        },
+        {
+            "mName": "2D"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "ui camera",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "2D"
+                    }
+                },
+                "drawLayers": {
+                    "mAllLayers": false,
+                    "mLayers": [
+                        "2D"
+                    ]
+                },
+                "fillColor": {
+                    "r": 24,
+                    "g": 27,
+                    "b": 52,
+                    "a": 255
+                },
+                "mType": "FittedSize",
+                "mFixedOrFittedSize": {
+                    "x": 540.0,
+                    "y": 960.0
+                },
+                "mUnits": "Pixels",
+                "Id": 17312208212841619407,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mInheritDrawingDepthFromParent": false,
+                "mName": "Game",
+                "mSceneLayer": {
+                    "Type": "o2::SceneLayer",
+                    "Value": {
+                        "mName": "2D"
+                    }
+                },
+                "Id": 7282376732287358351,
+                "Transform": {
+                    "size": {
+                        "x": 540.0,
+                        "y": 960.0,
+                        "z": 0.0
+                    },
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "ZeroLineHost",
+                        "Data": {
+                            "mId": 17977490943749615624
+                        }
+                    },
+                    {
+                        "Type": "o2::ScriptableComponent",
+                        "Data": {
+                            "mId": 12828182460854521602,
+                            "mScript": {
+                                "id": "6f5e42339dddb1a1cadc77719c7f2495",
+                                "path": "Scripts/ZeroLine.js"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

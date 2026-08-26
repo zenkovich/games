@@ -1,11 +1,11 @@
 {
   "$comment": "Per-game identity, read by CMake, Gradle and the publish pipeline. On a game branch set title/slug/description here. Leave bundleId out unless you need a specific one — the pipeline derives <bundle_id_prefix>.<slug>, which keeps games from overwriting each other on a device.",
 
-  "title": "o2 Template",
-  "slug": "template",
-  "emoji": "🎮",
-  "gradient": ["#4facfe", "#7367f0"],
-  "description": "A small WebAssembly game built on the o2 engine.",
+  "title": "Zero Line",
+  "slug": "zeroline",
+  "emoji": "0️⃣",
+  "gradient": ["#FF7A59", "#3FA7F5"],
+  "description": "Draw a line through neighbouring numbers that add up to zero. 5×5 board, 60 seconds.",
 
   "version": "1.0",
   "build": 1
