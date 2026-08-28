@@ -180,7 +180,8 @@ WordFallFxView = class WordFallFxView extends o2.Component
         }
 
         trajectory.SetPoints(fromX, fromY, toX, toY);
-        trajectory.SetPosition(0); // сброс в старт + новое смещение в коридоре сплайна
+        trajectory.ResetRandomOffset(); // новое смещение в коридоре сплайна
+        trajectory.SetPosition(0);
 
         view.widget.SetEnabled(true);
     }
@@ -285,6 +286,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
             anim.Stop("flight");
             trajectory.SetPoints(from.x, from.y, to.x, to.y);
+            trajectory.ResetRandomOffset(); // новое смещение в коридоре сплайна
             trajectory.SetPosition(0);
             view.widget.SetEnabled(true);
 

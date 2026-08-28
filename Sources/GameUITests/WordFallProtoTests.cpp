@@ -2,6 +2,14 @@
 #include <gtest/gtest.h>
 
 #include "WordFall/WordFallUiFactory.h"
+#include "o2/Animation/AnimationPlayer.h"
+#include "o2/Animation/AnimationState.h"
+#include "o2/Assets/Types/AnimationAsset.h"
+#include "o2/Render/Render.h"
+#include "o2/Scene/Components/AnimationComponent.h"
+#include "o2/Scene/Components/FlightTrajectoryComponent.h"
+#include "o2/Scene/Components/ParticlesEmitterComponent.h"
+#include "o2/Utils/Bitmap/Bitmap.h"
 #include "o2/Assets/Assets.h"
 #include "o2/Assets/Types/ActorAsset.h"
 #include "o2/Scene/Actor.h"
@@ -420,6 +428,163 @@ TEST(WordFallProto, DeserializedTileReinstantiatesAcrossScenes)
 
 	auto second = InstantiateTileScene(asset);
 	ExpectTileAlive(second, "second scene");
+
+	o2Scene.Clear(true);
+	o2Scene.UpdateDestroyingEntities();
+	AppTestDriver::PumpFrames(2);
+}
+
+// Редакторский сценарий: клон прототипа в сцене, свой плеер окна анимации скраббит клип
+// без апдейта сцены — слои плашки и звезда должны меняться и в значениях, и в кадре
+TEST(WordFallProto, FlyingLetterScrubWithoutSceneUpdateFadesLayers)
+{
+	const String kScreenshotsDir = "../../Work/ScreenShots/";
+
+	auto asset = o2Assets.GetAssetRefByType<ActorAsset>("WordFall/Prototypes/FxFlyingLetter.proto");
+	ASSERT_TRUE(asset && asset->GetActor());
+
+	auto prevMode = Actor::GetDefaultCreationMode();
+	Actor::SetDefaultCreationMode(ActorCreateMode::InScene);
+	auto screen = PrepareUiScene();
+	auto clone = asset->GetActor()->CloneAsRef<Actor>();
+	screen->AddChild(clone);
+	Actor::SetDefaultCreationMode(prevMode);
+
+	auto widget = DynamicCast<Widget>(clone);
+	ASSERT_TRUE(widget);
+	widget->SetEnabled(true);
+
+	o2Scene.UpdateAddedEntities();
+	AppTestDriver::PumpFrames(2);
+
+	auto animation = clone->GetComponent<AnimationComponent>();
+	ASSERT_TRUE(animation);
+	auto state = DynamicCast<AnimationState>(animation->GetState("flight"));
+	ASSERT_TRUE(state && state->GetAnimation() && state->GetAnimation()->animation);
+	auto clip = state->GetAnimation()->animation;
+	float duration = clip->GetDuration();
+	ASSERT_GT(duration, 0.1f);
+
+	auto back = widget->GetLayer("back");
+	auto star = widget->GetLayer("star");
+	auto trajectory = clone->GetComponent<FlightTrajectoryComponent>();
+	ASSERT_TRUE(back && star && trajectory);
+
+	auto player = mmake<AnimationPlayer>(clone.Get(), clip);
+
+	auto scrub = [&](float time, const String& shot)
+	{
+		player->Stop();
+		player->SetTime(time);
+		clone->UpdateTransform();
+
+		Ref<Bitmap> bitmap;
+		o2Render.CaptureNextFrame([&](const Ref<Bitmap>& captured) { bitmap = captured; });
+		o2Scene.UpdateTransforms();
+		o2Render.Begin();
+		o2Render.Clear(Color4(40, 40, 40));
+		o2Scene.Draw();
+		o2Render.End();
+
+		if (bitmap)
+			bitmap->Save(kScreenshotsDir + shot, Bitmap::ImageType::Png);
+		EXPECT_TRUE(bitmap) << shot;
+	};
+
+	scrub(0.0f, "20_scrub_start.png");
+	EXPECT_NEAR(back->GetTransparency(), 1.0f, 0.01f);
+	EXPECT_NEAR(star->GetTransparency(), 0.0f, 0.01f);
+	EXPECT_NEAR(trajectory->GetPosition(), 0.0f, 0.01f);
+
+	// первая половина: плашка ещё видна, звезда уже проявляется
+	scrub(duration*0.28f, "20_scrub_mid.png");
+	EXPECT_GT(back->GetTransparency(), 0.2f);
+	EXPECT_GT(star->GetTransparency(), 0.2f);
+	EXPECT_GT(trajectory->GetPosition(), 0.3f);
+
+	// конец полёта: звезда полностью, плашка погасла
+	scrub(duration*0.5f, "20_scrub_star.png");
+	EXPECT_NEAR(back->GetTransparency(), 0.0f, 0.02f);
+	EXPECT_NEAR(star->GetTransparency(), 1.0f, 0.02f);
+	EXPECT_NEAR(star->GetDrawable()->GetTransparency(), 1.0f, 0.02f);
+	EXPECT_NEAR(trajectory->GetPosition(), 1.0f, 0.02f);
+
+	// клип длиннее треков слоёв (саб-трек Burst): за последним ключом значения держатся,
+	// а не экстраполируются в отрицательные
+	scrub(duration*0.8f, "20_scrub_after.png");
+	EXPECT_GE(back->GetTransparency(), -0.001f);
+	EXPECT_GE(star->GetTransparency(), -0.001f);
+	EXPECT_NEAR(star->GetTransparency(), 0.0f, 0.02f);
+	EXPECT_NEAR(trajectory->GetPosition(), 1.0f, 0.02f);
+}
+
+// Редакторский сценарий: правка параметров Burst (саб-трек с поздним началом) должна
+// применяться на текущей позиции скраба без повторного скраба, как и для Sparks
+TEST(WordFallProto, FlyingLetterLateBurstEditAppliesWithoutScrub)
+{
+	auto asset = o2Assets.GetAssetRefByType<ActorAsset>("WordFall/Prototypes/FxFlyingLetter.proto");
+	ASSERT_TRUE(asset && asset->GetActor());
+
+	auto prevMode = Actor::GetDefaultCreationMode();
+	Actor::SetDefaultCreationMode(ActorCreateMode::InScene);
+	auto screen = PrepareUiScene();
+	auto clone = asset->GetActor()->CloneAsRef<Actor>();
+	screen->AddChild(clone);
+	Actor::SetDefaultCreationMode(prevMode);
+
+	auto widget = DynamicCast<Widget>(clone);
+	ASSERT_TRUE(widget);
+	widget->SetEnabled(true);
+
+	o2Scene.UpdateAddedEntities();
+	AppTestDriver::PumpFrames(2);
+
+	auto animation = clone->GetComponent<AnimationComponent>();
+	ASSERT_TRUE(animation);
+	auto state = DynamicCast<AnimationState>(animation->GetState("flight"));
+	ASSERT_TRUE(state && state->GetAnimation() && state->GetAnimation()->animation);
+	auto clip = state->GetAnimation()->animation;
+
+	auto sparks = clone->FindChild("Sparks")->GetComponent<ParticlesEmitterComponent>();
+	auto burst = clone->FindChild("Burst")->GetComponent<ParticlesEmitterComponent>();
+	ASSERT_TRUE(sparks && burst);
+
+	auto alive = [](const Ref<ParticlesEmitterComponent>& emitter)
+	{
+		int count = 0;
+		for (auto& particle : emitter->GetParticles())
+			if (particle.alive)
+				count++;
+		return count;
+	};
+	// the asset is live content: make the checks independent of its current caps
+	burst->SetMaxParticles(1000);
+
+	auto player = state->player;
+	player->Stop();
+	player->SetTime(0.2f);
+	ASSERT_GT(alive(sparks), 0);
+
+	player->SetTime(0.65f);
+	ASSERT_GT(alive(burst), 0);
+	int burstBefore = alive(burst);
+
+	float sizeBefore = 0.0f;
+	for (auto& particle : burst->GetParticles())
+		if (particle.alive) { sizeBefore = particle.size.x; break; }
+
+	burst->SetInitialSize(burst->GetInitialSize()*3.0f);
+	burst->SetInitialSizeRange(0.0f);
+
+	int larger = 0;
+	for (auto& particle : burst->GetParticles())
+		if (particle.alive && particle.size.x > sizeBefore*1.5f)
+			larger++;
+	EXPECT_GT(larger, 0) << "burst particles must be rebaked with the new size without scrubbing";
+	EXPECT_EQ(alive(burst), burstBefore);
+
+	burst->SetParticlesPerSecond(burst->GetParticlesPerSecond()*3.0f);
+	EXPECT_GT(alive(burst), burstBefore) << "burst must show more particles right after raising the emission";
 
 	o2Scene.Clear(true);
 	o2Scene.UpdateDestroyingEntities();

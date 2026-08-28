@@ -364,6 +364,8 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	trajectory->spline->AppendKey(Vec2F(0, 0), 0.0f);
 	trajectory->spline->AppendKey(Vec2F(170, 120), 90.0f);
 	trajectory->spline->AppendKey(Vec2F(400, 0), 0.0f);
+	// стартовые точки для редактора: в игре их задаёт FxView перед каждым полётом
+	trajectory->SetPoints(-160, -80, 160, 80);
 
 	// бело-голубое затухание искр к концу жизни
 	auto makeSparkGradient = []()
@@ -531,7 +533,6 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 
 	state->autoPlay = false;
 
-	widget->SetEnabled(false);
 	return widget;
 }
 
