@@ -862,3 +862,288 @@ field_bg в авторской нарезке).
   применением офсетов и скрытий (_ApplyCollapseView вызывается синхронно из
   _BeginCollapseView и переиспользуется в Update). Кадры 13_fall_a/b/c чистые,
   все 335 тестов зелёные, мобильные ассеты пересобраны.
+
+## 2026-08-15 (19) — Колесо мыши на macOS
+
+- На Mac RendererView отдавал scrollingDeltaY как есть: у тачпада/Magic Mouse
+  это точные пиксели (частые, крупные), у классического колеса — строки
+  (±1..3), в 40–100 раз меньше щелчка на Windows (120). Вместо эвристики по
+  величине дельт используется системный флаг hasPreciseScrollingDeltas:
+  точные дельты проходят как есть, строчные умножаются на
+  Input::kWheelLineDelta (60, полщелчка Windows) — один щелчок мыши стал сопоставим с
+  с жестом тачпада, тачпад не затронут. Логика вынесена в чистую
+  Input::NormalizeWheelDelta (юнит-тест в o2SystemTests), доки input.md ru+en.
+
+## 2026-08-26 (20) — Клик по вкладкам докинга после смены заголовка
+
+- DockableWindow: кликабельная область вкладки (`mHeadDragAreaRect`, по ней
+  работает CursorEventsArea заголовка) пересчитывалась только в
+  `UpdateSelfTransform`, т.е. при инвалидации лэйаута окна. Смена caption
+  («Animation - <ассет>») меняла ширину слоя вкладки и через
+  `ArrangeChildWindows` сдвигала слои соседних вкладок, но лэйаут окна не
+  трогала — вкладки рисовались по-новому, а клики ловились по старым ректам.
+  Теперь рект пересчитывается из слоя вкладки в `SetTabWidth`,
+  `SetTabState`, `SetNonTabState` (общий `UpdateHeadDragArea`), добавлен
+  геттер `GetHeadDragAreaRect`. Регрессионный тест
+  o2EditorTests/DockableWindowTabHitArea (без фикса падает), 346 тестов зелёные.
+
+## 2026-08-26 (21) — Редактирование анимации FxFlyingLetter в редакторе
+
+- Прототип сохранялся выключенным (`SetEnabled(false)` в билдере — инстансы и так
+  выключает Bootstrap) и с совпадающими точками траектории. Билдер теперь отдаёт
+  включённый прототип с точками (-160,-80)→(160,80); прототип и .anim перегенерированы.
+- `FlightTrajectoryComponent::position` — теперь PROPERTY (сеттер `SetPosition`,
+  поле `mPosition` @SERIALIZABLE): трек анимации пишет через прокси свойства,
+  и актор двигается сразу при скраббинге в редакторе, где `OnUpdate` не
+  вызывается. Тесты o2SystemTests/FlightTrajectory (скраб плеером без апдейта
+  сцены, сериализация), доки components.md ru+en.
+- Частицы саб-трека при скраббинге: `ParticlesEmitter::Evaluate` восстанавливал
+  запечённый кадр в `mParticles`, но меш контейнера обновлялся только в `Update`,
+  который в edit-режиме вызывает лишь вьюер выделенного эмиттера. Теперь после
+  восстановления кадра контейнер синхронизируется на месте. Тесты
+  o2SystemTests/ParticlesEmitterScrub и o2EditorUITests/AnimationWindowScrubUI
+  (курсор таймлайна двигает актор и частицы), 348 тестов зелёные.
+- Попутно замечено (не правил): `AnimationTrack<T>::Linear` даёт не линейную
+  кривую (в середине 0.889 вместо 0.5) — тесты сравнивают с `GetValue`.
+- Слои виджета «не рисуются» при скраббинге: клип FxFlyingLetter длиннее треков
+  слоёв (саб-трек Burst начинается в конце полёта), а `Curve::Evaluate` и
+  `AnimationTrack<T>::GetValue` (generic, Vec3F, Color4) за последним ключом
+  экстраполировали последний сегмент — прозрачность уходила в −2.6, слои гасли,
+  position улетал за 1. Теперь позиция клампится к диапазону ключей: трек держит
+  крайние значения (Vec2F идёт через timeCurve). Доки animations.md ru+en.
+  Тесты: o2UtilTests/Curve, o2SystemTests/AnimationTrackRange (float/Vec2F/Vec3F/
+  Color4), o2EditorUITests/AnimationWindowStateScrubUI (плеер состояния, реальный
+  EditAsset с собственным плеером + пиксельная проверка, строки треков слоёв),
+  GameUITests/WordFallProto.FlyingLetterScrubWithoutSceneUpdateFadesLayers (клон
+  реального прототипа, скраб без апдейта сцены, кадры 20_scrub_*.png).
+
+## 2026-08-26 (22) — Прыжки траектории при скраббинге
+
+- `FlightTrajectoryComponent` перебрасывал случайное смещение в коридоре сплайна
+  каждый раз, когда `position` возвращался в 0 — при скраббинге в редакторе
+  курсор постоянно проходит через старт, и объект прыгал между разными дугами
+  (воспроизведено тестом: после прохода через 0 середина траектории 130 → 39).
+  Неявный переброс убран: смещение меняется только явным `ResetRandomOffset()`;
+  FxView вызывает его перед каждым полётом. Тесты o2SystemTests/FlightTrajectory
+  (явный переброс варьирует точку; возврат в 0 не меняет), 
+  o2EditorUITests/AnimationWindowStateScrubUI.ScrubbingIsStableWithPropertiesRefresh
+  (скраб туда-обратно с Refresh панели свойств — та же точка в то же время).
+  Доки components.md ru+en.
+
+## 2026-08-26 (23) — Миксеры AnimationComponent перебивали превью в редакторе
+
+- По стеку из отладчика: в edit-режиме `SceneEditScreen::Update` →
+  `Scene::CheckChangedObjects` вызывает `Update(0)` у изменённых акторов, а
+  `Widget::Update` → `AnimationComponent::OnUpdate` → миксеры пишут значения
+  плеера состояния (время 0) поверх плеера окна анимации → `SetPosition(0)`,
+  сдвиг офсетов лэйаута снова помечает виджет изменённым — и так каждый кадр:
+  объект прыгал между курсором и стартом.
+- `IAnimationState::IsInEditMode()` (`AnimationState` отдаёт `mInEditMode`,
+  выставляемый `BeginPreview`), миксеры `ITrackMixer::IsPreviewedInEditor()`;
+  `OnUpdate` пропускает миксеры, чьи треки принадлежат превьюируемому состоянию.
+  Тесты o2SystemTests/AnimationComponentEditMode (Update(0) не перебивает
+  значение внешнего плеера, после EndPreview — снова ведёт состояние),
+  UI-тест скраба дополнен `OnObjectChanged` + `CheckChangedObjects` (без фикса
+  падает: position 0 вместо 0.81).
+
+## 2026-08-26 (24) — Окно анимации: линии треков при скролле, частицы при скраббинге
+
+- Рендер-тест окна анимации (o2EditorUITests/AnimationWindowScrollUI, кадры в
+  build/o2/TestScreenshots/anim_scroll_*.png) показал две проблемы пула
+  контролов треков: (1) `AnimationTreeNode::FreeTrackControl` снимает контрол
+  через `RemoveChild(…, false)` — без события он оставался в реестре отрисовки
+  старого узла (`mChildrenInheritedDepth`) и с его `mParentWidget`, а узел,
+  переиспользованный для другой строки, продолжал рисовать чужие линии;
+  (2) контрол из кэша пристыковывался к узлу, пока тот ещё отвязан от дерева,
+  и получал `mResEnabledInHierarchy = false` — строки без ключей и кривых.
+  Фиксы: `Actor::RemoveChild` без события всё равно перерегистрирует drawable
+  (`OnDrawbleParentChanged`), `Widget::OnChildRemoved` сбрасывает `mParentWidget`
+  ребёнка; `Tree::CreateVisibleNodeWidget` после подключения узла обновляет
+  флаги детей (`UpdateResEnabledInHierarchy`). Тесты o2SystemTests/WidgetRemoveChild
+  и UI-тест скролла (каждая видимая строка: один включённый контрол, в реестре
+  отрисовки только реальные дети).
+- Частицы саб-трека при скраббинге оставались на старом месте: кадры
+  запекались в `SetTime` саб-трека до обновления трансформов, т.е. по
+  трансформу до применения value-треков того же клипа. `ParticlesEmitterComponent::SetTime`
+  в edit-режиме редактора сначала обновляет трансформ корня актора.
+  UI-тест SubTrackParticlesFollowMovedActor (без фикса частицы на −32 при акторе на 356).
+
+## 2026-08-26 (25) — Кадры частиц пекутся по положению актора в момент кадра
+
+- Перегенерация «в текущей точке» делала world-space частицы относительными:
+  весь кэш пересчитывался там, где эмиттер стоит сейчас. Теперь при запекании
+  кадра i саб-трек просит родительский плеер вычислить value-треки клипа на
+  время кадра (`ParticlesEmitter::editorBakeFrameEvaluator`, ставится в
+  `AnimationSubTrack::Player::SetTarget`; `AnimationPlayer::EvaluateValueTracks`
+  вычисляет только value-треки, не саб-треки), а `ParticlesEmitterComponent::OnEditorBakeFrame`
+  обновляет трансформ корня актора. Эмиттер стоит там, где клип ставит актор в
+  этот момент: world-space частицы остаются вдоль пути, relative едут с
+  актором (BasisChanged). Кадр, не совпадающий с текущим трансформом (правка
+  траектории), сбрасывает кэш; зерно `seed + индекс кадра` сохраняет рисунок.
+  В play-режиме редактора evaluator не используется (поведение как в игре).
+  `BasisChanged` защищён от вырожденного базиса нулевого размера.
+  Тесты o2SystemTests/ParticlesEmitterScrub (JumpScrubBakesFramesAlongThePath,
+  RelativeParticlesTravelWithTheActorOnScrub, MovedEmitterRebakesFramesInPlace,
+  RebakeKeepsParticlePattern), UI-тест SubTrackParticlesFollowMovedActor
+  (world-space: шлейф от старта до актора, при скрабе назад — до актора в тот момент).
+- Длина саб-трака эмиттера не менялась при правке emission duration:
+  `IAnimation::onDurationChanged` (эмиттер шлёт из `UpdateDuration`), саб-трек
+  подписывается в `SetTarget` и обновляет `mSubTrackDuration` сразу (плюс
+  проверка в `Evaluate`). Тест EmitterDurationChangeResizesSubTrack.
+  Доки Editor/Animation/animation.md ru+en.
+
+## 2026-08-26 (26) — Крэши в MemoryManager: причина и фиксы
+
+- Стек: `operator delete` из dispatch-блока → `MemoryManager::OnMemoryRelease`
+  → падение в `std::map::find` (порченый узел). Сам менеджер потокобезопасен:
+  все три метода под `recursive_mutex`, узлы map выделяются не через нашу
+  перегрузку (`operator new(size_t)` не переопределён — только вариант с
+  файлом/строкой, `nm` подтверждает), вложенный `OnMemoryRelease` при
+  освобождении узла попадает в уже отвязанное дерево. Стресс-тест
+  o2UtilTests/MemoryManagerThreads (8 потоков × 20k mmalloc/mfree/mnew/delete)
+  проходит. Значит map — жертва порчи кучи извне.
+- Источник порчи: сегодняшняя подписка `AnimationSubTrack::Player` на
+  `IAnimation::onDurationChanged` через сырой `mTarget` — деструктор плеера
+  отписывался у уже уничтоженного эмиттера (перезагрузка сцены при входе/выходе
+  из play: акторы умирают, а плеер окна анимации живёт до следующего EditAsset)
+  → запись в освобождённую память. Плюс давний риск `mTarget->SetTime` по
+  мёртвому таргету в `Evaluate`. Фикс: `WeakRef<IAnimation> mTargetLink`,
+  отписка/эвалюация только пока таргет жив. Тест
+  o2SystemTests/ParticlesEmitterScrub.SubTrackPlayerAndEmitterOutliveEachOtherSafely
+  (оба порядка смерти).
+- Попутно замечено (не правил): в тестовом окружении актор с ребёнком или
+  компонентом после `Destroy()` + кадры остаётся жив (1 лишняя сильная ссылка),
+  предшествует сегодняшним правкам; в редакторе не воспроизводится напрямую.
+
+## 2026-08-26 (27) — Поворот/масштаб виджетов; плавная рамка при зуме
+
+- Виджеты рисовались и раскладывались по осевому `GetWorldRect()`: поворот и
+  масштаб (уже посчитанные в `mWorldTransform` ActorTransform) никуда не шли.
+  Введено разделение: лэйаут живёт в «лэйаут-пространстве» (осевой прямоугольник,
+  как раньше — ничего не меняется для неповёрнутых виджетов), а мировой базис —
+  прямоугольник с поворотом/масштабом виджета и родителей. `WidgetLayout::
+  GetLayoutToWorldBasis` / `WorldToLayoutPoint` / `IsWorldTransformPlain`;
+  `WidgetLayer::UpdateLayout` ставит drawable по базису (`SetBasis`) когда
+  трансформ не плоский, иначе `SetRect` как раньше; хит-тест слоя переводит точку
+  в лэйаут-пространство; `Widget::UpdateBounds` берёт AABB повёрнутого следа.
+  Дочерние виджеты наследуют поворот/масштаб через `mParentTransform`. Поворот —
+  вокруг `pivot` (у WidgetLayout по умолчанию (0,0)). Ограничение: отсечение
+  `ScrollArea` остаётся осевым. Тесты o2RenderTests/WidgetTransform
+  (плоский без изменений, поворот слоёв, масштаб, наследование ребёнком,
+  хит-тест по повёрнутой форме). Доки ui.md ru+en.
+- «Порог» рамки при зуме — это округление лэйаута сценических виджетов до целых
+  единиц (`FloorRectangle`): при 10× нужно тянуть 5+ px, чтобы рект изменился.
+  `WidgetLayout::SetSceneLayoutsRounding`: редактор выключает округление в режиме
+  правки (`OnStarted`/`SetPlaying`), в play и в игре — как раньше; UI самого
+  редактора округляется всегда (не на сцене). Порог «клик vs перетаскивание» в
+  FrameTool теперь в экранных пикселях. Тест SceneLayoutsRoundingSwitch.
+
+## 2026-08-26 (28) — Крэш в редакторе анимации: висячие делегаты плееров треков
+
+- Крэш в `AnimationTrack<float>::Player::Evaluate` (стек через
+  `UpdateSubTrackDuration` → `onKeysChanged` → `AnimationWindow::OnAnimationChanged`)
+  плавал от раскладки памяти; воспроизведён UI-тестом (правка emission duration
+  при открытом окне анимации) и пойман ASan-сборкой (`build-asan`): heap-use-after-free.
+- Корень (давний): `IAnimationTrack::IPlayer::SetTrack` подписывался на
+  `onKeysChanged` трека лямбдой с захватом `this` и `Ref` трека — лямбду нельзя
+  отписать, и каждый уничтоженный плеер (перепривязка `ReattachAnimationStates`
+  → `BindTracks` → `mTrackPlayers.Clear()`, смена клипа, окно анимации) оставлял
+  в треке делегат на освобождённую память; заодно `Ref` трека в его же событии
+  давал цикл и утечку треков. Мой `UpdateSubTrackDuration` стал чаще дёргать
+  `onKeysChanged` и вскрыл это. Фикс: `WeakRef<IAnimationTrack> mBoundTrack`,
+  делегат-метод `OnTrackKeysChanged` (`THIS_FUNC`), отписка в `SetTrack` и
+  деструкторе. Тесты o2SystemTests/AnimationPlayerRebind (перепривязка +
+  изменение ключей; трек освобождается вместе с клипом).
+- `Function::Invoke` теперь рассылает по снимку списка и пропускает делегаты,
+  удалённые во время рассылки (раньше `back()` на опустевшем списке и вызов
+  удалённого делегата). Тесты o2UtilTests/Function (самоотписка, отписка
+  соседа). `SearchKey` защищён от индекса кэша вне диапазона.
+
+## 2026-08-26 (29) — Параметры эффектов частиц применяются сразу
+
+- Правка градиента/кривых эффекта на инстансе прототипа не применялась до
+  скраббинга: `ParticlesEmitter::AddEffect` не ставил эффекту `mEmitter`
+  (его ставил только `OnEffectsListChanged` после десериализации), а
+  конструкторы копирования эффектов были компиляторными — градиент/кривая
+  **разделялись** между прототипом и клоном, и их `onKeysChanged` (лямбда с
+  `this` исходного эффекта) инвалидировал кадры прототипа, а не инстанса.
+  Параметры самого эмиттера (`SetParticlesPerSecond` и т.п.) зовут `OnChanged`
+  напрямую — потому применялись сразу. Фиксы: `AddEffect`/`RemoveEffect`
+  ставят/снимают `mEmitter`; у эффектов с градиентами/кривыми явные
+  конструкторы копирования с глубоким клонированием и деструкторы; подписка на
+  `onKeysChanged` — отписываемым делегатом (`ListenKeysChanged`, идемпотентно
+  при десериализации) вместо лямбд с `this` (та же семья висячих делегатов).
+  Нюанс: `mmake` для типов без конструктора с `RefCounter*` ставит счётчик
+  **после** конструирования, так что `Ref(this)` внутри конструктора
+  копирования эмиттера (через `AddEffect`) падал на нулевом счётчике —
+  `AddEffect` ставит ссылку только при наличии счётчика, а клоны привязывают
+  эффекты и shape в `ParticlesEmitter::PostRefConstruct` (хук `RefMaker`).
+  Тесты o2SystemTests/ParticlesEffects: AddEffectLinksTheEmitter,
+  CloneDeepCopiesCurvesAndLinksItsOwnEmitter, DestroyedEffectLeavesNoDelegateOnItsGradient,
+  GradientEditRebakesParticlesImmediately. Полный ctest 356/356.
+
+## 2026-08-28 (30) — Медленное перетаскивание хендлов рамки
+
+- `DragHandle::OnCursorStillDown` отбрасывал кадры с `cursor.delta < 0.5 px`, а
+  дельта в `Input` — накопленная за кадр: при медленном движении (меньше полпикселя
+  за кадр) отбрасывался каждый кадр, и хендл (рамка `FrameTool`) не двигался вообще.
+  Теперь сравнивается расстояние от последней обработанной позиции курсора
+  (`mLastDragCursorPos`), так что дробные дельты накапливаются; неподвижный курсор
+  по-прежнему не генерирует `onChangedPos`.
+  Тест o2EditorUITests/DragHandleSlowDragUI.SubPixelFrameDeltasAccumulate.
+
+## 2026-08-28 (31) — Правки Burst (поздний саб-трек) применяются без скраба
+
+- Воспроизвести по коду не удалось: хедлесс-тест с саб-треком от 0.5 с
+  (ParticlesEmitterScrub.LateSubTrackEmitterAppliesEditsWithoutScrub), UI-тест с
+  выбранным Burst и включённым вьюером компонента
+  (AnimationWindowStateScrubUI.LateSubTrackEmitterEditAppliesWhileSelected) и тест на
+  реальном прототипе через стейт-плеер (GameUITests WordFallProto.FlyingLetterLateBurst
+  EditAppliesWithoutScrub) — все зелёные: правка применяется на позиции скраба.
+- Единственная найденная асимметрия: `InvalidateBakedFrames` не перезапекал кадр при
+  `mPlaying == true`, а у саб-контролируемого эмиттера флаг залипает (play/replay в
+  заголовке компонента, `RewindAndPlay`): сам он никогда не доходит до конца, так
+  что `mPlaying` не сбрасывается, и любая правка ждала скраба или play-режима
+  (там сцена перезагружается). Sparks, у которого в фабрике `Stop()`, этому не
+  подвержен. Теперь при `mSubControlled` кадр перезапекается независимо от флага.
+  Тест ParticlesEmitterScrub.PlayingFlagDoesNotBlockEditsOfSubControlledEmitter
+  (падал до правки).
+
+## 2026-08-28 (32) — Ревью o2: развязка саб-трека и частиц, сборка, перезапекания
+
+- Саб-трек больше не знает о частицах: вместо `dynamic_cast<ParticlesEmitter*>` под
+  `#if IS_EDITOR` в `AnimationSubTrack::Player::SetTarget` — общий хук `IAnimation::
+  SetSubControlEvaluator/GetSubControlEvaluator/EvaluateSubControlOwner`. Плеер ставит
+  цели `THIS_FUNC(EvaluateOwnerAt)` (value-треки владельца на `beginTime + localTime`),
+  в `ReleaseTarget` (деструктор, смена цели) снимает его, только если он ещё его —
+  цель могли перебиндить. `ParticlesEmitter::OnEditorBakeFrame` зовёт
+  `EvaluateSubControlOwner`. `UpdateSubTrackDuration` в `Evaluate` убран — есть подписка.
+- Сборка без редактора: `OnEditorBakeFrame` (определение в .cpp и override в компоненте,
+  meta) под `#if IS_EDITOR`, как и объявление. `IsPreviewedInEditor` в
+  `AnimationComponent::OnUpdate` — тоже под `IS_EDITOR` (виртуальный обход по всем трекам
+  каждый кадр в игровой сборке был бесполезен).
+- Перезапекания: (а) `mIsBaking` — `InvalidateBakedFrames` игнорируется, пока кадры
+  пекутся/восстанавливаются (value-трек на свойстве эмиттера дёргал `OnChanged` на каждом
+  кадре и чистил `mBakedFrames` изнутри `CheckBakedFrames`); (б) сравнение трансформа
+  кадра с эмиттером, поставленным на время **самого кадра** (`idx/60`), а не на
+  неокруглённое `mTime` — движущийся актор сбрасывал кэш почти на каждом скрабе;
+  (в) сеттеры эмиттера выходят при неизменённом значении — рефреш окна свойств пишет все
+  значения обратно и делал N полных перезапеков за рефреш. Публичный
+  `GetBakedFramesCount()` для тестов.
+- `AddEffect` ставит `mEmitter` безусловно; конструктор копирования кладёт клоны в
+  `mEffects` напрямую (`PostRefConstruct` линкует), без проверки счётчика.
+- `Function::Invoke`: без копии вектора — счётчик глубины диспетча в `TypeData`
+  (в неиспользуемом хвосте payload), удаление во время диспетча ставит tombstone
+  (`EraseFunction`), компактизация по выходу из внешнего вызова; `Clear` во время
+  диспетча обнуляет слоты. Обходы списка null-безопасны. Тесты: добавление делегата во
+  время диспетча, рекурсивный Invoke, Clear во время диспетча.
+- `WidgetLayer`: после поворота/масштаба виджета и возврата к «плоскому» трансформу
+  drawable сбрасывает угол/шир (`SetRect` их не трогает) — флаг `mDrawableTransformed`,
+  чтобы не трогать собственный угол слоя, которого виджет не крутил.
+  `WidgetLayout::IsPointInside` учитывает мировой поворот/масштаб (в т.ч. родительский)
+  через `WorldToLayoutPoint`; вырожденный базис (scale 0) — guard по детерминанту.
+- `ColorGradient::Evaluate` держит крайние цвета за ключами, как `Curve` и треки.
+- Комментарии-эссе ужаты до однострочных; баннер `FlightTrajectoryComponent` — 2 строки.
+- Не трогал (осознанно): глобальный `srand` при запекании (нужен per-emitter RNG —
+  отдельная задача), `SetSubControlled` не сбрасывается в деструкторе плеера (старое
+  поведение; сброс при живом втором плеере опасен), `Text` без `SetBasis`.
