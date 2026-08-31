@@ -37,6 +37,23 @@
     });
     modelEl.parentNode.insertBefore(effortEl, modelEl.nextSibling.nextSibling);
 
+    // permission mode, as in the terminal
+    var modeEl = document.createElement('select');
+    modeEl.id = 'ai-mode';
+    modeEl.title = 'Permission mode: ask before tools (default), auto-accept edits, plan only, or bypass prompts (edits stay limited to Assets)';
+    [['default', 'ask'], ['acceptEdits', 'accept edits'], ['plan', 'plan'], ['bypassPermissions', 'bypass']].forEach(function (m) {
+        var o = document.createElement('option');
+        o.value = m[0]; o.textContent = m[1];
+        modeEl.appendChild(o);
+    });
+    effortEl.parentNode.insertBefore(modeEl, effortEl.nextSibling);
+
+    // past Claude sessions of this tab, to continue one
+    var histEl = document.createElement('select');
+    histEl.id = 'ai-history';
+    histEl.title = 'Conversations of this tab: pick one to continue it';
+    effortEl.parentNode.insertBefore(histEl, modeEl.nextSibling);
+
     // "steps" expands/collapses every debug step, new ones follow it
     debugEl.onchange = function () {
         chatEl.querySelectorAll('.ai-step').forEach(function (s) {
@@ -72,6 +89,8 @@
     var savedModel = getSetting('o2ai_claude_model');
     modelEl.value = savedModel || DEFAULT_MODEL;
     effortEl.value = getSetting('o2ai_effort') || 'high';
+    modeEl.value = getSetting('o2ai_mode') || 'acceptEdits';
+    modeEl.onchange = function () { setSetting('o2ai_mode', modeEl.value); };
     keyEl.onchange = function () {
         setSetting('o2ai_claude_key', keyEl.value.trim());
         loadModels();
@@ -242,65 +261,6 @@
     }
     function setStatus(t) { statusEl.textContent = t || ''; }
 
-    // ---------- working rules for the model ----------
-    // The server prepends the environment facts (paths, tool names); this is
-    // the part about how to work in this project.
-    var SYSTEM = [
-        'You are the AI agent embedded into the web (WebAssembly) build of the o2 game editor, working on a game project',
-        'built on the o2 engine. The editor UI is rendered into a canvas; the hosting page adds an assets browser and you.',
-        '',
-        'KNOW BEFORE YOU ACT. CLAUDE.md in the working directory holds briefings distilled from the engine documentation:',
-        'project (what the project is, how C++ and JS split the work), assets (the JSON shape of scenes, prototypes and',
-        '.meta, and the concrete ways to corrupt them), scripting (the JavaScript model, the real lifecycle hooks, the actor',
-        'API), editor (windows, modes, hotkeys), particles (the emitter and how to configure one), workflows (recipes).',
-        'The briefings are authoritative for what they state: field names, defaults, the JSON shape, which calls are',
-        'scriptable. Do not re-verify them against the C++ headers - that is the single biggest source of wasted steps.',
-        'Go to the engine sources only for what a briefing does not cover, and then read one targeted place.',
-        '',
-        'FACTS THAT BREAK THINGS SILENTLY IF YOU GET THEM WRONG:',
-        '- A script file must define a class whose name equals the file name, assigned to the global without let/const:',
-        '  Name = class Name extends o2.Component { ... }. The only lifecycle hooks are OnStart(), OnEnabled(),',
-        '  OnDisabled() and Update(dt). Log with print(), not console.log, and never Dump() or enumerate the JS global.',
-        '- A window script reports to C++ through the property C++ injects, named exactly `action`: this.action(\'close\').',
-        '- Never change an asset uid, an actor Id or a PrototypeLink number, and always move a .meta together with its',
-        '  file: every reference elsewhere is by uid and breaks quietly.',
-        '',
-        'HOW TO WORK - in three phases, not in a hundred small moves:',
-        '1. Gather: read the matching briefing, find the files involved, read the parts you will change.',
-        '2. Plan: one short paragraph - which files change, what each change is, how you will verify.',
-        '3. Act in batches: apply the whole set of edits, then rebuild_assets once, then verify once with read_log',
-        '   (and scene_tree / a screenshot only if the change is visual). A rebuild freezes the editor 10-20 s.',
-        'When something fails, go back to gathering rather than trying variants of an API you have not looked up.',
-        '',
-        'WORKING RULES:',
-        '- Asset content is loaded from the built copy: file changes need rebuild_assets to take effect.',
-        '- After creating or changing a scene, open exactly that scene (open_scene) before play mode; scene_tree and',
-        '  view_info report openScene - check it instead of assuming.',
-        '- NEVER try to operate the editor with the cursor: menus, Assets, Tree and Properties ignore synthetic input.',
-        '  click/type_text/press_key exist only to play the running game in the Game window during play mode.',
-        '- To see the scene, read it with scene_tree and view_info; aim clicks from those numbers, never from a picture.',
-        '- run_script executes JavaScript inside the engine right away; use it to inspect or change the scene and for',
-        '  editor work no tool covers. It is not a text processor for files.',
-        '- To watch runtime behaviour, play_mode({on:true}), wait, screenshot, play_mode({on:false}). Screenshots are',
-        '  half size; click coordinates are full-size canvas pixels.',
-        '',
-        'Work autonomously: plan, use the tools, verify the result. Say plainly when something did not work or when you',
-        'are unsure rather than reporting success. When done, reply with a short summary of what you changed and checked.',
-        'Answer in the language of the user\'s message.',
-    ].join('\n');
-
-    // the briefings, shipped to the server as the working directory's CLAUDE.md
-    function guidesMarkdown() {
-        var g = window.AI_GUIDES || {};
-        var out = ['# Project briefing for the agent', '',
-                   'Read the section matching the job before engine-specific work. These notes are distilled from',
-                   'o2/Docs and the engine sources and are authoritative for what they state.', ''];
-        Object.keys(g).forEach(function (topic) {
-            out.push('## ' + topic, '', g[topic], '');
-        });
-        return out.join('\n');
-    }
-
     // ---------- editor-side tool implementations ----------
     // Claude's own tools do the file work on the server; these are the calls
     // that only make sense inside the running editor.
@@ -460,12 +420,8 @@
             return Promise.reject(new Error('the editor is not running yet'));
         if (!a.path) return Promise.reject(new Error('path is required, e.g. Boot.scn'));
         // The engine silently does nothing for a missing scene, which reads as success
-        var slash = a.path.lastIndexOf('/');
-        var dir = slash < 0 ? '' : a.path.slice(0, slash);
-        var name = slash < 0 ? a.path : a.path.slice(slash + 1);
-        return toolListFiles({ dir: dir }).then(function (listing) {
-            var exists = (listing.files || []).some(function (f) { return f.name === name; });
-            if (!exists) throw new Error('no such scene: ' + a.path + ' (list_files to see what exists)');
+        return fetch(o2Base + '/api/assets/file?path=' + encodeURIComponent(a.path)).then(function (r) {
+            if (!r.ok) throw new Error('no such scene: ' + a.path + ' (paths are relative to Assets)');
             var before = (window.engineLogLines || []).length;
             Module.ccall('o2_web_open_scene', null, ['string'], [a.path]);
             return sleep(1800).then(function () {
@@ -686,12 +642,100 @@
     function shortPath(v) {
         return sessionCwd && v.indexOf(sessionCwd + '/') === 0 ? v.slice(sessionCwd.length + 1) : v;
     }
-    function toolLabel(name, args) {
-        var brief = Object.keys(args || {}).map(function (k) {
-            var v = shortPath(String(args[k]));
-            return k + ': ' + (v.length > 60 ? v.slice(0, 60) + '…' : v);
-        }).join(', ');
-        return '▸ ' + name.replace(/^mcp__o2__/, '') + '(' + brief + ')';
+    var MAIN_ARG = { Read: 'file_path', Write: 'file_path', Edit: 'file_path', MultiEdit: 'file_path',
+                     Bash: 'command', Grep: 'pattern', Glob: 'pattern', Task: 'description', Agent: 'description',
+                     WebFetch: 'url', WebSearch: 'query', Skill: 'skill', NotebookEdit: 'notebook_path' };
+    // ---------- permission prompts ----------
+    var permissionBlocks = {};
+    function showPermission(ev) {
+        if (permissionBlocks[ev.id]) return;
+        var d = document.createElement('div');
+        d.className = 'ai-m error ai-perm';
+        var head = document.createElement('div');
+        head.textContent = 'Allow ' + toolLabel(ev.tool, ev.input).replace(/^▸ /, '') + '?';
+        d.appendChild(head);
+        var detail = document.createElement('pre');
+        detail.style.cssText = 'margin:4px 0;max-height:160px;overflow:auto;font-size:11px;white-space:pre-wrap';
+        detail.textContent = shortPath(JSON.stringify(ev.input || {}, null, 2));
+        d.appendChild(detail);
+        var row = document.createElement('div');
+        [['Allow', 'allow', false], ['Always allow', 'allow', true], ['Deny', 'deny', false]].forEach(function (b) {
+            var btn = document.createElement('button');
+            btn.className = 'tbtn' + (b[1] === 'deny' ? ' quiet' : '');
+            btn.style.marginRight = '6px';
+            btn.textContent = b[0];
+            if (b[2] && !(ev.suggestions && ev.suggestions.length)) btn.disabled = true;
+            btn.onclick = function () {
+                post('permission', { id: ev.id, behavior: b[1], always: b[2] }).catch(function () {});
+            };
+            row.appendChild(btn);
+        });
+        d.appendChild(row);
+        chatEl.appendChild(d);
+        permissionBlocks[ev.id] = d;
+        scrollDown();
+        setStatus('waiting for your permission…');
+    }
+    function resolvePermissionUi(id, behavior) {
+        var d = permissionBlocks[id];
+        if (!d) return;
+        d.className = 'ai-step';
+        d.innerHTML = '';
+        var lab = document.createElement('div');
+        lab.className = 'ai-step-head';
+        lab.textContent = (behavior === 'allow' ? '✓ allowed' : '⊘ denied');
+        d.appendChild(lab);
+        delete permissionBlocks[id];
+        setStatus('working…');
+    }
+
+    function removeDeletedFile(rel) {
+        var m = rel.match(/^Assets\/(.+)$/);
+        if (!m || !Module || !Module.FS) return;
+        try { Module.FS.unlink('/project/Assets/' + m[1]); } catch (e) {}
+    }
+
+    // ---------- conversations of this tab ----------
+    function loadHistory() {
+        fetch(o2Base + '/api/agent/sessions').then(function (r) { return r.json(); }).then(function (j) {
+            histEl.innerHTML = '';
+            var o = document.createElement('option');
+            o.value = ''; o.textContent = 'new conversation';
+            histEl.appendChild(o);
+            (j.sessions || []).forEach(function (h) {
+                var opt = document.createElement('option');
+                opt.value = h.id;
+                opt.textContent = h.title + '  ($' + (h.cost || 0).toFixed(2) + ')';
+                histEl.appendChild(opt);
+            });
+            histEl.value = j.current || '';
+        }).catch(function () {});
+    }
+    histEl.onchange = function () {
+        if (running) { loadHistory(); return; }
+        post('resume', { id: histEl.value || null }).then(function () {
+            chatEl.innerHTML = '';
+            if (histEl.value) addStep('· continuing conversation ' + histEl.value.slice(0, 8) + '…', 'Its history stays on the server; new turns append to it.');
+        }).catch(function (e) { addMsg('error', e.message); });
+    };
+
+    var slashCommands = [];
+    function toolLabel(name, args, sub) {
+        args = args || {};
+        var short = name.replace(/^mcp__o2__/, '');
+        var main = MAIN_ARG[name];
+        var brief;
+        if (main && args[main] !== undefined) {
+            var v = shortPath(String(args[main])).replace(/\s+/g, ' ');
+            brief = v.length > 90 ? v.slice(0, 90) + '…' : v;
+            if (name === 'Grep' && args.path) brief += '  in ' + shortPath(String(args.path));
+        } else {
+            brief = Object.keys(args).map(function (k) {
+                var v = shortPath(String(args[k]));
+                return k + ': ' + (v.length > 60 ? v.slice(0, 60) + '…' : v);
+            }).join(', ');
+        }
+        return (sub ? '  ↳ ' : '▸ ') + short + '(' + brief + ')';
     }
 
     // ---------- the stream from the server ----------
@@ -726,11 +770,26 @@
         switch (ev.type) {
             case 'hello':
                 if (ev.running && !running) { running = true; busy(true); setStatus('the agent is still working…'); }
+                (ev.pending || []).forEach(showPermission);
+                loadHistory();
                 break;
             case 'init':
                 if (ev.cwd) sessionCwd = ev.cwd;
-                addStep('· session · ' + ev.model + ' · Claude Code ' + ev.version + ' · ' + (ev.tools || []).length + ' tools',
-                        JSON.stringify({ tools: ev.tools, mcp: ev.mcp }, null, 2));
+                slashCommands = ev.slash || [];
+                addStep('· session · ' + ev.model + ' · Claude Code ' + ev.version + ' · ' + (ev.tools || []).length + ' tools · ' + ev.mode +
+                        (ev.apiKeySource === 'none' ? ' · host credentials' : ''),
+                        JSON.stringify({ tools: ev.tools, mcp: ev.mcp, slash_commands: ev.slash }, null, 2));
+                break;
+            case 'started':
+                break;
+            case 'queued':
+                setStatus('queued (' + ev.position + ') — sent when the current turn ends');
+                break;
+            case 'permission_request':
+                showPermission(ev);
+                break;
+            case 'permission_resolved':
+                resolvePermissionUi(ev.id, ev.behavior);
                 break;
             case 'thinking':
                 if (!thinkStep) { thinkStep = addStep('🧠 thinking…', '', { markdown: true }); thinkText = ''; }
@@ -762,7 +821,7 @@
             case 'tool_use':
                 if (bubble) { bubble = null; bubbleText = ''; }
                 thinkStep = null;
-                steps[ev.id] = { ui: addStep(toolLabel(ev.name, ev.input), 'args ' + shortPath(JSON.stringify(ev.input || {}, null, 2))),
+                steps[ev.id] = { ui: addStep(toolLabel(ev.name, ev.input, ev.sub), 'args ' + shortPath(JSON.stringify(ev.input || {}, null, 2))),
                                  started: Date.now(), name: ev.name };
                 setStatus(ev.name.replace(/^mcp__o2__/, '') + '…');
                 break;
@@ -780,7 +839,8 @@
                 runBrowserTool(ev);
                 break;
             case 'fs':
-                syncChangedFile(ev.path);
+                (ev.changed || (ev.path ? [ev.path] : [])).forEach(syncChangedFile);
+                (ev.deleted || []).forEach(removeDeletedFile);
                 break;
             case 'result': {
                 var cost = ev.cost != null ? '$' + ev.cost.toFixed(3) : '';
@@ -831,10 +891,10 @@
     function busy(on) {
         running = on;
         document.getElementById('btn-ai').classList.toggle('busy', on);
-        sendBtn.style.display = on ? 'none' : '';
         stopBtn.style.display = on ? '' : 'none';
-        inputEl.disabled = on;
-        if (!on) setStatus('');
+        inputEl.placeholder = on ? 'Type the next message — it is sent when this turn ends…'
+                                 : 'Ask the agent… (Enter — send, Shift+Enter — new line; /command runs a skill)';
+        if (!on) { setStatus(''); loadHistory(); }
     }
 
     var pendingReview = false;
@@ -861,7 +921,7 @@
         runStarted = Date.now();
         try {
             await post('start', { text: text, apiKey: key, model: model, effort: effortEl.value,
-                                  system: SYSTEM, guides: guidesMarkdown(), review: !!review });
+                                  mode: modeEl.value, review: !!review });
         } catch (e) {
             addMsg('error', e.message);
             busy(false);
@@ -874,6 +934,13 @@
             return;
         }
         addMsg('user', userText);
+        if (running) {
+            // typed during a turn: the server queues it after the current one
+            post('start', { text: userText, apiKey: keyEl.value.trim(), model: modelEl.value.trim() || DEFAULT_MODEL,
+                            effort: effortEl.value, mode: modeEl.value, review: false })
+                .catch(function (e) { addMsg('error', e.message); });
+            return;
+        }
         pendingReview = reviewEl.checked;
         await startRun(userText, false);
     }
@@ -949,7 +1016,6 @@
         post('stop').catch(function () {});
     };
     function send() {
-        if (running) return;
         var t = inputEl.value.trim();
         if (!t) return;
         inputEl.value = '';
