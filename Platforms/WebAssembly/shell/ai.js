@@ -25,6 +25,17 @@
     keyEl.placeholder = 'Anthropic API key (sk-ant-…)';
     keyEl.title = 'Your own Anthropic API key. It is sent to this server with each request and handed to the Claude Code process; usage is billed to your account.';
 
+    // identity-linked Console keys also need the workspace they act in
+    var workspaceEl = document.createElement('input');
+    workspaceEl.id = 'ai-workspace';
+    workspaceEl.type = 'text';
+    workspaceEl.placeholder = 'workspace id (wrkspc_…)';
+    workspaceEl.title = 'Required for identity-linked API keys: the id of the Console workspace this key acts in (Console → Settings → Workspaces). Leave empty for classic keys.';
+    workspaceEl.spellcheck = false;
+    workspaceEl.autocomplete = 'off';
+    workspaceEl.style.width = '150px';
+    keyEl.parentNode.insertBefore(workspaceEl, keyEl.nextSibling);
+
     // reasoning effort sits next to the model; built here so the markup
     // (linked into the wasm shell) stays untouched
     var effortEl = document.createElement('select');
@@ -95,6 +106,11 @@
         setSetting('o2ai_claude_key', keyEl.value.trim());
         loadModels();
     };
+    workspaceEl.value = getSetting('o2ai_workspace');
+    workspaceEl.onchange = function () {
+        setSetting('o2ai_workspace', workspaceEl.value.trim());
+        loadModels();
+    };
     modelEl.onchange = function () { setSetting('o2ai_claude_model', modelEl.value.trim()); };
     effortEl.onchange = function () { setSetting('o2ai_effort', effortEl.value); };
 
@@ -111,11 +127,20 @@
     }
     function loadModels() {
         var key = keyEl.value.trim();
-        return fetch(o2Base + '/api/agent/models', { headers: key ? { 'X-Anthropic-Key': key } : {} })
+        var headers = key ? { 'X-Anthropic-Key': key } : {};
+        if (workspaceEl.value.trim()) headers['X-Anthropic-Workspace'] = workspaceEl.value.trim();
+        return fetch(o2Base + '/api/agent/models', { headers: headers })
             .then(function (r) { return r.json(); })
             .then(function (j) {
                 fillModels(j.models || FALLBACK_MODELS);
                 modelsLoaded = j.source === 'api';
+                if (j.error && /workspace/i.test(j.error)) {
+                    workspaceEl.style.outline = '2px solid #C86A6A';
+                    setStatus('This API key also needs its workspace id (wrkspc_…) — Console → Settings → Workspaces.');
+                } else {
+                    workspaceEl.style.outline = '';
+                    if (key && j.source === 'api') setStatus('');
+                }
             })
             .catch(function () { fillModels(FALLBACK_MODELS); });
     }
@@ -920,7 +945,8 @@
         setStatus(review ? 'reviewing the run…' : 'starting ' + model + '…');
         runStarted = Date.now();
         try {
-            await post('start', { text: text, apiKey: key, model: model, effort: effortEl.value,
+            await post('start', { text: text, apiKey: key, workspaceId: workspaceEl.value.trim(),
+                                  model: model, effort: effortEl.value,
                                   mode: modeEl.value, review: !!review });
         } catch (e) {
             addMsg('error', e.message);
@@ -936,7 +962,8 @@
         addMsg('user', userText);
         if (running) {
             // typed during a turn: the server queues it after the current one
-            post('start', { text: userText, apiKey: keyEl.value.trim(), model: modelEl.value.trim() || DEFAULT_MODEL,
+            post('start', { text: userText, apiKey: keyEl.value.trim(), workspaceId: workspaceEl.value.trim(),
+                            model: modelEl.value.trim() || DEFAULT_MODEL,
                             effort: effortEl.value, mode: modeEl.value, review: false })
                 .catch(function (e) { addMsg('error', e.message); });
             return;
