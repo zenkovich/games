@@ -305,242 +305,356 @@
     // Claude's own tools do the file work on the server; these are the calls
     // that only make sense inside the running editor.
 
-    function drainMirror() {
-        // wait for the async MEMFS -> server mirror queue to settle
-        return new Promise(function (resolve) {
-            var q = window.__o2MirrorQueue || Promise.resolve();
-            q.then(function () {
-                // a rebuild may have queued more while we waited
-                var again = window.__o2MirrorQueue || Promise.resolve();
-                again.then(resolve, resolve);
-            }, resolve);
-        });
-    }
-    window.__o2DrainMirror = drainMirror;
-
     function rmTree(FS, dir) {
-        var entries;
-        try { entries = FS.readdir(dir); } catch (e) { return; }
-        entries.forEach(function (n) {
-            if (n === '.' || n === '..') return;
-            var p = dir + '/' + n;
-            var st = FS.stat(p);
-            if (FS.isDir(st.mode)) { rmTree(FS, p); FS.rmdir(p); }
-            else FS.unlink(p);
+        FS.readdir(dir).forEach(function (name) {
+            if (name === '.' || name === '..') return;
+            var child = dir + '/' + name;
+            var st = FS.analyzePath(child);
+            if (st.exists && FS.isDir(st.object.mode)) rmTree(FS, child);
+            else if (st.exists) FS.unlink(child);
         });
+        FS.rmdir(dir);
     }
     function toolRebuild(a) {
-        if (!Module || !Module._o2_web_rebuild_assets) throw new Error('editor not ready');
-        var started = Date.now();
-        return new Promise(function (resolve, reject) {
+        var forced = a && a.force;
+        var fn = forced ? '_o2_web_rebuild_assets_forced' : '_o2_web_rebuild_assets';
+        if (!Module.calledRun || typeof Module[fn] !== 'function')
+            return Promise.reject(new Error('editor engine is not running'));
+        return new Promise(function (resolve) {
             setTimeout(function () {
-                try {
-                    if (a && a.force && Module._o2_web_rebuild_assets_forced)
-                        Module._o2_web_rebuild_assets_forced();
-                    else
-                        Module._o2_web_rebuild_assets();
-                } catch (e) { reject(e); return; }
-                drainMirror().then(function () {
-                    var errs = (window.engineLogLines || []).slice(-80)
-                        .filter(function (l) { return /ERR|error|Error/.test(l); }).slice(-12);
-                    resolve({ ok: true, ms: Date.now() - started, forced: !!(a && a.force),
-                              recentErrors: errs });
-                });
-            }, 30);
+                Module[fn]();
+                resolve();
+            }, 50);
+        }).then(function () {
+            // The built files are mirrored to the server through an async queue.
+            // Returning before it drains risks a reload cutting the tail off, which
+            // leaves the server missing files the build index still claims exist.
+            return drainMirror();
+        }).then(function () {
+            return { ok: true, forced: !!forced };
         });
     }
 
+    // Waits until the BuiltAssets mirror queue has settled (nothing new for a moment)
+    function drainMirror() {
+        var rounds = 0;
+        function settle() {
+            var q = window.__o2MirrorQueue || Promise.resolve();
+            return q.then(function () {
+                return sleep(400);
+            }).then(function () {
+                var again = window.__o2MirrorQueue || Promise.resolve();
+                if (again !== q && rounds++ < 60) return settle();
+            });
+        }
+        return settle();
+    }
+    window.__o2DrainMirror = drainMirror;
+    // Half size: the model reads it just as well, and the payload (and so the
+    // round-trip) is a quarter. Coordinates below are still full-size CSS pixels.
     function toolScreenshot() {
-        var w = Math.max(1, Math.round(canvas.width / 2)), h = Math.max(1, Math.round(canvas.height / 2));
-        var c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(canvas, 0, 0, w, h);
-        var b64 = c.toDataURL('image/jpeg', 0.7).split(',')[1];
-        addShot(b64, 'image/jpeg');
-        return { image: { mime: 'image/jpeg', b64: b64 },
-                 result: { width: w, height: h, fullWidth: canvas.width, fullHeight: canvas.height,
-                           playing: isPlaying(), note: 'half-size image; click coordinates are full-size canvas pixels' } };
+        var w = canvas.clientWidth, h = canvas.clientHeight;
+        var sw = Math.round(w / 2), sh = Math.round(h / 2);
+        var t = document.createElement('canvas');
+        t.width = sw; t.height = sh;
+        t.getContext('2d').drawImage(canvas, 0, 0, sw, sh);
+        var b64 = t.toDataURL('image/jpeg', 0.85).split(',')[1];
+        return Promise.resolve({
+            result: { imageWidth: sw, imageHeight: sh, canvasWidth: w, canvasHeight: h,
+                      note: 'the image is half size; click coordinates are full-size canvas pixels, so double what you measure on it' },
+            image: { mime: 'image/jpeg', b64: b64 },
+        });
     }
 
     function isPlaying() {
-        try { return !!(Module._o2_web_is_playing && Module._o2_web_is_playing()); } catch (e) { return false; }
-    }
-    // C++ exports that return a JSON string (allocated with strdup, freed here)
-    function callJson(fn, args, types) {
-        if (!Module || !Module[fn]) throw new Error('editor not ready (' + fn + ' missing)');
-        var ptr = Module.ccall(fn.replace(/^_/, ''), 'number', types || [], args || []);
-        if (!ptr) throw new Error(fn + ' returned null');
-        var text = Module.UTF8ToString(ptr);
-        try { Module._free(ptr); } catch (e) {}
-        try { return JSON.parse(text); } catch (e) { return { raw: text }; }
-    }
-    function toolSceneTree(a) {
-        a = a || {};
-        return callJson('_o2_web_scene_dump', [a.path || '', Math.max(0, Math.min(20, a.depth == null ? 3 : a.depth))],
-                        ['string', 'number']);
-    }
-    function toolViewInfo() {
-        var info = callJson('_o2_web_view_info');
-        var rect = canvas.getBoundingClientRect();
-        info.canvas = { width: canvas.width, height: canvas.height,
-                        cssWidth: Math.round(rect.width), cssHeight: Math.round(rect.height) };
-        info.playing = isPlaying();
-        info.howToAim = 'world -> canvas pixel: px = W/2 + (x - cam.x) * zoom, py = H/2 - (y - cam.y) * zoom, ' +
-                        'then offset into the Game window rectangle when it is not the whole canvas';
-        return info;
+        try { return !!(Module._o2_web_is_playing && Module._o2_web_is_playing()); }
+        catch (e) { return false; }
     }
 
-    // BrowserJS runs code in the page global scope, so a bare `let` from one
-    // call collides with the next: wrap the code in a function, keep console
-    // semantics (last expression is the value) via eval, and let `return` work
-    var SCRIPT_PRELUDE = [
-        'var sceneRoots = (function(){ try { return o2.Scene.GetRootActors ? o2.Scene.GetRootActors() : (o2Scene && o2Scene.GetRootActors ? o2Scene.GetRootActors() : []); } catch (e) { return []; } })();',
-        'function findActor(p) { try { return o2.Scene.FindActor ? o2.Scene.FindActor(p) : (o2Scene ? o2Scene.FindActor(p) : null); } catch (e) { return null; } }',
-        'function eachActor(fn) { var walk = function (a) { fn(a); try { var ch = a.GetChildren(); for (var i = 0; i < ch.length; i++) walk(ch[i]); } catch (e) {} }; for (var i = 0; i < sceneRoots.length; i++) walk(sceneRoots[i]); }',
-    ].join('\n');
+    function callJson(fn, args, types) {
+        if (typeof Module.ccall !== 'function')
+            return Promise.reject(new Error('the editor is not running yet'));
+        var ptr = Module.ccall(fn, 'number', types || [], args || []);
+        if (!ptr) return Promise.reject(new Error(fn + ' returned nothing'));
+        var text = Module.UTF8ToString(ptr);
+        try { Module._free(ptr); } catch (e) {}
+        var parsed;
+        try { parsed = JSON.parse(text); }
+        catch (e) { throw new Error('bad reply from ' + fn + ': ' + text.slice(0, 200)); }
+        if (parsed.error) throw new Error(parsed.error);
+        return Promise.resolve(parsed);
+    }
+
+    function toolSceneTree(a) {
+        var depth = a.depth === undefined ? 3 : Math.max(0, Math.min(Number(a.depth), 12));
+        return callJson('o2_web_scene_dump', [a.path || '', depth], ['string', 'number']);
+    }
+
+    function toolViewInfo() {
+        return callJson('o2_web_view_info', [], []).then(function (info) {
+            // everything the model needs to aim a click, spelled out
+            info.howToClick = 'A world point maps to a canvas pixel as: ' +
+                'canvasX = canvas.x/2 + worldX, canvasY = canvas.y/2 - worldY for screen-space widgets. ' +
+                'In play mode the game is drawn inside gameView, so first map the world point through the ' +
+                'camera: u = (worldX - camera.position.x) / camera.size.x + 0.5, ' +
+                'v = 0.5 - (worldY - camera.position.y) / camera.size.y, then ' +
+                'canvasX = canvas.x/2 + gameView.left + u * (gameView.right - gameView.left), ' +
+                'canvasY = canvas.y/2 - (gameView.top - v * (gameView.top - gameView.bottom)).';
+            return info;
+        });
+    }
+
+    // The engine's browser backend evaluates scripts in the page's global scope, so
+    // bare let/const would collide between calls - the body is wrapped in a function,
+    // and a small prelude adds the helpers the model is told about
+    var SCRIPT_PRELUDE =
+        'function findActor(path) {' +
+        '  var parts = String(path).split("/").filter(function (p) { return p; });' +
+        '  var list = sceneRoots, cur = null;' +
+        '  for (var i = 0; i < parts.length; i++) {' +
+        '    cur = null;' +
+        '    for (var j = 0; j < list.length; j++) {' +
+        '      if (list[j] && list[j].GetName() === parts[i]) { cur = list[j]; break; }' +
+        '    }' +
+        '    if (!cur) return null;' +
+        '    list = cur.GetChildren ? cur.GetChildren() : [];' +
+        '  }' +
+        '  return cur;' +
+        '}' +
+        'function eachActor(fn, list, path) {' +
+        '  list = list || sceneRoots; path = path || "";' +
+        '  for (var i = 0; i < list.length; i++) {' +
+        '    var a = list[i]; if (!a) continue;' +
+        '    var p = path ? path + "/" + a.GetName() : a.GetName();' +
+        '    fn(a, p);' +
+        '    if (a.GetChildren) eachActor(fn, a.GetChildren(), p);' +
+        '  }' +
+        '}';
+
     function toolRunScript(a) {
-        if (!a || !a.code) throw new Error('code is required');
-        var out = callJson('_o2_web_run_script', [SCRIPT_PRELUDE + '\n' + a.code], ['string']);
-        if (out && out.error && /return/.test(a.code)) {
-            // a top-level `return` only makes sense in a function body
-            out = callJson('_o2_web_run_script', [SCRIPT_PRELUDE + '\n(function(){\n' + a.code + '\n})()'], ['string']);
+        if (!a.code) return Promise.reject(new Error('code is required'));
+        // Console semantics: the value of the last expression comes back, so the model
+        // does not have to remember a return (and a stray one is forgiven)
+        var code = String(a.code).replace(/^\s*return\s+/, '');
+        var asExpression = '(function () {' + SCRIPT_PRELUDE + '\nreturn eval(' + JSON.stringify(code) + ');\n})()';
+        var asBody = '(function () {' + SCRIPT_PRELUDE + '\n' + code + '\n})()';
+
+        function run(wrapped) {
+            return callJson('o2_web_run_script', [wrapped], ['string']).then(function (r) {
+                if (typeof r.result === 'string' && /^(TypeError|SyntaxError|ReferenceError|RangeError|Error)\b/.test(r.result))
+                    throw new Error(r.result);
+                return r;
+            });
         }
-        if (out && typeof out.result === 'string' && out.result.length > 6000)
-            out.result = out.result.slice(0, 6000) + '\n… truncated';
-        return out;
+
+        // eval gives console semantics (the last expression is the result), but code
+        // written with a return statement needs a real function body instead
+        return run(asExpression).catch(function (e) {
+            if (/Illegal return statement/i.test(e.message)) return run(asBody);
+            throw e;
+        });
     }
 
     function toolOpenScene(a) {
-        if (!a || !a.path) throw new Error('path is required, e.g. Main.scn');
-        var res = callJson('_o2_web_open_scene', [a.path], ['string']);
-        return new Promise(function (resolve) {
-            setTimeout(function () {
-                var log = (window.engineLogLines || []).slice(-30);
-                var failed = log.some(function (l) { return /Failed to load scene|Can't load scene/i.test(l); });
-                if (failed && Module._o2_web_rebuild_assets_forced) {
-                    // the incremental build index can list a file that is gone; heal and retry
-                    try { Module._o2_web_rebuild_assets_forced(); } catch (e) {}
-                    drainMirror().then(function () {
-                        var again = callJson('_o2_web_open_scene', [a.path], ['string']);
-                        again.healed = true;
-                        resolve(again);
-                    });
-                    return;
-                }
-                res.openScene = a.path;
-                resolve(res);
-            }, 400);
-        });
-    }
-    function toolSaveScene() { return callJson('_o2_web_save_scene'); }
-    function toolPlayMode(a) {
-        var on = !(a && a.on === false);
-        if (!Module || !Module._o2_web_set_play) throw new Error('editor not ready');
-        Module._o2_web_set_play(on ? 1 : 0);
-        return sleep(600).then(function () {
-            return { playing: isPlaying(), requested: on };
+        if (typeof Module.ccall !== 'function')
+            return Promise.reject(new Error('the editor is not running yet'));
+        if (!a.path) return Promise.reject(new Error('path is required, e.g. Boot.scn'));
+        // The engine silently does nothing for a missing scene, which reads as success
+        var slash = a.path.lastIndexOf('/');
+        var dir = slash < 0 ? '' : a.path.slice(0, slash);
+        var name = slash < 0 ? a.path : a.path.slice(slash + 1);
+        return toolListFiles({ dir: dir }).then(function (listing) {
+            var exists = (listing.files || []).some(function (f) { return f.name === name; });
+            if (!exists) throw new Error('no such scene: ' + a.path + ' (list_files to see what exists)');
+            var before = (window.engineLogLines || []).length;
+            Module.ccall('o2_web_open_scene', null, ['string'], [a.path]);
+            return sleep(1800).then(function () {
+                var failed = (window.engineLogLines || []).slice(before)
+                    .some(function (l) { return l.indexOf('Failed to load scene') >= 0; });
+                if (!failed || a._healed) return failed;
+                // The built copy can go missing while the build index still lists it,
+                // and only a full rebuild puts it back
+                return toolRebuild({ force: true })
+                    .then(function () { return sleep(30000); })
+                    .then(function () { return toolOpenScene({ path: a.path, _healed: true }); })
+                    .then(function () { return 'healed'; });
+            });
+        }).then(function (state) {
+            return callJson('o2_web_scene_dump', ['', 0], ['string', 'number']).then(function (dump) {
+                var count = (dump.actors || []).length;
+                var result = { ok: true, opened: a.path, rootActors: count };
+                if (state === 'healed')
+                    result.note = 'the built scene was missing and has been rebuilt from source';
+                else if (state === true)
+                    result.note = 'the engine could not load the built scene; run rebuild_assets({force:true})';
+                else if (!count)
+                    result.note = 'the scene opened but has no root actors - check the file';
+                return result;
+            });
         });
     }
 
-    function requirePlay(what) {
-        if (!isPlaying())
-            throw new Error(what + ' works only in play mode inside the Game window; the editor chrome ignores ' +
-                            'synthetic input. Use the file tools, run_script and the editor tools instead.');
+    function toolSaveScene() {
+        if (typeof Module._o2_web_save_scene !== 'function')
+            return Promise.reject(new Error('the editor is not running yet'));
+        Module._o2_web_save_scene();
+        return sleep(800).then(function () { return { ok: true }; });
     }
-    function focusCanvas() { try { canvas.focus(); } catch (e) {} }
+
+    function toolPlayMode(a) {
+        if (typeof Module._o2_web_set_play !== 'function')
+            return Promise.reject(new Error('the editor is not running yet'));
+        var want = a.on === undefined ? true : !!a.on;
+        Module._o2_web_set_play(want ? 1 : 0);
+        return sleep(600).then(function () {
+            var now = isPlaying();
+            return { playing: now,
+                     note: now
+                        ? 'the scene is running in the Game window; input tools now work, and they only make sense inside that window'
+                        : 'stopped; the scene is back to its saved state' };
+        });
+    }
+
+    // Driving the editor chrome by synthetic clicks proved unreliable and
+    // expensive, so input is allowed only while the game runs
+    function requirePlay(what) {
+        if (isPlaying()) return null;
+        return Promise.reject(new Error(
+            what + ' is only available in play mode, and only inside the Game window. ' +
+            'Turn it on with play_mode({on:true}) - and note that editor windows (Assets, Tree, Properties, menus) ' +
+            'cannot be driven at all: change the project through the file tools instead.'));
+    }
+
+    function focusCanvas() {
+        if (document.activeElement && document.activeElement !== canvas && document.activeElement.blur)
+            document.activeElement.blur();
+        canvas.focus();
+    }
     function fireMouse(type, cx, cy, extra) {
-        var rect = canvas.getBoundingClientRect();
-        var sx = rect.width / canvas.width, sy = rect.height / canvas.height;
-        var init = Object.assign({ bubbles: true, cancelable: true, clientX: rect.left + cx * sx, clientY: rect.top + cy * sy,
-                                   button: 0, buttons: 1, pointerId: 1, pointerType: 'mouse', isPrimary: true }, extra || {});
-        canvas.dispatchEvent(new PointerEvent(type.replace('mouse', 'pointer'), init));
-        canvas.dispatchEvent(new MouseEvent(type, init));
+        var isPointer = type.indexOf('pointer') === 0;
+        var Ctor = isPointer && window.PointerEvent ? PointerEvent : MouseEvent;
+        canvas.dispatchEvent(new Ctor(type, Object.assign({
+            bubbles: true, cancelable: true, view: window,
+            clientX: cx, clientY: cy,
+            pointerId: 1, pointerType: 'mouse', isPrimary: true,
+        }, extra)));
     }
     function toolClick(a) {
-        requirePlay('click');
-        var x = +a.x, y = +a.y;
-        var button = a.button === 'right' ? 2 : 0;
-        focusCanvas();
+        var blocked = requirePlay('clicking');
+        if (blocked) return blocked;
         return (async function () {
-            var times = a.double ? 2 : 1;
-            for (var i = 0; i < times; i++) {
-                fireMouse('mousemove', x, y, { button: 0, buttons: 0 });
-                await sleep(300);
-                fireMouse('mousedown', x, y, { button: button, buttons: button === 2 ? 2 : 1 });
-                await sleep(60);
-                fireMouse('mouseup', x, y, { button: button, buttons: 0 });
-                if (times > 1) await sleep(110);
+            var r = canvas.getBoundingClientRect();
+            var cx = r.left + Number(a.x), cy = r.top + Number(a.y);
+            focusCanvas();
+            fireMouse('pointermove', cx, cy, { buttons: 0 });
+            fireMouse('mousemove', cx, cy, { buttons: 0 });
+            await sleep(300); // the engine dispatches presses to last-frame under-cursor listeners
+            var btn = a.button === 'right' ? 2 : 0;
+            var buttons = btn === 2 ? 2 : 1;
+            var n = a.double ? 2 : 1;
+            for (var i = 1; i <= n; i++) {
+                fireMouse('pointerdown', cx, cy, { button: btn, buttons: buttons, detail: i });
+                fireMouse('mousedown', cx, cy, { button: btn, buttons: buttons, detail: i });
+                await sleep(40);
+                fireMouse('pointerup', cx, cy, { button: btn, buttons: 0, detail: i });
+                fireMouse('mouseup', cx, cy, { button: btn, buttons: 0, detail: i });
+                if (i < n) await sleep(110);
             }
             await sleep(200);
-            return { ok: true, x: x, y: y, button: a.button || 'left', double: !!a.double };
+            return { ok: true };
         })();
     }
     var CHAR_CODES = { ' ': 'Space', '.': 'Period', ',': 'Comma', '/': 'Slash', ';': 'Semicolon', "'": 'Quote',
-                       '[': 'BracketLeft', ']': 'BracketRight', '\\': 'Backslash', '-': 'Minus', '=': 'Equal',
-                       '`': 'Backquote' };
+        '[': 'BracketLeft', ']': 'BracketRight', '-': 'Minus', '=': 'Equal', '`': 'Backquote', '\\': 'Backslash',
+        '!': 'Digit1', '@': 'Digit2', '#': 'Digit3', '$': 'Digit4', '%': 'Digit5', '^': 'Digit6', '&': 'Digit7',
+        '*': 'Digit8', '(': 'Digit9', ')': 'Digit0', '_': 'Minus', '+': 'Equal', '{': 'BracketLeft',
+        '}': 'BracketRight', ':': 'Semicolon', '"': 'Quote', '<': 'Comma', '>': 'Period', '?': 'Slash',
+        '~': 'Backquote', '|': 'Backslash' };
     function codeForChar(ch) {
-        if (/[a-z]/i.test(ch)) return 'Key' + ch.toUpperCase();
+        if (/[a-zA-Z]/.test(ch)) return 'Key' + ch.toUpperCase();
         if (/[0-9]/.test(ch)) return 'Digit' + ch;
         return CHAR_CODES[ch] || '';
     }
     function fireKey(type, key, code, mods) {
-        canvas.dispatchEvent(new KeyboardEvent(type, Object.assign({ bubbles: true, cancelable: true, key: key, code: code }, mods || {})));
+        canvas.dispatchEvent(new KeyboardEvent(type, Object.assign({
+            bubbles: true, cancelable: true, key: key, code: code,
+        }, mods || {})));
     }
     function toolTypeText(a) {
-        requirePlay('type_text');
-        focusCanvas();
+        var blocked = requirePlay('typing');
+        if (blocked) return blocked;
         return (async function () {
-            var text = String(a.text || '');
+            focusCanvas();
+            await sleep(100);
+            var text = String(a.text);
             for (var i = 0; i < text.length; i++) {
                 var ch = text[i];
-                if (ch === '\n') { fireKey('keydown', 'Enter', 'Enter'); await sleep(30); fireKey('keyup', 'Enter', 'Enter'); }
+                if (ch === '\n') { fireKey('keydown', 'Enter', 'Enter'); fireKey('keyup', 'Enter', 'Enter'); }
                 else {
                     var code = codeForChar(ch);
-                    fireKey('keydown', ch, code, { shiftKey: /[A-Z]/.test(ch) });
-                    await sleep(20);
-                    fireKey('keyup', ch, code, { shiftKey: /[A-Z]/.test(ch) });
+                    fireKey('keydown', ch, code, { shiftKey: /[A-Z~!@#$%^&*()_+{}:"<>?|]/.test(ch) });
+                    fireKey('keyup', ch, code);
                 }
-                await sleep(40);
+                await sleep(45);
             }
-            return { ok: true, typed: text.length };
+            return { ok: true };
         })();
     }
     var NAMED_KEYS = { Enter: 'Enter', Escape: 'Escape', Backspace: 'Backspace', Delete: 'Delete', Tab: 'Tab',
-                       ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown',
-                       Home: 'Home', End: 'End', Space: 'Space' };
+        ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown',
+        Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown', Space: 'Space' };
     function toolPressKey(a) {
-        requirePlay('press_key');
-        focusCanvas();
-        var parts = String(a.key || '').split('+');
-        var key = parts.pop();
-        var mods = {};
-        parts.forEach(function (m) {
-            m = m.toLowerCase();
-            if (m === 'ctrl' || m === 'control') mods.ctrlKey = true;
-            else if (m === 'shift') mods.shiftKey = true;
-            else if (m === 'alt') mods.altKey = true;
-            else if (m === 'meta' || m === 'cmd') mods.metaKey = true;
-        });
-        var code = NAMED_KEYS[key] || codeForChar(key);
+        var blocked = requirePlay('pressing keys');
+        if (blocked) return blocked;
         return (async function () {
+            focusCanvas();
+            await sleep(100);
+            var parts = String(a.key).split('+');
+            var main = parts.pop();
+            var mods = { ctrlKey: false, shiftKey: false, altKey: false, metaKey: false };
+            parts.forEach(function (m) {
+                m = m.toLowerCase();
+                if (m === 'ctrl' || m === 'control') mods.ctrlKey = true;
+                else if (m === 'shift') mods.shiftKey = true;
+                else if (m === 'alt') mods.altKey = true;
+                else if (m === 'meta' || m === 'cmd') mods.metaKey = true;
+            });
+            var key, code;
+            if (NAMED_KEYS[main]) { key = main === 'Space' ? ' ' : main; code = NAMED_KEYS[main]; }
+            else if (main.length === 1) { key = mods.ctrlKey || mods.altKey ? main.toLowerCase() : main; code = codeForChar(main); }
+            else { key = main; code = main; }
+            if (mods.ctrlKey) fireKey('keydown', 'Control', 'ControlLeft', { ctrlKey: true });
+            if (mods.shiftKey) fireKey('keydown', 'Shift', 'ShiftLeft', { shiftKey: true });
+            if (mods.altKey) fireKey('keydown', 'Alt', 'AltLeft', { altKey: true });
+            await sleep(40);
             fireKey('keydown', key, code, mods);
             await sleep(40);
             fireKey('keyup', key, code, mods);
-            await sleep(80);
-            return { ok: true, key: a.key };
+            if (mods.altKey) fireKey('keyup', 'Alt', 'AltLeft');
+            if (mods.shiftKey) fireKey('keyup', 'Shift', 'ShiftLeft');
+            if (mods.ctrlKey) fireKey('keyup', 'Control', 'ControlLeft');
+            await sleep(100);
+            return { ok: true };
         })();
     }
     function toolReadLog(a) {
-        a = a || {};
-        var lines = window.engineLogLines || [];
-        if (a.filter) lines = lines.filter(function (l) { return l.indexOf(a.filter) >= 0; });
-        var n = Math.max(1, Math.min(300, a.lines || 60));
-        return { total: (window.engineLogLines || []).length, lines: lines.slice(-n) };
+        var all = (window.engineLogLines || []);
+        var filtered = a.filter
+            ? all.filter(function (l) { return l.indexOf(a.filter) >= 0; })
+            : all;
+        var n = Math.min(Math.max(Number(a.lines) || 60, 1), 300);
+        var tail = filtered.slice(-n);
+        return Promise.resolve({
+            lines: tail, shown: tail.length, totalKept: all.length,
+            note: all.length ? undefined : 'the engine has printed nothing yet',
+        });
     }
+
     function toolWait(a) {
-        var ms = Math.max(0, Math.min(5000, (a && a.ms) || 500));
-        return sleep(ms).then(function () { return { waited: ms }; });
+        var ms = Math.min(Math.max(Number(a.ms) || 0, 0), 5000);
+        return sleep(ms).then(function () { return { ok: true, waited: ms }; });
     }
+
 
     var EXEC = {
         rebuild_assets: toolRebuild, screenshot: toolScreenshot,
@@ -696,6 +810,7 @@
             if (!impl) throw new Error('unknown editor tool ' + name);
             return impl(ev.args || {});
         }).then(function (out) {
+            if (out && out.image) addShot(out.image.b64, out.image.mime);
             return post('tool_result', { id: ev.id, result: out });
         }, function (e) {
             return post('tool_result', { id: ev.id, result: { error: String(e && e.message || e) } });
