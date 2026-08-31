@@ -556,3 +556,20 @@ svg.icon { width: 14px; height: 14px; flex: none; display: block; }
     border: 1px solid var(--border); border-radius: 4px;
     padding: 6px 8px; font-size: 13px; font-family: inherit;
 }
+
+/* ---- crash banner ---- */
+.crash-banner {
+    position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+    z-index: 90; max-width: 760px; width: calc(100% - 40px);
+    background: #FBEAEA; border: 1px solid #D89A9A; color: #7C2323;
+    border-radius: 6px; padding: 10px 12px; font-size: 13px;
+    box-shadow: 0 10px 34px rgba(0, 0, 0, .3);
+}
+.crash-head { font-weight: 600; margin-bottom: 4px; }
+.crash-msg { word-break: break-word; }
+.crash-banner pre {
+    margin: 6px 0 0; max-height: 240px; overflow: auto; background: #fff;
+    border: 1px solid #E3B8B8; border-radius: 4px; padding: 6px 8px;
+    font-size: 11px; line-height: 1.45; white-space: pre-wrap; word-break: break-all;
+}
+.crash-row { display: flex; gap: 8px; margin-top: 8px; }
