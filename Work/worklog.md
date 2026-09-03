@@ -37,3 +37,7 @@
 - UI-тесты переведены на тестовый файл сейва (`ZeroLineUITestSave.json`, удаляется в SetUp/TearDown),
   чтобы прогон не портил лучший счёт игрока. README обновлён под новую раскладку проекта.
 - HTML-отчёт: `Work/Art/make_report.py` → `Work/Report.html` (скриншоты и мокапы встроены как data-URI).
+- Деплой: создана ветка `games/zeroline/main` (пайплайн берёт имя игры из ветки),
+  `deploy_game(repo: gamesTemplate2)` — wasm собрался с emsdk (ветка `localStorage` в мосте
+  скомпилировалась), опубликовано в хаб: https://games.zenkovich.space/zeroline/ (HTTP 200).
+  Cloudflare purge вернул 401 (токен) — кэш не сброшен, но игра новая, старого кэша нет.
