@@ -27,6 +27,11 @@
                 "offsetMax": {
                     "x": -128.0,
                     "y": -48.0
+                },
+                "pivot": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.0
                 }
             },
             "Children": [
@@ -45,13 +50,13 @@
                         "Id": 14150582040106015952,
                         "Transform": {
                             "position": {
-                                "x": 32.146888732910159,
+                                "x": 32.146888732910156,
                                 "y": 31.86962127685547,
                                 "z": 0.0
                             },
                             "size": {
                                 "x": 58.22037124633789,
-                                "y": 58.220375061035159,
+                                "y": 58.220375061035156,
                                 "z": 0.0
                             },
                             "pivot": {
@@ -117,7 +122,7 @@
                                                                     "b": 254,
                                                                     "a": 235
                                                                 },
-                                                                "position": 0.44999998807907107
+                                                                "position": 0.44999998807907104
                                                             },
                                                             {
                                                                 "uid": 4811269803577353261,
@@ -177,7 +182,7 @@
                                     ],
                                     "mParticlesNumLimit": 150,
                                     "mIsParticlesRelative": false,
-                                    "mEmissionDuration": 0.25641027092933657,
+                                    "mEmissionDuration": 0.25641027092933655,
                                     "mParticlesLifetime": 0.3999998867511749,
                                     "mEmitParticlesPerSecond": 75.21367645263672,
                                     "mInitialAngleRange": 360.0,
@@ -194,7 +199,7 @@
                                     },
                                     "mSize": {
                                         "x": 58.22037124633789,
-                                        "y": 58.220375061035159,
+                                        "y": 58.220375061035156,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -223,7 +228,7 @@
                         "Transform": {
                             "position": {
                                 "x": 33.92604064941406,
-                                "y": 30.611820220947267,
+                                "y": 30.611820220947266,
                                 "z": 0.0
                             },
                             "size": {
@@ -241,8 +246,8 @@
                             {
                                 "Type": "o2::ParticlesEmitterComponent",
                                 "Data": {
-                                    "mDuration": 0.44999998807907107,
-                                    "mEndTime": 0.44999998807907107,
+                                    "mDuration": 0.44999998807907104,
+                                    "mEndTime": 0.44999998807907104,
                                     "mParticlesSource": {
                                         "Type": "o2::SingleSpriteParticleSource",
                                         "Value": {
@@ -278,7 +283,7 @@
                                                                     "b": 255,
                                                                     "a": 235
                                                                 },
-                                                                "position": 0.44999998807907107
+                                                                "position": 0.44999998807907104
                                                             },
                                                             {
                                                                 "uid": 18362545136361598761,
@@ -322,7 +327,7 @@
                                         {
                                             "Type": "o2::ParticlesDampingEffect",
                                             "Value": {
-                                                "mDamping": 2.4000000953674318
+                                                "mDamping": 2.4000000953674316
                                             }
                                         }
                                     ],
@@ -332,13 +337,13 @@
                                     "mEmitParticlesPerSecond": 180.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
-                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSizeRange": 0.15000000596046448,
                                     "mInitialSpeed": 260.0,
                                     "mInitialSpeedRangle": 324.6153869628906,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 11555472389683638968,
                                     "mPosition": {
-                                        "x": -158.07395935058595,
+                                        "x": -158.07395935058594,
                                         "y": -81.38818359375,
                                         "z": 0.0
                                     },
@@ -394,7 +399,7 @@
                                     },
                                     {
                                         "uid": 16783415807355634624,
-                                        "position": 246.80902099609376,
+                                        "position": 246.80902099609375,
                                         "value": {
                                             "x": 170.0,
                                             "y": 120.0

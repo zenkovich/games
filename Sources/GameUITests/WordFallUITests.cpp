@@ -13,6 +13,10 @@
 #include "o2/Scene/Scene.h"
 #include "o2/Render/Render.h"
 #include "o2/Scene/UI/Widgets/Button.h"
+#include "o2/Scene/UI/Widget.h"
+#include "o2/Scene/UI/WidgetLayer.h"
+#include "o2/Scene/UI/WidgetLayout.h"
+#include "o2/Scene/UI/Widgets/HorizontalProgress.h"
 #include "o2/Scene/UI/Widgets/Label.h"
 #include "o2/Utils/FileSystem/FileSystem.h"
 #include "o2/Utils/Test/AppTestDriver.h"
@@ -42,6 +46,16 @@ namespace
 	{
 		Click(WordFallBootstrap::TilePosition(column, row));
 		AppTestDriver::PumpFrames(2);
+	}
+
+	// Число перед "/" в подписи счёта "N/M"
+	int ShownScore(const Ref<Label>& label)
+	{
+		String text = label->GetText();
+		int value = 0;
+		for (int i = 0; i < text.Length() && text[i] >= '0' && text[i] <= '9'; i++)
+			value = value*10 + (text[i] - '0');
+		return value;
 	}
 }
 
@@ -503,4 +517,128 @@ TEST_F(WordFallUI, SceneLoadedFromAssetRespondsToClicks)
 	ClickTile(2, 0);
 
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 2);
+}
+// Буквы нацелены в якорь-слой кончика заливки бара (не в угол), а бар получает очки по
+// буквам: пока летит последняя, показанный счёт уже сдвинулся, но ещё не полный
+TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
+{
+	PlantKot();
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::PumpFrames(3);
+
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto bar = DynamicCast<Widget>(root->GetChild("Screen/Hud/ScorePanel/Bar"));
+	ASSERT_TRUE(bar);
+	auto tip = bar->FindLayer("tip");
+	ASSERT_TRUE(tip);
+
+	// буква ведётся на текущий кончик заливки каждый кадр: цель на оси бара, не в углу
+	RectF barRect = bar->layout->GetWorldRect();
+	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
+	ASSERT_TRUE(flyer);
+	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
+	ASSERT_TRUE(trajectory);
+	float minFill = 0.12f;
+	float target = (float)mService->GetTargetScore();
+	auto fillX = [&](float score) { return barRect.left + barRect.Width()*(minFill + (1.0f - minFill)*score/target) - 12.0f; };
+	Vec2F tipNow = tip->GetRect().Center();
+	EXPECT_NEAR(trajectory->finishPoint.y, barRect.Center().y, 2.0f) << "the aim sits on the bar axis, not at a corner";
+	EXPECT_NEAR(trajectory->finishPoint.x, Math::Max(tipNow.x, barRect.left + 12.0f), 2.0f) << "the aim is the current fill tip";
+
+	auto label = DynamicCast<Label>(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
+	ASSERT_TRUE(label);
+	EXPECT_EQ(ShownScore(label), 0);
+
+	// первые буквы прилетели, последняя ещё летит: счёт и заливка растут по долям,
+	// каждая буква сдвигает бар (выше минимума заливка линейна по очкам)
+	auto progress = DynamicCast<HorizontalProgress>(bar);
+	ASSERT_TRUE(progress);
+	AppTestDriver::Wait(0.6f);
+	int shown = ShownScore(label);
+	EXPECT_GT(shown, 0);
+	EXPECT_LT(shown, 12);
+	// буква физически приземлилась на кончик, каким он был в момент её прилёта: бар был
+	// пуст — это начало бара; после удара заливка уходит вперёд уже без неё
+	auto flyerWidget = DynamicCast<Widget>(flyer);
+	ASSERT_TRUE(flyerWidget);
+	Vec2F landed = flyerWidget->layout->GetWorldRect().Center();
+	EXPECT_NEAR(landed.x, barRect.left + 12.0f, 3.0f);
+	EXPECT_NEAR(landed.y, barRect.Center().y, 3.0f);
+	EXPECT_GT(tip->GetRect().Center().x, landed.x + 5.0f) << "the fill has moved on past the landing point";
+
+	// и видимая звезда садится туда же: финальный скейл сжимает плашку вокруг центра,
+	// а не к углу (пивот по центру)
+	auto starDrawable = flyerWidget->GetLayer("star")->GetDrawable();
+	ASSERT_TRUE(starDrawable);
+	Basis starBasis = starDrawable->GetBasis();
+	Vec2F starCenter = starBasis.origin + starBasis.xv*0.5f + starBasis.yv*0.5f;
+	EXPECT_NEAR(starCenter.x, trajectory->finishPoint.x, 4.0f);
+	EXPECT_NEAR(starCenter.y, trajectory->finishPoint.y, 4.0f);
+	float finalFill = minFill + (1.0f - minFill)*12.0f/mService->GetTargetScore();
+	EXPECT_GT(progress->GetValue(), minFill + 0.001f);
+	EXPECT_LT(progress->GetValue(), finalFill - 0.001f);
+
+	AppTestDriver::Wait(1.2f);
+	EXPECT_EQ(ShownScore(label), 12);
+	EXPECT_NEAR(progress->GetValue(), finalFill, 0.001f);
+	AppTestDriver::Wait(1.5f); // хореография и падение доигрываются
+
+	// бар заполнен: следующее слово целится в кончик текущей заливки (12 очков)
+	PlantKot();
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	Click(Vec2F(222, 331));
+	AppTestDriver::PumpFrames(3);
+
+	Vec2F tipCenter = tip->GetRect().Center();
+	EXPECT_NEAR(tipCenter.x, fillX(12.0f) + 2.0f, 3.0f);
+	EXPECT_NEAR(trajectory->finishPoint.x, tipCenter.x, 3.0f) << "the aim is the current fill tip";
+	AppTestDriver::Wait(2.5f);
+}
+
+// Каждый полёт берёт новое смещение в коридоре сплайна: запекание искр не должно
+// сбрасывать глобальный генератор, из которого оно берётся
+TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
+{
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
+	ASSERT_TRUE(flyer);
+	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
+	ASSERT_TRUE(trajectory);
+
+	Vector<float> offsets;
+	for (int word = 0; word < 3; word++)
+	{
+		PlantKot();
+		ClickTile(1, 0);
+		ClickTile(2, 0);
+		ClickTile(3, 0);
+
+		Click(Vec2F(222, 331)); // ПРИНЯТЬ
+		AppTestDriver::PumpFrames(2);
+		offsets.Add(trajectory->GetRandomOffset());
+
+		// и буквы одного слова летят по разным траекториям
+		auto second = root->GetChild("Screen/Fx/FxLetter1")->GetComponent<FlightTrajectoryComponent>();
+		auto third = root->GetChild("Screen/Fx/FxLetter2")->GetComponent<FlightTrajectoryComponent>();
+		ASSERT_TRUE(second && third);
+		EXPECT_TRUE(trajectory->GetRandomOffset() != second->GetRandomOffset() ||
+					second->GetRandomOffset() != third->GetRandomOffset()) << "letters of one word repeat the trajectory";
+
+		AppTestDriver::Wait(2.0f);
+	}
+
+	for (float offset : offsets)
+	{
+		EXPECT_GE(offset, 0.0f);
+		EXPECT_LE(offset, 1.0f);
+	}
+	EXPECT_TRUE(offsets[0] != offsets[1] || offsets[1] != offsets[2]) << "flights repeat the same trajectory";
 }

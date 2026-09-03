@@ -10,6 +10,8 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this.barOffsetY = -5;
         this.barWidth = 325;   // ширина заливки бара
         this.barMinFill = 0.12; // минимальная доля заливки — 9-slice торцы не схлопываются
+        this.scorePunch = 0.12; // «удар» бара по прилёту буквы: быстро трогается, без раскачки
+        this.barTipInset = 12;  // ближе к началу бара кончик не бывает (скругление торца)
         this.hudWorldY = 603;  // центр секции Hud в экранных координатах
 
         this._svc = null;
@@ -20,17 +22,41 @@ WordFallHudView = class WordFallHudView extends o2.Component
 
     // Мировые координаты центра прогресс-бара (для полёта итога)
     BarWorldX() { return this.barOffsetX; }
-    BarWorldY() { return this.hudWorldY + this.barOffsetY; }
+    BarWorldY() { return this.BarTip().y; }
 
-    // Мировая X кончика текущей заливки — сюда влетают звёзды
-    BarTipWorldX()
+    // Мировая точка кончика текущей заливки — сюда влетают буквы
+    BarTip() { return this.BarTipForScore(this._displayScore); }
+
+    // Мировая точка, где кончик заливки окажется при данном счёте: буква целится в точку,
+    // куда она сама доталкивает бар. Геометрия — из слоя-якоря "track" (весь бар)
+    BarTipForScore(score)
     {
-        var progress = Math.max(0, Math.min(1, this._displayScore/this._svc.GetTargetScore()));
-        var fill = progress <= 0 ? 0 : Math.max(this.barMinFill, progress);
-        return this.barOffsetX - this.barWidth*0.5 + this.barWidth*fill;
+        if (this._track)
+        {
+            var rect = this._track.GetRect();
+            // минус barTipInset: бьём в центр скругления кончика, а не в самый край заливки
+            var x = rect.left + (rect.right - rect.left)*this.BarFill(score) - this.barTipInset;
+            x = Math.max(rect.left + this.barTipInset, Math.min(rect.right - this.barTipInset, x));
+            return { x: x, y: (rect.bottom + rect.top)*0.5 };
+        }
+
+        var fill = this.BarFill(score);
+        return { x: this.barOffsetX - this.barWidth*0.5 + this.barWidth*fill, y: this.hudWorldY + this.barOffsetY };
     }
 
-    // Плавное дозаполнение бара до нового счёта
+    BarTipWorldX() { return this.BarTip().x; }
+
+    // Счёт, который сейчас показывает бар (отстаёт от модели на время анимации)
+    DisplayScore() { return this._displayScore; }
+
+    // Доля заливки бара для счёта: выше минимума растёт линейно, чтобы каждая буква сдвигала бар
+    BarFill(score)
+    {
+        var progress = Math.max(0, Math.min(1, score/this._svc.GetTargetScore()));
+        return progress <= 0 ? 0 : this.barMinFill + (1 - this.barMinFill)*progress;
+    }
+
+    // Дозаполнение бара до нового счёта коротким ударом
     AnimateScoreTo(score)
     {
         this._scoreTween = { from: this._displayScore, to: score, t: 0 };
@@ -54,6 +80,7 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this._scoreLabel = this._actor.GetChild("ScorePanel/ScoreLabel");
         this._movesLabel = this._actor.GetChild("MovesBox/Value");
         this._bar = this._actor.GetChild("ScorePanel/Bar");
+        this._track = this._bar ? this._bar.GetLayer("track") : null;
     }
 
     Sync()
@@ -63,8 +90,7 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this._scoreLabel.SetText(this._displayScore + "/" + svc.GetTargetScore());
         this._movesLabel.SetText("" + svc.GetMovesLeft());
 
-        var progress = Math.max(0, Math.min(1, this._displayScore/svc.GetTargetScore()));
-        this._bar.SetValueForcible(progress <= 0 ? 0 : Math.max(this.barMinFill, progress));
+        this._bar.SetValueForcible(this.BarFill(this._displayScore));
     }
 
     Update(dt)
@@ -75,9 +101,9 @@ WordFallHudView = class WordFallHudView extends o2.Component
         if (this._scoreTween)
         {
             var tween = this._scoreTween;
-            tween.t += dt/0.35;
+            tween.t += dt/this.scorePunch;
             var k = Math.min(tween.t, 1);
-            k = k*k*(3 - 2*k);
+            k = 1 - (1 - k)*(1 - k)*(1 - k); // ease-out: рывок сразу, затухание в конце
             this._displayScore = Math.round(tween.from + (tween.to - tween.from)*k);
             if (tween.t >= 1)
             {

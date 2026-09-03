@@ -28,6 +28,11 @@
                 "offsetMax": {
                     "x": 22.0,
                     "y": 26.0
+                },
+                "pivot": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.0
                 }
             },
             "Children": [
@@ -60,8 +65,8 @@
                             {
                                 "Type": "o2::ParticlesEmitterComponent",
                                 "Data": {
-                                    "mDuration": 0.44999998807907107,
-                                    "mEndTime": 0.44999998807907107,
+                                    "mDuration": 0.44999998807907104,
+                                    "mEndTime": 0.44999998807907104,
                                     "mParticlesSource": {
                                         "Type": "o2::SingleSpriteParticleSource",
                                         "Value": {
@@ -146,7 +151,7 @@
                                     "mParticlesLifetime": 0.3499999940395355,
                                     "mEmitParticlesPerSecond": 70.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.30000001192092898,
+                                    "mInitialSize": 0.30000001192092896,
                                     "mInitialSizeRange": 0.11999999731779099,
                                     "mInitialSpeed": 70.0,
                                     "mInitialSpeedRangle": 40.0,
@@ -267,17 +272,17 @@
                                         {
                                             "Type": "o2::ParticlesDampingEffect",
                                             "Value": {
-                                                "mDamping": 2.4000000953674318
+                                                "mDamping": 2.4000000953674316
                                             }
                                         }
                                     ],
                                     "mParticlesNumLimit": 14,
                                     "mIsParticlesRelative": false,
-                                    "mParticlesLifetime": 0.44999998807907107,
+                                    "mParticlesLifetime": 0.44999998807907104,
                                     "mEmitParticlesPerSecond": 140.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
-                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSizeRange": 0.15000000596046448,
                                     "mInitialSpeed": 260.0,
                                     "mInitialSpeedRangle": 140.0,
                                     "mInitialMoveDirectionRange": 360.0,
@@ -397,17 +402,17 @@
                                         {
                                             "Type": "o2::ParticlesDampingEffect",
                                             "Value": {
-                                                "mDamping": 2.4000000953674318
+                                                "mDamping": 2.4000000953674316
                                             }
                                         }
                                     ],
                                     "mParticlesNumLimit": 14,
                                     "mIsParticlesRelative": false,
-                                    "mParticlesLifetime": 0.44999998807907107,
+                                    "mParticlesLifetime": 0.44999998807907104,
                                     "mEmitParticlesPerSecond": 140.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
-                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSizeRange": 0.15000000596046448,
                                     "mInitialSpeed": 260.0,
                                     "mInitialSpeedRangle": 140.0,
                                     "mInitialMoveDirectionRange": 360.0,
@@ -527,17 +532,17 @@
                                         {
                                             "Type": "o2::ParticlesDampingEffect",
                                             "Value": {
-                                                "mDamping": 2.4000000953674318
+                                                "mDamping": 2.4000000953674316
                                             }
                                         }
                                     ],
                                     "mParticlesNumLimit": 14,
                                     "mIsParticlesRelative": false,
-                                    "mParticlesLifetime": 0.44999998807907107,
+                                    "mParticlesLifetime": 0.44999998807907104,
                                     "mEmitParticlesPerSecond": 140.0,
                                     "mInitialAngleRange": 360.0,
                                     "mInitialSize": 0.3499999940395355,
-                                    "mInitialSizeRange": 0.15000000596046449,
+                                    "mInitialSizeRange": 0.15000000596046448,
                                     "mInitialSpeed": 260.0,
                                     "mInitialSpeedRangle": 140.0,
                                     "mInitialMoveDirectionRange": 360.0,
@@ -603,11 +608,11 @@
                                         "valueRange": 120.0,
                                         "prevSupport": {
                                             "x": -109.30768585205078,
-                                            "y": -32.431949615478519
+                                            "y": -32.431949615478516
                                         },
                                         "nextSupport": {
                                             "x": 109.30768585205078,
-                                            "y": 32.431949615478519
+                                            "y": 32.431949615478516
                                         }
                                     },
                                     {

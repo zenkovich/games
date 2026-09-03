@@ -356,6 +356,7 @@ Ref<Actor> WordFallUiFactory::BuildFlyingLetterPrototype()
 	star->SetTransparency(0.0f);
 
 	SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(kSlotSize, kSlotSize));
+	widget->layout->SetPivot(Vec2F(0.5f, 0.5f)); // скейл и крен полёта — вокруг центра плашки
 
 	auto animation = widget->AddComponent<AnimationComponent>();
 
@@ -550,6 +551,7 @@ Ref<Actor> WordFallUiFactory::BuildFxRocketPrototype()
 	widget->SetLayer("UI");
 	widget->AddLayer("img", mmake<Sprite>(kSprites + "powerup_rocket.png"), Layout::BothStretch());
 	SetAnchoredRect(widget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(44, 52));
+	widget->layout->SetPivot(Vec2F(0.5f, 0.5f)); // поворот ракеты по курсу — вокруг её центра
 
 	auto animation = widget->AddComponent<AnimationComponent>();
 
@@ -682,7 +684,13 @@ Ref<HorizontalProgress> WordFallUiFactory::CreateProgressBar(const Ref<Actor>& p
 
 	progress->SetLayer("UI");
 	// 9-slice: скруглённые торцы пилюли (14px) не тянутся, растягивается середина
-	progress->AddLayer("bar", MakeSliced(fillImage, BorderI(14, 0, 14, 0)), Layout::BothStretch());
+	auto bar = progress->AddLayer("bar", MakeSliced(fillImage, BorderI(14, 0, 14, 0)), Layout::BothStretch());
+
+	// якоря для полёта букв (не рисуются): tip — кончик заливки, track — весь бар
+	auto tip = bar->AddChildLayer("tip", mmake<Sprite>(), Layout(Vec2F(1, 0.5f), Vec2F(1, 0.5f), Vec2F(-11, -1), Vec2F(-9, 1)));
+	tip->SetEnabled(false);
+	auto track = progress->AddLayer("track", mmake<Sprite>(), Layout::BothStretch());
+	track->SetEnabled(false);
 
 	SetAnchoredRect(progress, anchor, pos, size);
 	SetDepth(progress, depth);
