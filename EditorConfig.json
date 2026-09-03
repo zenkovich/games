@@ -1,13 +1,8 @@
 {
     "mWindowSize": {
-        "x": 2056,
-        "y": 1226
+        "x": 1500,
+        "y": 829
     },
-    "mWindowPosition": {
-        "x": 0,
-        "y": 31
-    },
-    "mMaximized": false,
     "mLayout": {
         "mainDock": {
             "anchors": {
@@ -71,7 +66,7 @@
                                 "animation window",
                                 "assets window"
                             ],
-                            "active": "assets window"
+                            "active": "animation window"
                         }
                     ]
                 },

@@ -5,72 +5,232 @@
 // happens there with Claude's own tools; anything that needs the running
 // editor (screenshot, scene tree, run_script, play mode, asset rebuild...)
 // arrives as a tool_request event, is executed here and posted back.
+//
+// UI shape: the title bar carries identity and live status; settings and
+// developer output are folded away until asked for, so an ordinary turn is
+// just the conversation, a progress line and the list of files that changed.
 
 // ---- AI agent ------------------------------------------------------
 (function () {
+    var ICONS_PLUS = '<svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9"/></svg>';
+    var ICONS_GEAR = '<svg viewBox="0 0 16 16"><path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M13 8a5 5 0 0 0-.1-1l1.3-1-1.5-2.6-1.6.6a5 5 0 0 0-1.7-1L9.2 1H6.8l-.2 1.7a5 5 0 0 0-1.7 1l-1.6-.6L1.8 6l1.3 1a5 5 0 0 0 0 2l-1.3 1 1.5 2.6 1.6-.6a5 5 0 0 0 1.7 1l.2 1.7h2.4l.2-1.7a5 5 0 0 0 1.7-1l1.6.6 1.5-2.6-1.3-1A5 5 0 0 0 13 8z"/></svg>';
+    var ICONS_CODE = '<svg viewBox="0 0 16 16"><path d="M5.5 4 2 8l3.5 4M10.5 4 14 8l-3.5 4"/></svg>';
+    var ICONS_CLOSE = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+    var ICONS_STOP = '<svg viewBox="0 0 16 16"><rect x="4.5" y="4.5" width="7" height="7" rx="1.5"/></svg>';
     var dlg = document.getElementById('ai');
     var back = document.getElementById('ai-back');
+    var canvas = document.getElementById('canvas');
+
+    // The window is built here rather than in editor.html: the shell page is
+    // baked into the wasm binary at link time, this file is not.
+    dlg.innerHTML =
+        '<div id="ai-title">' +
+          '<svg class="icon" viewBox="0 0 16 16"><use href="#i-ai"/></svg>' +
+          '<span class="name">Agent</span>' +
+          '<span id="ai-chip">ready</span>' +
+          '<span class="grow"></span>' +
+          '<span id="ai-history-slot"></span>' +
+          '<button class="titlebtn" id="ai-new" title="Start a new conversation">' + ICONS_PLUS + ' New</button>' +
+          '<button class="titlebtn icon-only" id="ai-gear" title="Key, model, self-review">' + ICONS_GEAR + '</button>' +
+          '<button class="titlebtn icon-only" id="ai-dev" title="Debug: steps, thinking, raw events">' + ICONS_CODE + '</button>' +
+          '<button class="titlebtn icon-only" id="ai-close" title="Close — the agent keeps working">' + ICONS_CLOSE + '</button>' +
+        '</div>' +
+        '<div id="ai-chat"></div>' +
+        '<div id="ai-files"><div class="fhead"><span id="ai-files-title"></span></div><div class="flist"></div></div>' +
+        '<div id="ai-bar">' +
+          '<span class="spin"></span><span id="ai-act">working…</span>' +
+          '<span id="ai-meta"></span>' +
+          '<button class="ai-btn danger" id="ai-stop">' + ICONS_STOP + ' Stop</button>' +
+        '</div>' +
+        '<div id="ai-inputrow">' +
+          '<div id="ai-composer">' +
+            '<textarea id="ai-input" rows="1" placeholder="What should the agent do? For example: add a title label to the scene…"></textarea>' +
+            '<div id="ai-controls">' +
+              '<span id="ai-model-slot"></span>' +
+              '<span id="ai-effort-slot"></span>' +
+              '<span id="ai-mode-slot"></span>' +
+              '<span class="grow"></span>' +
+              '<button id="ai-send" title="Send (Enter)">' +
+                '<svg viewBox="0 0 16 16"><path d="M1.7 14.3 15 8 1.7 1.7l2 5.1 6.6 1.2-6.6 1.2z"/></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div id="ai-modal">' +
+          '<div id="ai-settings">' +
+            '<div class="sheet-head"><span>Agent settings</span><span class="grow"></span>' +
+              '<button class="ai-btn" id="ai-settings-close">Done</button></div>' +
+            '<div class="row"><span class="lbl">Sign in with</span>' +
+              '<span class="ai-seg" id="ai-auth"><button data-auth="key">API key</button>' +
+              '<button data-auth="sub">Claude subscription</button></span>' +
+              '<span class="grow"></span><span class="keystate" id="ai-keystate"></span></div>' +
+            '<div class="row" id="row-key"><span class="lbl">Anthropic key</span>' +
+              '<input id="ai-key" class="ai-input" type="password" placeholder="sk-ant-…" spellcheck="false" autocomplete="off"></div>' +
+            '<div class="row" id="row-workspace"><span class="lbl">Workspace</span>' +
+              '<input id="ai-workspace" class="ai-input" type="text" placeholder="wrkspc_… — for keys scoped to all workspaces" spellcheck="false" autocomplete="off"></div>' +
+            '<div class="row" id="row-sub"><span class="lbl">Subscription token</span>' +
+              '<input id="ai-oauth" class="ai-input" type="password" placeholder="sk-ant-oat…" spellcheck="false" autocomplete="off"></div>' +
+            '<div class="row"><span class="lbl">Self-review</span>' +
+              '<span id="ai-review-slot"></span><span class="grow"></span>' +
+              '<button class="ai-btn" id="ai-log" title="The whole conversation and its events as JSON">Copy log</button></div>' +
+            '<p class="hint" id="hint-key">The key is sent to this server and handed to the Claude Code process; usage is billed to it. ' +
+               'Create one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>' +
+            '<p class="hint" id="hint-sub">Run <code>claude setup-token</code> in a terminal where you are logged in to Claude Code, ' +
+               'then paste the token it prints. Work then runs on your Claude subscription instead of API billing. ' +
+               'The token is yours: this page never opens a claude.ai login.</p>' +
+          '</div>' +
+        '</div>';
+
+    // Inline icons: the page sprite carries file-browser glyphs only, and the
+    // window is built here so it can ship its own without a wasm relink.
+    var ICON = {
+        gear: '<path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M13 8a5 5 0 0 0-.1-1l1.3-1-1.5-2.6-1.6.6a5 5 0 0 0-1.7-1L9.2 1H6.8l-.2 1.7a5 5 0 0 0-1.7 1l-1.6-.6L1.8 6l1.3 1a5 5 0 0 0 0 2l-1.3 1 1.5 2.6 1.6-.6a5 5 0 0 0 1.7 1l.2 1.7h2.4l.2-1.7a5 5 0 0 0 1.7-1l1.6.6 1.5-2.6-1.3-1A5 5 0 0 0 13 8z"/>',
+        code: '<path d="M5.5 4 2 8l3.5 4M10.5 4 14 8l-3.5 4"/>',
+        plus: '<path d="M8 3.5v9M3.5 8h9"/>',
+        close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+        stop: '<rect x="4.5" y="4.5" width="7" height="7" rx="1.5"/>',
+        file: '<path d="M9 2H4.5A1.5 1.5 0 0 0 3 3.5v9A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5V6z"/><path d="M9 2v4h4"/>',
+        spark: '<path d="M8 2.5 9.3 6l3.5 1.3L9.3 8.6 8 12.1 6.7 8.6 3.2 7.3 6.7 6z"/>',
+        gauge: '<path d="M13 11a5.5 5.5 0 1 0-10 0"/><path d="M8 11 10.5 7"/>',
+        shield: '<path d="M8 2 3.5 4v4c0 2.6 1.9 4.8 4.5 5.5 2.6-.7 4.5-2.9 4.5-5.5V4z"/>',
+        cpu: '<rect x="4.5" y="4.5" width="7" height="7" rx="1.5"/><path d="M6.5 1.5v2M9.5 1.5v2M6.5 12.5v2M9.5 12.5v2M1.5 6.5h2M1.5 9.5h2M12.5 6.5h2M12.5 9.5h2"/>',
+        history: '<path d="M3 8a5 5 0 1 0 1.6-3.7"/><path d="M3 3v2.5h2.5"/><path d="M8 5.5V8l2 1.2"/>',
+    };
+    function icon(name, cls) {
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 16 16');
+        if (cls) svg.setAttribute('class', cls);
+        svg.innerHTML = ICON[name] || '';
+        return svg;
+    }
+    function iconHtml(name) {
+        return '<svg viewBox="0 0 16 16">' + (ICON[name] || '') + '</svg>';
+    }
+
     var chatEl = document.getElementById('ai-chat');
-    var statusEl = document.getElementById('ai-status');
     var inputEl = document.getElementById('ai-input');
     var sendBtn = document.getElementById('ai-send');
     var stopBtn = document.getElementById('ai-stop');
     var keyEl = document.getElementById('ai-key');
-    var modelEl = document.getElementById('ai-model');
-    var debugEl = document.getElementById('ai-debug');
-    var rawEl = document.getElementById('ai-raw');
-    var reviewEl = document.getElementById('ai-review');
-    var canvas = document.getElementById('canvas');
+    var keyStateEl = document.getElementById('ai-keystate');
+    var workspaceEl = document.getElementById('ai-workspace');
+    var oauthEl = document.getElementById('ai-oauth');
+    var authSeg = document.getElementById('ai-auth');
+    var modalEl = document.getElementById('ai-modal');
+    var devBtn = document.getElementById('ai-dev');
+    var gearBtn = document.getElementById('ai-gear');
+    var chipEl = document.getElementById('ai-chip');
+    var barEl = document.getElementById('ai-bar');
+    var actEl = document.getElementById('ai-act');
+    var metaEl = document.getElementById('ai-meta');
+    var filesEl = document.getElementById('ai-files');
+    var filesTitle = document.getElementById('ai-files-title');
+    var filesList = filesEl.querySelector('.flist');
 
-    keyEl.placeholder = 'Anthropic API key (sk-ant-…)';
-    keyEl.title = 'Your own Anthropic API key. It is sent to this server with each request and handed to the Claude Code process; usage is billed to your account.';
-
-    // identity-linked Console keys also need the workspace they act in
-    var workspaceEl = document.createElement('input');
-    workspaceEl.id = 'ai-workspace';
-    workspaceEl.type = 'text';
-    workspaceEl.placeholder = 'workspace id (wrkspc_…)';
-    workspaceEl.title = 'Required for identity-linked API keys: the id of the Console workspace this key acts in (Console → Settings → Workspaces). Leave empty for classic keys.';
-    workspaceEl.spellcheck = false;
-    workspaceEl.autocomplete = 'off';
-    workspaceEl.style.width = '150px';
-    keyEl.parentNode.insertBefore(workspaceEl, keyEl.nextSibling);
-
-    // reasoning effort sits next to the model; built here so the markup
-    // (linked into the wasm shell) stays untouched
-    var effortEl = document.createElement('select');
-    effortEl.id = 'ai-effort';
-    effortEl.title = 'Reasoning effort';
-    ['low', 'medium', 'high', 'xhigh', 'max'].forEach(function (e) {
-        var o = document.createElement('option');
-        o.value = e; o.textContent = e;
-        effortEl.appendChild(o);
+    // ---------- a dropdown of our own: no native select anywhere ----------
+    var openDd = null;
+    document.addEventListener('mousedown', function (e) {
+        if (openDd && !openDd.root.contains(e.target)) openDd.close();
     });
-    modelEl.parentNode.insertBefore(effortEl, modelEl.nextSibling.nextSibling);
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || !dlg.classList.contains('open')) return;
+        // innermost thing first: a menu, then the settings sheet, then the window
+        if (openDd) { openDd.close(); e.stopPropagation(); return; }
+        if (modalEl.classList.contains('open')) { closeSettings(); e.stopPropagation(); return; }
+        closeDlg();
+    }, true);
 
-    // permission mode, as in the terminal
-    var modeEl = document.createElement('select');
-    modeEl.id = 'ai-mode';
-    modeEl.title = 'Permission mode: ask before tools (default), auto-accept edits, plan only, or bypass prompts (edits stay limited to Assets)';
-    [['default', 'ask'], ['acceptEdits', 'accept edits'], ['plan', 'plan'], ['bypassPermissions', 'bypass']].forEach(function (m) {
-        var o = document.createElement('option');
-        o.value = m[0]; o.textContent = m[1];
-        modeEl.appendChild(o);
-    });
-    effortEl.parentNode.insertBefore(modeEl, effortEl.nextSibling);
+    function dropdown(opts) {
+        var root = document.createElement('div');
+        root.className = 'ai-dd ' + (opts.cls || '') + ' ' + (opts.up ? 'up' : 'down') + (opts.right ? ' right' : '');
+        var val = document.createElement('div');
+        val.className = 'val';
+        val.title = opts.title || '';
+        if (opts.icon) val.appendChild(icon(opts.icon));
+        var cur = document.createElement('span');
+        cur.className = 'cur';
+        val.appendChild(cur);
+        var caret = document.createElement('span');
+        caret.className = 'caret';
+        val.appendChild(caret);
+        var menu = document.createElement('div');
+        menu.className = 'menu';
+        root.appendChild(val);
+        root.appendChild(menu);
 
-    // past Claude sessions of this tab, to continue one
-    var histEl = document.createElement('select');
-    histEl.id = 'ai-history';
-    histEl.title = 'Conversations of this tab: pick one to continue it';
-    effortEl.parentNode.insertBefore(histEl, modeEl.nextSibling);
+        var items = [], value = null, api;
+        function paint() {
+            var it = items.filter(function (i) { return i.value === value; })[0];
+            var text = it ? (it.short || it.label) : (opts.empty || '—');
+            if (opts.short && value) text = opts.short(value);
+            cur.textContent = (opts.prefix || '') + text;
+            val.title = it ? (it.title || it.label) : (opts.title || '');
+            menu.querySelectorAll('.opt').forEach(function (el) {
+                el.classList.toggle('sel', el.dataset.value === value);
+            });
+        }
+        function build() {
+            menu.innerHTML = '';
+            items.forEach(function (it) {
+                if (it.separator) { var sp = document.createElement('div'); sp.className = 'sep'; menu.appendChild(sp); return; }
+                var o = document.createElement('div');
+                o.className = 'opt';
+                o.dataset.value = it.value;
+                var label = document.createElement('span');
+                label.textContent = it.label;
+                o.appendChild(label);
+                if (it.sub) {
+                    var sub = document.createElement('span');
+                    sub.className = 'sub';
+                    sub.textContent = it.sub;
+                    o.appendChild(sub);
+                }
+                o.onclick = function () {
+                    api.close();
+                    if (it.action) { it.action(api); return; }
+                    api.set(it.value);
+                    if (opts.onChange) opts.onChange(it.value, it);
+                };
+                menu.appendChild(o);
+            });
+            paint();
+        }
+        val.onclick = function () {
+            if (root.classList.contains('open')) { api.close(); return; }
+            if (openDd) openDd.close();
+            root.classList.add('open');
+            openDd = api;
+        };
+        api = {
+            root: root,
+            close: function () { root.classList.remove('open'); if (openDd === api) openDd = null; },
+            set: function (v) { value = v; paint(); },
+            get: function () { return value; },
+            options: function (list) { items = list; build(); },
+            add: function (it) { items.push(it); build(); },
+            has: function (v) { return items.some(function (i) { return i.value === v; }); },
+            el: root,
+        };
+        api.options(opts.items || []);
+        if (opts.value !== undefined) api.set(opts.value);
+        return api;
+    }
 
-    // "steps" expands/collapses every debug step, new ones follow it
-    debugEl.onchange = function () {
-        chatEl.querySelectorAll('.ai-step').forEach(function (s) {
-            s.classList.toggle('open', debugEl.checked);
-        });
-    };
+    function toggle(labelText, checked, onChange) {
+        var root = document.createElement('div');
+        root.className = 'ai-check' + (checked ? ' on' : '');
+        var box = document.createElement('span');
+        box.className = 'box';
+        root.appendChild(box);
+        if (labelText) root.appendChild(document.createTextNode(labelText));
+        root.onclick = function () {
+            root.classList.toggle('on');
+            onChange(root.classList.contains('on'));
+        };
+        return { el: root, get: function () { return root.classList.contains('on'); },
+                 set: function (v) { root.classList.toggle('on', !!v); } };
+    }
+
     // file names in the answer open the file in the assets browser
     chatEl.addEventListener('click', function (e) {
         var el = e.target.closest('.ai-file');
@@ -94,59 +254,183 @@
         try { return localStorage.getItem(name) || ''; } catch (e) { return ''; }
     }
 
-    // the Gemini-era key would be sent as an Anthropic key otherwise
-    var savedKey = getSetting('o2ai_claude_key');
-    keyEl.value = savedKey;
-    var savedModel = getSetting('o2ai_claude_model');
-    modelEl.value = savedModel || DEFAULT_MODEL;
-    effortEl.value = getSetting('o2ai_effort') || 'high';
-    modeEl.value = getSetting('o2ai_mode') || 'acceptEdits';
-    modeEl.onchange = function () { setSetting('o2ai_mode', modeEl.value); };
-    keyEl.onchange = function () {
-        setSetting('o2ai_claude_key', keyEl.value.trim());
-        loadModels();
-    };
+    keyEl.value = getSetting('o2ai_claude_key');
     workspaceEl.value = getSetting('o2ai_workspace');
-    workspaceEl.onchange = function () {
-        setSetting('o2ai_workspace', workspaceEl.value.trim());
-        loadModels();
+    oauthEl.value = getSetting('o2ai_oauth');
+    var authMode = getSetting('o2ai_auth') || (oauthEl.value ? 'sub' : 'key');
+    var devMode = getSetting('o2ai_dev') === '1';
+
+    // effort and permissions sit next to Send, where they are decided
+    // model, effort and permissions sit together next to Send, where a turn
+    // is actually decided; the model list is a list, never a filter
+    var modelDd = dropdown({
+        cls: 'pill', up: true, icon: 'cpu', title: 'Claude model', empty: DEFAULT_MODEL,
+        short: function (v) { return String(v).replace(/^claude-/, ''); },
+        value: getSetting('o2ai_claude_model') || DEFAULT_MODEL,
+        onChange: function (v) { setSetting('o2ai_claude_model', v); },
+    });
+    document.getElementById('ai-model-slot').appendChild(modelDd.el);
+
+    var effortDd = dropdown({
+        cls: 'pill', up: true, icon: 'gauge', title: 'Reasoning effort',
+        items: ['low', 'medium', 'high', 'xhigh', 'max'].map(function (e) { return { value: e, label: e }; }),
+        value: getSetting('o2ai_effort') || 'high',
+        onChange: function (v) { setSetting('o2ai_effort', v); },
+    });
+    document.getElementById('ai-effort-slot').appendChild(effortDd.el);
+
+    var MODES = [
+        { value: 'acceptEdits', label: 'edit files and drive the editor', short: 'edits' },
+        { value: 'default', label: 'ask before everything', short: 'ask' },
+        { value: 'plan', label: 'plan only, no changes', short: 'plan' },
+        { value: 'bypassPermissions', label: 'never ask', short: 'no prompts' },
+    ];
+    var modeDd = dropdown({
+        cls: 'pill', up: true, icon: 'shield',
+        title: 'What the agent may do without asking (reading the scene is never asked)',
+        items: MODES, value: getSetting('o2ai_mode') || 'acceptEdits',
+        onChange: function (v) { setSetting('o2ai_mode', v); },
+    });
+    document.getElementById('ai-mode-slot').appendChild(modeDd.el);
+
+    var reviewToggle = toggle('the agent reviews its own run afterwards', getSetting('o2ai_review') === '1',
+                              function (v) { setSetting('o2ai_review', v ? '1' : '0'); });
+    document.getElementById('ai-review-slot').appendChild(reviewToggle.el);
+
+    var histDd = dropdown({
+        cls: 'ghost', right: true, icon: 'history', title: 'Continue an earlier conversation of this tab',
+        empty: 'conversations',
+        onChange: function (v) { resumeConversation(v); },
+    });
+    document.getElementById('ai-history-slot').appendChild(histDd.el);
+    histDd.el.style.display = 'none';
+
+    // `claude setup-token` prints the token wrapped across terminal lines, so a
+    // copy of it arrives with newlines inside — which the API rejects as invalid
+    function cleanSecret(v) {
+        return String(v == null ? '' : v).replace(/\s+/g, '').replace(/^["']+|["']+$/g, '');
+    }
+    function tidy(el) {
+        var v = cleanSecret(el.value);
+        if (el.value !== v) el.value = v;
+        return v;
+    }
+    function setKeyState(kind, text) {
+        keyStateEl.className = 'keystate ' + kind;
+        keyStateEl.textContent = text;
+    }
+    function credential() {
+        return cleanSecret(authMode === 'sub' ? oauthEl.value : keyEl.value);
+    }
+    function paintKeyState() {
+        var local = /localhost|127\.0\.0\.1/.test(location.hostname);
+        if (credential()) setKeyState('ok', 'saved');
+        else setKeyState(local ? 'ok' : 'missing', local ? 'local: host credentials' : 'credential required');
+    }
+    function paintAuthMode() {
+        authSeg.querySelectorAll('button').forEach(function (b) {
+            b.classList.toggle('on', b.dataset.auth === authMode);
+        });
+        document.getElementById('row-key').classList.toggle('hidden', authMode !== 'key');
+        document.getElementById('row-workspace').classList.toggle('hidden', authMode !== 'key');
+        document.getElementById('row-sub').classList.toggle('hidden', authMode !== 'sub');
+        document.getElementById('hint-key').classList.toggle('hidden', authMode !== 'key');
+        document.getElementById('hint-sub').classList.toggle('hidden', authMode !== 'sub');
+        paintKeyState();
+    }
+    authSeg.querySelectorAll('button').forEach(function (b) {
+        b.onclick = function () {
+            authMode = b.dataset.auth;
+            setSetting('o2ai_auth', authMode);
+            paintAuthMode();
+            loadModels();
+        };
+    });
+    paintAuthMode();
+
+    keyEl.onchange = function () { setSetting('o2ai_claude_key', tidy(keyEl)); paintKeyState(); loadModels(); };
+    workspaceEl.onchange = function () { setSetting('o2ai_workspace', tidy(workspaceEl)); loadModels(); };
+    oauthEl.onchange = function () { setSetting('o2ai_oauth', tidy(oauthEl)); paintKeyState(); loadModels(); };
+
+    function openSettings() {
+        modalEl.classList.add('open');
+        gearBtn.classList.add('on');
+        if (!modelsLoaded) loadModels();
+    }
+    function closeSettings() {
+        modalEl.classList.remove('open');
+        gearBtn.classList.remove('on');
+    }
+    gearBtn.onclick = function () {
+        if (modalEl.classList.contains('open')) closeSettings(); else openSettings();
     };
-    modelEl.onchange = function () { setSetting('o2ai_claude_model', modelEl.value.trim()); };
-    effortEl.onchange = function () { setSetting('o2ai_effort', effortEl.value); };
+    document.getElementById('ai-settings-close').onclick = closeSettings;
+    modalEl.onclick = function (e) { if (e.target === modalEl) closeSettings(); };
+    // a missing key is the one thing worth opening the sheet for on its own
+    if (!credential() && !/localhost|127\.0\.0\.1/.test(location.hostname)) openSettings();
+
+    function applyDev() {
+        devBtn.classList.toggle('on', devMode);
+        chatEl.classList.toggle('dev', devMode);
+        chatEl.querySelectorAll('.ai-step').forEach(function (s) {
+            if (s.dataset.dev === '1') s.style.display = devMode ? '' : 'none';
+        });
+    }
+    devBtn.onclick = function () {
+        devMode = !devMode;
+        setSetting('o2ai_dev', devMode ? '1' : '0');
+        applyDev();
+    };
 
     // ---------- model list ----------
     var modelsLoaded = false;
     function fillModels(names) {
-        var list = document.getElementById('ai-models');
-        list.innerHTML = '';
-        names.forEach(function (n) {
-            var o = document.createElement('option');
-            o.value = n;
-            list.appendChild(o);
-        });
+        var items = names.map(function (n) { return { value: n, label: n }; });
+        // a model typed by hand stays in the list instead of vanishing
+        var cur = modelDd.get();
+        if (cur && names.indexOf(cur) < 0) items.unshift({ value: cur, label: cur, sub: 'custom' });
+        items.push({ separator: true });
+        items.push({ value: '__custom__', label: 'Enter manually…', action: function () {
+            var v = window.prompt('Model id', modelDd.get() || DEFAULT_MODEL);
+            if (!v) return;
+            v = v.trim();
+            modelDd.add({ value: v, label: v, sub: 'custom' });
+            modelDd.set(v);
+            setSetting('o2ai_claude_model', v);
+        } });
+        modelDd.options(items);
+        modelDd.set(cur || DEFAULT_MODEL);
     }
     function loadModels() {
-        var key = keyEl.value.trim();
-        var headers = key ? { 'X-Anthropic-Key': key } : {};
-        if (workspaceEl.value.trim()) headers['X-Anthropic-Workspace'] = workspaceEl.value.trim();
+        var headers = {};
+        if (authMode === 'sub') {
+            if (cleanSecret(oauthEl.value)) headers['X-Anthropic-Oauth'] = cleanSecret(oauthEl.value);
+        } else {
+            if (cleanSecret(keyEl.value)) headers['X-Anthropic-Key'] = cleanSecret(keyEl.value);
+            if (cleanSecret(workspaceEl.value)) headers['X-Anthropic-Workspace'] = cleanSecret(workspaceEl.value);
+        }
         return fetch(o2Base + '/api/agent/models', { headers: headers })
             .then(function (r) { return r.json(); })
             .then(function (j) {
                 fillModels(j.models || FALLBACK_MODELS);
                 modelsLoaded = j.source === 'api';
+                // a background fetch never reopens a sheet the user closed:
+                // it only marks the field it is complaining about
                 if (j.error && /workspace/i.test(j.error)) {
-                    workspaceEl.style.outline = '2px solid #C86A6A';
-                    setStatus('This API key also needs its workspace id (wrkspc_…) — Console → Settings → Workspaces.');
+                    workspaceEl.style.borderColor = '#C86A6A';
+                    workspaceEl.title = j.error;
+                    setKeyState('missing', 'workspace id required');
                 } else {
-                    workspaceEl.style.outline = '';
-                    if (key && j.source === 'api') setStatus('');
+                    workspaceEl.style.borderColor = '';
+                    workspaceEl.title = '';
+                    paintKeyState();
                 }
             })
             .catch(function () { fillModels(FALLBACK_MODELS); });
     }
     fillModels(FALLBACK_MODELS);
 
-    var running = false, aborted = false;
+    var running = false;
 
     function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
     function scrollDown() { chatEl.scrollTop = chatEl.scrollHeight; }
@@ -160,7 +444,7 @@
     var ASSET_EXT = /\.(scn|proto|js|json|png|jpe?g|gif|webp|atlas|anim|ttf|otf|fntstyle|meta|mat|frag|vert|metal|glsl|txt|xml|md|ogg|wav|mp3)$/i;
     function looksLikeAsset(s) {
         s = s.trim();
-        return !/\s{2,}|^https?:|^\//.test(s) && ASSET_EXT.test(s);
+        return !/\s{2,}|^https?:/.test(s) && ASSET_EXT.test(s);
     }
     // the server-side paths Claude prints are session-absolute; the browser
     // knows them relative to Assets
@@ -170,10 +454,8 @@
     }
     function fileLink(path) {
         var rel = assetRel(path.trim());
-        return '<span class="ai-file" data-path="' + esc(rel) + '">' + esc(path.trim()) + '</span>';
+        return '<span class="ai-file" data-path="' + esc(rel) + '">' + esc(assetRel(path.trim())) + '</span>';
     }
-    // inline markdown: code spans, links, bold, italic; asset paths become
-    // clickable links into the assets browser
     function mdInline(src) {
         var out = '', rest = src, m;
         var re = /(`[^`]+`)|(\[([^\]]+)\]\(([^)\s]+)\))|(\*\*[^*]+\*\*)|(\*[^*\n]+\*)|(__[^_]+__)/;
@@ -201,7 +483,7 @@
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i];
             var fence = line.match(/^\s*```(\w*)/);
-            if (fence) {                                   // fenced code block
+            if (fence) {
                 closeList();
                 var buf = [];
                 for (i++; i < lines.length && !/^\s*```/.test(lines[i]); i++) buf.push(lines[i]);
@@ -227,7 +509,47 @@
         return html;
     }
 
+    // ---------- chat pieces ----------
+    var EXAMPLES = [
+        'Describe this project and what is on the scene right now.',
+        'Add a title label to the scene and place it sensibly.',
+        'Find every script under Assets and say what each one does.',
+        'Enter play mode, take a screenshot and tell me what you see.',
+    ];
+    function showEmptyState() {
+        if (chatEl.querySelector('#ai-empty') || chatEl.children.length) return;
+        var d = document.createElement('div');
+        d.id = 'ai-empty';
+        d.innerHTML =
+            '<div class="badge">' + iconHtml('spark') + '</div>' +
+            '<h2>The agent works on a copy of this project</h2>' +
+            '<p>Claude Code on the server: it reads and edits files under <b>Assets/</b> in your session, ' +
+            'sees the scene and drives the editor. The rest of the repository is read-only.</p>' +
+            '<div class="examples"></div>';
+        var ex = d.querySelector('.examples');
+        EXAMPLES.forEach(function (t) {
+            var b = document.createElement('div');
+            b.className = 'ex';
+            var dot = document.createElement('span');
+            dot.className = 'dot';
+            b.appendChild(icon('spark'));
+            b.appendChild(document.createTextNode(t));
+            b.onclick = function () {
+                inputEl.value = t;
+                inputEl.dispatchEvent(new Event('input'));
+                inputEl.focus();
+            };
+            ex.appendChild(b);
+        });
+        chatEl.appendChild(d);
+    }
+    function clearEmptyState() {
+        var e = chatEl.querySelector('#ai-empty');
+        if (e) e.remove();
+    }
+
     function addMsg(cls, text) {
+        clearEmptyState();
         var d = document.createElement('div');
         d.className = 'ai-m ' + cls;
         if (cls === 'model') d.innerHTML = renderMarkdown(text);
@@ -237,20 +559,62 @@
         return d;
     }
 
-    // a collapsible debug step: header with a summary, body with the details
+    // An error the user can act on: plain words, and a button when a retry
+    // is the obvious next move
+    function addError(message, opts) {
+        opts = opts || {};
+        clearEmptyState();
+        var d = document.createElement('div');
+        d.className = 'ai-m error';
+        var head = document.createElement('div');
+        head.className = 'errhead';
+        head.textContent = opts.head || 'Something went wrong';
+        d.appendChild(head);
+        var body = document.createElement('div');
+        body.textContent = message;
+        d.appendChild(body);
+        if (opts.retry) {
+            var row = document.createElement('div');
+            row.className = 'errrow';
+            var b = document.createElement('button');
+            b.className = 'tbtn';
+            b.textContent = 'Retry';
+            b.onclick = function () { row.remove(); opts.retry(); };
+            row.appendChild(b);
+            d.appendChild(row);
+        }
+        chatEl.appendChild(d);
+        scrollDown();
+        return d;
+    }
+
+    // a collapsible line: tool call, thinking, or a debug dump
     function addStep(label, detail, opts) {
         opts = opts || {};
+        clearEmptyState();
         var step = document.createElement('div');
-        step.className = 'ai-step' + (debugEl.checked || opts.open ? ' open' : '') +
-                         (opts.kind ? ' ' + opts.kind : '');
+        step.className = 'ai-step' + (opts.open ? ' open' : '') + (opts.kind ? ' ' + opts.kind : '');
+        if (opts.dev) {
+            step.dataset.dev = '1';
+            if (!devMode) step.style.display = 'none';
+        }
 
         var head = document.createElement('div');
         head.className = 'ai-step-head';
         head.appendChild(svgIcon('#i-chev', 'icon ai-chev'));
+        if (opts.tool) {
+            var t = document.createElement('span');
+            t.className = 'tool';
+            t.textContent = opts.tool;
+            head.appendChild(t);
+        }
         var lab = document.createElement('span');
         lab.className = 'ai-step-label';
         lab.textContent = label;
         head.appendChild(lab);
+        var time = document.createElement('span');
+        time.className = 'ai-step-time';
+        head.appendChild(time);
 
         var body = document.createElement('div');
         body.className = 'ai-step-body' + (opts.markdown ? ' md' : '');
@@ -263,6 +627,7 @@
         chatEl.appendChild(step);
         scrollDown();
         return {
+            el: step,
             append: function (t) {
                 if (opts.markdown) body.innerHTML += renderMarkdown(t);
                 else body.textContent += (body.textContent ? '\n' : '') + t;
@@ -272,11 +637,14 @@
                 else body.textContent = t;
             },
             setLabel: function (t) { lab.textContent = t; },
+            setTime: function (t) { time.textContent = t; },
             label: function () { return lab.textContent; },
+            fail: function () { step.classList.add('err'); },
             body: body,
         };
     }
     function addShot(b64, mime) {
+        clearEmptyState();
         var img = document.createElement('img');
         img.className = 'ai-shot';
         img.src = 'data:' + mime + ';base64,' + b64;
@@ -284,8 +652,43 @@
         chatEl.appendChild(img);
         scrollDown();
     }
-    function setStatus(t) { statusEl.textContent = t || ''; }
 
+    // ---------- status: the chip, the progress bar, the changed files ----------
+    function setChip(text, kind) {
+        chipEl.textContent = text;
+        chipEl.className = kind ? kind : '';
+        chipEl.id = 'ai-chip';
+    }
+    function setAction(text) { actEl.textContent = text || 'working…'; }
+    function setMeta(text) { metaEl.textContent = text || ''; }
+
+    var changed = {};   // path -> 'edit' | 'delete'
+    function resetChanges() { changed = {}; paintChanges(); }
+    function noteChange(path, kind) { changed[path] = kind; paintChanges(); }
+    function paintChanges() {
+        var paths = Object.keys(changed);
+        filesEl.classList.toggle('show', paths.length > 0);
+        if (!paths.length) return;
+        filesTitle.textContent = paths.length + (paths.length === 1 ? ' file changed' : ' files changed') + ' — show';
+        filesList.innerHTML = '';
+        paths.sort().forEach(function (p) {
+            var b = document.createElement('span');
+            b.className = 'fitem' + (changed[p] === 'delete' ? ' del' : '');
+            b.appendChild(icon('file'));
+            b.appendChild(document.createTextNode(assetRel(p)));
+            b.title = changed[p] === 'delete' ? 'deleted' : 'open in the assets browser';
+            b.onclick = function () {
+                if (changed[p] !== 'delete' && window.__o2RevealAsset) window.__o2RevealAsset(assetRel(p));
+            };
+            filesList.appendChild(b);
+        });
+    }
+    filesEl.querySelector('.fhead').onclick = function () {
+        filesEl.classList.toggle('open');
+        var paths = Object.keys(changed).length;
+        filesTitle.textContent = paths + (paths === 1 ? ' file changed' : ' files changed') +
+            (filesEl.classList.contains('open') ? ' — hide' : ' — show');
+    };
     // ---------- editor-side tool implementations ----------
     // Claude's own tools do the file work on the server; these are the calls
     // that only make sense inside the running editor.
@@ -667,27 +1070,26 @@
     function shortPath(v) {
         return sessionCwd && v.indexOf(sessionCwd + '/') === 0 ? v.slice(sessionCwd.length + 1) : v;
     }
-    var MAIN_ARG = { Read: 'file_path', Write: 'file_path', Edit: 'file_path', MultiEdit: 'file_path',
-                     Bash: 'command', Grep: 'pattern', Glob: 'pattern', Task: 'description', Agent: 'description',
-                     WebFetch: 'url', WebSearch: 'query', Skill: 'skill', NotebookEdit: 'notebook_path' };
+
     // ---------- permission prompts ----------
     var permissionBlocks = {};
     function showPermission(ev) {
         if (permissionBlocks[ev.id]) return;
+        clearEmptyState();
         var d = document.createElement('div');
-        d.className = 'ai-m error ai-perm';
+        d.className = 'ai-perm';
         var head = document.createElement('div');
+        head.className = 'permhead';
         head.textContent = 'Allow ' + toolLabel(ev.tool, ev.input).replace(/^▸ /, '') + '?';
         d.appendChild(head);
         var detail = document.createElement('pre');
-        detail.style.cssText = 'margin:4px 0;max-height:160px;overflow:auto;font-size:11px;white-space:pre-wrap';
         detail.textContent = shortPath(JSON.stringify(ev.input || {}, null, 2));
         d.appendChild(detail);
         var row = document.createElement('div');
+        row.className = 'permrow';
         [['Allow', 'allow', false], ['Always allow', 'allow', true], ['Deny', 'deny', false]].forEach(function (b) {
             var btn = document.createElement('button');
             btn.className = 'tbtn' + (b[1] === 'deny' ? ' quiet' : '');
-            btn.style.marginRight = '6px';
             btn.textContent = b[0];
             if (b[2] && !(ev.suggestions && ev.suggestions.length)) btn.disabled = true;
             btn.onclick = function () {
@@ -699,19 +1101,17 @@
         chatEl.appendChild(d);
         permissionBlocks[ev.id] = d;
         scrollDown();
-        setStatus('waiting for your permission…');
+        setChip('waiting for you', 'busy');
+        setAction('needs permission: ' + ev.tool.replace(/^mcp__o2__/, ''));
     }
     function resolvePermissionUi(id, behavior) {
         var d = permissionBlocks[id];
         if (!d) return;
-        d.className = 'ai-step';
-        d.innerHTML = '';
-        var lab = document.createElement('div');
-        lab.className = 'ai-step-head';
-        lab.textContent = (behavior === 'allow' ? '✓ allowed' : '⊘ denied');
-        d.appendChild(lab);
+        var label = d.querySelector('.permhead').textContent;
+        d.replaceWith(addStep((behavior === 'allow' ? '✓ allowed · ' : '⊘ denied · ') + label,
+                              '', { kind: behavior === 'allow' ? '' : 'err' }).el);
         delete permissionBlocks[id];
-        setStatus('working…');
+        if (running) { setChip('working', 'busy'); setAction('working…'); }
     }
 
     function removeDeletedFile(rel) {
@@ -723,28 +1123,47 @@
     // ---------- conversations of this tab ----------
     function loadHistory() {
         fetch(o2Base + '/api/agent/sessions').then(function (r) { return r.json(); }).then(function (j) {
-            histEl.innerHTML = '';
-            var o = document.createElement('option');
-            o.value = ''; o.textContent = 'new conversation';
-            histEl.appendChild(o);
-            (j.sessions || []).forEach(function (h) {
-                var opt = document.createElement('option');
-                opt.value = h.id;
-                opt.textContent = h.title + '  ($' + (h.cost || 0).toFixed(2) + ')';
-                histEl.appendChild(opt);
-            });
-            histEl.value = j.current || '';
+            var list = j.sessions || [];
+            histDd.el.style.display = list.length ? '' : 'none';
+            if (!list.length) return;
+            histDd.options(list.map(function (h) {
+                var short = h.title.length > 30 ? h.title.slice(0, 30) + '…' : h.title;
+                return { value: h.id, label: short, short: short, title: h.title,
+                         sub: '$' + (h.cost || 0).toFixed(2) };
+            }));
+            histDd.set(j.current || null);
         }).catch(function () {});
     }
-    histEl.onchange = function () {
+    function resumeConversation(id) {
         if (running) { loadHistory(); return; }
-        post('resume', { id: histEl.value || null }).then(function () {
+        post('resume', { id: id || null }).then(function () {
             chatEl.innerHTML = '';
-            if (histEl.value) addStep('· continuing conversation ' + histEl.value.slice(0, 8) + '…', 'Its history stays on the server; new turns append to it.');
-        }).catch(function (e) { addMsg('error', e.message); });
+            resetChanges();
+            if (id) addStep('· continuing conversation ' + id.slice(0, 8) + '…',
+                            'Its history lives on the server; new messages append to it.', { open: true });
+            else showEmptyState();
+        }).catch(function (e) { addError(e.message); });
+    }
+    document.getElementById('ai-new').onclick = function () {
+        if (running) return;
+        post('reset').then(function () {
+            chatEl.innerHTML = '';
+            resetChanges();
+            showEmptyState();
+            loadHistory();
+        }).catch(function () {});
     };
 
-    var slashCommands = [];
+    var MAIN_ARG = { Read: 'file_path', Write: 'file_path', Edit: 'file_path', MultiEdit: 'file_path',
+                     Bash: 'command', Grep: 'pattern', Glob: 'pattern', Task: 'description', Agent: 'description',
+                     WebFetch: 'url', WebSearch: 'query', Skill: 'skill', NotebookEdit: 'notebook_path' };
+    // What the tool is doing, in the user's words, for the progress line
+    var HUMAN = { Read: 'reading', Write: 'writing', Edit: 'editing', MultiEdit: 'editing', Bash: 'running',
+                  Grep: 'searching', Glob: 'listing files', Task: 'subtask', Skill: 'skill',
+                  screenshot: 'taking a screenshot', scene_tree: 'reading the scene', view_info: 'reading the view',
+                  run_script: 'running a script', open_scene: 'opening a scene', save_scene: 'saving the scene',
+                  play_mode: 'toggling play', rebuild_assets: 'rebuilding assets', read_log: 'reading the log',
+                  click: 'clicking', type_text: 'typing', press_key: 'pressing a key', wait: 'waiting' };
     function toolLabel(name, args, sub) {
         args = args || {};
         var short = name.replace(/^mcp__o2__/, '');
@@ -757,10 +1176,32 @@
         } else {
             brief = Object.keys(args).map(function (k) {
                 var v = shortPath(String(args[k]));
-                return k + ': ' + (v.length > 60 ? v.slice(0, 60) + '…' : v);
+                return k + ': ' + (v.length > 50 ? v.slice(0, 50) + '…' : v);
             }).join(', ');
         }
-        return (sub ? '  ↳ ' : '▸ ') + short + '(' + brief + ')';
+        return (sub ? '  ↳ ' : '▸ ') + short + (brief ? '(' + brief + ')' : '()');
+    }
+    function toolArg(name, args) {
+        args = args || {};
+        var main = MAIN_ARG[name];
+        if (main && args[main] !== undefined) {
+            var v = shortPath(String(args[main])).replace(/\s+/g, ' ');
+            var extra = name === 'Grep' && args.path ? '  in ' + shortPath(String(args.path)) : '';
+            return (v.length > 88 ? v.slice(0, 88) + '…' : v) + extra;
+        }
+        return Object.keys(args).map(function (k) {
+            var v = shortPath(String(args[k]));
+            return k + ': ' + (v.length > 44 ? v.slice(0, 44) + '…' : v);
+        }).join(', ');
+    }
+
+    function humanAction(name, args) {
+        var short = name.replace(/^mcp__o2__/, '');
+        var verb = HUMAN[short] || short;
+        var main = MAIN_ARG[name];
+        var what = main && args && args[main] !== undefined ? shortPath(String(args[main])).replace(/\s+/g, ' ') : '';
+        if (what.length > 60) what = what.slice(0, 60) + '…';
+        return what ? verb + ' ' + what : verb;
     }
 
     // ---------- the stream from the server ----------
@@ -770,7 +1211,7 @@
     var bubble = null, bubbleText = '';
     var reviewStep = null, reviewText = '';
     var thinkStep = null, thinkText = '';
-    var runStarted = 0;
+    var runStarted = 0, runTools = 0, lastPrompt = '';
 
     function ensureStream() {
         if (source && source.readyState !== 2) return;
@@ -779,108 +1220,142 @@
             var ev;
             try { ev = JSON.parse(e.data); } catch (err) { return; }
             events.push(ev);
-            if (rawEl.checked && ev.type !== 'delta' && ev.type !== 'thinking')
-                addStep('◇ ' + ev.type, JSON.stringify(ev, null, 2));
+            if (devMode && ev.type !== 'delta' && ev.type !== 'thinking')
+                addStep('◇ ' + ev.type, JSON.stringify(ev, null, 2), { dev: true });
             try { onEvent(ev); } catch (err) { console.error('[ai] event failed', ev, err); }
         };
-        source.onerror = function () { setStatus(running ? 'stream lost, reconnecting…' : ''); };
+        source.onerror = function () {
+            if (running) { setChip('connection lost…', 'err'); setAction('reconnecting'); }
+        };
+    }
+
+    var typingEl = null;
+    function showTyping() {
+        if (typingEl) return;
+        clearEmptyState();
+        typingEl = document.createElement('div');
+        typingEl.className = 'ai-typing';
+        typingEl.innerHTML = '<i></i><i></i><i></i>';
+        chatEl.appendChild(typingEl);
+        scrollDown();
+    }
+    function hideTyping() {
+        if (typingEl) { typingEl.remove(); typingEl = null; }
     }
 
     function currentBubble() {
-        if (!bubble) { bubble = addMsg('model', ''); bubbleText = ''; }
+        hideTyping();
+        if (!bubble) { clearEmptyState(); bubble = addMsg('model', ''); bubbleText = ''; }
         return bubble;
     }
+
+    function tickMeta() {
+        if (!running) return;
+        var s = Math.round((Date.now() - runStarted) / 1000);
+        setMeta(runTools + (runTools === 1 ? ' action' : ' actions') + ' · ' +
+                (s < 60 ? s + ' s' : Math.floor(s / 60) + ' min ' + (s % 60) + ' s'));
+    }
+    setInterval(tickMeta, 1000);
 
     function onEvent(ev) {
         switch (ev.type) {
             case 'hello':
-                if (ev.running && !running) { running = true; busy(true); setStatus('the agent is still working…'); }
+                if (ev.running && !running) { busy(true); setAction('the agent is still working'); }
                 (ev.pending || []).forEach(showPermission);
                 loadHistory();
                 break;
             case 'init':
                 if (ev.cwd) sessionCwd = ev.cwd;
-                slashCommands = ev.slash || [];
-                addStep('· session · ' + ev.model + ' · Claude Code ' + ev.version + ' · ' + (ev.tools || []).length + ' tools · ' + ev.mode +
-                        (ev.apiKeySource === 'none' ? ' · host credentials' : ''),
-                        JSON.stringify({ tools: ev.tools, mcp: ev.mcp, slash_commands: ev.slash }, null, 2));
-                break;
-            case 'started':
-                break;
-            case 'queued':
-                setStatus('queued (' + ev.position + ') — sent when the current turn ends');
-                break;
-            case 'permission_request':
-                showPermission(ev);
-                break;
-            case 'permission_resolved':
-                resolvePermissionUi(ev.id, ev.behavior);
+                addStep('· session · ' + ev.model + ' · Claude Code ' + ev.version + ' · ' + (ev.tools || []).length +
+                        ' tools · ' + ev.mode + ' · ' + (ev.auth || (ev.apiKeySource === 'none' ? 'host' : 'api key')),
+                        JSON.stringify({ tools: ev.tools, mcp: ev.mcp, slash_commands: ev.slash }, null, 2),
+                        { dev: true });
                 break;
             case 'thinking':
-                if (!thinkStep) { thinkStep = addStep('🧠 thinking…', '', { markdown: true }); thinkText = ''; }
+                hideTyping();
+                if (!thinkStep) { thinkStep = addStep('thinking…', '', { markdown: true, kind: 'thinking', dev: true }); thinkText = ''; }
                 thinkText += ev.text;
                 thinkStep.set(thinkText);
+                setAction('thinking');
                 break;
             case 'delta':
                 if (ev.review) { reviewText += ev.text; if (reviewStep) reviewStep.set(reviewText); break; }
+                if (ev.sub) break;                      // subagent chatter stays in the steps
                 bubbleText += ev.text;
                 currentBubble().textContent = bubbleText;
                 scrollDown();
                 break;
             case 'text':
                 if (thinkStep) {
-                    thinkStep.setLabel('🧠 ' + (thinkText.replace(/[#*`]/g, '').split('\n')
+                    thinkStep.setLabel('thinking · ' + (thinkText.replace(/[#*`]/g, '').split('\n')
                         .filter(function (l) { return l.trim(); })[0] || 'reasoning').slice(0, 90));
                     thinkStep = null;
                 }
                 if (ev.review) {
                     reviewText = ev.text;
-                    if (!reviewStep) reviewStep = addStep('🔍 self-review', '', { markdown: true, kind: 'review', open: true });
+                    if (!reviewStep) reviewStep = addStep('self-review of the run', '', { markdown: true, kind: 'review', open: true });
                     reviewStep.set(reviewText);
                     break;
                 }
+                if (ev.sub) { addStep('  ↳ subtask replied', ev.text, { dev: true }); break; }
                 currentBubble().innerHTML = renderMarkdown(ev.text);
                 bubble = null; bubbleText = '';
                 scrollDown();
                 break;
-            case 'tool_use':
+            case 'tool_use': {
+                hideTyping();
                 if (bubble) { bubble = null; bubbleText = ''; }
                 thinkStep = null;
-                steps[ev.id] = { ui: addStep(toolLabel(ev.name, ev.input, ev.sub), 'args ' + shortPath(JSON.stringify(ev.input || {}, null, 2))),
+                runTools++;
+                // the model's own tool lookups say nothing about the task
+                var noise = ev.name === 'ToolSearch';
+                steps[ev.id] = { ui: addStep(toolArg(ev.name, ev.input), 'arguments ' + shortPath(JSON.stringify(ev.input || {}, null, 2)),
+                                             { tool: (ev.sub ? '↳ ' : '') + ev.name.replace(/^mcp__o2__/, ''), dev: noise }),
                                  started: Date.now(), name: ev.name };
-                setStatus(ev.name.replace(/^mcp__o2__/, '') + '…');
+                if (!noise) { setAction(humanAction(ev.name, ev.input)); tickMeta(); }
                 break;
+            }
             case 'tool_result': {
                 var st = steps[ev.id];
                 if (!st) break;
                 var took = Date.now() - st.started;
-                st.ui.append('result (' + took + 'ms) ' + ev.text);
-                if (ev.is_error) st.ui.setLabel('✗ ' + st.ui.label().replace(/^▸ /, '') + '  ' + took + 'ms');
-                else st.ui.setLabel(st.ui.label() + '  ' + took + 'ms');
-                setStatus('working…');
+                st.ui.append('result (' + took + ' ms)\n' + ev.text);
+                st.ui.setTime(took > 1500 ? (took / 1000).toFixed(1) + ' s' : took + ' ms');
+                if (ev.is_error) st.ui.fail();
                 break;
             }
             case 'tool_request':
                 runBrowserTool(ev);
                 break;
             case 'fs':
-                (ev.changed || (ev.path ? [ev.path] : [])).forEach(syncChangedFile);
-                (ev.deleted || []).forEach(removeDeletedFile);
+                (ev.changed || (ev.path ? [ev.path] : [])).forEach(function (p) { syncChangedFile(p); noteChange(p, 'edit'); });
+                (ev.deleted || []).forEach(function (p) { removeDeletedFile(p); noteChange(p, 'delete'); });
+                break;
+            case 'queued':
+                addStep('· message queued (' + ev.position + ')',
+                        'It will be sent as soon as the current turn ends.', { open: true });
+                break;
+            case 'permission_request':
+                hideTyping();
+                showPermission(ev);
+                break;
+            case 'permission_resolved':
+                resolvePermissionUi(ev.id, ev.behavior);
                 break;
             case 'result': {
-                var cost = ev.cost != null ? '$' + ev.cost.toFixed(3) : '';
                 var u = ev.usage || {};
+                var cost = ev.cost != null ? '$' + ev.cost.toFixed(3) : '';
                 addStep('· ' + ev.subtype + ' · ' + ev.turns + ' turns · ' + Math.round((ev.ms || 0) / 1000) + ' s · ' + cost +
                         ' · in ' + (u.input_tokens || 0) + ' (+' + (u.cache_read_input_tokens || 0) + ' cached) / out ' +
-                        (u.output_tokens || 0) + ' tok', JSON.stringify(ev, null, 2));
-                if (ev.subtype !== 'success' && !ev.review)
-                    addMsg('error', 'Run ended: ' + ev.subtype + (ev.errors && ev.errors.length ? '\n' + ev.errors.join('\n') : ''));
+                        (u.output_tokens || 0) + ' tok', JSON.stringify(ev, null, 2), { dev: true });
+                lastResult = ev;
                 if (ev.denials && ev.denials.length)
-                    addStep('⊘ denied tools: ' + ev.denials.join(', '), 'The permission guard refused these calls.');
+                    addStep('⊘ denied tools: ' + ev.denials.join(', '),
+                            'The permission guard refused these calls.', { kind: 'err' });
                 break;
             }
             case 'error':
-                addMsg('error', ev.message);
+                lastError = ev.message;
                 break;
             case 'done':
                 finishRun(ev);
@@ -889,10 +1364,9 @@
     }
 
     function runBrowserTool(ev) {
-        var name = ev.name;
-        var impl = EXEC[name];
+        var impl = EXEC[ev.name];
         Promise.resolve().then(function () {
-            if (!impl) throw new Error('unknown editor tool ' + name);
+            if (!impl) throw new Error('no such editor tool: ' + ev.name);
             return impl(ev.args || {});
         }).then(function (out) {
             if (out && out.image) addShot(out.image.b64, out.image.mime);
@@ -916,60 +1390,102 @@
     function busy(on) {
         running = on;
         document.getElementById('btn-ai').classList.toggle('busy', on);
-        stopBtn.style.display = on ? '' : 'none';
-        inputEl.placeholder = on ? 'Type the next message — it is sent when this turn ends…'
-                                 : 'Ask the agent… (Enter — send, Shift+Enter — new line; /command runs a skill)';
-        if (!on) { setStatus(''); loadHistory(); }
+        barEl.classList.toggle('show', on);
+        sendBtn.classList.toggle('queue', on);
+        sendBtn.title = on ? 'Queued until the current turn ends' : 'Send (Enter)';
+        inputEl.placeholder = on
+            ? 'Next message — sent when this turn ends…'
+            : 'What should the agent do? For example: add a title label to the scene…';
+        if (on) { setChip('working', 'busy'); runStarted = Date.now(); runTools = 0; tickMeta(); showTyping(); }
+        else { hideTyping(); setChip('ready'); setMeta(''); loadHistory(); }
     }
 
-    var pendingReview = false;
+    // ---------- a run from start to finish ----------
+    var pendingReview = false, lastError = null, lastResult = null;
+
+    // A failed turn should read as failed: report it in the user's words,
+    // offer the retry, and never chase it with a self-review of nothing
     function finishRun(ev) {
         bubble = null; bubbleText = ''; thinkStep = null;
-        if (!ev.review && !ev.aborted && pendingReview) {
+        for (var id in permissionBlocks) { permissionBlocks[id].remove(); delete permissionBlocks[id]; }
+
+        var failed = lastError || (lastResult && lastResult.subtype !== 'success');
+        if (!ev.review && !ev.aborted && !failed && pendingReview) {
             pendingReview = false;
+            reviewStep = null; reviewText = '';
             startRun(REVIEW_PROMPT, true);
             return;
         }
+        pendingReview = false;
         if (ev.review) reviewStep = null;
-        if (ev.aborted) addMsg('error', 'Stopped.');
+
+        if (ev.aborted) {
+            addStep('· stopped', 'The turn was interrupted at your request.', { open: true });
+        } else if (failed) {
+            var msg = lastError || (lastResult && (lastResult.errors || []).join('\n')) || 'the turn ended with an error';
+            var overloaded = /529|overload|rate.?limit|429/i.test(msg);
+            var prompt = lastPrompt;
+            addError(msg, {
+                head: overloaded ? 'The model is overloaded' : 'The turn failed',
+                retry: prompt ? function () { runAgent(prompt, true); } : null,
+            });
+            setChip('error', 'err');
+        }
+        var summary = null;
+        if (!failed && !ev.aborted && lastResult) {
+            var c = lastResult.cost != null ? ' · $' + lastResult.cost.toFixed(3) : '';
+            summary = 'done · ' + Math.round((lastResult.ms || 0) / 1000) + ' s' + c;
+        }
+        lastError = null; lastResult = null;
         busy(false);
+        if (failed) setChip('error', 'err');
+        else if (summary) setChip(summary);
+    }
+
+    function credentials() {
+        return authMode === 'sub'
+            ? { oauthToken: cleanSecret(oauthEl.value) }
+            : { apiKey: cleanSecret(keyEl.value), workspaceId: cleanSecret(workspaceEl.value) };
     }
 
     async function startRun(text, review) {
-        var key = keyEl.value.trim();
-        var model = modelEl.value.trim() || DEFAULT_MODEL;
-        setSetting('o2ai_claude_key', key);
+        var model = modelDd.get() || DEFAULT_MODEL;
         setSetting('o2ai_claude_model', model);
         ensureStream();
         busy(true);
-        setStatus(review ? 'reviewing the run…' : 'starting ' + model + '…');
-        runStarted = Date.now();
+        setAction(review ? 'reviewing its own run' : 'starting: ' + model);
         try {
-            await post('start', { text: text, apiKey: key, workspaceId: workspaceEl.value.trim(),
-                                  model: model, effort: effortEl.value,
-                                  mode: modeEl.value, review: !!review });
+            await post('start', Object.assign({ text: text, model: model, effort: effortDd.get(),
+                                               mode: modeDd.get(), review: !!review }, credentials()));
         } catch (e) {
-            addMsg('error', e.message);
+            addError(e.message, { retry: function () { startRun(text, review); } });
             busy(false);
+            setChip('error', 'err');
         }
     }
 
-    async function runAgent(userText) {
-        if (!keyEl.value.trim() && !/localhost|127\.0\.0\.1/.test(location.hostname)) {
-            addMsg('error', 'Set your Anthropic API key in the settings field above.');
+    function runAgent(userText, isRetry) {
+        if (!credential() && !/localhost|127\.0\.0\.1/.test(location.hostname)) {
+            openSettings();
+            (authMode === 'sub' ? oauthEl : keyEl).focus();
+            addError(authMode === 'sub'
+                ? 'Paste a subscription token in settings — run `claude setup-token` to mint one.'
+                : 'Add your Anthropic API key in settings — the agent runs on it.',
+                { head: 'Credential required' });
             return;
         }
-        addMsg('user', userText);
+        lastPrompt = userText;
+        if (!isRetry) addMsg('user', userText);
         if (running) {
             // typed during a turn: the server queues it after the current one
-            post('start', { text: userText, apiKey: keyEl.value.trim(), workspaceId: workspaceEl.value.trim(),
-                            model: modelEl.value.trim() || DEFAULT_MODEL,
-                            effort: effortEl.value, mode: modeEl.value, review: false })
-                .catch(function (e) { addMsg('error', e.message); });
+            post('start', Object.assign({ text: userText, model: modelDd.get() || DEFAULT_MODEL,
+                                         effort: effortDd.get(), mode: modeDd.get(), review: false }, credentials()))
+                .catch(function (e) { addError(e.message); });
             return;
         }
-        pendingReview = reviewEl.checked;
-        await startRun(userText, false);
+        resetChanges();
+        pendingReview = reviewToggle.get();
+        startRun(userText, false);
     }
 
     // ---------- self-review ----------
@@ -1005,6 +1521,8 @@
         back.classList.add('open');
         inputEl.focus();
         ensureStream();
+        showEmptyState();
+        loadHistory();
         if (!modelsLoaded) loadModels();
     }
     function closeDlg() { dlg.classList.remove('open'); back.classList.remove('open'); }
@@ -1014,20 +1532,14 @@
     document.getElementById('ai-close').onclick = closeDlg;
     back.onclick = closeDlg; // the agent keeps running in the background
 
-    document.getElementById('ai-clear').onclick = function () {
-        if (running) return;
-        events = [];
-        chatEl.innerHTML = '';
-        post('reset').catch(function () {});   // next message starts a fresh Claude session
-    };
     // whole session as JSON: every event the server streamed
-    document.getElementById('ai-copy').onclick = function () {
-        var dump = JSON.stringify({ model: modelEl.value.trim(), events: events }, null, 2);
+    document.getElementById('ai-log').onclick = function () {
+        var dump = JSON.stringify({ model: modelDd.get(), events: events }, null, 2);
         console.log('[ai] session log', events);
-        var btn = document.getElementById('ai-copy');
+        var btn = document.getElementById('ai-log');
         navigator.clipboard.writeText(dump).then(function () {
             btn.textContent = 'Copied';
-            setTimeout(function () { btn.textContent = 'Log'; }, 1200);
+            setTimeout(function () { btn.textContent = 'Copy log'; }, 1200);
         }, function () {
             // clipboard blocked (no focus / insecure origin): fall back to a download
             var a = document.createElement('a');
@@ -1039,19 +1551,29 @@
     };
     stopBtn.onclick = function () {
         pendingReview = false;
-        setStatus('stopping…');
+        setAction('stopping…');
         post('stop').catch(function () {});
     };
     function send() {
         var t = inputEl.value.trim();
         if (!t) return;
         inputEl.value = '';
+        inputEl.style.height = '';
         runAgent(t);
     }
     sendBtn.onclick = send;
+    var composerEl = document.getElementById('ai-composer');
+    inputEl.addEventListener('focus', function () { composerEl.classList.add('focus'); });
+    inputEl.addEventListener('blur', function () { composerEl.classList.remove('focus'); });
+    inputEl.addEventListener('input', function () {
+        inputEl.style.height = 'auto';
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 190) + 'px';
+    });
     inputEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
         e.stopPropagation(); // don't leak typing into the engine
     });
     inputEl.addEventListener('keyup', function (e) { e.stopPropagation(); });
+    applyDev();
+    showEmptyState();
 })();
