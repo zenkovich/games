@@ -1,14 +1,18 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха игрового поля: плитки (буквы, лёд, пауэрапы, выделение), клики,
-// анимация падения, партикловые вспышки. Данные — в C++ сервисе
-// (актор GameService, инжектится бутстрапом в this.serviceActor).
+// анимация падения, партикловые вспышки. Данные — в сервисе WordFallGame.service.
 // Координаты локальные: центр секции Board = (0,0)
 
 WordFallBoardView = class WordFallBoardView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+    get _vfx() { return WordFallGame.vfx || null; }
+
     constructor()
     {
         super();
-        // падение считает C++ модель (WordBoardMotion в сервисе) — вью только
+        // падение считает модель WordBoardMotion в сервисе — вью только
         // отображает офсеты и видимость плиток
         this.cellSize = 96;     // шаг сетки — источник раскладки плиток
         this.tileSize = 88;     // размер плитки в ячейке
@@ -24,8 +28,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this.bonusChargeScale = 0.35; // раздувание бонуса перед срабатыванием
         this.shakeFrequency = 46;    // частота колебаний тряски поля
 
-        this._svc = null;
-        this._vfx = null;
         this._tiles = null;
         this._collapsing = false; // модель анимирует обвал — рисуем офсеты
         this._hintQueue = [];   // клетки подсказки, выбираются по одной
@@ -51,9 +53,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.board = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
-        if (this.vfxActor)
-            this._vfx = this.vfxActor.GetComponent("WordFallVfx");
 
         this._columns = this._svc.GetColumns();
         this._rows = this._svc.GetRows();

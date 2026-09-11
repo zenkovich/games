@@ -1,13 +1,16 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Туториал: серия шагов с плашкой текста и рукой-указателем. Базовая механика ведётся
 // по действиям игрока (выбор букв → принятие слова), бустеры и элементы поля показываются
 // при первом появлении. Показанные ключи хранит прогресс игрока
 
 WordFallTutorialView = class WordFallTutorialView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
-        this._svc = null;
         this._queue = [];      // шаги текущего показа
         this._step = null;
         this._time = 0;
@@ -23,7 +26,6 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         WordFallViews.tutorial = this;
 
         var self = this;
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
         this._dim = this._actor.GetChild("Dim");
         this._pieces = [];
         this._glows = [];

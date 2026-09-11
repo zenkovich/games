@@ -8,9 +8,9 @@ TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
 
-	for (int c = 0; c < WordFallBootstrap::kColumns; c++)
+	for (int c = 0; c < 7; c++)
 	{
-		for (int r = 0; r < WordFallBootstrap::kRows; r++)
+		for (int r = 0; r < 8; r++)
 		{
 			auto tile = root->GetChild(String::Format("Screen/Board/Tile_%i_%i", c, r));
 			ASSERT_TRUE(tile) << "tile " << c << " " << r;
@@ -28,9 +28,9 @@ TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 	EXPECT_FALSE(root->GetChild("Screen/Popup/Content")->IsEnabled());
 
 	// сервис заполнил каждую плитку буквой
-	for (int c = 0; c < WordFallBootstrap::kColumns; c++)
+	for (int c = 0; c < 7; c++)
 	{
-		for (int r = 0; r < WordFallBootstrap::kRows; r++)
+		for (int r = 0; r < 8; r++)
 			EXPECT_FALSE(mService->GetLevel().GetBoard().GetTile(Vec2I(c, r)).letter.IsEmpty());
 	}
 
@@ -138,9 +138,11 @@ TEST_F(WordFallUI, ConsecutiveWordsKeepFlyingLettersVisible)
 		ClickTile(1, 0);
 		ClickTile(2, 0);
 		ClickTile(3, 0);
+		EXPECT_EQ(mService->GetCurrentWord(), String(words[word])) << "word " << word;
 
 		Click(Vec2F(222, 331)); // ПРИНЯТЬ
 		AppTestDriver::PumpFrames(2);
+		EXPECT_TRUE(mService->GetLastMoveResult().ok) << "word " << word << ": " << mService->GetLastMoveResult().reason;
 
 		// плашка встала на место слота: видима, звезда скрыта
 		EXPECT_TRUE(flyer->IsEnabled()) << "word " << word;
@@ -226,11 +228,9 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 	EXPECT_EQ(mService->GetGameState(), String("playing"));
 
 	// прогресс сохранился на диск
-	PlayerProgress saved;
-	EXPECT_TRUE(saved.Load(mService->progressPath));
-	EXPECT_EQ(saved.currentLevel, 1);
+	EXPECT_EQ(SavedCurrentLevel(mService->GetProgressPath()), 1);
 
-	o2FileSystem.FileDelete(mService->progressPath);
+	o2FileSystem.FileDelete(mService->GetProgressPath());
 }
 
 TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
@@ -357,7 +357,7 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 TEST_F(WordFallUI, SelectionDoesNotBreakIceOrStone)
 {
 	PlantKot();
-	mService->GetLevel().GetBoard().GetTileEditable(Vec2I(2, 1)).ice = 1;
+	mService->DebugSetIce(2, 1, 1);
 	mService->DebugSetStone(0, 1);
 	AppTestDriver::PumpFrames(2);
 
@@ -399,24 +399,17 @@ TEST_F(WordFallUI, PressedButtonShowsPressIn)
 	EXPECT_EQ(mService->GetMovesLeft(), 12);
 }
 
-// Путь реального приложения: сцена загружается из WordFall.scn, как в
-// GameApplication::OnStarted, а не через CreateBootstrapActor
-TEST_F(WordFallUI, SceneLoadedFromAssetRespondsToClicks)
+// Путь реального приложения: сцена игры загружается заново, как в GameApplication::Restart
+TEST_F(WordFallUI, SceneReloadedFromAssetRespondsToClicks)
 {
 	mService = nullptr;
 	o2Scene.Clear(true);
 	o2Scene.UpdateDestroyingEntities();
 	AppTestDriver::PumpFrames(2);
 
-	auto sceneAsset = o2Assets.GetAssetRefByType<SceneAsset>(String("WordFall.scn"));
-	ASSERT_TRUE(sceneAsset);
-	sceneAsset->Load();
-	AppTestDriver::PumpFrames(10);
-
-	auto serviceActor = o2Scene.FindActor("GameService");
-	ASSERT_TRUE(serviceActor);
-	mService = serviceActor->GetComponent<WordFallGameService>();
+	LoadScene();
 	ASSERT_TRUE(mService);
+	AppTestDriver::PumpFrames(10);
 
 	PlantKot();
 	ClickTile(1, 0);
@@ -424,6 +417,7 @@ TEST_F(WordFallUI, SceneLoadedFromAssetRespondsToClicks)
 
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 2);
 }
+
 // Буквы нацелены в якорь-слой кончика заливки бара (не в угол), а бар получает очки по
 // буквам: пока летит последняя, показанный счёт уже сдвинулся, но ещё не полный
 TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
@@ -547,4 +541,28 @@ TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
 		EXPECT_LE(offset, 1.0f);
 	}
 	EXPECT_TRUE(offsets[0] != offsets[1] || offsets[1] != offsets[2]) << "flights repeat the same trajectory";
+}
+
+// Искры летящих букв ведёт трек анимации: в игре они симулируются вперёд, как в релизной сборке.
+// Редакторское запекание кадров перезапекало их с нуля каждый кадр перенацеливания на бар — лаг сбора слова
+TEST_F(WordFallUI, LetterFlightSparksSimulateWithoutEditorBaking)
+{
+	PlantKot();
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::Wait(0.45f);
+
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto sparks = root->GetChild("Screen/Fx/FxLetter0/Sparks");
+	ASSERT_TRUE(sparks);
+	auto emitter = sparks->GetComponent<ParticlesEmitterComponent>();
+	ASSERT_TRUE(emitter);
+	EXPECT_GT(emitter->GetParticlesCount(), 0);
+#if IS_EDITOR
+	EXPECT_EQ(emitter->GetBakedFramesCount(), 0);
+#endif
+	AppTestDriver::Wait(2.5f);
 }

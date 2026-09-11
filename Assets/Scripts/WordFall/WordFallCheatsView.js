@@ -1,11 +1,14 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Читы: кнопка в правом верхнем углу открывает панель действий над уровнем
 
 WordFallCheatsView = class WordFallCheatsView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
-        this._svc = null;
         this._open = false;
     }
 
@@ -14,7 +17,6 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.cheats = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
         this._panel = this._actor.GetChild("Panel");
         this._toggle = this._actor.GetChild("Toggle");
 

@@ -1,3 +1,5 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха попапа финала уровня (концепт E): компактная карточка с кремовой плашкой-заголовком,
 // звёздами на гнёздах, счётом с бейджем «+N», строкой задач и кнопкой. Появление —
 // хореография: карточка выскакивает, плашка падает сверху, звёзды зажигаются с бликами,
@@ -5,11 +7,12 @@
 
 WordFallPopupView = class WordFallPopupView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+    get _vfx() { return WordFallGame.vfx || null; }
+
     constructor()
     {
         super();
-        this._svc = null;
-        this._vfx = null;
         this._shownState = "playing";
         this._anims = [];
         this._idleTime = 0;
@@ -21,9 +24,6 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.popup = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
-        if (this.vfxActor)
-            this._vfx = this.vfxActor.GetComponent("WordFallVfx");
 
         var content = this._actor.GetChild("Content");
         this._content = content;

@@ -5,6 +5,7 @@
 
 extern void InitializeTypeso2TestsSupport();
 extern void InitializeTypesGameLib();
+extern void RegisterJsTests();
 
 using namespace o2;
 
@@ -19,6 +20,7 @@ int main(int argc, char** argv)
 	INITIALIZE_O2;
 
 	::testing::InitGoogleTest(&argc, argv);
+	RegisterJsTests();
 
 	bool listOnly = ::testing::GTEST_FLAG(list_tests);
 

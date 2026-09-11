@@ -2,6 +2,12 @@
     "Layers": [
         {
             "mName": "Default"
+        },
+        {
+            "mName": "BG"
+        },
+        {
+            "mName": "UI"
         }
     ],
     "DefaultLayer": "Default",
@@ -21,12 +27,224 @@
                 },
                 "Components": [
                     {
-                        "Type": "WordFallGameService",
+                        "Type": "o2::ScriptableComponent",
                         "Data": {
-                            "mId": 12828182460854521602
+                            "mId": 635427883356726925,
+                            "mScript": {
+                                "id": "c54add7ecaee31f0bb41fae6cdb1ca1f",
+                                "path": "Scripts/WordFall/WordFallGameService.js"
+                            },
+                            "mInstance": {
+                                "boardConfig": {
+                                    "columns": 7.0,
+                                    "rows": 8.0,
+                                    "vowels": "АЕИОУЫЭЮЯ",
+                                    "maxConsonantRun": 4.0,
+                                    "bombWordLength": 5.0,
+                                    "rocketWordLength": 6.0,
+                                    "fireworksWordLength": 7.0,
+                                    "letters": [
+                                        {
+                                            "letter": "О",
+                                            "value": 1.0,
+                                            "bagCount": 9.0
+                                        },
+                                        {
+                                            "letter": "А",
+                                            "value": 1.0,
+                                            "bagCount": 8.0
+                                        },
+                                        {
+                                            "letter": "Е",
+                                            "value": 1.0,
+                                            "bagCount": 8.0
+                                        },
+                                        {
+                                            "letter": "И",
+                                            "value": 1.0,
+                                            "bagCount": 7.0
+                                        },
+                                        {
+                                            "letter": "Н",
+                                            "value": 1.0,
+                                            "bagCount": 6.0
+                                        },
+                                        {
+                                            "letter": "Т",
+                                            "value": 1.0,
+                                            "bagCount": 6.0
+                                        },
+                                        {
+                                            "letter": "С",
+                                            "value": 2.0,
+                                            "bagCount": 5.0
+                                        },
+                                        {
+                                            "letter": "Р",
+                                            "value": 2.0,
+                                            "bagCount": 5.0
+                                        },
+                                        {
+                                            "letter": "В",
+                                            "value": 2.0,
+                                            "bagCount": 4.0
+                                        },
+                                        {
+                                            "letter": "Л",
+                                            "value": 2.0,
+                                            "bagCount": 4.0
+                                        },
+                                        {
+                                            "letter": "К",
+                                            "value": 2.0,
+                                            "bagCount": 4.0
+                                        },
+                                        {
+                                            "letter": "М",
+                                            "value": 3.0,
+                                            "bagCount": 3.0
+                                        },
+                                        {
+                                            "letter": "Д",
+                                            "value": 3.0,
+                                            "bagCount": 3.0
+                                        },
+                                        {
+                                            "letter": "П",
+                                            "value": 3.0,
+                                            "bagCount": 3.0
+                                        },
+                                        {
+                                            "letter": "У",
+                                            "value": 3.0,
+                                            "bagCount": 3.0
+                                        },
+                                        {
+                                            "letter": "Я",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "Ы",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "Ь",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "Г",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "З",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "Б",
+                                            "value": 4.0,
+                                            "bagCount": 2.0
+                                        },
+                                        {
+                                            "letter": "Ч",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Й",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Х",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Ж",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Ш",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Ю",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Ц",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Щ",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Э",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        },
+                                        {
+                                            "letter": "Ф",
+                                            "value": 5.0,
+                                            "bagCount": 1.0
+                                        }
+                                    ]
+                                },
+                                "campaignLength": 100.0,
+                                "campaignPath": "WordFall/campaign.json",
+                                "levels": [],
+                                "randomSeed": 0.0,
+                                "progressPath": "wordfall_progress.json",
+                                "fallSpeedCells": 9.5,
+                                "fallCascadeDelay": 0.05000000074505806
+                            }
                         }
                     }
                 ]
+            }
+        },
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mName": "ui camera",
+                "drawLayers": {
+                    "mAllLayers": false,
+                    "mLayers": [
+                        "BG",
+                        "UI"
+                    ]
+                },
+                "fillColor": {
+                    "r": 101,
+                    "g": 148,
+                    "b": 208,
+                    "a": 255
+                },
+                "mType": "FittedSize",
+                "mFixedOrFittedSize": {
+                    "x": 768.0,
+                    "y": 1376.0
+                },
+                "mUnits": "Pixels",
+                "Id": 15784748879015365761,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
             }
         },
         {
@@ -43,9 +261,16 @@
                 },
                 "Components": [
                     {
-                        "Type": "WordFallBootstrap",
+                        "Type": "o2::ScriptableComponent",
                         "Data": {
-                            "mId": 16089907497082805644
+                            "mId": 5572728611320530785,
+                            "mScript": {
+                                "id": "296393092e1d9052ac63280b64875d42",
+                                "path": "Scripts/WordFall/WordFallBootstrap.js"
+                            },
+                            "mInstance": {
+                                "screenPrototype": "WordFall/Prototypes/GameScreen.proto"
+                            }
                         }
                     }
                 ]

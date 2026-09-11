@@ -1,3 +1,5 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха панели слова: слоты-плитки набираемого слова в лотке, перелёт буквы
 // с поля по безье, кнопки ПРИНЯТЬ и сброс, всплывающее «+N».
 // Слоты — в локальных координатах WordBar (центр = (0,0)), флаеры — в Screen
@@ -5,6 +7,8 @@
 
 WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
@@ -20,7 +24,6 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
 
         this.slotSlideSpeed = 14; // скорость плавного сдвига слотов, 1/с
 
-        this._svc = null;
         this._slots = [];
         this._flyers = [];
         this._flights = [];
@@ -33,7 +36,6 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.wordPanel = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
 
         var self = this;
         for (var i = 0; i < 8; i++)

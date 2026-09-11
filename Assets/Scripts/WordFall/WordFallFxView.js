@@ -1,3 +1,5 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Секвенсор хореографии хода: буквы из лотка летят в прогресс-бар с искрами
 // на прилёте, «+N» всплывает у бара, отложенный обвал поля; эффекты пауэрапов
 // (вспышка бомбы, лучи ракеты, звёзды). Все координаты экранные (секция Fx
@@ -5,6 +7,9 @@
 
 WordFallFxView = class WordFallFxView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+    get _vfx() { return WordFallGame.vfx || null; }
+
     constructor()
     {
         super();
@@ -25,8 +30,6 @@ WordFallFxView = class WordFallFxView extends o2.Component
         this.bombCharge = 0.28;    // разгорание фитиля перед взрывом бомбы
         this.bombShake = 13;       // амплитуда тряски поля на взрыве, px
 
-        this._svc = null;
-        this._vfx = null;
         this._anims = [];        // { delay, dur, apply(k), done, t }
         this._flashNext = 0;
         this._busy = false;
@@ -37,9 +40,6 @@ WordFallFxView = class WordFallFxView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.fx = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
-        if (this.vfxActor)
-            this._vfx = this.vfxActor.GetComponent("WordFallVfx");
 
         this._total = this._actor.GetChild("FxTotal");
 

@@ -1,8 +1,12 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха верхней панели: номер уровня, прогресс-бар очков, счётчик ходов.
 // Синк по ревизии сервиса; координаты локальные (центр Hud = (0,0))
 
 WordFallHudView = class WordFallHudView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
@@ -14,7 +18,6 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this.barTipInset = 12;  // ближе к началу бара кончик не бывает (скругление торца)
         this.hudWorldY = 603;  // центр секции Hud в экранных координатах
 
-        this._svc = null;
         this._lastRevision = -1;
         this._displayScore = 0;  // экранный счёт отстаёт от модели до конца анимации
         this._scoreTween = null; // { from, to, t }
@@ -75,7 +78,6 @@ WordFallHudView = class WordFallHudView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.hud = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
         this._levelLabel = this._actor.GetChild("LevelBox/Value");
         this._scoreLabel = this._actor.GetChild("ScorePanel/ScoreLabel");
         this._movesLabel = this._actor.GetChild("MovesBox/Value");

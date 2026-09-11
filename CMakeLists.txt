@@ -25,6 +25,20 @@ if(EXISTS "${_game_info_file}" AND NOT CMAKE_VERSION VERSION_LESS 3.19)
     endforeach()
 endif()
 
+# What the game opens with; the rest of the game lives in its scenes and scripts
+if(EXISTS "${_game_info_file}" AND NOT CMAKE_VERSION VERSION_LESS 3.19)
+    string(JSON GAME_START_SCENE ERROR_VARIABLE _game_err GET "${_game_info_json}" "startScene")
+    string(JSON GAME_WINDOW_WIDTH ERROR_VARIABLE _game_err GET "${_game_info_json}" "windowSize" 0)
+    string(JSON GAME_WINDOW_HEIGHT ERROR_VARIABLE _game_err GET "${_game_info_json}" "windowSize" 1)
+endif()
+if(NOT GAME_START_SCENE OR GAME_START_SCENE MATCHES "NOTFOUND$")
+    set(GAME_START_SCENE "Main.scn")
+endif()
+if(NOT GAME_WINDOW_WIDTH OR GAME_WINDOW_WIDTH MATCHES "NOTFOUND$" OR NOT GAME_WINDOW_HEIGHT OR GAME_WINDOW_HEIGHT MATCHES "NOTFOUND$")
+    set(GAME_WINDOW_WIDTH 1280)
+    set(GAME_WINDOW_HEIGHT 800)
+endif()
+
 if(NOT GAME_TITLE)
     set(GAME_TITLE "o2 Template")
 endif()
@@ -189,6 +203,8 @@ file(GLOB_RECURSE GameLib_SOURCES ${GameLib_SOURCES_DIRS})
 
 target_sources(GameLib PRIVATE ${GameLib_SOURCES})
 target_include_directories(GameLib PUBLIC "Sources/Game")
+target_compile_definitions(GameLib PRIVATE GAME_TITLE="${GAME_TITLE}" GAME_START_SCENE="${GAME_START_SCENE}"
+                           GAME_WINDOW_WIDTH=${GAME_WINDOW_WIDTH} GAME_WINDOW_HEIGHT=${GAME_WINDOW_HEIGHT})
 
 if(ANDROID)
     # NDK lld is more aggressive than ld64 about pruning archive members even
@@ -585,6 +601,7 @@ if(O2_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
         GameLib
     )
     add_dependencies(GameTests GameLib o2TestsSupport BuildAssets)
+    target_compile_definitions(GameTests PRIVATE GAME_JS_TESTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/Sources/GameTests/Scripts/")
 
     if(MSVC)
         target_compile_options(GameTests PRIVATE ${O2_MSVC_MP_FLAG} "/Zc:__cplusplus" "/bigobj")

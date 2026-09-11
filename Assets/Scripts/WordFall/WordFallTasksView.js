@@ -1,15 +1,18 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха панели задач: строки заданий с прогрессом, выполненные — зелёные.
 // Синк по ревизии сервиса
 
 WordFallTasksView = class WordFallTasksView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
         this.firstRowY = 44;  // первая строка задач: отступ от верха панели
         this.rowStep = 32;    // шаг строк
 
-        this._svc = null;
         this._labels = [];
         this._lastRevision = -1;
     }
@@ -19,7 +22,6 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.tasks = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
         this._rows = [];
         for (var i = 0; i < 5; i++)
         {

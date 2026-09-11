@@ -1,12 +1,15 @@
+globalThis.WordFallGame = globalThis.WordFallGame || {};
+
 // Вьюха панели бустеров: пять круглых кнопок с бейджами зарядов и режим
 // прицела (молоток/джокер/удвоитель применяются кликом по плитке)
 
 WordFallBoostersView = class WordFallBoostersView extends o2.Component
 {
+    get _svc() { return WordFallGame.service; }
+
     constructor()
     {
         super();
-        this._svc = null;
         this._chargeLabels = [];
         this._aimMode = null;   // null | "hammer" | "joker" | "doubler"
         this._lastRevision = -1;
@@ -17,7 +20,6 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.boosters = this;
 
-        this._svc = this.serviceActor.GetComponent("WordFallGameService");
         this._modeLabel = this._actor.GetChild("ModeLabel");
 
         var modes = ["hammer", "shuffle", "hint", "joker", "doubler"];

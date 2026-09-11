@@ -1,7 +1,6 @@
 #include "o2/stdafx.h"
 #include <gtest/gtest.h>
 
-#include "WordFall/WordFallUiFactory.h"
 #include "o2/Animation/AnimationPlayer.h"
 #include "o2/Animation/AnimationState.h"
 #include "o2/Assets/Types/AnimationAsset.h"
@@ -19,13 +18,115 @@
 #include "o2/Scene/UI/WidgetLayout.h"
 #include "o2/Scene/UI/Widgets/Button.h"
 #include "o2/Scene/UI/Widgets/Image.h"
+#include "o2/Render/Sprite.h"
 #include "o2/Utils/FileSystem/FileSystem.h"
 #include "o2/Utils/Test/AppTestDriver.h"
 
 using namespace o2;
 
+// Сборка виджетов для сценариев: секции, картинки, якоря, глубина
+namespace Ui
+{
+	void SetAnchoredRect(const Ref<Widget>& widget, const Vec2F& anchor, const Vec2F& pos, const Vec2F& size)
+	{
+		widget->layout->anchorMin = anchor;
+		widget->layout->anchorMax = anchor;
+		widget->layout->offsetMin = pos - size*0.5f;
+		widget->layout->offsetMax = pos + size*0.5f;
+	}
+
+	void SetAnchors(const Ref<Widget>& widget, const Vec2F& anchorMin, const Vec2F& anchorMax,
+					const Vec2F& offsetMin, const Vec2F& offsetMax)
+	{
+		widget->layout->anchorMin = anchorMin;
+		widget->layout->anchorMax = anchorMax;
+		widget->layout->offsetMin = offsetMin;
+		widget->layout->offsetMax = offsetMax;
+	}
+
+	void SetDepth(const Ref<Widget>& widget, float depth)
+	{
+		widget->SetDrawingDepthInheritFromParent(false);
+		widget->SetDrawingDepth(depth);
+	}
+
+	Ref<Widget> CreateSection(const Ref<Actor>& parent, const String& name, const Vec2F& anchor, const Vec2F& pos,
+							  const Vec2F& size)
+	{
+		auto widget = mmake<Widget>();
+		widget->SetName(name);
+		if (parent)
+			parent->AddChild(widget);
+
+		widget->SetLayer("UI");
+		SetAnchoredRect(widget, anchor, pos, size);
+		return widget;
+	}
+
+	Ref<Sprite> MakeSprite(const String& image, const BorderI& slice, const Color4& color)
+	{
+		auto sprite = mmake<Sprite>(image);
+		if (slice != BorderI())
+		{
+			sprite->SetMode(SpriteMode::Sliced);
+			sprite->SetSliceBorder(slice);
+		}
+		if (color != Color4::White())
+			sprite->SetColor(color);
+		return sprite;
+	}
+
+	Ref<Image> CreateImage(const Ref<Actor>& parent, const String& name, const String& image, const Vec2F& anchor,
+						   const Vec2F& pos, const Vec2F& size, float depth, const BorderI& slice = BorderI(),
+						   const Color4& color = Color4::White())
+	{
+		auto widget = mmake<Image>();
+		widget->SetName(name);
+		if (parent)
+			parent->AddChild(widget);
+
+		widget->SetLayer("UI");
+		widget->SetImage(MakeSprite(image, slice, color));
+		SetAnchoredRect(widget, anchor, pos, size);
+		SetDepth(widget, depth);
+		return widget;
+	}
+
+	Ref<Image> CreateStretchedImage(const Ref<Actor>& parent, const String& name, const String& image,
+									const BorderF& borders, float depth, const BorderI& slice = BorderI(),
+									const Color4& color = Color4::White())
+	{
+		auto widget = mmake<Image>();
+		widget->SetName(name);
+		if (parent)
+			parent->AddChild(widget);
+
+		widget->SetLayer("UI");
+		widget->SetImage(MakeSprite(image, slice, color));
+		SetAnchors(widget, Vec2F(0, 0), Vec2F(1, 1), Vec2F(-borders.left, -borders.bottom), Vec2F(borders.right, borders.top));
+		SetDepth(widget, depth);
+		return widget;
+	}
+
+	// Свежее дерево из прототипа игры, не связанное с ассетом
+	Ref<Actor> CloneProto(const String& path)
+	{
+		AssetRef<ActorAsset> asset(path);
+		return asset && asset->GetActor() ? asset->GetActor()->CloneAsRef<Actor>() : Ref<Actor>();
+	}
+}
+
 namespace
 {
+	// Скраб клипа с запеканием частиц — поведение редактора: сцена помечается редактируемой
+	struct EditorSceneScope
+	{
+		bool previous = o2Scene.IsEditor();
+
+		EditorSceneScope() { o2Scene.SetIsEditor(true); }
+		~EditorSceneScope() { o2Scene.SetIsEditor(previous); }
+	};
+
 	void ExpectTileAlive(const Ref<Actor>& tile, const char* stage)
 	{
 		ASSERT_TRUE(tile) << stage;
@@ -58,7 +159,7 @@ namespace
 		camera->SetFittedSize(Vec2F(768, 1376));
 		camera->drawLayers.SetLayers({ String("UI") });
 
-		auto screen = WordFallUiFactory::CreateSection(nullptr, "Screen", Vec2F(0.5f, 0.5f),
+		auto screen = Ui::CreateSection(nullptr, "Screen", Vec2F(0.5f, 0.5f),
 													   Vec2F(0, 0), Vec2F(768, 1376));
 		return screen;
 	}
@@ -72,7 +173,7 @@ namespace
 
 		auto tile = asset->Instantiate();
 		screen->AddChild(tile);
-		WordFallUiFactory::SetAnchoredRect(DynamicCast<Widget>(tile), Vec2F(0.5f, 0.5f),
+		Ui::SetAnchoredRect(DynamicCast<Widget>(tile), Vec2F(0.5f, 0.5f),
 										   Vec2F(0, 0), Vec2F(82, 82));
 
 		Actor::SetDefaultCreationMode(prevMode);
@@ -90,9 +191,9 @@ TEST(WordFallProto, DirectTileRespondsToClicks)
 	Actor::SetDefaultCreationMode(ActorCreateMode::InScene);
 
 	auto screen = PrepareUiScene();
-	auto tile = WordFallUiFactory::BuildTilePrototype();
+	auto tile = Ui::CloneProto("WordFall/Prototypes/Tile.proto");
 	screen->AddChild(tile);
-	WordFallUiFactory::SetAnchoredRect(DynamicCast<Widget>(tile), Vec2F(0.5f, 0.5f),
+	Ui::SetAnchoredRect(DynamicCast<Widget>(tile), Vec2F(0.5f, 0.5f),
 									   Vec2F(0, 0), Vec2F(82, 82));
 
 	Actor::SetDefaultCreationMode(prevMode);
@@ -111,7 +212,7 @@ TEST(WordFallProto, DirectTileRespondsToClicks)
 // того же ActorAsset обязан быть полноценным виджетом, а не пустым инстансом
 TEST(WordFallProto, TileReinstantiatesAcrossScenes)
 {
-	auto asset = mmake<ActorAsset>(WordFallUiFactory::BuildTilePrototype());
+	auto asset = mmake<ActorAsset>(Ui::CloneProto("WordFall/Prototypes/Tile.proto"));
 
 	auto first = InstantiateTileScene(asset);
 	ExpectTileAlive(first, "first scene");
@@ -135,7 +236,7 @@ TEST(WordFallProto, TileInstantiatesAfterAssetSave)
 {
 	const String assetPath = "WordFall/Prototypes/TestTileTmp.proto";
 
-	auto asset = mmake<ActorAsset>(WordFallUiFactory::BuildTilePrototype());
+	auto asset = mmake<ActorAsset>(Ui::CloneProto("WordFall/Prototypes/Tile.proto"));
 	asset->Save(assetPath);
 
 	auto first = InstantiateTileScene(asset);
@@ -167,10 +268,10 @@ TEST(WordFallProto, PillButtonPrototypeClickable)
 	auto screen = PrepareUiScene();
 
 	// путь игры: инстанс из ассета
-	auto asset = mmake<ActorAsset>(WordFallUiFactory::BuildPillButtonPrototype());
+	auto asset = mmake<ActorAsset>(Ui::CloneProto("WordFall/Prototypes/PillButton.proto"));
 	auto pill = asset->Instantiate();
 	screen->AddChild(pill);
-	WordFallUiFactory::SetAnchoredRect(DynamicCast<Widget>(pill), Vec2F(0.5f, 0.5f),
+	Ui::SetAnchoredRect(DynamicCast<Widget>(pill), Vec2F(0.5f, 0.5f),
 									   Vec2F(0, 0), Vec2F(220, 64));
 
 	Actor::SetDefaultCreationMode(prevMode);
@@ -209,22 +310,22 @@ TEST(WordFallProto, PillButtonClickableAfterContainerEnabled)
 
 	auto screen = PrepareUiScene();
 
-	auto content = WordFallUiFactory::CreateSection(screen, "Content", Vec2F(0.5f, 0.5f),
+	auto content = Ui::CreateSection(screen, "Content", Vec2F(0.5f, 0.5f),
 													Vec2F(0, 0), Vec2F(768, 1376));
 
 	// как в попапе: затемнение и панель под кнопкой
-	auto dim = WordFallUiFactory::CreateStretchedImage(content, "Dim", "WordFall/Sprites/white.png",
+	auto dim = Ui::CreateStretchedImage(content, "Dim", "WordFall/Sprites/white.png",
 													   BorderF(), 100.0f, BorderI(), Color4(14, 26, 52, 255));
 	dim->SetTransparency(170.0f/255.0f);
-	WordFallUiFactory::CreateImage(content, "Panel", "WordFall/Sprites/ui_panel_board.png",
+	Ui::CreateImage(content, "Panel", "WordFall/Sprites/ui_panel_board.png",
 								   Vec2F(0.5f, 0.5f), Vec2F(0, 10), Vec2F(520, 400), 101.0f,
 								   BorderI(40, 40, 40, 40));
 
-	auto pill = WordFallUiFactory::BuildPillButtonPrototype();
+	auto pill = Ui::CloneProto("WordFall/Prototypes/PillButton.proto");
 	content->AddChild(pill);
-	WordFallUiFactory::SetAnchoredRect(DynamicCast<Widget>(pill), Vec2F(0.5f, 0.5f),
+	Ui::SetAnchoredRect(DynamicCast<Widget>(pill), Vec2F(0.5f, 0.5f),
 									   Vec2F(0, 0), Vec2F(220, 64));
-	WordFallUiFactory::SetDepth(DynamicCast<Widget>(pill), 102.0f);
+	Ui::SetDepth(DynamicCast<Widget>(pill), 102.0f);
 
 	content->SetEnabled(false);
 
@@ -254,24 +355,24 @@ TEST(WordFallProto, PillButtonClickableAfterContainerEnabled)
 // и кликаться после инстанцирования внешнего
 TEST(WordFallProto, NestedPrototypeInstanceSurvivesOuterInstantiation)
 {
-	auto pillAsset = mmake<ActorAsset>(WordFallUiFactory::BuildPillButtonPrototype());
+	auto pillAsset = mmake<ActorAsset>(Ui::CloneProto("WordFall/Prototypes/PillButton.proto"));
 
 	auto prevMode = Actor::GetDefaultCreationMode();
 	Actor::SetDefaultCreationMode(ActorCreateMode::NotInScene);
 
-	auto outerRoot = WordFallUiFactory::CreateSection(nullptr, "Outer", Vec2F(0.5f, 0.5f),
+	auto outerRoot = Ui::CreateSection(nullptr, "Outer", Vec2F(0.5f, 0.5f),
 													  Vec2F(0, 0), Vec2F(768, 1376));
 
 	// как попап: изначально выключенный контейнер с кнопкой-инстансом внутри
-	auto content = WordFallUiFactory::CreateSection(outerRoot, "Content", Vec2F(0.5f, 0.5f),
+	auto content = Ui::CreateSection(outerRoot, "Content", Vec2F(0.5f, 0.5f),
 													Vec2F(0, 0), Vec2F(768, 1376));
 
 	auto pillTemplate = pillAsset->Instantiate();
 	pillTemplate->SetName("RestartBtn");
 	content->AddChild(pillTemplate);
 	auto pillWidget = DynamicCast<Widget>(pillTemplate);
-	WordFallUiFactory::SetAnchoredRect(pillWidget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(220, 64));
-	WordFallUiFactory::SetDepth(pillWidget, 102.0f);
+	Ui::SetAnchoredRect(pillWidget, Vec2F(0.5f, 0.5f), Vec2F(0, 0), Vec2F(220, 64));
+	Ui::SetDepth(pillWidget, 102.0f);
 	if (auto btn = DynamicCast<Button>(pillTemplate->GetChild("Btn")))
 		btn->SetCaption("ЕЩЁ РАЗ");
 
@@ -289,7 +390,7 @@ TEST(WordFallProto, NestedPrototypeInstanceSurvivesOuterInstantiation)
 	auto screen = PrepareUiScene();
 	auto outer = outerAsset->Instantiate();
 	screen->AddChild(outer);
-	WordFallUiFactory::SetAnchors(DynamicCast<Widget>(outer), Vec2F(0, 0), Vec2F(1, 1),
+	Ui::SetAnchors(DynamicCast<Widget>(outer), Vec2F(0, 0), Vec2F(1, 1),
 								  Vec2F(0, 0), Vec2F(0, 0));
 	Actor::SetDefaultCreationMode(prevMode);
 
@@ -335,7 +436,7 @@ TEST(WordFallProto, WidgetTransparencySurvivesInstantiation)
 	{
 		auto prevMode = Actor::GetDefaultCreationMode();
 		Actor::SetDefaultCreationMode(ActorCreateMode::NotInScene);
-		auto dim = WordFallUiFactory::CreateStretchedImage(nullptr, "DimTest",
+		auto dim = Ui::CreateStretchedImage(nullptr, "DimTest",
 			"WordFall/Sprites/white.png", BorderF(), 50.0f, BorderI(), Color4(0, 0, 255, 255));
 		dim->SetTransparency(0.5f);
 		Actor::SetDefaultCreationMode(prevMode);
@@ -362,7 +463,7 @@ TEST(WordFallProto, WidgetTransparencySurvivesInstantiation)
 		camera->fillColor = Color4(255, 255, 255);
 		camera->drawLayers.SetLayers({ String("UI") });
 
-		return WordFallUiFactory::CreateSection(nullptr, "Screen", Vec2F(0.5f, 0.5f),
+		return Ui::CreateSection(nullptr, "Screen", Vec2F(0.5f, 0.5f),
 												Vec2F(0, 0), Vec2F(768, 1376));
 	};
 
@@ -405,7 +506,7 @@ TEST(WordFallProto, WidgetTransparencySurvivesInstantiation)
 // DataDocument и обратно), инстансы должны быть полноценны в обеих сценах
 TEST(WordFallProto, DeserializedTileReinstantiatesAcrossScenes)
 {
-	auto source = mmake<ActorAsset>(WordFallUiFactory::BuildTilePrototype());
+	auto source = mmake<ActorAsset>(Ui::CloneProto("WordFall/Prototypes/Tile.proto"));
 
 	DataDocument data;
 	source->Serialize(data);
@@ -438,6 +539,8 @@ TEST(WordFallProto, DeserializedTileReinstantiatesAcrossScenes)
 // без апдейта сцены — слои плашки и звезда должны меняться и в значениях, и в кадре
 TEST(WordFallProto, FlyingLetterScrubWithoutSceneUpdateFadesLayers)
 {
+	EditorSceneScope editorScene; // скраб без апдейта сцены — режим редактора
+
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
 
 	auto asset = o2Assets.GetAssetRefByType<ActorAsset>("WordFall/Prototypes/FxFlyingLetter.proto");
@@ -522,6 +625,8 @@ TEST(WordFallProto, FlyingLetterScrubWithoutSceneUpdateFadesLayers)
 // применяться на текущей позиции скраба без повторного скраба, как и для Sparks
 TEST(WordFallProto, FlyingLetterLateBurstEditAppliesWithoutScrub)
 {
+	EditorSceneScope editorScene; // правка эмиттера без скраба — режим редактора
+
 	auto asset = o2Assets.GetAssetRefByType<ActorAsset>("WordFall/Prototypes/FxFlyingLetter.proto");
 	ASSERT_TRUE(asset && asset->GetActor());
 

@@ -27,5 +27,5 @@ protected:
 	void OnDraw() override;
 
 protected:
-	String mScenePath = "WordFall.scn"; // What the game starts with, and restarts into
+	String mScenePath; // What the game starts with, and restarts into (GameInfo.json startScene)
 };

@@ -40,6 +40,10 @@ at ctest startup); call sites use `o2_gtest_discover_tests(...)`. Configure with
 when hunting cross-test pollution. Consequence: tests of one suite share a process — clean up global
 state (scene, subscriptions to `o2Scene`/global signals) via guards/destructors.
 
+`GameTests` also runs the game's JS tests: every `Sources/GameTests/Scripts/*.test.js` is a suite, each
+`test("Name", fn)` in it a case (`expect`, `expectEq`, `expectNear`, `assert`); they `include` the game
+scripts from the built assets.
+
 New tests go in the matching tier; shared helpers live in `o2/Tests/Sources/Support/`
 (`SceneCleanGuard`, `TickFrame`/`TickFrames` in `Scene/SceneTestHelpers.h`).
 
@@ -146,8 +150,10 @@ Rules that hold there:
   let/const (`Name = class Name extends o2.Component { ... }`); lifecycle hooks are exactly
   `OnStart()`, `OnEnabled()`, `OnDisabled()`, `Update(dt)`; log with `print()`; never `Dump()` or
   enumerate the JS global under browserjs. A window script reports to C++ through the injected
-  property named exactly `action`.
+  property named exactly `action`. Code shared between scripts lives in plain script assets pulled
+  in with `include("Scripts/...js")`; JSON data assets come in via `GetJson()` (see o2 scripting docs).
 - Never change an asset uid, an actor Id or a PrototypeLink number, and move a `.meta` together with
   its file — references are by uid and break silently.
-- Particles: an emitter needs `"mPlaying": true` (and `"mLoop": "Repeat"` for a loop); `Play()` is
-  not scriptable; the particle image must be part of the built assets.
+- Particles: an emitter needs `"mPlaying": true` (and `"mLoop": "Repeat"` for a loop) to play on its
+  own; scripts start one with `RewindAndPlay()` (found with `GetComponent("o2::ParticlesEmitterComponent")`);
+  the particle image must be part of the built assets.
