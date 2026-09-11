@@ -31,6 +31,17 @@ void GameApplication::OnStarted()
 	}
 }
 
+const String& GameApplication::GetScenePath() const
+{
+	return mScenePath;
+}
+
+void GameApplication::Restart()
+{
+	o2Scene.Clear();
+	OnStarted();
+}
+
 void GameApplication::OnUpdate(float dt)
 {
 	o2Application.windowCaption = String("Zero Line") +
