@@ -1,0 +1,386 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бонусы Word Fall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+    :root {
+        --ground: #f2ede1;
+        --panel: #fbf8f1;
+        --panel-edge: #ddd2bc;
+        --ink: #241d12;
+        --ink-soft: #6b6152;
+        --ink-faint: #948977;
+        --gold: #b8791a;
+        --gold-bright: #e8b33c;
+        --blast: #d1521a;
+        --rocket: #1f7fa8;
+        --spark: #b4348c;
+        --board: #16305c;
+
+        --shadow: 0 1px 2px rgba(36, 29, 18, .07), 0 8px 24px -12px rgba(36, 29, 18, .18);
+        --radius: 14px;
+        --measure: 66ch;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+            --ground: #0e1526;
+            --panel: #16203a;
+            --panel-edge: #26324f;
+            --ink: #eae4d6;
+            --ink-soft: #a3aec6;
+            --ink-faint: #6f7c98;
+            --gold: #e8b33c;
+            --gold-bright: #ffd473;
+            --blast: #ff8a3d;
+            --rocket: #7ad6ff;
+            --spark: #ff78cd;
+            --board: #9fb8e0;
+
+            --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px -14px rgba(0, 0, 0, .7);
+        }
+    }
+
+    :root[data-theme="dark"] {
+        --ground: #0e1526;
+        --panel: #16203a;
+        --panel-edge: #26324f;
+        --ink: #eae4d6;
+        --ink-soft: #a3aec6;
+        --ink-faint: #6f7c98;
+        --gold: #e8b33c;
+        --gold-bright: #ffd473;
+        --blast: #ff8a3d;
+        --rocket: #7ad6ff;
+        --spark: #ff78cd;
+        --board: #9fb8e0;
+
+        --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px -14px rgba(0, 0, 0, .7);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        background: var(--ground);
+        color: var(--ink);
+        font: 400 16px/1.6 "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 48px 24px 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 44px;
+    }
+
+    .masthead { display: flex; flex-direction: column; gap: 14px; }
+
+    .eyebrow {
+        font: 600 12px/1 "JetBrains Mono", ui-monospace, monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+        color: var(--gold);
+    }
+
+    h1 {
+        margin: 0;
+        font: 800 clamp(34px, 6vw, 52px)/1.04 "Bricolage Grotesque", "Source Sans 3", sans-serif;
+        letter-spacing: -.02em;
+        text-wrap: balance;
+    }
+
+    .lede {
+        margin: 0;
+        max-width: var(--measure);
+        font-size: 18px;
+        color: var(--ink-soft);
+    }
+
+    .facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        margin-top: 4px;
+    }
+
+    .fact {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 7px;
+        padding: 5px 11px;
+        border: 1px solid var(--panel-edge);
+        border-radius: 999px;
+        background: var(--panel);
+        font: 400 13px/1.3 "JetBrains Mono", ui-monospace, monospace;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-soft);
+    }
+
+    .fact b { color: var(--ink); font-weight: 600; }
+
+    h2 {
+        margin: 0 0 4px;
+        font: 800 13px/1 "JetBrains Mono", ui-monospace, monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+    }
+
+    section { display: flex; flex-direction: column; gap: 18px; }
+
+    .swap {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        align-items: start;
+    }
+
+    .swap img {
+        display: block;
+        width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid var(--panel-edge);
+    }
+
+    .swap-legend {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--ink-soft);
+    }
+
+    .swap-legend span { display: block; }
+    .swap-legend b { color: var(--ink); font-weight: 600; }
+
+    .clips {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+        gap: 20px;
+    }
+
+    .clip {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--panel-edge);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+    }
+
+    .clip video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 468 / 562;
+        border-radius: 9px;
+        background: var(--board);
+        border-top: 3px solid var(--tint, var(--gold));
+    }
+
+    .clip h3 {
+        margin: 0;
+        font: 600 19px/1.2 "Bricolage Grotesque", "Source Sans 3", sans-serif;
+        letter-spacing: -.01em;
+        color: var(--tint, var(--ink));
+    }
+
+    .clip p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+
+    .spec {
+        margin: 0;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 3px 12px;
+        font: 400 12.5px/1.45 "JetBrains Mono", ui-monospace, monospace;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .spec dt { color: var(--ink-faint); }
+    .spec dd { margin: 0; color: var(--ink); text-align: right; }
+
+    .under {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 10px 28px;
+    }
+
+    .under div {
+        padding: 12px 0;
+        border-top: 1px solid var(--panel-edge);
+    }
+
+    .under h3 {
+        margin: 0 0 3px;
+        font: 600 15px/1.3 "Source Sans 3", sans-serif;
+    }
+
+    .under p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+
+    code {
+        font: 400 .89em/1.4 "JetBrains Mono", ui-monospace, monospace;
+        color: var(--gold);
+        word-break: break-word;
+    }
+
+    footer {
+        border-top: 1px solid var(--panel-edge);
+        padding-top: 18px;
+        font-size: 13.5px;
+        color: var(--ink-faint);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    footer code { color: var(--ink-soft); }
+
+    @media (min-width: 720px) {
+        .swap { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        video { animation: none; }
+    }
+</style>
+
+<div class="page">
+    <header class="masthead">
+        <span class="eyebrow">Word Fall · ревью эффектов</span>
+        <h1>Бонусы Word Fall</h1>
+        <p class="lede">
+            Бомба, ракета и фейерверк: золотые оправы с аурой и пульсом на поле, ракета носом по
+            курсу с дымно-искровым шлейфом, салюты из светящихся комет, конфетти и бликов, взрыв с
+            огненным ядром и ударной волной. Клипы сняты покадрово прямо из игры тестами
+            <code>WordFallVfxShowcase</code> — это ровно то, что видит игрок.
+        </p>
+        <div class="facts">
+            <span class="fact"><b>361</b> тест зелёный</span>
+            <span class="fact"><b>14</b> спрайтов сгенерировано</span>
+            <span class="fact"><b>20</b> эмиттеров эффектов</span>
+            <span class="fact"><b>5</b> правок движка</span>
+            <span class="fact"><b>20.3</b> кадра/с в клипах</span>
+        </div>
+    </header>
+
+    <section>
+        <h2>Бонус на поле: было — стало</h2>
+        <div class="swap">
+            <img src="media/before_after.png" alt="Слева бомба без подложки на синем поле, справа бомба в золотой оправе с тёплой аурой">
+            <div class="swap-legend">
+                <span><b>Было.</b> Тёмная иконка прямо на синем поле: не читается как объект, сливается с доской.</span>
+                <span><b>Стало.</b> Золотая оправа, аура в цвет бонуса, дыхание масштабом ±7 % и искры сверху.</span>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Эффекты в игре</h2>
+        <div class="clips">
+            <article class="clip" style="--tint: var(--gold)">
+                <video src="media/idle.mp4" poster="media/idle_poster.jpg" autoplay loop muted playsinline></video>
+                <h3>Ожидание на поле</h3>
+                <p>Три бонуса ждут хода: плитка дышит, аура мерцает, искры выходят по очереди на каждый.</p>
+                <dl class="spec">
+                    <dt>пульс</dt><dd>3.2 рад/с, ±7 %</dd>
+                    <dt>аура</dt><dd>0.30 → 0.85 α</dd>
+                    <dt>искры</dt><dd>раз в 0.7 с</dd>
+                </dl>
+            </article>
+
+            <article class="clip" style="--tint: var(--blast)">
+                <video src="media/bomb.mp4" poster="media/bomb_poster.jpg" autoplay loop muted playsinline></video>
+                <h3>Взрыв бомбы</h3>
+                <p>Фитиль раздувает бомбу, дальше вспышка, огненное ядро, ударная волна, крутящиеся обломки корпуса, огненные кометы, дым и тряска поля.</p>
+                <dl class="spec">
+                    <dt>фитиль</dt><dd>0.28 с</dd>
+                    <dt>волна</dt><dd>38 → 330 px</dd>
+                    <dt>осколки</dt><dd>7 обломков + 14 комет</dd>
+                    <dt>смешивание</dt><dd>кометы и ядро — аддитивно</dd>
+                    <dt>тряска</dt><dd>13 px, 0.42 с</dd>
+                </dl>
+            </article>
+
+            <article class="clip" style="--tint: var(--rocket)">
+                <video src="media/rocket.mp4" poster="media/rocket_poster.jpg" autoplay loop muted playsinline></video>
+                <h3>Ракета</h3>
+                <p>На старте корпус приседает и вытягивается, под соплом — вспышка зажигания, горячее кольцо, угли и кольцо пыли; треть пути разгон, дальше ровная скорость до самой цели; на попадании корпус исчезает мгновенно — остаются кольцо, тонированная вспышка, кометы трёх цветов, конфетти и блики.</p>
+                <dl class="spec">
+                    <dt>взлёт</dt><dd>вспышка + кольцо + 9 углей + 7 клубов пыли</dd>
+                    <dt>прилёт</dt><dd>в центр клетки, ±4 px</dd>
+                    <dt>шлейф</dt><dd>110 искр + 28 клубов/с</dd>
+                    <dt>салют</dt><dd>3 × 7 комет + 9 конфетти + 7 бликов</dd>
+                    <dt>полёт</dt><dd>1.05 с: разгон 32 %, потом ровно</dd>
+                </dl>
+            </article>
+
+            <article class="clip" style="--tint: var(--spark)">
+                <video src="media/fireworks.mp4" poster="media/fireworks_poster.jpg" autoplay loop muted playsinline></video>
+                <h3>Фейерверк</h3>
+                <p>Сначала бонус рвётся сам — вспышка, шар из комет трёх цветов, конфетти и блики, — затем залп ракет по клеткам, каждая со своим салютом.</p>
+                <dl class="spec">
+                    <dt>взрыв</dt><dd>3 × 8 комет + 12 конфетти</dd>
+                    <dt>блики</dt><dd>10 шт, 0.75 с</dd>
+                    <dt>залп</dt><dd>до 10, шаг 0.15 с</dd>
+                </dl>
+            </article>
+        </div>
+    </section>
+
+    <section>
+        <h2>Что под капотом</h2>
+        <div class="under">
+            <div>
+                <h3>Движок o2</h3>
+                <p><code>ParticlesVelocityStretchEffect</code> разворачивает частицу по скорости и
+                   чуть вытягивает её — искры становятся кометами. <code>FlightTrajectoryComponent</code>
+                   получил <code>alignToDirection</code>: актор смотрит по касательной траектории.
+                   Саб-трековые эмиттеры теперь симулируются и в игровой сборке без редактора
+                   (<code>SimulateTo</code>), копия эмиттера сохраняет все параметры эмиссии,
+                   одноразовый эмиттер по концу длительности гасит все частицы, а саб-трек, когда
+                   кадр перешагивает конец его окна, один раз дотягивает цель до конца — салют
+                   больше не замирает полупрозрачным пятном до отключения ракеты. Pivot виджета
+                   теперь сохраняется в прототип — раньше ракета крутилась и салютовала вокруг
+                   своего угла и «прилетала в угол» клетки.</p>
+            </div>
+            <div>
+                <h3>Арт</h3>
+                <p>Иконки, оправа, комета, блик, конфетти, обломок и четыре VFX-текстуры сгенерированы Gemini; у свечений
+                   альфа восстановлена из яркости, цвет задают градиенты частиц. Светящиеся частицы
+                   рисуются аддитивным материалом.</p>
+            </div>
+            <div>
+                <h3>WordFallVfx</h3>
+                <p>Эмиттеры собираются из конфига: изображение, гравитация, демпфирование, градиент,
+                   кривая размера, растяжение и смешивание. Взрыв бомбы — шесть эмиттеров, попадание
+                   ракеты — три, центральный взрыв фейерверка — шесть.</p>
+            </div>
+            <div>
+                <h3>Плитка и поле</h3>
+                <p>В прототипе плитки появились слои <code>bonusGlow</code> и <code>bonusPlate</code>;
+                   вьюха поля качает масштаб, красит ауру под вид бонуса, трясёт поле и салютует
+                   появлению нового бонуса.</p>
+            </div>
+            <div>
+                <h3>Тесты</h3>
+                <p>Набор <code>WordFallVfxShowcase</code> проверяет, что каждый этап рождает частицы,
+                   и сам снимает эти клипы: эффект живёт доли секунды, поэтому проверки идут
+                   покадрово во время съёмки.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <span>Клипы пересобираются одной командой:</span>
+        <span><code>WORDFALL_CLIPS_DIR=&lt;папка&gt; ./GameUITests --gtest_filter='WordFallVfxShowcase.*'</code></span>
+        <span>Рядом с кадрами ложится <code>clip.json</code> с длительностью — по ней ffmpeg собирает видео в темпе игры.</span>
+    </footer>
+</div>

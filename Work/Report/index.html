@@ -1,0 +1,76 @@
+<title>Обучение, финал и полёты</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--ground:#eef3f8;--panel:#fff;--ink:#17263a;--faint:#5f7189;--line:#cfd9e6;--accent:#2f7dd1;--gold:#d99a1c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ground:#0f1721;--panel:#172230;--ink:#e8eef6;--faint:#9aacc2;--line:#2b3a4d;--accent:#6fb0f2;--gold:#f0b93a}}
+:root[data-theme="dark"]{--ground:#0f1721;--panel:#172230;--ink:#e8eef6;--faint:#9aacc2;--line:#2b3a4d;--accent:#6fb0f2;--gold:#f0b93a}
+body{background:var(--ground);color:var(--ink);font:15px/1.55 Nunito,system-ui,sans-serif;margin:0}
+.page{max-width:1120px;margin:0 auto;padding:32px 22px 72px}
+h1{font-size:36px;font-weight:800;margin:0 0 8px;letter-spacing:-.01em}
+h2{font-size:21px;font-weight:800;margin:40px 0 12px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--faint);font-weight:700}
+.lede{max-width:68ch}
+.facts{display:flex;flex-wrap:wrap;gap:10px 26px;margin:16px 0 0}
+.fact b{font-family:"IBM Plex Mono",monospace;font-size:20px;color:var(--accent)}
+.clips{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card video,.card .clip{width:100%;display:block;background:#0d1420}
+.card .body{padding:12px 14px 15px;display:grid;gap:6px}
+.card b{font-size:15px} .card span{color:var(--faint);font-size:13.5px}
+.wide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+.wide img{width:100%;min-width:640px;display:block;border-radius:8px}
+.wide p{color:var(--faint);font-size:13.5px;margin:8px 2px 0}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.pair figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pair img{width:100%;display:block} .pair figcaption{padding:9px 11px 12px;color:var(--faint);font-size:13px}
+ul{max-width:76ch} li{margin:7px 0}
+code{font-family:"IBM Plex Mono",monospace;font-size:13px;background:rgba(127,127,127,.14);padding:1px 5px;border-radius:5px}
+</style>
+<div class="page">
+<header><div class="eyebrow">Word Fall · обучение, финал, полёты</div>
+<h1>Обучение ведёт по буквам, финал парит, ракеты не ползают</h1>
+<p class="lede">Первый шаг обучения теперь указывает на конкретную букву и переезжает по мере набора,
+экран победы получил спокойное парение букв, а полёты — время по дистанции: буквы с дальнего края
+поля летят дольше, ракета облетает близкую цель по дуге.</p>
+<div class="facts"><span class="fact"><b>366</b> тестов зелёные</span><span class="fact"><b>6</b> новых тестов</span>
+<span class="fact"><b>1</b> правка движка</span><span class="fact"><b>7</b> шагов про элементы</span></div></header>
+
+<h2>Видео</h2>
+<div class="clips">
+<article class="card"><video src="media/tutorial.mp4" poster="media/tutorial_poster.jpg" autoplay loop muted playsinline></video><div class="body"><b>Обучение: буква за буквой</b>
+<span>Подсветка, рука и подпись переезжают на следующую ненабранную букву слова-задания; тап вне выреза ведёт дальше, внутри — попадает в игру.</span></div></article>
+<article class="card"><video src="media/win.mp4" poster="media/win_poster.jpg" autoplay loop muted playsinline></video><div class="body"><b>Победа: появление и покой</b>
+<span>Буквы влетают снаружи ровно в ту точку, с которой начинается покой — передача проходит без рывка. Дальше они парят по замкнутой траектории и меняются, звёзды по очереди бампают, остальное неподвижно.</span></div></article>
+<article class="card"><video src="media/rocket_arc.mp4" poster="media/rocket_arc_poster.jpg" autoplay loop muted playsinline></video><div class="body"><b>Ракета: облёт близкой цели</b>
+<span>Скорость постоянная — 760 px/с. Близкая цель получает крюк: ракета целится за неё, на середине пути финиш переставляется на клетку.</span></div></article>
+<article class="card"><video src="media/fireworks_salvo.mp4" poster="media/fireworks_salvo_poster.jpg" autoplay loop muted playsinline></video><div class="body"><b>Фейерверк: сбор и залп</b>
+<span>Слово из 7 букв кладёт бонус на поле, слово рядом запускает залп по 10 клеткам — по одной ракете на цель, без повторов.</span></div></article>
+</div>
+
+<h2>Обучение: шаг за буквой</h2>
+<div class="wide"><img class="wide-img" src="media/tutorial_letters.jpg" alt="">
+<p>«Нажми букву «Д»» → «Теперь букву «О»» → «Теперь букву «М»». Затемнение раскладывается полосами со склейкой, поэтому при шести вырезах экран остаётся затемнён целиком.</p></div>
+
+<h2>Все элементы поля</h2>
+<div class="wide"><img class="wide-img" src="media/tutorial_elements.jpg" alt="">
+<p>Лёд, камень, бонус, ящик, цепь, снежок, конверт — шаг появляется при первом появлении элемента и запоминается в прогрессе игрока.</p></div>
+
+<h2>Передача появления в покой</h2>
+<div class="wide"><img class="wide-img" src="media/win_handover.jpg" alt="">
+<p>Влёт заканчивается в позиции покоя при t=0 (общая функция <code>_IdleTransform</code>), поэтому буквы не дёргаются на стыке анимаций: шаг плитки за кадр после влёта — меньше 6 px (тест <code>WinPopupHandsLettersOverToIdleWithoutJump</code>).</p></div>
+
+<h2>Что ещё починено</h2>
+<ul>
+<li>Бонусы ломают ящик целиком: взрыв бомбы больше не оставляет «недобитый» ящик на второй ход.</li>
+<li>Буквы, выбитые бонусами, летят в шкалу очков со скоростью 900 px/с — дальние летят дольше, а не за то же время.</li>
+<li>Бейдж «+N» на экране победы — облачко с хвостиком, 9-slice (хвостик в углу не тянется).</li>
+<li>Движок: <code>IAnimationState::SetSpeed</code> стал scriptable — один клип растягивается под вычисленную длительность вместо клипа на каждый случай.</li>
+</ul>
+
+<h2>Кадры</h2>
+<div class="pair">
+<figure><img class="shot" src="media/feature_popup_idle.jpg" alt=""><figcaption>Победа в покое: парящие буквы и бейдж с хвостиком</figcaption></figure>
+<figure><img class="shot" src="media/feature_bonus_letters.jpg" alt=""><figcaption>Буквы от бомбы летят в шкалу</figcaption></figure>
+<figure><img class="shot" src="media/feature_board_shape.jpg" alt=""><figcaption>Обводка поля из кусочков</figcaption></figure>
+</div>
+</div>
