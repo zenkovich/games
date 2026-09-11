@@ -9,6 +9,13 @@ class GameApplication: public Application
 public:
 	GameApplication(RefCounter* refCounter);
 
+	// Reloads the scene from scratch, as if the game had just started. The web
+	// preview restarts the client this way after the assets were rebuilt
+	void Restart();
+
+	// Scene the game starts with, for the tools that report what is open
+	const String& GetScenePath() const;
+
 protected:
 	// Called when application is starting
 	void OnStarted() override;
@@ -18,4 +25,7 @@ protected:
 
 	// Called on drawing
 	void OnDraw() override;
+
+protected:
+	String mScenePath = "WordFall.scn"; // What the game starts with, and restarts into
 };
