@@ -5,6 +5,8 @@
 #include "o2/Utils/Types/Containers/Vector.h"
 #include "o2/Utils/Types/String.h"
 
+#include <functional>
+
 using namespace o2;
 
 class WordDictionary;
@@ -19,6 +21,11 @@ struct WordTile
 	bool doubled = false;
 	bool joker = false;
 	WString powerup;  // "" | "bomb" | "rocket" | "fireworks" — бонус занимает слот вместо буквы
+	bool hole = false;    // клетки нет: ничего не рисуется и не падает
+	int crate = 0;        // прочность ящика (0 — нет): стоит на месте, держит колонку
+	bool chained = false; // буква на цепи: не падает и держит колонку, цепь уходит с буквой
+	bool snow = false;    // снежок: занимает клетку, падает, тает от слова рядом
+	bool parcel = false;  // конверт: падает, доставляется на дне колонки
 };
 
 // Сработавший пауэрап
@@ -58,6 +65,10 @@ struct WordMoveResult
 	Vector<WordTileMove> moved;
 	Vector<Vec2I> spawned;
 	Vector<Vec2I> repaired;   // подсев страховки выполнимости
+	Vector<Vec2I> crateHit;    // ящики, потерявшие прочность, но устоявшие
+	Vector<Vec2I> crateBroken;
+	Vector<Vec2I> snowMelted;
+	Vector<Vec2I> delivered;  // конверты, дошедшие до дна (клетка дна)
 };
 
 // Модель игрового поля: сетка, мешок, выбор, очки, гравитация, пауэрапы.
@@ -68,8 +79,40 @@ public:
 	// Инициализация с конфигом и сидом (0 — случайный)
 	void Init(const WordBoardConfig& config, unsigned int seed);
 
-	// Новое поле: заполнение из мешка, сид слова, лёд
-	void Fill(const Vector<Vec2I>& iceCells, const Vector<Vec2I>& stoneCells, const WString& seededWord);
+	// Новое поле: заполнение из мешка, сид слова, препятствия и предметы уровня
+	void Fill(const WordLevelConfig& level, const WString& seededWord);
+
+	const WordBoardConfig& GetConfig() const;
+
+	// Клетка есть на поле (в сетке и не дыра)
+	bool IsHole(const Vec2I& cell) const;
+	bool IsPlayable(const Vec2I& cell) const;
+
+	// Что упадёт сверху при следующем заполнении: конверты и снежки уровня
+	void SetSpawnQueue(int parcels, int snow);
+
+	// Приоритеты целей ракет по задачам уровня: препятствия-цели бьются первыми,
+	// буквы слова-задания и буква задания — берегутся
+	struct RocketPriorities
+	{
+		bool ice = false;
+		bool crates = false;
+		bool snow = false;
+		WString keepLetter;
+		Vector<Vec2I> keepCells;
+	};
+	void SetRocketPriorities(const RocketPriorities& priorities);
+
+	// Оценщик слова подсказки: получает слово и его очки на поле, возвращает
+	// вес (<= 0 — слово не подходит)
+	using WordScorer = std::function<float(const WString& word, float value)>;
+	// Лучшее собираемое слово по оценщику; жадный подбор плиток как в FindBestWord
+	bool FindBestWordBy(const WordDictionary& dictionary, const WordScorer& scorer,
+						WString& outWord, Vector<Vec2I>& outCells) const;
+
+	int CountCrates() const;
+	int CountSnow() const;
+	int CountParcels() const;
 
 	int GetColumns() const;
 	int GetRows() const;
@@ -134,8 +177,10 @@ public:
 	// Плитка пригодна для сбора слов: есть буква, нет льда, камня и бонуса
 	static bool IsTileUsable(const WordTile& tile);
 
-	// Плитка занимает клетку (буква или бонус) — для гравитации
+	// Плитка занимает клетку и падает (буква, бонус, снежок, конверт)
 	static bool IsTileOccupied(const WordTile& tile);
+	// Клетка не двигается и держит колонку над собой (дыра, ящик, цепь)
+	static bool IsTileStatic(const WordTile& tile);
 
 	// Для тестов
 	void DebugSetTile(const Vec2I& cell, const WString& letter);
@@ -149,6 +194,9 @@ private:
 	Vector<Vec2I> mSelection;
 	Vector<Vec2I> mSeededCells;
 	unsigned int mSeed = 1;
+	int mPendingParcels = 0;
+	int mPendingSnow = 0;
+	RocketPriorities mRocketPriorities;
 
 	float Random01();
 	int RandomInt(int maxExclusive);
@@ -169,15 +217,29 @@ private:
 		Vector<Vec2I> destroyed;
 		Vector<Vec2I> activated;
 		Vector<Vec2I> iceBroken;
+		Vector<Vec2I> crateHit;
+		Vector<Vec2I> crateBroken;
+		Vector<Vec2I> snowMelted;
 		Vector<WordPowerupUse> used;
+		Vector<Vec2I> targeted; // цели всех ракет хода — две в одну плитку не летят
 	};
+	// Ценность клетки как цели ракеты по приоритетам уровня
+	float RocketTargetScore(const Vec2I& cell) const;
+	// Удар бонуса по клетке-препятствию: true, если клетка поглотила удар
+	bool HitObstacle(const Vec2I& cell, PowerupActivation& result);
 	PowerupActivation ActivatePowerups(const Vector<Vec2I>& cells);
 	void ActivateTile(const Vec2I& cell, Vector<Vec2I>& destroyedKeys, PowerupActivation& result);
 	void FireRocket(const Vec2I& from, Vector<Vec2I>& destroyedKeys, PowerupActivation& result,
 					WordPowerupUse& use);
 
-	Vector<Vec2I> DamageIceAround(const Vector<Vec2I>& cells, const Vector<Vec2I>& skipCells);
+	// Слово бьёт по соседям: лёд теряет слой, ящик — прочность, снежок тает
+	void DamageAround(const Vector<Vec2I>& cells, const Vector<Vec2I>& skipCells, WordMoveResult& result);
+	// Обвал колонок по сегментам между статичными клетками, спавн только в
+	// открытые сверху сегменты; конверты на дне доставляются, обвал повторяется
 	void CollapseAndSpawn(const Vector<Vec2I>& removed, Vector<WordTileMove>& moved, Vector<Vec2I>& spawned);
+	void CollapseAndSpawn(const Vector<Vec2I>& removed, WordMoveResult& result);
+	void CollapseOnce(Vector<WordTileMove>& moved, Vector<Vec2I>& spawned);
+	Vector<Vec2I> DeliverParcels();
 	void SeedWord(const WString& word);
 };
 // --- META ---

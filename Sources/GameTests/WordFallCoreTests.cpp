@@ -518,7 +518,7 @@ TEST_F(WordFallCore, LengthTaskCountsWordsOfExactLength)
 	EXPECT_EQ(level.GetTasks()[0].progress, 1);
 	EXPECT_FALSE(level.GetTasks()[0].done);
 
-	Plant("АТОМ");
+	Plant("ЛУНА");
 	SelectRow(4);
 	level.AcceptWord(dictionary);
 	EXPECT_TRUE(level.GetTasks()[0].done);

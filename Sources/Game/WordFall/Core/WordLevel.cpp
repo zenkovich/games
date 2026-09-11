@@ -10,6 +10,9 @@ void WordLevel::Start(const WordLevelConfig& config, const WordBoardConfig& boar
 	mConfig = config;
 	mScore = 0;
 	mMovesLeft = config.moves;
+	mMoveIndex = 0;
+	mParcelsSpawned = 0;
+	mUsedWords.Clear();
 	mState = State::Playing;
 
 	mCharges = config.boosterCharges;
@@ -24,7 +27,25 @@ void WordLevel::Start(const WordLevelConfig& config, const WordBoardConfig& boar
 		mTasks.Add(task);
 	}
 
-	mBoard.Init(boardConfig, seed);
+	// смещение мешка уровня: гласные делают поле сговорчивее, редкие согласные — жёстче
+	WordBoardConfig levelBoard = boardConfig;
+	if (config.extraVowels > 0 || config.extraRare > 0)
+	{
+		Vector<int> vowelIndices, rareIndices;
+		for (int i = 0; i < levelBoard.letters.Count(); i++)
+		{
+			auto& def = levelBoard.letters[i];
+			if (levelBoard.vowels.Contains(def.letter))
+				vowelIndices.Add(i);
+			else if (def.value >= 5)
+				rareIndices.Add(i);
+		}
+		for (int i = 0; i < config.extraVowels && !vowelIndices.IsEmpty(); i++)
+			levelBoard.letters[vowelIndices[i % vowelIndices.Count()]].bagCount++;
+		for (int i = 0; i < config.extraRare && !rareIndices.IsEmpty(); i++)
+			levelBoard.letters[rareIndices[i % rareIndices.Count()]].bagCount++;
+	}
+	mBoard.Init(levelBoard, seed);
 
 	// одно из слов заданий обязано оказаться на поле — игроку проще начать
 	Vector<WString> taskWords;
@@ -38,8 +59,10 @@ void WordLevel::Start(const WordLevelConfig& config, const WordBoardConfig& boar
 	if (!taskWords.IsEmpty())
 		seededWord = taskWords[0];
 
-	mBoard.Fill(config.iceCells, config.stoneCells, seededWord);
+	mBoard.Fill(config, seededWord);
+	mParcelsSpawned = mBoard.CountParcels();
 	RefreshIceTasks();
+	RefreshObstacleTasks();
 	EnsureTasksAchievable(dictionary);
 }
 
@@ -68,17 +91,33 @@ WordMoveResult WordLevel::AcceptWord(const WordDictionary& dictionary)
 	}
 
 	WString pattern = mBoard.GetCurrentWord();
+	if (IsWordUsed(pattern))
+	{
+		result.reason = "duplicate";
+		result.word = pattern;
+		return result;
+	}
+
+	QueueSpawns();
+	mBoard.SetRocketPriorities(MakeRocketPriorities());
 	result = mBoard.AcceptWord(dictionary);
 	if (!result.ok)
+	{
+		mBoard.SetSpawnQueue(0, 0);
 		return result;
+	}
 
 	mScore += result.gain;
+	mMoveIndex++;
+	mUsedWords.Add(pattern);
 
 	if (!result.powerupEarned.IsEmpty())
 		OnPowerupEarned(result.powerupEarned);
 
 	UpdateTasksAfterWord(pattern, result.wordScore);
+	UpdateTasksAfterMove(result);
 	RefreshIceTasks();
+	RefreshObstacleTasks();
 
 	mMovesLeft--;
 
@@ -97,6 +136,8 @@ WordMoveResult WordLevel::UseHammer(const Vec2I& cell, const WordDictionary& dic
 		return result;
 
 	result = mBoard.RemoveTile(cell);
+	UpdateTasksAfterMove(result);
+	RefreshObstacleTasks();
 
 	// молоток мог снести последний лёд — задача закрывается и без хода
 	RefreshIceTasks();
@@ -120,8 +161,66 @@ bool WordLevel::UseHint(const WordDictionary& dictionary)
 	if (mState != State::Playing || mCharges[(int)Booster::Hint] <= 0)
 		return false;
 
-	if (!mBoard.SelectBestWord(dictionary))
+	// подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких слов
+	WString taskWord;
+	int lengthWanted = 0, powerupLength = 0, scoreWanted = 0;
+	WString letterWanted;
+	for (auto& task : mTasks)
+	{
+		if (task.done)
+			continue;
+		switch (task.config.taskType)
+		{
+			case WordTaskType::Word: if (taskWord.IsEmpty()) taskWord = WString(task.config.word); break;
+			case WordTaskType::Length: lengthWanted = task.config.length; break;
+			case WordTaskType::Letter: letterWanted = WString(task.config.letter); break;
+			case WordTaskType::WordScore: scoreWanted = task.config.scoreThreshold; break;
+			case WordTaskType::Powerup:
+				powerupLength = task.config.powerupKind == "rocket" ? 6 : task.config.powerupKind == "fireworks" ? 7 : 5;
+				break;
+			default: break;
+		}
+	}
+
+	WString word;
+	Vector<Vec2I> cells;
+	bool found = mBoard.FindBestWordBy(dictionary, [&](const WString& candidate, float value)
+	{
+		if (IsWordUsed(candidate))
+			return 0.0f;
+		if (!taskWord.IsEmpty() && candidate == taskWord)
+			return 100000.0f;
+
+		float weight = value;
+		int length = candidate.Length();
+		if (lengthWanted > 0 && length == lengthWanted)
+			weight *= 2.2f;
+		if (powerupLength > 0 && length == powerupLength)
+			weight *= 1.8f;
+		if (scoreWanted > 0 && value >= (float)scoreWanted)
+			weight *= 2.0f;
+		if (!letterWanted.IsEmpty())
+		{
+			int hits = 0;
+			for (int i = 0; i < length; i++)
+				hits += candidate.SubStr(i, i + 1) == letterWanted ? 1 : 0;
+			weight *= 1.0f + 0.5f*hits;
+		}
+		// не самые большие слова: 4–6 букв — комфортный размер
+		if (length <= 3)
+			weight *= 0.8f;
+		else if (length == 7)
+			weight *= 0.5f;
+		else if (length >= 8)
+			weight *= 0.3f;
+		return weight;
+	}, word, cells);
+	if (!found)
 		return false;
+
+	mBoard.ClearSelection();
+	for (auto& cell : cells)
+		mBoard.ToggleSelect(cell);
 
 	mCharges[(int)Booster::Hint]--;
 	return true;
@@ -152,6 +251,28 @@ bool WordLevel::UseDoubler(const Vec2I& cell)
 }
 
 void WordLevel::DebugSetTargetScore(int target) { mConfig.targetScore = target; }
+void WordLevel::DebugAddMoves(int moves)
+{
+	mMovesLeft = Math::Max(0, mMovesLeft + moves);
+	if (mState == State::Lost && mMovesLeft > 0)
+		mState = State::Playing;
+}
+
+void WordLevel::DebugAddCharges(int charges)
+{
+	for (auto& charge : mCharges)
+		charge = Math::Max(0, charge + charges);
+}
+
+void WordLevel::DebugLose()
+{
+	if (mState == State::Playing)
+	{
+		mMovesLeft = 0;
+		mState = State::Lost;
+	}
+}
+
 void WordLevel::DebugSetMovesLeft(int moves) { mMovesLeft = moves; }
 
 void WordLevel::DebugCompleteTasks()
@@ -161,9 +282,14 @@ void WordLevel::DebugCompleteTasks()
 		task.progress = task.config.count;
 		task.done = true;
 	}
+	CheckWin();
 }
 
-void WordLevel::DebugAddScore(int score) { mScore += score; }
+void WordLevel::DebugAddScore(int score)
+{
+	mScore += score;
+	CheckWin();
+}
 
 bool WordLevel::AreTasksDone() const
 {
@@ -200,6 +326,59 @@ void WordLevel::UpdateTasksAfterWord(const WString& pattern, int wordScore)
 			BumpTask(task);
 		else if (task.config.taskType == WordTaskType::WordScore && wordScore >= task.config.scoreThreshold)
 			BumpTask(task);
+		else if (task.config.taskType == WordTaskType::Letter && !task.config.letter.IsEmpty())
+		{
+			WString letter(task.config.letter);
+			for (int i = 0; i < pattern.Length() && !task.done; i++)
+			{
+				if (pattern.SubStr(i, i + 1) == letter)
+					BumpTask(task);
+			}
+		}
+	}
+}
+
+void WordLevel::UpdateTasksAfterMove(const WordMoveResult& result)
+{
+	for (auto& task : mTasks)
+	{
+		if (task.done)
+			continue;
+
+		int hits = task.config.taskType == WordTaskType::Deliver ? result.delivered.Count()
+			: task.config.taskType == WordTaskType::Melt ? result.snowMelted.Count() : 0;
+		for (int i = 0; i < hits && !task.done; i++)
+			BumpTask(task);
+	}
+}
+
+void WordLevel::QueueSpawns()
+{
+	int parcels = 0;
+	if (mConfig.parcelTotal > 0)
+	{
+		int remaining = mConfig.parcelTotal - mParcelsSpawned;
+		int room = Math::Max(1, mConfig.parcelOnScreen) - mBoard.CountParcels();
+		parcels = Math::Clamp(Math::Min(remaining, room), 0, mBoard.GetColumns());
+	}
+
+	int snow = 0;
+	if (mConfig.snowPerMove > 0 && mBoard.CountSnow() < 8)
+		snow = Math::Min(mConfig.snowPerMove, 8 - mBoard.CountSnow());
+
+	mParcelsSpawned += parcels;
+	mBoard.SetSpawnQueue(parcels, snow);
+}
+
+void WordLevel::RefreshObstacleTasks()
+{
+	if (mBoard.CountCrates() > 0)
+		return;
+
+	for (auto& task : mTasks)
+	{
+		if (task.config.taskType == WordTaskType::Crates)
+			task.done = true;
 	}
 }
 
@@ -228,6 +407,9 @@ Vector<Vec2I> WordLevel::EnsureTasksAchievable(const WordDictionary& dictionary)
 			mBoard.PlantMissingLetters(WString(task.config.word), repaired);
 		else if (type == WordTaskType::Length && !mBoard.AnyWordExists(dictionary, task.config.length))
 			mBoard.PlantMissingLetters(mBoard.RandomDictWord(dictionary, task.config.length), repaired);
+		else if (type == WordTaskType::Letter && !task.config.letter.IsEmpty() &&
+				 !mBoard.CanAssembleWord(WString(task.config.letter)))
+			mBoard.PlantMissingLetters(WString(task.config.letter), repaired);
 		else if (type == WordTaskType::Powerup)
 		{
 			int length = task.config.powerupKind == "rocket" ? 6 : task.config.powerupKind == "fireworks" ? 7 : 5;
@@ -250,6 +432,35 @@ Vector<Vec2I> WordLevel::EnsureTasksAchievable(const WordDictionary& dictionary)
 		}
 	}
 	return repaired;
+}
+
+bool WordLevel::IsWordUsed(const WString& word) const
+{
+	return mUsedWords.Contains(word);
+}
+
+WordBoard::RocketPriorities WordLevel::MakeRocketPriorities() const
+{
+	WordBoard::RocketPriorities priorities;
+	for (auto& task : mTasks)
+	{
+		if (task.done)
+			continue;
+		switch (task.config.taskType)
+		{
+			case WordTaskType::ClearIce: priorities.ice = true; break;
+			case WordTaskType::Crates: priorities.crates = true; break;
+			case WordTaskType::Melt: priorities.snow = true; break;
+			case WordTaskType::Letter: priorities.keepLetter = WString(task.config.letter); break;
+			case WordTaskType::Word:
+				// буквы засеянного слова-задания стоят на поле, пока задание не закрыто
+				for (auto& cell : mBoard.GetSeededCells())
+					priorities.keepCells.Add(cell);
+				break;
+			default: break;
+		}
+	}
+	return priorities;
 }
 
 void WordLevel::OnPowerupEarned(const String& kind)

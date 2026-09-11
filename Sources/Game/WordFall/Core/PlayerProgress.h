@@ -12,6 +12,10 @@ class PlayerProgress: public ISerializable
 public:
 	int currentLevel = 0;       // индекс текущего уровня кампании @SERIALIZABLE
 	Vector<int> bestScores;     // лучший счёт по уровням @SERIALIZABLE
+	Vector<String> seenTutorials; // ключи показанных туториалов @SERIALIZABLE
+
+	bool IsTutorialSeen(const String& key) const;
+	void MarkTutorialSeen(const String& key);
 
 	// Отмечает уровень пройденным, двигает текущий (по кругу при финале кампании)
 	void CompleteLevel(int levelIndex, int score, int levelsCount);
@@ -35,11 +39,14 @@ CLASS_FIELDS_META(PlayerProgress)
 {
     FIELD().PUBLIC().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(currentLevel);
     FIELD().PUBLIC().SERIALIZABLE_ATTRIBUTE().NAME(bestScores);
+    FIELD().PUBLIC().SERIALIZABLE_ATTRIBUTE().NAME(seenTutorials);
 }
 END_META;
 CLASS_METHODS_META(PlayerProgress)
 {
 
+    FUNCTION().PUBLIC().SIGNATURE(bool, IsTutorialSeen, const String&);
+    FUNCTION().PUBLIC().SIGNATURE(void, MarkTutorialSeen, const String&);
     FUNCTION().PUBLIC().SIGNATURE(void, CompleteLevel, int, int, int);
     FUNCTION().PUBLIC().SIGNATURE(int, GetBestScore, int);
     FUNCTION().PUBLIC().SIGNATURE(bool, Save, const String&);

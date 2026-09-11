@@ -14,7 +14,11 @@ enum class WordTaskType
 	Powerup,   // заработать N пауэрапов вида
 	ClearIce,  // разбить весь лёд
 	AnyWords,  // собрать N любых слов
-	WordScore  // собрать слово стоимостью >= scoreThreshold
+	WordScore, // собрать слово стоимостью >= scoreThreshold
+	Letter,    // использовать N букв letter в словах
+	Deliver,   // доставить N конвертов на дно
+	Melt,      // растопить N снежков
+	Crates     // сломать все ящики
 };
 
 // Буква мешка: символ, номинал, количество в мешке
@@ -43,6 +47,7 @@ public:
 	String powerupKind;                     // вид пауэрапа: bomb/rocket/wand, пусто = любой @SERIALIZABLE @EDITOR_PROPERTY
 	int count = 1;                          // сколько раз выполнить @SERIALIZABLE @EDITOR_PROPERTY
 	int scoreThreshold = 18;                // порог очков слова (для type == WordScore) @SERIALIZABLE @EDITOR_PROPERTY
+	String letter;                          // буква (для type == Letter) @SERIALIZABLE @EDITOR_PROPERTY
 
 	WordTaskConfig() = default;
 
@@ -52,6 +57,10 @@ public:
 	static WordTaskConfig MakeClearIce();
 	static WordTaskConfig MakeAnyWords(int count);
 	static WordTaskConfig MakeWordScore(int scoreThreshold);
+	static WordTaskConfig MakeLetter(const String& letter, int count);
+	static WordTaskConfig MakeDeliver(int count);
+	static WordTaskConfig MakeMelt(int count);
+	static WordTaskConfig MakeCrates();
 
 	bool operator==(const WordTaskConfig& other) const;
 
@@ -66,6 +75,19 @@ public:
 	int moves = 12;                     // лимит ходов @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<Vec2I> iceCells;             // клетки со льдом @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<Vec2I> stoneCells;           // клетки с камнем (ломается только бонусами) @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> holeCells;            // отсутствующие клетки — только у верха/низа колонок @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> crateCells;           // ящики: стоят на месте, держат плитки над собой, ломаются словами рядом @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<int> crateGrades;            // прочность ящиков 1..2 по индексу crateCells @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> chainCells;           // цепи: буква не падает и держит колонку, снимается при использовании в слове @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> snowCells;            // стартовые снежки (тают от слова рядом) @SERIALIZABLE @EDITOR_PROPERTY
+	int snowPerMove = 0;                // снежков сыплется сверху за ход @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> parcelCells;          // стартовые конверты (доставляются на дно) @SERIALIZABLE @EDITOR_PROPERTY
+	int parcelTotal = 0;                // всего конвертов, включая стартовые @SERIALIZABLE @EDITOR_PROPERTY
+	int parcelOnScreen = 1;             // конвертов на поле одновременно @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<Vec2I> powerupCells;         // предустановленные бонусы @SERIALIZABLE @EDITOR_PROPERTY
+	Vector<String> powerupKinds;        // вид бонуса по индексу powerupCells @SERIALIZABLE @EDITOR_PROPERTY
+	int extraVowels = 0;                // добавка гласных в мешок (легче) @SERIALIZABLE @EDITOR_PROPERTY
+	int extraRare = 0;                  // добавка редких согласных в мешок (сложнее) @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<int> boosterCharges;         // заряды бустеров (молоток/перемешать/подсказка/джокер/удвоитель) @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<WordTaskConfig> tasks;       // задачи уровня (1..5) @SERIALIZABLE @EDITOR_PROPERTY
 
@@ -138,6 +160,7 @@ CLASS_FIELDS_META(WordTaskConfig)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(powerupKind);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(1).NAME(count);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(18).NAME(scoreThreshold);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(letter);
 }
 END_META;
 CLASS_METHODS_META(WordTaskConfig)
@@ -150,6 +173,10 @@ CLASS_METHODS_META(WordTaskConfig)
     FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeClearIce);
     FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeAnyWords, int);
     FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeWordScore, int);
+    FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeLetter, const String&, int);
+    FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeDeliver, int);
+    FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeMelt, int);
+    FUNCTION().PUBLIC().SIGNATURE_STATIC(WordTaskConfig, MakeCrates);
 }
 END_META;
 
@@ -164,6 +191,19 @@ CLASS_FIELDS_META(WordLevelConfig)
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(12).NAME(moves);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(iceCells);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(stoneCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(holeCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(crateCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(crateGrades);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(chainCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(snowCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(snowPerMove);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(parcelCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(parcelTotal);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(1).NAME(parcelOnScreen);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(powerupCells);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(powerupKinds);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(extraVowels);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(extraRare);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(boosterCharges);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(tasks);
 }

@@ -59,11 +59,43 @@ WordTaskConfig WordTaskConfig::MakeWordScore(int scoreThreshold)
 	return res;
 }
 
+WordTaskConfig WordTaskConfig::MakeLetter(const String& letter, int count)
+{
+	WordTaskConfig task;
+	task.taskType = WordTaskType::Letter;
+	task.letter = letter;
+	task.count = count;
+	return task;
+}
+
+WordTaskConfig WordTaskConfig::MakeDeliver(int count)
+{
+	WordTaskConfig task;
+	task.taskType = WordTaskType::Deliver;
+	task.count = count;
+	return task;
+}
+
+WordTaskConfig WordTaskConfig::MakeMelt(int count)
+{
+	WordTaskConfig task;
+	task.taskType = WordTaskType::Melt;
+	task.count = count;
+	return task;
+}
+
+WordTaskConfig WordTaskConfig::MakeCrates()
+{
+	WordTaskConfig task;
+	task.taskType = WordTaskType::Crates;
+	return task;
+}
+
 bool WordTaskConfig::operator==(const WordTaskConfig& other) const
 {
 	return taskType == other.taskType && word == other.word && length == other.length &&
 		powerupKind == other.powerupKind && count == other.count &&
-		scoreThreshold == other.scoreThreshold;
+		scoreThreshold == other.scoreThreshold && letter == other.letter;
 }
 
 WordLevelConfig::WordLevelConfig()
@@ -74,6 +106,11 @@ WordLevelConfig::WordLevelConfig()
 bool WordLevelConfig::operator==(const WordLevelConfig& other) const
 {
 	return targetScore == other.targetScore && moves == other.moves && iceCells == other.iceCells &&
+		stoneCells == other.stoneCells && holeCells == other.holeCells && crateCells == other.crateCells &&
+		crateGrades == other.crateGrades && chainCells == other.chainCells && snowCells == other.snowCells &&
+		snowPerMove == other.snowPerMove && parcelCells == other.parcelCells && parcelTotal == other.parcelTotal &&
+		parcelOnScreen == other.parcelOnScreen && powerupCells == other.powerupCells &&
+		powerupKinds == other.powerupKinds && extraVowels == other.extraVowels && extraRare == other.extraRare &&
 		boosterCharges == other.boosterCharges && tasks == other.tasks;
 }
 
@@ -139,7 +176,11 @@ ENUM_META(WordTaskType, WordTaskType)
 {
     ENUM_ENTRY(AnyWords);
     ENUM_ENTRY(ClearIce);
+    ENUM_ENTRY(Crates);
+    ENUM_ENTRY(Deliver);
     ENUM_ENTRY(Length);
+    ENUM_ENTRY(Letter);
+    ENUM_ENTRY(Melt);
     ENUM_ENTRY(Powerup);
     ENUM_ENTRY(Word);
     ENUM_ENTRY(WordScore);

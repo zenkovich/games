@@ -4,6 +4,17 @@
 #include "o2/Utils/FileSystem/FileSystem.h"
 #include "o2/Utils/Serialization/DataValue.h"
 
+bool PlayerProgress::IsTutorialSeen(const String& key) const
+{
+	return seenTutorials.Contains(key);
+}
+
+void PlayerProgress::MarkTutorialSeen(const String& key)
+{
+	if (!seenTutorials.Contains(key))
+		seenTutorials.Add(key);
+}
+
 void PlayerProgress::CompleteLevel(int levelIndex, int score, int levelsCount)
 {
 	while (bestScores.Count() <= levelIndex)

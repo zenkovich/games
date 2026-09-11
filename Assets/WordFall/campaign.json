@@ -1,0 +1,11420 @@
+[
+  {
+    "targetScore": 140,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ДОМ"
+      },
+      {
+        "taskType": "Letter",
+        "count": 3,
+        "letter": "Т"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6
+  },
+  {
+    "targetScore": 240,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СОН"
+      },
+      {
+        "taskType": "Crates"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 140,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ДОМ"
+      },
+      {
+        "taskType": "Crates"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛЕС"
+      },
+      {
+        "taskType": "Crates"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КОТ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Letter",
+        "count": 9,
+        "letter": "О"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "МАК"
+      },
+      {
+        "taskType": "Length",
+        "length": 4,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОКНО"
+      },
+      {
+        "taskType": "Crates"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 360,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛУНА"
+      },
+      {
+        "taskType": "Crates"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "bomb",
+      "bomb",
+      "bomb"
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СНЕГ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 4
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОКНО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 19
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 180,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗИМА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Letter",
+        "count": 12,
+        "letter": "Е"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 190,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОН"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 17
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 3
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 270,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛУНА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 5
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 240,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОН"
+      },
+      {
+        "taskType": "Length",
+        "length": 4,
+        "count": 1
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "powerupKinds": [
+      "rocket",
+      "rocket",
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 250,
+    "moves": 15,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СНЕГ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 4,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 290,
+    "moves": 18,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "РОЗА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "Т"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "snowCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 260,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "РОЗА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "А"
+      }
+    ],
+    "extraVowels": 6,
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 6
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 260,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛУНА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 12
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "О"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "snowCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ],
+    "snowPerMove": 1,
+    "powerupCells": [
+      {
+        "x": 5,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 250,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СНЕГ"
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "О"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "targetScore": 270,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАРК"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Melt",
+        "count": 5
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "О"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "snowCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 400,
+    "moves": 15,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 4,
+        "count": 1
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "powerupKinds": [
+      "fireworks",
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 310,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 290,
+    "moves": 18,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТРОН"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 5
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 17
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 5,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 330,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "МОРЕ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 280,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СНЕГ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 4,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 310,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОН"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 5
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "А"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 5,
+    "parcelOnScreen": 1,
+    "snowCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "targetScore": 460,
+    "moves": 15,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "parcelCells": [
+      {
+        "x": 3,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 1,
+    "powerupCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ],
+    "powerupKinds": [
+      "rocket",
+      "rocket",
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 290,
+    "moves": 18,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "РЕКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 17
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "targetScore": 310,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "РЕКА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "О"
+      }
+    ],
+    "extraVowels": 6,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 7
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "bomb",
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 420,
+    "moves": 18,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОКНО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 1,
+    "powerupCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "bomb",
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 310,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СНЕГ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 5,
+        "letter": "Е"
+      }
+    ],
+    "extraVowels": 6,
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 7
+      }
+    ]
+  },
+  {
+    "targetScore": 550,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 2,
+    "powerupCells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "powerupKinds": [
+      "fireworks",
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 330,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 400,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КНИГА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 29
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 330,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Letter",
+        "count": 9,
+        "letter": "О"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 310,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Letter",
+        "count": 6,
+        "letter": "А"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 480,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛАМПА"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 28
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 410,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Letter",
+        "count": 9,
+        "letter": "А"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 530,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 27
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 440,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 610,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛАМПА"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАЛУБА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 11
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 2
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "snowPerMove": 1
+  },
+  {
+    "targetScore": 460,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 2
+      },
+      {
+        "taskType": "Letter",
+        "count": 11,
+        "letter": "Н"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 430,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 29
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 0
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 350,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Letter",
+        "count": 6,
+        "letter": "Н"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 6,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 470,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "Melt",
+        "count": 11
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "snowPerMove": 1
+  },
+  {
+    "targetScore": 590,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 560,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Melt",
+        "count": 8
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2,
+    "snowCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ],
+    "snowPerMove": 1
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Melt",
+        "count": 12
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 2
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "snowPerMove": 1
+  },
+  {
+    "targetScore": 420,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАЛУБА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 390,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 350,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КОРОНА"
+      },
+      {
+        "taskType": "Letter",
+        "count": 12,
+        "letter": "А"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 520,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 29
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 300,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 28
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 620,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 560,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 29
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 330,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 430,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Melt",
+        "count": 8
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ],
+    "snowCells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "snowPerMove": 1,
+    "powerupCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "fireworks",
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 300,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 28
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 540,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 28
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 610,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 360,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 5,
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 6
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 5
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 480,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 8
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 490,
+    "moves": 13,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 600,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 320,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КНИГА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 2
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 350,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 480,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 380,
+    "moves": 10,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Letter",
+        "count": 8,
+        "letter": "Т"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 550,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 360,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАЛУБА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 470,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ДОРОГА"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 560,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КНИГА"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 390,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 580,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 4
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 430,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛАМПА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      2,
+      1,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 350,
+    "moves": 10,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      2,
+      2,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 490,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 310,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛАМПА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 480,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КОРОНА"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 360,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 470,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 5
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 5,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 650,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАЛУБА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      2
+    ]
+  },
+  {
+    "targetScore": 490,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛАМПА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      1
+    ]
+  },
+  {
+    "targetScore": 530,
+    "moves": 13,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "targetScore": 480,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      2,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 320,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 6
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      2,
+      1,
+      1,
+      2,
+      2
+    ]
+  },
+  {
+    "targetScore": 580,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 6,
+        "y": 2
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      2,
+      1,
+      2,
+      2
+    ]
+  },
+  {
+    "targetScore": 440,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      2,
+      1,
+      2,
+      2,
+      1
+    ]
+  },
+  {
+    "targetScore": 490,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Letter",
+        "count": 11,
+        "letter": "Т"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "chainCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 370,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ДОРОГА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Letter",
+        "count": 8,
+        "letter": "О"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 5,
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 500,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      2,
+      1,
+      1,
+      2,
+      2,
+      2
+    ]
+  },
+  {
+    "targetScore": 500,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Letter",
+        "count": 6,
+        "letter": "Е"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "targetScore": 510,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 610,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 490,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 500,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 34
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 2
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "bomb"
+    ]
+  },
+  {
+    "targetScore": 320,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 4
+      }
+    ],
+    "powerupCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "powerupKinds": [
+      "rocket",
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 460,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 8
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      1,
+      2,
+      1,
+      2
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПАЛУБА"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "targetScore": 470,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "Melt",
+        "count": 6
+      },
+      {
+        "taskType": "Letter",
+        "count": 9,
+        "letter": "Т"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 1,
+    "snowCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 500,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      2,
+      1,
+      2,
+      1,
+      2,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 5,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "targetScore": 660,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЛОДКА"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 320,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      2,
+      1,
+      2
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "targetScore": 370,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КОРОНА"
+      },
+      {
+        "taskType": "Letter",
+        "count": 10,
+        "letter": "А"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 370,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "РАКЕТА"
+      },
+      {
+        "taskType": "Letter",
+        "count": 12,
+        "letter": "И"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4
+  },
+  {
+    "targetScore": 350,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЧАШКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Letter",
+        "count": 6,
+        "letter": "Н"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      2,
+      1,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 580,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 30
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 490,
+    "moves": 13,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 5
+      },
+      {
+        "taskType": "Letter",
+        "count": 12,
+        "letter": "И"
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 5,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 460,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      1,
+      1,
+      2
+    ],
+    "chainCells": [
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 510,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ДОРОГА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 34
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2,
+    "powerupCells": [
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ],
+    "powerupKinds": [
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 420,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 31
+      }
+    ],
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 2,
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "rocket",
+      "rocket"
+    ]
+  },
+  {
+    "targetScore": 590,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПОЛКА"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 2
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 6,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 550,
+    "moves": 13,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 8
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 350,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГОРОД"
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 33
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 1
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "targetScore": 450,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ПЕСОК"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ],
+    "chainCells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 440,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "СЛОВО"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraRare": 3,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 5
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 0,
+        "y": 6
+      }
+    ],
+    "parcelTotal": 2,
+    "parcelOnScreen": 1
+  },
+  {
+    "targetScore": 460,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "КОРОНА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      }
+    ],
+    "extraRare": 4,
+    "stoneCells": [
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      }
+    ],
+    "crateGrades": [
+      2,
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "targetScore": 690,
+    "moves": 16,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 35
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 5,
+    "iceCells": [
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      1,
+      2,
+      2,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 1,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "fireworks"
+    ]
+  },
+  {
+    "targetScore": 420,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ВЕТЕР"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 32
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 10,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      2,
+      1,
+      1
+    ],
+    "powerupCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "powerupKinds": [
+      "bomb",
+      "bomb"
+    ]
+  },
+  {
+    "targetScore": 370,
+    "moves": 9,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "fireworks",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      1,
+      1,
+      1
+    ],
+    "parcelCells": [
+      {
+        "x": 2,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 490,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ТАПКА"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "AnyWords",
+        "count": 7
+      },
+      {
+        "taskType": "WordScore",
+        "scoreThreshold": 34
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 0
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      1,
+      1,
+      1,
+      2
+    ]
+  },
+  {
+    "targetScore": 540,
+    "moves": 14,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ЗАМОК"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 4
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 2,
+    "iceCells": [
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 4
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      1,
+      2,
+      1
+    ],
+    "parcelCells": [
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 4,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 500,
+    "moves": 12,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ГАВАНЬ"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Deliver",
+        "count": 3
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "bomb",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 6,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ],
+    "crateGrades": [
+      1,
+      2,
+      1,
+      2,
+      1,
+      2
+    ],
+    "chainCells": [
+      {
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "parcelCells": [
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      }
+    ],
+    "parcelTotal": 3,
+    "parcelOnScreen": 2
+  },
+  {
+    "targetScore": 460,
+    "moves": 11,
+    "boosterCharges": [
+      3,
+      3,
+      30,
+      3,
+      3
+    ],
+    "tasks": [
+      {
+        "word": "ОБЛАКО"
+      },
+      {
+        "taskType": "Crates"
+      },
+      {
+        "taskType": "Length",
+        "length": 5,
+        "count": 2
+      },
+      {
+        "taskType": "Powerup",
+        "powerupKind": "rocket",
+        "count": 1
+      }
+    ],
+    "holeCells": [
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "extraVowels": 4,
+    "extraRare": 4,
+    "iceCells": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 4
+      }
+    ],
+    "stoneCells": [
+      {
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "crateCells": [
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 1
+      }
+    ],
+    "crateGrades": [
+      2,
+      2,
+      2,
+      2,
+      1
+    ]
+  }
+]

@@ -47,9 +47,17 @@ public:
 	bool UseJoker(const Vec2I& cell);
 	bool UseDoubler(const Vec2I& cell);
 
+	// Слово уже принималось на этом уровне
+	bool IsWordUsed(const WString& word) const;
+	// Ключи заданий для вьюх: чего хочет уровень (для подсказки и ракет)
+	WordBoard::RocketPriorities MakeRocketPriorities() const;
+
 	// Для тестов
 	void DebugSetTargetScore(int target);
 	void DebugSetMovesLeft(int moves);
+	void DebugAddMoves(int moves);
+	void DebugAddCharges(int charges);
+	void DebugLose();
 	void DebugCompleteTasks();
 	void DebugAddScore(int score);
 
@@ -58,6 +66,9 @@ private:
 	WordBoard mBoard;
 	Vector<WordTaskState> mTasks;
 	Vector<int> mCharges;
+	int mMoveIndex = 0;
+	Vector<WString> mUsedWords;
+	int mParcelsSpawned = 0; // выпущено конвертов, включая стартовые
 	int mScore = 0;
 	int mMovesLeft = 0;
 	State mState = State::Playing;
@@ -65,12 +76,17 @@ private:
 	bool AreTasksDone() const;
 	void BumpTask(WordTaskState& task);
 	void UpdateTasksAfterWord(const WString& pattern, int wordScore);
+	// Прогресс задач по результату хода: конверты, снежки, ящики
+	void UpdateTasksAfterMove(const WordMoveResult& result);
+	// Очередь спавна на ход: конверты по лимиту на поле, снежки по норме уровня
+	void QueueSpawns();
 
 	// Страховка выполнимости: каждое незакрытое задание достижимо, иначе
 	// подсеваются недостающие буквы. Возвращает подсеянные клетки
 	Vector<Vec2I> EnsureTasksAchievable(const WordDictionary& dictionary);
 	void OnPowerupEarned(const String& kind);
 	void RefreshIceTasks();
+	void RefreshObstacleTasks();
 	void CheckWin();
 
 	bool TakeCharge(Booster booster);
