@@ -61,6 +61,14 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             return "Собрать слов: " + task.progress + "/" + task.count;
         if (task.type == "wordScore")
             return "Слово на " + task.score + "+ очков";
+        if (task.type == "letter")
+            return "Буква " + task.letter + ": " + task.progress + "/" + task.count;
+        if (task.type == "deliver")
+            return "Доставить конверты: " + task.progress + "/" + task.count;
+        if (task.type == "melt")
+            return "Растопить снежки: " + task.progress + "/" + task.count;
+        if (task.type == "crates")
+            return "Сломать все ящики";
         return "Разбить весь лёд";
     }
 

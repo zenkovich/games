@@ -18,6 +18,7 @@ namespace o2
 	class Widget;
 
 	FORWARD_CLASS_REF(HorizontalProgress);
+	FORWARD_CLASS_REF(Material);
 }
 
 // Фабрика UI Word Fall: виджеты с якорями WidgetLayout, кнопки со стейтом
@@ -29,7 +30,7 @@ public:
 	static constexpr float kTileSize = 88.0f;
 	static constexpr float kSlotSize = 64.0f;
 	static constexpr float kFlightDuration = 0.45f;       // длительность анимации полёта буквы в бар
-	static constexpr float kRocketFlightDuration = 0.8f;  // небыстрый полёт ракеты в цель
+	static constexpr float kRocketFlightDuration = 1.05f; // полёт ракеты в цель: разгон, дальше ровно
 
 	// Виджет-контейнер секции с якорем в родителе
 	static Ref<Widget> CreateSection(const Ref<Actor>& parent, const String& name,
@@ -53,6 +54,9 @@ public:
 								  bool heavy = false);
 
 	// Горизонтальный прогресс-бар со слоем заливки
+	// Материал искр и свечений: складывается со сценой, светится поверх поля
+	static Ref<Material> AdditiveMaterial();
+
 	static Ref<HorizontalProgress> CreateProgressBar(const Ref<Actor>& parent, const String& name,
 													 const String& fillImage, const Vec2F& anchor,
 													 const Vec2F& pos, const Vec2F& size, float depth);

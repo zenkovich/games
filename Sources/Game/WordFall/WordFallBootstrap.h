@@ -59,6 +59,8 @@ private:
 	static void BuildBoosters(const Ref<Widget>& screen);
 	static void BuildFx(const Ref<Widget>& screen);
 	static void BuildPopup(const Ref<Widget>& screen);
+	static void BuildTutorial(const Ref<Widget>& screen);
+	static void BuildCheats(const Ref<Widget>& screen);
 	static void BuildVfx(const Ref<Actor>& root);
 
 	// Вешает JS-вьюху на секцию (зависимости инжектятся после инстанцирования)
@@ -100,6 +102,8 @@ CLASS_METHODS_META(WordFallBootstrap)
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildBoosters, const Ref<Widget>&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildFx, const Ref<Widget>&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildPopup, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildTutorial, const Ref<Widget>&);
+    FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildCheats, const Ref<Widget>&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, BuildVfx, const Ref<Actor>&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, AttachView, const Ref<Actor>&, const String&);
     FUNCTION().PRIVATE().SIGNATURE_STATIC(void, InjectViewDependencies, const Ref<Actor>&, const Ref<Actor>&);

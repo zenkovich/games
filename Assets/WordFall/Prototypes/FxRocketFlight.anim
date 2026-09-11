@@ -12,87 +12,87 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 3370044186644741069,
-                                        "rightSupportPosition": 0.320000022649765,
-                                        "supportsType": "Broken"
+                                        "uid": 15423832446192603920
                                     },
                                     {
-                                        "uid": 16638984477481247687,
+                                        "uid": 15910003025827566361,
+                                        "value": 0.007266090251505375,
+                                        "position": 0.06562499701976776
+                                    },
+                                    {
+                                        "uid": 10895186366749842516,
+                                        "value": 0.0290643610060215,
+                                        "position": 0.13124999403953553
+                                    },
+                                    {
+                                        "uid": 5172393248472178964,
+                                        "value": 0.0653948113322258,
+                                        "position": 0.19687499105930329
+                                    },
+                                    {
+                                        "uid": 8192045732056000103,
+                                        "value": 0.116257444024086,
+                                        "position": 0.26249998807907107
+                                    },
+                                    {
+                                        "uid": 10808655370271951798,
+                                        "value": 0.1816522628068924,
+                                        "position": 0.328125
+                                    },
+                                    {
+                                        "uid": 6974399948175970123,
+                                        "value": 0.255952388048172,
+                                        "position": 0.39374998211860659
+                                    },
+                                    {
+                                        "uid": 16619762419483627556,
+                                        "value": 0.3303571343421936,
+                                        "position": 0.45937496423721316
+                                    },
+                                    {
+                                        "uid": 1999891007643190881,
+                                        "value": 0.4047619104385376,
+                                        "position": 0.5249999761581421
+                                    },
+                                    {
+                                        "uid": 887917278193673704,
+                                        "value": 0.4791666567325592,
+                                        "position": 0.590624988079071
+                                    },
+                                    {
+                                        "uid": 3717095372832160820,
+                                        "value": 0.5535714030265808,
+                                        "position": 0.65625
+                                    },
+                                    {
+                                        "uid": 14030414651873277852,
+                                        "value": 0.6279762387275696,
+                                        "position": 0.7218749523162842
+                                    },
+                                    {
+                                        "uid": 13538482080078637582,
+                                        "value": 0.7023810148239136,
+                                        "position": 0.7874999642372131
+                                    },
+                                    {
+                                        "uid": 3925090455787906565,
+                                        "value": 0.7767857313156128,
+                                        "position": 0.8531249761581421
+                                    },
+                                    {
+                                        "uid": 12907258826897557682,
+                                        "value": 0.8511905074119568,
+                                        "position": 0.9187499284744263
+                                    },
+                                    {
+                                        "uid": 13805259640254283038,
+                                        "value": 0.9255952835083008,
+                                        "position": 0.9843749403953552
+                                    },
+                                    {
+                                        "uid": 5018715362465564521,
                                         "value": 1.0,
-                                        "position": 0.800000011920929,
-                                        "leftSupportPosition": -0.800000011920929,
-                                        "supportsType": "Broken"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "Type": "o2::AnimationTrack<o2::Vec2F>",
-                    "Value": {
-                        "path": "transform/scale2D",
-                        "timeCurve": {
-                            "Type": "o2::Curve",
-                            "Value": {
-                                "mKeys": [
-                                    {
-                                        "uid": 6561930558746627615,
-                                        "rightSupportPosition": 0.320000022649765,
-                                        "supportsType": "Broken"
-                                    },
-                                    {
-                                        "uid": 18430259036561929719,
-                                        "value": 1.0,
-                                        "position": 0.800000011920929,
-                                        "leftSupportPosition": -0.800000011920929,
-                                        "supportsType": "Broken"
-                                    }
-                                ]
-                            }
-                        },
-                        "spline": {
-                            "Type": "o2::Spline",
-                            "Value": {
-                                "mKeys": [
-                                    {
-                                        "uid": 14745080644360116611,
-                                        "value": {
-                                            "x": 0.800000011920929,
-                                            "y": 0.800000011920929
-                                        },
-                                        "nextSupport": {
-                                            "x": 0.17499998211860658,
-                                            "y": 0.17499998211860658
-                                        }
-                                    },
-                                    {
-                                        "uid": 631232426514505498,
-                                        "position": 0.49497467279434206,
-                                        "value": {
-                                            "x": 1.149999976158142,
-                                            "y": 1.149999976158142
-                                        },
-                                        "prevSupport": {
-                                            "x": -0.07499999552965164,
-                                            "y": -0.07499999552965164
-                                        },
-                                        "nextSupport": {
-                                            "x": 0.07499999552965164,
-                                            "y": 0.07499999552965164
-                                        }
-                                    },
-                                    {
-                                        "uid": 15590547147772815808,
-                                        "position": 0.7643843293190002,
-                                        "value": {
-                                            "x": 1.0,
-                                            "y": 1.0
-                                        },
-                                        "prevSupport": {
-                                            "x": 0.07499998807907105,
-                                            "y": 0.07499998807907105
-                                        }
+                                        "position": 1.0499999523162842
                                     }
                                 ]
                             }
@@ -102,31 +102,245 @@
                 {
                     "Type": "o2::AnimationTrack<float>",
                     "Value": {
-                        "path": "transform/angleDegrees",
+                        "path": "transform/scaleX",
                         "curve": {
                             "Type": "o2::Curve",
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 13945576427132052437,
-                                        "value": 18.0
+                                        "uid": 6903543819628393695,
+                                        "value": 1.149999976158142
                                     },
                                     {
-                                        "uid": 2964579510714683294,
-                                        "position": 0.4000000059604645,
-                                        "leftSupportValue": 9.0,
-                                        "leftSupportPosition": -0.20000000298023225
+                                        "uid": 10967969280507914160,
+                                        "value": 0.8799999952316284,
+                                        "position": 0.10000000149011612,
+                                        "leftSupportValue": 0.13499999046325684,
+                                        "leftSupportPosition": -0.05000000074505806
                                     },
                                     {
-                                        "uid": 557783299090423493,
-                                        "value": -24.0,
-                                        "position": 0.800000011920929,
-                                        "leftSupportValue": 12.0,
-                                        "leftSupportPosition": -0.20000000298023225
+                                        "uid": 10311131493975798334,
+                                        "value": 1.0,
+                                        "position": 0.25999999046325686,
+                                        "leftSupportValue": -0.06000000238418579,
+                                        "leftSupportPosition": -0.07999999821186066
+                                    },
+                                    {
+                                        "uid": 15233592039088487016,
+                                        "value": 1.0,
+                                        "position": 1.0499999523162842,
+                                        "leftSupportPosition": -0.39499998092651369
                                     }
                                 ]
                             }
                         }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 13651626873763842657,
+                                        "value": 0.800000011920929
+                                    },
+                                    {
+                                        "uid": 6108378907633391612,
+                                        "value": 1.2200000286102296,
+                                        "position": 0.10000000149011612,
+                                        "leftSupportValue": -0.21000000834465028,
+                                        "leftSupportPosition": -0.05000000074505806
+                                    },
+                                    {
+                                        "uid": 7952908494736468694,
+                                        "value": 1.0,
+                                        "position": 0.25999999046325686,
+                                        "leftSupportValue": 0.11000001430511475,
+                                        "leftSupportPosition": -0.07999999821186066
+                                    },
+                                    {
+                                        "uid": 11511536206378939417,
+                                        "value": 1.0,
+                                        "position": 1.0499999523162842,
+                                        "leftSupportPosition": -0.39499998092651369
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/flame/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 12209897044464245702,
+                                        "value": 1.0
+                                    },
+                                    {
+                                        "uid": 11343461968509862948,
+                                        "value": 0.550000011920929,
+                                        "position": 0.05999999865889549,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.029999999329447748
+                                    },
+                                    {
+                                        "uid": 8545003113881027024,
+                                        "value": 1.0,
+                                        "position": 0.11999999731779099,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.029999999329447748
+                                    },
+                                    {
+                                        "uid": 17500332680974567572,
+                                        "value": 0.550000011920929,
+                                        "position": 0.17999999225139619,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.029999997466802598
+                                    },
+                                    {
+                                        "uid": 7335946512459661691,
+                                        "value": 1.0,
+                                        "position": 0.23999999463558198,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 11293547439573652693,
+                                        "value": 0.550000011920929,
+                                        "position": 0.29999998211860659,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.0299999937415123
+                                    },
+                                    {
+                                        "uid": 17208408681422256187,
+                                        "value": 1.0,
+                                        "position": 0.35999998450279238,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 16284604537636172186,
+                                        "value": 0.550000011920929,
+                                        "position": 0.41999998688697817,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 7708837340236973747,
+                                        "value": 1.0,
+                                        "position": 0.47999998927116396,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 9601966615588810371,
+                                        "value": 0.550000011920929,
+                                        "position": 0.5399999618530273,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.0299999862909317
+                                    },
+                                    {
+                                        "uid": 12998804428216300005,
+                                        "value": 1.0,
+                                        "position": 0.5999999642372131,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 15008842149741315438,
+                                        "value": 0.550000011920929,
+                                        "position": 0.6599999666213989,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 17914638639910846966,
+                                        "value": 1.0,
+                                        "position": 0.7199999690055847,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 6719443618285627742,
+                                        "value": 0.550000011920929,
+                                        "position": 0.7799999713897705,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 6336919417058884819,
+                                        "value": 1.0,
+                                        "position": 0.8399999737739563,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 14140795554585207468,
+                                        "value": 0.550000011920929,
+                                        "position": 0.8999999761581421,
+                                        "leftSupportValue": 0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 3182217024195569162,
+                                        "value": 1.0,
+                                        "position": 0.9599999785423279,
+                                        "leftSupportValue": -0.22499999403953553,
+                                        "leftSupportPosition": -0.030000001192092897
+                                    },
+                                    {
+                                        "uid": 7811132798334477117,
+                                        "position": 1.0499999523162842,
+                                        "leftSupportValue": 0.5,
+                                        "leftSupportPosition": -0.04499998688697815
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/img/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 2472997942323734124,
+                                        "value": 1.0
+                                    },
+                                    {
+                                        "uid": 13562547884434446980,
+                                        "value": 1.0,
+                                        "position": 1.0099999904632569,
+                                        "leftSupportPosition": -0.5049999952316284
+                                    },
+                                    {
+                                        "uid": 2412747478340471616,
+                                        "position": 1.0499999523162842,
+                                        "leftSupportValue": 0.5,
+                                        "leftSupportPosition": -0.019999980926513673
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Smoke/component/o2::ParticlesEmitterComponent"
                     }
                 },
                 {
@@ -138,26 +352,47 @@
                 {
                     "Type": "o2::AnimationSubTrack",
                     "Value": {
+                        "path": "child/BurstFlash/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 1.0499999523162842
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
                         "path": "child/BurstPink/component/o2::ParticlesEmitterComponent",
-                        "mSubTrackBeginTime": 0.800000011920929
+                        "mSubTrackBeginTime": 1.0499999523162842
                     }
                 },
                 {
                     "Type": "o2::AnimationSubTrack",
                     "Value": {
                         "path": "child/BurstYellow/component/o2::ParticlesEmitterComponent",
-                        "mSubTrackBeginTime": 0.800000011920929
+                        "mSubTrackBeginTime": 1.0499999523162842
                     }
                 },
                 {
                     "Type": "o2::AnimationSubTrack",
                     "Value": {
                         "path": "child/BurstBlue/component/o2::ParticlesEmitterComponent",
-                        "mSubTrackBeginTime": 0.800000011920929
+                        "mSubTrackBeginTime": 1.0499999523162842
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Confetti/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 1.0499999523162842
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Glitter/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 1.0499999523162842
                     }
                 }
             ],
-            "mDuration": 1.7999999523162842
+            "mDuration": 2.049999952316284
         }
     }
 }

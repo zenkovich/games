@@ -1,6 +1,8 @@
 #include "o2/stdafx.h"
 #include "WordFallGameService.h"
 
+#include "o2/Assets/Types/DataAsset.h"
+
 #include "Core/WordFallLevels.h"
 
 #include "o2/Utils/Math/Math.h"
@@ -53,6 +55,15 @@ void WordFallGameService::EnsureStarted()
 	mStarted = true;
 	mDictionary.LoadDefault();
 
+	// ручная кампания в редакторе > data-ассет кампании > процедурная генерация
+	if (levels.IsEmpty() && !campaignPath.IsEmpty())
+	{
+		if (auto asset = o2Assets.GetAssetRefByType<DataAsset>(campaignPath))
+			asset->data.Get(mCampaign);
+		if (mCampaign.IsEmpty())
+			o2Debug.LogWarning("WordFall: campaign asset " + campaignPath + " is missing or empty, using the procedural campaign");
+	}
+
 	mProgress.Load(progressPath);
 	StartLevel(mProgress.currentLevel);
 }
@@ -64,8 +75,8 @@ void WordFallGameService::StartLevel(int index)
 	mLevelIndex = Math::Clamp(index, 0, GetLevelCount() - 1);
 
 	// ручная кампания в редакторе имеет приоритет; иначе — процедурная генерация
-	WordLevelConfig config = !levels.IsEmpty()
-		? levels[mLevelIndex]
+	WordLevelConfig config = !levels.IsEmpty() ? levels[mLevelIndex]
+		: !mCampaign.IsEmpty() ? mCampaign[mLevelIndex]
 		: WordFallLevels::Generate(mLevelIndex, mDictionary, boardConfig);
 
 	mLevel.Start(config, boardConfig, mDictionary, (unsigned int)randomSeed);
@@ -90,7 +101,10 @@ void WordFallGameService::AdvanceToNextLevel()
 }
 
 int WordFallGameService::GetLevelIndex() const { return mLevelIndex; }
-int WordFallGameService::GetLevelCount() const { return !levels.IsEmpty() ? levels.Count() : campaignLength; }
+int WordFallGameService::GetLevelCount() const
+{
+	return !levels.IsEmpty() ? levels.Count() : !mCampaign.IsEmpty() ? mCampaign.Count() : campaignLength;
+}
 
 int WordFallGameService::GetColumns() const { return boardConfig.columns; }
 int WordFallGameService::GetRows() const { return boardConfig.rows; }
@@ -108,6 +122,12 @@ ScriptValue WordFallGameService::GetTile(int column, int row)
 	result.SetProperty("doubled", ScriptValue(tile.doubled));
 	result.SetProperty("joker", ScriptValue(tile.joker));
 	result.SetProperty("powerup", ScriptValue(String(tile.powerup)));
+	result.SetProperty("hole", ScriptValue(tile.hole));
+	result.SetProperty("crate", ScriptValue(tile.crate));
+	result.SetProperty("chained", ScriptValue(tile.chained));
+	result.SetProperty("snow", ScriptValue(tile.snow));
+	result.SetProperty("parcel", ScriptValue(tile.parcel));
+	result.SetProperty("empty", ScriptValue(!WordBoard::IsTileOccupied(tile) && !WordBoard::IsTileStatic(tile)));
 	return result;
 }
 
@@ -137,6 +157,14 @@ ScriptValue WordFallGameService::GetTasks()
 			type = "anyWords";
 		else if (task.config.taskType == WordTaskType::WordScore)
 			type = "wordScore";
+		else if (task.config.taskType == WordTaskType::Letter)
+			type = "letter";
+		else if (task.config.taskType == WordTaskType::Deliver)
+			type = "deliver";
+		else if (task.config.taskType == WordTaskType::Melt)
+			type = "melt";
+		else if (task.config.taskType == WordTaskType::Crates)
+			type = "crates";
 
 		item.SetProperty("type", ScriptValue(type));
 		item.SetProperty("word", ScriptValue(task.config.word));
@@ -144,6 +172,7 @@ ScriptValue WordFallGameService::GetTasks()
 		item.SetProperty("kind", ScriptValue(task.config.powerupKind));
 		item.SetProperty("count", ScriptValue(task.config.count));
 		item.SetProperty("score", ScriptValue(task.config.scoreThreshold));
+		item.SetProperty("letter", ScriptValue(task.config.letter));
 		item.SetProperty("progress", ScriptValue(task.progress));
 		item.SetProperty("done", ScriptValue(task.done));
 		result.AddElement(item);
@@ -306,6 +335,90 @@ void WordFallGameService::DebugCompleteTasks()
 	mRevision++;
 }
 
+void WordFallGameService::DebugAddMoves(int moves)
+{
+	EnsureStarted();
+	mLevel.DebugAddMoves(moves);
+	mRevision++;
+}
+
+void WordFallGameService::DebugAddScore(int score)
+{
+	EnsureStarted();
+	mLevel.DebugAddScore(score);
+	mRevision++;
+}
+
+void WordFallGameService::DebugAddCharges(int charges)
+{
+	EnsureStarted();
+	mLevel.DebugAddCharges(charges);
+	mRevision++;
+}
+
+void WordFallGameService::DebugLoseLevel()
+{
+	EnsureStarted();
+	mLevel.DebugLose();
+	mRevision++;
+}
+
+void WordFallGameService::DebugSpawnRandomPowerup()
+{
+	EnsureStarted();
+	auto& board = mLevel.GetBoard();
+	Vector<Vec2I> cells;
+	for (int c = 0; c < board.GetColumns(); c++)
+		for (int r = 0; r < board.GetRows(); r++)
+			if (WordBoard::IsTileUsable(board.GetTile(Vec2I(c, r))) && !board.GetSeededCells().Contains(Vec2I(c, r)))
+				cells.Add(Vec2I(c, r));
+	if (cells.IsEmpty())
+		return;
+
+	const char* kinds[3] = { "bomb", "rocket", "fireworks" };
+	board.DebugSetPowerup(cells[Math::Random(0, cells.Count() - 1)], kinds[Math::Random(0, 2)]);
+	mRevision++;
+}
+
+bool WordFallGameService::IsTutorialSeen(const String& key)
+{
+	EnsureStarted();
+	return mProgress.IsTutorialSeen(key);
+}
+
+void WordFallGameService::MarkTutorialSeen(const String& key)
+{
+	EnsureStarted();
+	mProgress.MarkTutorialSeen(key);
+	mProgress.Save(progressPath);
+}
+
+void WordFallGameService::ResetTutorials()
+{
+	EnsureStarted();
+	mProgress.seenTutorials.Clear();
+	mProgress.Save(progressPath);
+	mRevision++;
+}
+
+ScriptValue WordFallGameService::GetSeededCells()
+{
+	EnsureStarted();
+	return CellsToScript(mLevel.GetBoard().GetSeededCells());
+}
+
+bool WordFallGameService::IsWordUsed(const String& word)
+{
+	EnsureStarted();
+	return mLevel.IsWordUsed(WString(word));
+}
+
+int WordFallGameService::GetBestScore()
+{
+	EnsureStarted();
+	return mProgress.GetBestScore(mLevelIndex);
+}
+
 WordLevel& WordFallGameService::GetLevel()
 {
 	EnsureStarted();
@@ -331,6 +444,10 @@ ScriptValue WordFallGameService::MoveResultToScript(const WordMoveResult& result
 	script.SetProperty("spawned", CellsToScript(result.spawned));
 	script.SetProperty("repaired", CellsToScript(result.repaired));
 	script.SetProperty("destroyed", CellsToScript(result.destroyed));
+	script.SetProperty("crateHit", CellsToScript(result.crateHit));
+	script.SetProperty("crateBroken", CellsToScript(result.crateBroken));
+	script.SetProperty("snowMelted", CellsToScript(result.snowMelted));
+	script.SetProperty("delivered", CellsToScript(result.delivered));
 
 	auto used = ScriptValue::EmptyArray();
 	for (auto& use : result.powerupsUsed)

@@ -133,6 +133,19 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this._gainLabel.SetText(text);
     }
 
+    // Короткое сообщение под лотком (дубль слова, нет в словаре)
+    _ShowMessage(text)
+    {
+        if (!this._message)
+            this._message = this._actor.GetChild("Tray/Message");
+        if (!this._message || !text)
+            return;
+        this._message.SetText(text);
+        this._message.SetTransparency(1);
+        this._message.SetEnabled(true);
+        this._messageTimer = 1.6;
+    }
+
     OnAccept()
     {
         var svc = this._svc;
@@ -159,8 +172,10 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         var result = svc.AcceptWord();
         if (!result.ok)
         {
-            if (result.reason == "invalid")
+            if (result.reason == "invalid" || result.reason == "duplicate")
                 this._flashTimer = 0.7;
+            this._ShowMessage(result.reason == "duplicate" ? "Это слово уже было на уровне" :
+                              result.reason == "invalid" ? "Такого слова нет в словаре" : "");
             this.SyncSlots();
             return;
         }
@@ -330,6 +345,14 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             this._flashTimer -= dt;
             if (this._flashTimer <= 0)
                 this.SyncSlots();
+        }
+        if (this._messageTimer > 0)
+        {
+            this._messageTimer -= dt;
+            if (this._message)
+                this._message.SetTransparency(Math.min(1, this._messageTimer/0.4));
+            if (this._messageTimer <= 0 && this._message)
+                this._message.SetEnabled(false);
         }
     }
 };

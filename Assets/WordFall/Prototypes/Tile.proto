@@ -44,7 +44,7 @@
                                 }
                             }
                         },
-                        "mUID": 11561612570525132302
+                        "mUID": 16242162826660439330
                     }
                 },
                 {
@@ -60,7 +60,7 @@
                                 }
                             }
                         },
-                        "mUID": 3208776638278778420,
+                        "mUID": 14191529216679808814,
                         "mEnabled": false,
                         "mDepth": 1.0
                     }
@@ -78,7 +78,7 @@
                                 }
                             }
                         },
-                        "mUID": 16242162826660439330,
+                        "mUID": 13905610538258557802,
                         "mEnabled": false,
                         "mDepth": 2.0
                     }
@@ -96,9 +96,153 @@
                                 }
                             }
                         },
-                        "mUID": 14191529216679808814,
+                        "mUID": 6381827785900690059,
                         "mEnabled": false,
                         "mDepth": 3.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -46.0,
+                                "y": -46.0
+                            },
+                            "mOffsetMax": {
+                                "x": 46.0,
+                                "y": 46.0
+                            }
+                        },
+                        "name": "crate",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "89dd1c9911fd740176dfdf2e08cead4d",
+                                    "path": "WordFall/Sprites/ui_crate.png"
+                                }
+                            }
+                        },
+                        "mUID": 9784482029454680183,
+                        "mEnabled": false,
+                        "mDepth": 4.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -46.0,
+                                "y": -46.0
+                            },
+                            "mOffsetMax": {
+                                "x": 46.0,
+                                "y": 46.0
+                            }
+                        },
+                        "name": "crateHit",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "bf8d8ba77ad6b84e2d6b64a7c37a2a15",
+                                    "path": "WordFall/Sprites/ui_crate_cracked.png"
+                                }
+                            }
+                        },
+                        "mUID": 68839721172139875,
+                        "mEnabled": false,
+                        "mDepth": 5.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -45.0,
+                                "y": -43.0
+                            },
+                            "mOffsetMax": {
+                                "x": 45.0,
+                                "y": 47.0
+                            }
+                        },
+                        "name": "snow",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "bb5f6af8cc4eee29a5f8c6a143d85be4",
+                                    "path": "WordFall/Sprites/ui_snowball.png"
+                                }
+                            }
+                        },
+                        "mUID": 13032179892088382336,
+                        "mEnabled": false,
+                        "mDepth": 6.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -42.0,
+                                "y": -42.0
+                            },
+                            "mOffsetMax": {
+                                "x": 42.0,
+                                "y": 42.0
+                            }
+                        },
+                        "name": "parcel",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "079ab463ee024dbdcb83f7c0ea7f2cd7",
+                                    "path": "WordFall/Sprites/ui_envelope.png"
+                                }
+                            }
+                        },
+                        "mUID": 2570359957965525235,
+                        "mEnabled": false,
+                        "mDepth": 7.0
                     }
                 },
                 {
@@ -128,8 +272,8 @@
                                 "mHorAlign": "Middle"
                             }
                         },
-                        "mUID": 13905610538258557802,
-                        "mDepth": 4.0
+                        "mUID": 12012589312602132683,
+                        "mDepth": 8.0
                     }
                 },
                 {
@@ -171,8 +315,8 @@
                                 "mHorAlign": "Right"
                             }
                         },
-                        "mUID": 6381827785900690059,
-                        "mDepth": 5.0
+                        "mUID": 8138034840528835754,
+                        "mDepth": 9.0
                     }
                 },
                 {
@@ -188,12 +332,120 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -33.0,
-                                "y": -33.0
+                                "x": -48.0,
+                                "y": -48.0
                             },
                             "mOffsetMax": {
-                                "x": 33.0,
-                                "y": 33.0
+                                "x": 48.0,
+                                "y": 48.0
+                            }
+                        },
+                        "name": "chain",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "a947208abe3bad1d9b32e1e9260b1d27",
+                                    "path": "WordFall/Sprites/ui_chain.png"
+                                }
+                            }
+                        },
+                        "mUID": 11698967222575262065,
+                        "mEnabled": false,
+                        "mDepth": 10.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -75.0,
+                                "y": -75.0
+                            },
+                            "mOffsetMax": {
+                                "x": 75.0,
+                                "y": 75.0
+                            }
+                        },
+                        "name": "bonusGlow",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "006eeda86fc418c044e7d345f716b5d8",
+                                    "path": "WordFall/Sprites/vfx_glow.png"
+                                }
+                            }
+                        },
+                        "mUID": 10373704744898939529,
+                        "mEnabled": false,
+                        "mDepth": 11.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -43.0,
+                                "y": -43.0
+                            },
+                            "mOffsetMax": {
+                                "x": 43.0,
+                                "y": 43.0
+                            }
+                        },
+                        "name": "bonusPlate",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "03cbf42a83f9214770f145894b5c197e",
+                                    "path": "WordFall/Sprites/powerup_socket.png"
+                                }
+                            }
+                        },
+                        "mUID": 6585366165408233877,
+                        "mEnabled": false,
+                        "mDepth": 12.0
+                    }
+                },
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -36.0,
+                                "y": -36.0
+                            },
+                            "mOffsetMax": {
+                                "x": 36.0,
+                                "y": 36.0
                             }
                         },
                         "name": "bomb",
@@ -206,9 +458,9 @@
                                 }
                             }
                         },
-                        "mUID": 9784482029454680183,
+                        "mUID": 5876858482561429745,
                         "mEnabled": false,
-                        "mDepth": 6.0
+                        "mDepth": 13.0
                     }
                 },
                 {
@@ -224,12 +476,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -33.0,
-                                "y": -33.0
+                                "x": -36.0,
+                                "y": -36.0
                             },
                             "mOffsetMax": {
-                                "x": 33.0,
-                                "y": 33.0
+                                "x": 36.0,
+                                "y": 36.0
                             }
                         },
                         "name": "rocket",
@@ -242,9 +494,9 @@
                                 }
                             }
                         },
-                        "mUID": 68839721172139875,
+                        "mUID": 2965146837342963075,
                         "mEnabled": false,
-                        "mDepth": 7.0
+                        "mDepth": 14.0
                     }
                 },
                 {
@@ -260,12 +512,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -33.0,
-                                "y": -33.0
+                                "x": -36.0,
+                                "y": -36.0
                             },
                             "mOffsetMax": {
-                                "x": 33.0,
-                                "y": 33.0
+                                "x": 36.0,
+                                "y": 36.0
                             }
                         },
                         "name": "fireworks",
@@ -278,9 +530,9 @@
                                 }
                             }
                         },
-                        "mUID": 13032179892088382336,
+                        "mUID": 10075874675450229700,
                         "mEnabled": false,
-                        "mDepth": 8.0
+                        "mDepth": 15.0
                     }
                 },
                 {
@@ -302,9 +554,9 @@
                                 }
                             }
                         },
-                        "mUID": 2570359957965525235,
+                        "mUID": 14724012899663205962,
                         "mTransparency": 0.0,
-                        "mDepth": 9.0
+                        "mDepth": 16.0
                     }
                 }
             ],
@@ -330,12 +582,12 @@
                                                             "Value": {
                                                                 "mKeys": [
                                                                     {
-                                                                        "uid": 12012589312602132683,
-                                                                        "rightSupportPosition": 0.024000000208616258,
+                                                                        "uid": 12579654723517957490,
+                                                                        "rightSupportPosition": 0.024000000208616257,
                                                                         "supportsType": "Broken"
                                                                     },
                                                                     {
-                                                                        "uid": 8138034840528835754,
+                                                                        "uid": 7821648975580706798,
                                                                         "value": 0.3499999940395355,
                                                                         "position": 0.05999999865889549,
                                                                         "leftSupportPosition": -0.05999999865889549,
@@ -355,7 +607,7 @@
                             "meta": {
                                 "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
                                 "Value": {
-                                    "mId": "965b8363528720de863f69d8bcdfd4fb"
+                                    "mId": "459df97beedb041321ddbac0e53da020"
                                 }
                             }
                         }

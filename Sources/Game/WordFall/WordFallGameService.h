@@ -19,6 +19,7 @@ class WordFallGameService: public Component
 public:
 	WordBoardConfig boardConfig;            // конфиг поля и мешка @SERIALIZABLE @EDITOR_PROPERTY
 	int campaignLength = 100;               // длина процедурной кампании @SERIALIZABLE @EDITOR_PROPERTY
+	String campaignPath = String("WordFall/campaign.json"); // кампания из data-ассета; пусто или нет файла — процедурная @SERIALIZABLE @EDITOR_PROPERTY
 	Vector<WordLevelConfig> levels;         // ручная кампания; пусто — процедурная генерация @SERIALIZABLE @EDITOR_PROPERTY
 	int randomSeed = 0;                     // сид (0 — случайный) @SERIALIZABLE @EDITOR_PROPERTY
 	String progressPath = String("wordfall_progress.json"); // файл сохранения прогресса @SERIALIZABLE @EDITOR_PROPERTY
@@ -145,6 +146,30 @@ public:
 
 	// @SCRIPTABLE
 	void DebugCompleteTasks();
+	// Чит: добавить ходов @SCRIPTABLE
+	void DebugAddMoves(int moves);
+	// Чит: добавить очков @SCRIPTABLE
+	void DebugAddScore(int score);
+	// Чит: добавить зарядов всем бустерам @SCRIPTABLE
+	void DebugAddCharges(int charges);
+	// Чит: проиграть уровень @SCRIPTABLE
+	void DebugLoseLevel();
+	// Чит: случайный бонус на свободную клетку @SCRIPTABLE
+	void DebugSpawnRandomPowerup();
+
+	// Туториал с таким ключом уже показан @SCRIPTABLE
+	bool IsTutorialSeen(const String& key);
+	// Запомнить показанный туториал (сохраняет прогресс) @SCRIPTABLE
+	void MarkTutorialSeen(const String& key);
+	// Забыть все туториалы @SCRIPTABLE
+	void ResetTutorials();
+
+	// Клетки засеянного слова-задания (для туториала и подсказок) @SCRIPTABLE
+	ScriptValue GetSeededCells();
+	// Слово уже принималось на уровне @SCRIPTABLE
+	bool IsWordUsed(const String& word);
+	// Лучший счёт текущего уровня @SCRIPTABLE
+	int GetBestScore();
 
 	// Последний результат хода для C++ тестов
 	const WordMoveResult& GetLastMoveResult() const { return mLastMove; }
@@ -162,6 +187,7 @@ public:
 
 private:
 	WordDictionary mDictionary;
+	Vector<WordLevelConfig> mCampaign; // уровни из campaignPath
 	WordLevel mLevel;
 	PlayerProgress mProgress;
 	int mLevelIndex = 0;
@@ -190,12 +216,14 @@ CLASS_FIELDS_META(WordFallGameService)
 {
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(boardConfig);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(100).NAME(campaignLength);
+    FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(String("WordFall/campaign.json")).NAME(campaignPath);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().NAME(levels);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0).NAME(randomSeed);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(String("wordfall_progress.json")).NAME(progressPath);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(9.5f).NAME(fallSpeedCells);
     FIELD().PUBLIC().EDITOR_PROPERTY_ATTRIBUTE().SERIALIZABLE_ATTRIBUTE().DEFAULT_VALUE(0.05f).NAME(fallCascadeDelay);
     FIELD().PRIVATE().NAME(mDictionary);
+    FIELD().PRIVATE().NAME(mCampaign);
     FIELD().PRIVATE().NAME(mLevel);
     FIELD().PRIVATE().NAME(mProgress);
     FIELD().PRIVATE().DEFAULT_VALUE(0).NAME(mLevelIndex);
@@ -246,6 +274,17 @@ CLASS_METHODS_META(WordFallGameService)
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetStone, int, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSetTargetScore, int);
     FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugCompleteTasks);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugAddMoves, int);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugAddScore, int);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugAddCharges, int);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugLoseLevel);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, DebugSpawnRandomPowerup);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, IsTutorialSeen, const String&);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, MarkTutorialSeen, const String&);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(void, ResetTutorials);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(ScriptValue, GetSeededCells);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(bool, IsWordUsed, const String&);
+    FUNCTION().PUBLIC().SCRIPTABLE_ATTRIBUTE().SIGNATURE(int, GetBestScore);
     FUNCTION().PUBLIC().SIGNATURE(const WordMoveResult&, GetLastMoveResult);
     FUNCTION().PUBLIC().SIGNATURE(WordLevel&, GetLevel);
     FUNCTION().PUBLIC().SIGNATURE(const WordDictionary&, GetDictionary);

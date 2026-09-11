@@ -1,106 +1,7 @@
 #include "o2/stdafx.h"
 #include <gtest/gtest.h>
 
-#include "WordFall/WordFallBootstrap.h"
-#include "WordFall/WordFallGameService.h"
-#include "o2/Application/Application.h"
-#include "o2/Assets/Assets.h"
-#include "o2/Assets/Types/SceneAsset.h"
-#include "o2/Scene/Actor.h"
-#include "o2/Scene/Components/AnimationComponent.h"
-#include "o2/Scene/Components/FlightTrajectoryComponent.h"
-#include "o2/Scene/Components/ParticlesEmitterComponent.h"
-#include "o2/Scene/Scene.h"
-#include "o2/Render/Render.h"
-#include "o2/Scene/UI/Widgets/Button.h"
-#include "o2/Scene/UI/Widget.h"
-#include "o2/Scene/UI/WidgetLayer.h"
-#include "o2/Scene/UI/WidgetLayout.h"
-#include "o2/Scene/UI/Widgets/HorizontalProgress.h"
-#include "o2/Scene/UI/Widgets/Label.h"
-#include "o2/Utils/FileSystem/FileSystem.h"
-#include "o2/Utils/Test/AppTestDriver.h"
-
-using namespace o2;
-
-namespace
-{
-	const String kScreenshotsDir = "../../Work/ScreenShots/";
-
-	// Портретное окно 768x1376 система может ужать по высоте экрана; fitted-камера
-	// масштабирует картинку, ввод конвертируется через камеру — кликаем в оконных
-	// координатах: мировые * масштаб камеры
-	Vec2F ToWindow(const Vec2F& worldPos)
-	{
-		Vec2F resolution = (Vec2F)o2Render.GetResolution();
-		float scale = Math::Min(resolution.x/768.0f, resolution.y/1376.0f);
-		return worldPos*scale;
-	}
-
-	void Click(const Vec2F& worldPos)
-	{
-		AppTestDriver::Click(ToWindow(worldPos));
-	}
-
-	void ClickTile(int column, int row)
-	{
-		Click(WordFallBootstrap::TilePosition(column, row));
-		AppTestDriver::PumpFrames(2);
-	}
-
-	// Число перед "/" в подписи счёта "N/M"
-	int ShownScore(const Ref<Label>& label)
-	{
-		String text = label->GetText();
-		int value = 0;
-		for (int i = 0; i < text.Length() && text[i] >= '0' && text[i] <= '9'; i++)
-			value = value*10 + (text[i] - '0');
-		return value;
-	}
-}
-
-// Гоняет реальный экран Word Fall: bootstrap строит сцену из прототипов,
-// JS-вьюхи цепляются к C++ сервису, тест кликает настоящими кнопками
-class WordFallUI: public ::testing::Test
-{
-protected:
-	Ref<WordFallGameService> mService;
-
-	void SetUp() override
-	{
-		o2Application.SetWindowSize(Vec2I(768, 1376));
-		o2FileSystem.FileDelete("wordfall_progress.json"); // чистый прогресс для каждого теста
-
-		WordFallBootstrap::CreateBootstrapActor();
-		o2Scene.UpdateAddedEntities(); // зарегистрировать акторы, не стартуя их
-
-		// фиксированный сид до старта сервиса
-		auto serviceActor = o2Scene.FindActor("GameService");
-		ASSERT_TRUE(serviceActor);
-		mService = serviceActor->GetComponent<WordFallGameService>();
-		ASSERT_TRUE(mService);
-		mService->randomSeed = 42;
-
-		AppTestDriver::PumpFrames(10); // bootstrap OnStart + вьюхи OnStart + лэйауты
-	}
-
-	void TearDown() override
-	{
-		mService = nullptr;
-		o2Scene.Clear(true);
-		o2Scene.UpdateDestroyingEntities();
-		AppTestDriver::PumpFrames(2);
-	}
-
-	// Выкладывает КОТ в нижний ряд в колонки 1..3
-	void PlantKot()
-	{
-		mService->DebugSetTile(1, 0, "К");
-		mService->DebugSetTile(2, 0, "О");
-		mService->DebugSetTile(3, 0, "Т");
-		AppTestDriver::PumpFrames(2);
-	}
-};
+#include "WordFallUITestSupport.h"
 
 TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 {
@@ -227,9 +128,13 @@ TEST_F(WordFallUI, ConsecutiveWordsKeepFlyingLettersVisible)
 	auto flyer = DynamicCast<Widget>(root->GetChild("Screen/Fx/FxLetter0"));
 	ASSERT_TRUE(flyer);
 
+	const char* words[3] = { "КОТ", "ТОК", "КИТ" }; // слово принимается раз за уровень
 	for (int word = 0; word < 3; word++)
 	{
-		PlantKot();
+		WString letters((String(words[word])));
+		for (int i = 0; i < 3; i++)
+			mService->DebugSetTile(1 + i, 0, String(letters.SubStr(i, i + 1)));
+		AppTestDriver::PumpFrames(2);
 		ClickTile(1, 0);
 		ClickTile(2, 0);
 		ClickTile(3, 0);
@@ -311,7 +216,7 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 	EXPECT_TRUE(root->GetChild("Screen/Popup/Content")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "06_win_popup.png"));
 
-	Click(Vec2F(0, -80)); // ДАЛЬШЕ
+	Click(Vec2F(0, -180)); // ДАЛЬШЕ
 	AppTestDriver::PumpFrames(3);
 
 	// после победы стартует следующий уровень кампании
@@ -431,11 +336,12 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11_rocket_flight.png"));
 
 	// прилёт: салют выпущен; серия кадров — искры разлетаются, тормозят и опадают
-	AppTestDriver::Wait(0.55f);
 	auto burst = rocket->GetChild("BurstPink");
 	ASSERT_TRUE(burst);
 	auto burstEmitter = burst->GetComponent<ParticlesEmitterComponent>();
 	ASSERT_TRUE(burstEmitter);
+	for (float waited = 0.0f; waited < 1.5f && burstEmitter->GetParticlesCount() == 0; waited += 0.05f)
+		AppTestDriver::Wait(0.05f);
 	EXPECT_GT(burstEmitter->GetParticlesCount(), 0);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11b_rocket_burst.png"));
 	AppTestDriver::Wait(0.12f);
@@ -589,7 +495,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	AppTestDriver::Wait(1.5f); // хореография и падение доигрываются
 
 	// бар заполнен: следующее слово целится в кончик текущей заливки (12 очков)
-	PlantKot();
+	PlantWord("ТОК");
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 	ClickTile(3, 0);
@@ -616,7 +522,7 @@ TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
 	Vector<float> offsets;
 	for (int word = 0; word < 3; word++)
 	{
-		PlantKot();
+		PlantWord(NthWord(word));
 		ClickTile(1, 0);
 		ClickTile(2, 0);
 		ClickTile(3, 0);
