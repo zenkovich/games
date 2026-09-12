@@ -233,6 +233,48 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 	o2FileSystem.FileDelete(mService->GetProgressPath());
 }
 
+// Эффект с исключением выпадает из хореографии: ход доигрывается, буквы снова выбираются,
+// экран победы доходит до конца и ведёт на следующий уровень
+TEST_F(WordFallUI, FailingEffectDoesNotStallMovesOrWinPopup)
+{
+	o2Scripts.Eval("WordFallGame.vfx._PlayAt = function() { throw new Error('broken emitter'); }");
+
+	PlantWord("КОТ");
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::Wait(3.0f);
+	EXPECT_FALSE(o2Scripts.Eval("WordFallViews.fx.IsBusy()").GetValue<bool>());
+
+	mService->DebugSetTargetScore(mService->GetScore() + 1);
+	mService->DebugCompleteTasks();
+	PlantWord("ТОК");
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	EXPECT_EQ(mService->GetCurrentWord(), String("ТОК"));
+
+	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	AppTestDriver::Wait(3.0f);
+	auto root = o2Scene.FindActor("WordFall");
+	ASSERT_TRUE(root);
+	auto content = root->GetChild("Screen/Popup/Content");
+	EXPECT_EQ(mService->GetGameState(), String("won"));
+	EXPECT_TRUE(content->IsEnabled());
+
+	AppTestDriver::Wait(2.0f);
+	EXPECT_EQ(o2Scripts.Eval("WordFallViews.popup._anims.length").GetValue<int>(), 0);
+
+	Click(Vec2F(0, -180)); // ДАЛЬШЕ
+	AppTestDriver::PumpFrames(3);
+	EXPECT_FALSE(content->IsEnabled());
+	EXPECT_EQ(mService->GetLevelIndex(), 1);
+	EXPECT_EQ(mService->GetGameState(), String("playing"));
+
+	o2FileSystem.FileDelete(mService->GetProgressPath());
+}
+
 TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
 {
 	auto root = o2Scene.FindActor("WordFall");

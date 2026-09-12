@@ -366,13 +366,19 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
             if (a.t < a.delay)
                 continue;
             var k = Math.min(1, (a.t - a.delay)/a.dur);
-            a.apply(k);
-            if (k >= 1)
+            try
             {
-                if (a.done)
+                a.apply(k);
+                if (k >= 1 && a.done)
                     a.done();
-                this._anims.splice(i, 1);
             }
+            catch (e)
+            {
+                print("WordFall: popup animation failed: " + e);
+                k = 1;
+            }
+            if (k >= 1)
+                this._anims.splice(i, 1);
         }
     }
 };

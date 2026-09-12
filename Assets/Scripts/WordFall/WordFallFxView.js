@@ -602,16 +602,24 @@ WordFallFxView = class WordFallFxView extends o2.Component
                 alive.push(a);
                 continue;
             }
-            if (k >= 1)
+            try
             {
-                a.apply(1);
-                if (a.done)
-                    a.done();
+                if (k >= 1)
+                {
+                    a.apply(1);
+                    if (a.done)
+                        a.done();
+                }
+                else
+                {
+                    a.apply(k*k*(3 - 2*k)); // smoothstep
+                    alive.push(a);
+                }
             }
-            else
+            catch (e)
             {
-                a.apply(k*k*(3 - 2*k)); // smoothstep
-                alive.push(a);
+                // сломанный эффект выпадает, не останавливая ход: иначе он повторялся бы каждый кадр
+                print("WordFall: effect step failed: " + e);
             }
         }
         this._anims = alive;
