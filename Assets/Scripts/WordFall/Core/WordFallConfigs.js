@@ -95,6 +95,7 @@ WordFallConfigs = class WordFallConfigs
             parcelOnScreen: 1,
             powerupCells: [],
             powerupKinds: [],
+            letterCells: [],
             extraVowels: 0,
             extraRare: 0,
             boosterCharges: [3, 3, 3, 3, 3],
@@ -119,7 +120,15 @@ WordFallConfigs = class WordFallConfigs
             if (value === undefined || value === null)
                 continue;
 
-            if (key.endsWith("Cells"))
+            if (key == "letterCells")
+            {
+                config.letterCells = value.map(function(cell) {
+                    var letterCell = toCell(cell);
+                    letterCell.letter = cell.letter || "";
+                    return letterCell;
+                }).filter(function(cell) { return cell.letter.length > 0; });
+            }
+            else if (key.endsWith("Cells"))
                 config[key] = value.map(toCell);
             else if (key == "tasks")
                 config.tasks = value.map(function(task) { return WordFallConfigs.MakeTask(task); });
@@ -129,6 +138,61 @@ WordFallConfigs = class WordFallConfigs
                 config[key] = value;
         }
         return config;
+    }
+
+    // Конфиг уровня в формате campaign.json: только отличия от умолчаний, клетки {x, y}
+    static CompactLevel(config)
+    {
+        var defaults = WordFallConfigs.DefaultLevelConfig();
+        var level = WordFallConfigs.NormalizeLevel(config);
+        var compact = {};
+        for (var key in defaults)
+        {
+            var value = level[key];
+            if (JSON.stringify(value) === JSON.stringify(defaults[key]))
+                continue;
+
+            if (key == "letterCells")
+                compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r, letter: cell.letter }; });
+            else if (key.endsWith("Cells"))
+                compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r }; });
+            else if (key == "tasks")
+                compact[key] = value.map(WordFallConfigs.CompactTask);
+            else
+                compact[key] = Array.isArray(value) ? value.slice() : value;
+        }
+        return compact;
+    }
+
+    static CompactTask(task)
+    {
+        var defaults = WordFallConfigs.MakeTask({});
+        var compact = {};
+        for (var key in defaults)
+        {
+            if (task[key] !== undefined && JSON.stringify(task[key]) !== JSON.stringify(defaults[key]))
+                compact[key] = task[key];
+        }
+        return compact;
+    }
+
+    // Подпись задания по его конфигу
+    static TaskCaption(task)
+    {
+        switch (task.taskType)
+        {
+            case "Word": return "Слово " + task.word;
+            case "Length": return "Слова из " + task.length + " букв ×" + task.count;
+            case "Powerup": return ({ bomb: "Бомба", rocket: "Ракета", fireworks: "Салют" }[task.powerupKind] || "Бонус") + " ×" + task.count;
+            case "ClearIce": return "Весь лёд";
+            case "AnyWords": return "Слов: " + task.count;
+            case "WordScore": return "Слово на " + task.scoreThreshold + "+ очков";
+            case "Letter": return "Буква " + task.letter + " ×" + task.count;
+            case "Deliver": return "Конверты ×" + task.count;
+            case "Melt": return "Снежки ×" + task.count;
+            case "Crates": return "Все ящики";
+        }
+        return task.taskType;
     }
 
     // Кампания по умолчанию (3 уровня прототипа)

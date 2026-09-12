@@ -1,6 +1,7 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
-// Читы: кнопка в правом верхнем углу открывает панель действий над уровнем
+// Читы: кнопка в правом верхнем углу открывает экран действий над уровнем, ресурсами,
+// полем и обучением; отсюда же открывается редактор уровней
 
 WordFallCheatsView = class WordFallCheatsView extends o2.Component
 {
@@ -22,23 +23,26 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
 
         var self = this;
         this._toggle.onClick = function() { self.Toggle(); };
-        var actions = [
-            function() { self._svc.DebugCompleteTasks(); self._svc.DebugAddScore(Math.max(0, self._svc.GetTargetScore() - self._svc.GetScore())); },
-            function() { self._svc.DebugLoseLevel(); },
-            function() { self._svc.DebugAddMoves(5); },
-            function() { self._svc.DebugAddScore(100); },
-            function() { self._svc.DebugSpawnRandomPowerup(); },
-            function() { self._svc.DebugAddCharges(3); },
-            function() { var fx = WordFallViews.fx; if (fx) fx.Finish(); self._svc.StartLevel((self._svc.GetLevelIndex() + 1) % self._svc.GetLevelCount()); },
-            function() { self._svc.ResetTutorials(); var t = WordFallViews.tutorial; if (t) t.Restart(); }
-        ];
-        for (var i = 0; i < actions.length; i++)
+
+        var actions = {
+            WinBtn: function() { self._svc.DebugCompleteTasks(); self._svc.DebugAddScore(Math.max(0, self._svc.GetTargetScore() - self._svc.GetScore())); },
+            LoseBtn: function() { self._svc.DebugLoseLevel(); },
+            NextBtn: function() { self._FinishFx(); self._svc.StartLevel((self._svc.GetLevelIndex() + 1) % self._svc.GetLevelCount()); },
+            RestartBtn: function() { self._FinishFx(); self._svc.RestartLevel(); },
+            MovesBtn: function() { self._svc.DebugAddMoves(5); },
+            ScoreBtn: function() { self._svc.DebugAddScore(100); },
+            ChargesBtn: function() { self._svc.DebugAddCharges(3); },
+            PowerupBtn: function() { self._svc.DebugSpawnRandomPowerup(); },
+            TutorialBtn: function() { self._svc.ResetTutorials(); var t = WordFallViews.tutorial; if (t) t.Restart(); },
+            EditorBtn: function() { if (WordFallGame.screens) WordFallGame.screens.ShowEditor(); },
+            CloseBtn: function() {}
+        };
+        for (var name in actions)
         {
-            (function(index) {
-                var button = self._panel.GetChild("Cheat" + index + "/Btn");
+            (function(action, button) {
                 if (button)
-                    button.onClick = function() { actions[index](); self.Close(); };
-            })(i);
+                    button.onClick = function() { action(); self.Close(); };
+            })(actions[name], this._panel.GetChild(name + "/Btn"));
         }
     }
 
@@ -54,5 +58,12 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
     {
         this._open = false;
         this._panel.SetEnabled(false);
+    }
+
+    _FinishFx()
+    {
+        var fx = WordFallViews.fx;
+        if (fx)
+            fx.Finish();
     }
 };

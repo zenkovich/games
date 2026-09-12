@@ -5,13 +5,16 @@ include("Scripts/WordFall/WordFallGameService.js");
 (function()
 {
     var progressPath = "wordfall_test_service_progress.json";
+    var levelsPath = "wordfall_test_service_levels.json";
 
     function MakeService(fields)
     {
         o2.FileSystem.FileDelete(progressPath);
+        o2.FileSystem.FileDelete(levelsPath);
         var service = new WordFallGameService();
         service.randomSeed = 42;
         service.progressPath = progressPath;
+        service.editedLevelsPath = levelsPath;
         for (var key in fields)
             service[key] = fields[key];
         return service;
@@ -101,6 +104,7 @@ include("Scripts/WordFall/WordFallGameService.js");
         var restored = new WordFallGameService();
         restored.randomSeed = 42;
         restored.progressPath = progressPath;
+        restored.editedLevelsPath = levelsPath;
         expectEq(restored.GetLevelIndex(), 0, "до старта уровень не выбран");
         restored.GetScore();
         expectEq(restored.GetLevelIndex(), 1);

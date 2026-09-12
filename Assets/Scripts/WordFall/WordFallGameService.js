@@ -16,12 +16,15 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.levels = [];                            // ручная кампания; пусто — campaignPath
         this.randomSeed = 0;                         // сид (0 — случайный)
         this.progressPath = "wordfall_progress.json"; // файл сохранения прогресса
+        this.editedLevelsPath = "wordfall_levels.json"; // правки редактора уровней поверх кампании
+        this.campaignExportPath = "../../Assets/WordFall/campaign.json"; // куда редактор экспортирует кампанию
         this.fallSpeedCells = 9.5;                   // скорость падения, клеток/с
         this.fallCascadeDelay = 0.05;                // пауза стартов плиток колонки
 
         this._started = false;
         this._dictionary = null;
         this._campaign = [];
+        this._store = null;
         this._level = new WordLevel();
         this._progress = new PlayerProgress();
         this._levelIndex = 0;
@@ -49,12 +52,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         this._EnsureStarted();
         this._levelIndex = Math.min(Math.max(index, 0), this.GetLevelCount() - 1);
-
-        var config = this.levels.length > 0 ? WordFallConfigs.NormalizeLevel(this.levels[this._levelIndex])
-            : this._campaign.length > 0 ? this._campaign[this._levelIndex]
-            : WordFallLevels.Generate(this._levelIndex, this._dictionary, this._BoardConfig());
-
-        this._level.Start(JSON.parse(JSON.stringify(config)), this._BoardConfig(), this._dictionary, this.randomSeed);
+        this._level.Start(this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
         this._lastMove = new WordMoveResult();
         this._revision++;
     }
@@ -80,7 +78,44 @@ WordFallGameService = class WordFallGameService extends o2.Component
     GetLevelCount()
     {
         this._EnsureStarted();
-        return this.levels.length > 0 ? this.levels.length : this._campaign.length > 0 ? this._campaign.length : this.campaignLength;
+        return this._store.GetCount();
+    }
+
+    // --- редактор уровней: правки поверх кампании, сохраняются в editedLevelsPath ---
+
+    GetLevelConfig(index) { this._EnsureStarted(); return this._store.GetLevel(index); }
+    IsLevelEdited(index) { this._EnsureStarted(); return this._store.IsEdited(index); }
+
+    SetLevelConfig(index, config)
+    {
+        this._EnsureStarted();
+        this._store.SetLevel(index, config);
+        this._store.Save(this.editedLevelsPath);
+    }
+
+    ResetLevelConfig(index)
+    {
+        this._EnsureStarted();
+        this._store.ResetLevel(index);
+        this._store.Save(this.editedLevelsPath);
+    }
+
+    // Записывает кампанию с правками в campaignExportPath (исходники ассетов)
+    ExportCampaign()
+    {
+        this._EnsureStarted();
+        return o2.FileSystem.WriteFile(this.campaignExportPath, this._store.ExportJson());
+    }
+
+    GetLetterValue(letter)
+    {
+        var letters = this._BoardConfig().letters;
+        for (var i = 0; i < letters.length; i++)
+        {
+            if (letters[i].letter == letter)
+                return letters[i].value;
+        }
+        return 0;
     }
 
     // --- состояние для вьюх ---
@@ -326,6 +361,15 @@ WordFallGameService = class WordFallGameService extends o2.Component
             if (this._campaign.length == 0)
                 print("WordFall: campaign asset " + this.campaignPath + " is missing or empty, using the procedural campaign");
         }
+
+        var self = this;
+        var count = this.levels.length > 0 ? this.levels.length : this._campaign.length > 0 ? this._campaign.length : this.campaignLength;
+        this._store = new WordFallLevelStore(function(index) {
+            return self.levels.length > 0 ? self.levels[index]
+                : self._campaign.length > 0 ? self._campaign[index]
+                : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
+        }, count);
+        this._store.Load(this.editedLevelsPath);
 
         this._progress.Load(this.progressPath);
         this.StartLevel(this._progress.currentLevel);

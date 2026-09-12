@@ -399,8 +399,13 @@ TEST_F(WordFallFeaturesUI, CheatsPanelOpensAndActs)
 	EXPECT_TRUE(panel->IsEnabled());
 	Shot("feature_cheats");
 
+	// экран читов во весь экран: карточка выше большей части окна
+	auto card = DynamicCast<Widget>(panel->GetChild("Card"));
+	ASSERT_TRUE(card);
+	EXPECT_GT(card->layout->GetWorldRect().Height(), 900.0f);
+
 	int moves = mService->GetMovesLeft();
-	Tap(panel->GetChild("Cheat2/Btn")); // +5 ходов
+	Tap(panel->GetChild("MovesBtn/Btn")); // +5 ходов
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetMovesLeft(), moves + 5);
 	EXPECT_FALSE(panel->IsEnabled()) << "после действия панель закрывается";

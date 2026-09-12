@@ -6,4 +6,6 @@ include("Scripts/WordFall/Core/WordBoard.js");
 include("Scripts/WordFall/Core/WordBoardMotion.js");
 include("Scripts/WordFall/Core/WordLevel.js");
 include("Scripts/WordFall/Core/WordFallLevels.js");
+include("Scripts/WordFall/Core/WordFallLevelDraft.js");
+include("Scripts/WordFall/Core/WordFallLevelStore.js");
 include("Scripts/WordFall/Core/PlayerProgress.js");

@@ -137,6 +137,7 @@ public:
 	void DebugAddScore(int score) { Call("DebugAddScore", { ScriptValue(score) }); }
 	void DebugAddMoves(int moves) { Call("DebugAddMoves", { ScriptValue(moves) }); }
 	void DebugLoseLevel() { Call("DebugLoseLevel"); }
+	int GetLevelConfigMoves(int index) const { return Call("GetLevelConfig", { ScriptValue(index) }).GetProperty("moves").GetValue<int>(); }
 
 	// Лёд на клетке без хода: сценарии проверяют, что выбор его не трогает
 	void DebugSetIce(int column, int row, int layers)
@@ -230,6 +231,7 @@ inline Vector<Vec2I> WordFallJsBoard::GetSeededCells() const
 namespace
 {
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
+	const String kTestLevelsPath = "wordfall_test_levels.json"; // правки редактора уровней в тестах — не в файле игрока
 
 	// Центр плитки в экранных координатах: поле 7×8, шаг 96, центр секции поля (0, -121)
 	Vec2F TilePosition(int column, int row)
@@ -305,12 +307,14 @@ protected:
 	{
 		o2Application.SetWindowSize(Vec2I(768, 1376));
 		o2FileSystem.FileDelete("wordfall_progress.json"); // чистый прогресс для каждого теста
+		o2FileSystem.FileDelete(kTestLevelsPath);
 
 		LoadScene();
 		ASSERT_TRUE(mService);
 
-		// фиксированный сид до старта сервиса
+		// фиксированный сид и свой файл правок уровней до старта сервиса
 		mService->Set("randomSeed", ScriptValue(42));
+		mService->Set("editedLevelsPath", ScriptValue(String(kTestLevelsPath)));
 		if (!UseCampaign())
 		{
 			mService->Set("campaignPath", ScriptValue(String())); // старые сценарии рассчитаны на процедурный первый уровень
@@ -326,6 +330,7 @@ protected:
 	void TearDown() override
 	{
 		mService = nullptr;
+		o2FileSystem.FileDelete(kTestLevelsPath);
 		o2Scene.Clear(true);
 		o2Scene.UpdateDestroyingEntities();
 		AppTestDriver::PumpFrames(2);

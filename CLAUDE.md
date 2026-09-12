@@ -157,3 +157,19 @@ Rules that hold there:
 - Particles: an emitter needs `"mPlaying": true` (and `"mLoop": "Repeat"` for a loop) to play on its
   own; scripts start one with `RewindAndPlay()` (found with `GetComponent("o2::ParticlesEmitterComponent")`);
   the particle image must be part of the built assets.
+
+## WordFall levels and screens
+
+- A level is a `campaign.json` entry (`WordFallConfigs.NormalizeLevel` reads it, `CompactLevel` writes
+  it back): cells as `{x, y}`, fixed letters in `letterCells` as `{x, y, letter}`; every other cell gets
+  a random letter. Obstacle cells are reserved from the seeded task word, so what a level lists is what
+  shows up.
+- The in-game level editor (cheats → «Открыть редактор», prototype `LevelEditorScreen.proto`, view
+  `WordFallLevelEditorView.js`, model `Core/WordFallLevelDraft.js`; cells, parameters and up to 5 tasks,
+  words and letters typed through the letter palette) keeps its edits per level index in
+  `wordfall_levels.json` next to the executable (`WordFallGameService.editedLevelsPath`) on top of the
+  campaign; «Экспорт» writes the whole campaign to `campaignExportPath` (`../../Assets/WordFall/campaign.json`
+  from `Bin/<Platform>`). Tests point `editedLevelsPath` at their own file.
+- `LevelEditorScreen.proto` and the Cheats panel of `GameScreen.proto` are scaffolded by
+  `Tools/WordFall/build_screens.py` (full copies of Tile/PillButton/IconButton.proto with fresh ids);
+  after that the prototypes are the source of truth — rerunning the script discards editor tweaks.

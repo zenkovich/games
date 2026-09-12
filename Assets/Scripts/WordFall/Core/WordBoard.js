@@ -62,6 +62,8 @@ WordBoard = class WordBoard
         this.grid = [];            // [column][row], row 0 — низ
         this.selection = [];
         this.seededCells = [];
+        this._presetCells = [];
+        this._reservedCells = [];
         this._bag = [];
         this._random = new WordFallRandom(1);
         this._pendingParcels = 0;
@@ -112,6 +114,20 @@ WordBoard = class WordBoard
                     this.grid[c][r] = this._MakeTile(this._DrawLetter(this._NeedVowelAt(c, r)));
             }
         }
+
+        // буквы, заданные уровнем, стоят на своих клетках; сид слова обходит их и клетки,
+        // отведённые под препятствия, — иначе препятствие уступило бы слову и пропало
+        this._presetCells = [];
+        (level.letterCells || []).forEach(function(cell) {
+            if (self.IsPlayable(cell) && cell.letter)
+            {
+                self.grid[cell.c][cell.r] = self._MakeTile(cell.letter);
+                self._presetCells.push({ c: cell.c, r: cell.r });
+            }
+        });
+        this._reservedCells = this._presetCells.slice();
+        [level.iceCells, level.stoneCells, level.crateCells, level.chainCells, level.snowCells, level.parcelCells, level.powerupCells]
+            .forEach(function(list) { list.forEach(function(cell) { self._reservedCells.push({ c: cell.c, r: cell.r }); }); });
 
         if (seededWord)
             this._SeedWord(seededWord);
@@ -1241,16 +1257,22 @@ WordBoard = class WordBoard
 
     // Раскладывает буквы слова по случайным играбельным клеткам: слово собираемо,
     // но не бросается в глаза, как выложенное в линию
+    // Клетки слова: сперва среди свободных от препятствий, а когда таких нет — среди любых
     _SeedWord(word)
     {
         for (var i = 0; i < word.length; i++)
         {
             var cell = null;
-            for (var attempt = 0; attempt < 60 && !cell; attempt++)
+            for (var attempt = 0; attempt < 120 && !cell; attempt++)
             {
                 var candidate = { c: this._random.NextInt(this.config.columns), r: this._random.NextInt(this.config.rows) };
-                if (!WordFallCells.Contains(this.seededCells, candidate) && this.IsPlayable(candidate))
-                    cell = candidate;
+                if (WordFallCells.Contains(this.seededCells, candidate) || !this.IsPlayable(candidate))
+                    continue;
+                if (attempt < 60 && WordFallCells.Contains(this._reservedCells, candidate))
+                    continue;
+                if (attempt >= 60 && WordFallCells.Contains(this._presetCells, candidate))
+                    continue;
+                cell = candidate;
             }
             if (!cell)
                 return;
