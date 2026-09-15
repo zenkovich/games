@@ -1,8 +1,11 @@
+include("Scripts/WordFall/WordFallFileIO.js");
+
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Экран редактора уровней: поле с заданными буквами и препятствиями, инструменты по клеткам,
 // параметры и задачи уровня, выбор уровня. Каждая правка сразу уходит в сервис (WordFallGame.service)
-// и сохраняется; «Играть» запускает уровень на игровом экране
+// и сохраняется; «Играть» запускает уровень на игровом экране. Панель «Файл» уносит кампанию
+// или уровень в файл и забирает их обратно — в браузере через загрузки и выбор файла
 
 WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
 {
@@ -89,7 +92,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         bind("NextBtn", function() { self.Open(self._index + 1); });
         bind("PlayBtn", function() { self.Play(); });
         bind("ResetBtn", function() { self.Reset(); });
-        bind("ExportBtn", function() { self.Export(); });
+        bind("FilesBtn", function() { self.OpenFiles(); });
         bind("TasksBtn", function() { self.OpenTasks(); });
 
         var steppers = {
@@ -116,6 +119,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
 
         this._BindTasks(root, bind);
         this._BindPalette(root, bind);
+        this._BindFiles(root, bind);
 
         this.SelectTool(this._tool);
         this.Open(this._svc.GetLevelIndex());
@@ -180,17 +184,57 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
             dim.onClick = function() { self.ClosePalette(); };
     }
 
+    _BindFiles(root, bind)
+    {
+        var self = this;
+        this._files = root.GetChild("Files");
+        this._filesStatus = this._files.GetChild("FilesStatus");
+        this._files.GetChild("Note").SetText(WordFallFileIO.SaveHint());
+        this._files.GetChild("Note2").SetText(WordFallFileIO.LoadHint());
+
+        bind("Files/SaveCampaignBtn", function() { self.SaveCampaignFile(); });
+        bind("Files/SaveLevelBtn", function() { self.SaveLevelFile(); });
+        bind("Files/LoadBtn", function() { self.LoadFile(); });
+        bind("Files/ExportBtn", function() { self.Export(); });
+        bind("Files/FilesDoneBtn", function() { self.CloseFiles(); });
+        var dim = this._files.GetChild("Dim");
+        if (dim)
+            dim.onClick = function() { self.CloseFiles(); };
+    }
+
     // Повторное открытие: уровень игры мог смениться, черновик перечитывается
     OnEnabled()
     {
         if (this._draft)
+        {
+            this.CloseFiles();
             this.Open(this._svc.GetLevelIndex());
+        }
+    }
+
+    // Выбор файла в браузере асинхронный: прочитанное забирается здесь
+    Update(dt)
+    {
+        var result = WordFallFileIO.TakeResult();
+        if (!result)
+            return;
+
+        if (!result.ok)
+        {
+            this._SetFilesStatus(result.message);
+            return;
+        }
+
+        var imported = this._svc.ImportJson(result.text, this._index);
+        this.Open(this._index);
+        this._SetFilesStatus(imported.message);
     }
 
     GetLevelIndex() { return this._index; }
     GetTool() { return this._tool; }
     IsPaletteOpen() { return this._palette && this._palette.IsEnabled(); }
     IsTasksOpen() { return this._tasks && this._tasks.IsEnabled(); }
+    IsFilesOpen() { return this._files && this._files.IsEnabled(); }
 
     Open(index)
     {
@@ -213,7 +257,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
 
     OnCell(c, r)
     {
-        if (this.IsPaletteOpen() || this.IsTasksOpen())
+        if (this.IsPaletteOpen() || this.IsTasksOpen() || this.IsFilesOpen())
             return;
 
         var cell = { c: c, r: r };
@@ -294,6 +338,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
     OpenTasks()
     {
         this.ClosePalette();
+        this.CloseFiles();
         this._tasks.SetEnabled(true);
         this._SyncTasks();
     }
@@ -410,10 +455,46 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         this._SetStatus("Правки сняты, уровень исходный");
     }
 
+    // --- файлы: кампания и уровень уходят игроку и возвращаются обратно ---
+
+    OpenFiles()
+    {
+        this.ClosePalette();
+        this.CloseTasks();
+        this._files.SetEnabled(true);
+        this._SetFilesStatus("Уровень " + (this._index + 1) + " из " + this._svc.GetLevelCount()
+                             + ", с правками: " + this._svc.GetEditedLevelCount());
+    }
+
+    CloseFiles()
+    {
+        if (this._files)
+            this._files.SetEnabled(false);
+    }
+
+    CampaignFileName() { return "wordfall_campaign.json"; }
+    LevelFileName() { return "wordfall_level_" + (this._index + 1) + ".json"; }
+
+    SaveCampaignFile()
+    {
+        this._SetFilesStatus(WordFallFileIO.SaveText(this.CampaignFileName(), this._svc.GetCampaignJson()).message);
+    }
+
+    SaveLevelFile()
+    {
+        this._SetFilesStatus(WordFallFileIO.SaveText(this.LevelFileName(), this._svc.GetLevelJson(this._index)).message);
+    }
+
+    // Ответ прилетает в Update: в браузере файл выбирается диалогом устройства
+    LoadFile()
+    {
+        this._SetFilesStatus(WordFallFileIO.PickText([this.CampaignFileName(), this.LevelFileName()]).message);
+    }
+
     Export()
     {
         var path = this._svc.campaignExportPath;
-        this._SetStatus(this._svc.ExportCampaign() ? "Кампания записана в " + path : "Не удалось записать " + path);
+        this._SetFilesStatus(this._svc.ExportCampaign() ? "Кампания записана в " + path : "Не удалось записать " + path);
     }
 
     _Commit()
@@ -424,6 +505,12 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
     }
 
     _SetStatus(text) { this._statusLabel.SetText(text); }
+
+    _SetFilesStatus(text)
+    {
+        this._filesStatus.SetText(text);
+        this._SetStatus(text);
+    }
 
     _SyncAll()
     {

@@ -85,6 +85,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     GetLevelConfig(index) { this._EnsureStarted(); return this._store.GetLevel(index); }
     IsLevelEdited(index) { this._EnsureStarted(); return this._store.IsEdited(index); }
+    GetEditedLevelCount() { this._EnsureStarted(); return this._store.EditedCount(); }
 
     SetLevelConfig(index, config)
     {
@@ -105,6 +106,24 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         this._EnsureStarted();
         return o2.FileSystem.WriteFile(this.campaignExportPath, this._store.ExportJson());
+    }
+
+    // Кампания с правками и отдельный уровень — текст в формате campaign.json
+    GetCampaignJson() { this._EnsureStarted(); return this._store.ExportJson(); }
+    GetLevelJson(index) { this._EnsureStarted(); return this._store.ExportLevelJson(index); }
+
+    // Кампания, правки или один уровень из текста файла; уровень index — куда ложится
+    // одиночный уровень. Загруженное сохраняется и текущий уровень перезапускается
+    ImportJson(text, index)
+    {
+        this._EnsureStarted();
+        var result = this._store.ImportJson(text, Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
+        if (!result.ok)
+            return result;
+
+        this._store.Save(this.editedLevelsPath);
+        this.StartLevel(this._levelIndex);
+        return result;
     }
 
     GetLetterValue(letter)

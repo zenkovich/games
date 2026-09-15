@@ -35,13 +35,7 @@ WordFallLevelStore = class WordFallLevelStore
         try
         {
             var data = JSON.parse(text);
-            var levels = data && data.levels ? data.levels : {};
-            for (var key in levels)
-            {
-                var index = parseInt(key);
-                if (index >= 0 && index < this._count && levels[key] && typeof levels[key] == "object")
-                    this._edited[index] = levels[key];
-            }
+            this.ImportEdits(data && data.levels ? data.levels : {});
             return true;
         }
         catch (e)
@@ -68,5 +62,92 @@ WordFallLevelStore = class WordFallLevelStore
         for (var i = 0; i < this._count; i++)
             levels.push(WordFallConfigs.CompactLevel(this.GetLevel(i)));
         return JSON.stringify(levels, null, 2);
+    }
+
+    // Один уровень — текст в формате campaign.json
+    ExportLevelJson(index)
+    {
+        return JSON.stringify(WordFallConfigs.CompactLevel(this.GetLevel(index)), null, 2);
+    }
+
+    // Кампания целиком поверх исходной: правкой становится уровень, отличающийся от
+    // исходного, прежние правки снимаются. Возвращает число правок
+    ImportCampaign(levels)
+    {
+        this._edited = {};
+        var count = Math.min(levels.length, this._count);
+        for (var i = 0; i < count; i++)
+        {
+            var compact = WordFallConfigs.CompactLevel(levels[i]);
+            if (JSON.stringify(compact) !== JSON.stringify(WordFallConfigs.CompactLevel(this._source(i))))
+                this._edited[i] = compact;
+        }
+        return this.EditedCount();
+    }
+
+    // Правки из файла {"<index>": уровень} поверх кампании, прежние снимаются
+    ImportEdits(levels)
+    {
+        this._edited = {};
+        for (var key in levels)
+        {
+            var index = parseInt(key);
+            if (index >= 0 && index < this._count && levels[key] && typeof levels[key] == "object")
+                this._edited[index] = levels[key];
+        }
+        return this.EditedCount();
+    }
+
+    // Текст файла: кампания (массив уровней), правки редактора ({levels: ...}) или один
+    // уровень — он ложится в позицию levelIndex. Возвращает {ok, count, message}
+    ImportJson(text, levelIndex)
+    {
+        var data;
+        try
+        {
+            data = JSON.parse(text);
+        }
+        catch (e)
+        {
+            return { ok: false, count: 0, message: "Файл не читается как JSON" };
+        }
+
+        if (Array.isArray(data))
+        {
+            if (data.length == 0)
+                return { ok: false, count: 0, message: "В файле нет уровней" };
+
+            var loaded = Math.min(data.length, this._count);
+            var edits = this.ImportCampaign(data);
+            return { ok: true, count: loaded, message: "Загружена кампания: уровней " + loaded + ", с правками " + edits };
+        }
+
+        if (data && typeof data == "object" && data.levels)
+        {
+            var count = this.ImportEdits(data.levels);
+            return { ok: true, count: count, message: "Загружены правки редактора: уровней " + count };
+        }
+
+        if (WordFallLevelStore.LooksLikeLevel(data))
+        {
+            this.SetLevel(levelIndex, data);
+            return { ok: true, count: 1, message: "Уровень " + (levelIndex + 1) + " загружен из файла" };
+        }
+
+        return { ok: false, count: 0, message: "Файл не похож на уровни Word Fall" };
+    }
+
+    static LooksLikeLevel(data)
+    {
+        if (!data || typeof data != "object")
+            return false;
+
+        var defaults = WordFallConfigs.DefaultLevelConfig();
+        for (var key in defaults)
+        {
+            if (data[key] !== undefined)
+                return true;
+        }
+        return false;
     }
 };
