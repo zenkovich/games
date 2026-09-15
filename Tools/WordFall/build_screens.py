@@ -5,7 +5,9 @@ GameScreen.proto. Widgets are full copies of Tile/PillButton/IconButton.proto
 with fresh ids, laid out here; the result is an ordinary prototype, editable in
 the o2 editor - rerunning the script overwrites the edits.
 
-    python3 Tools/WordFall/build_screens.py
+    python3 Tools/WordFall/build_screens.py [--out DIR]
+
+--out writes both prototypes into DIR instead of Assets (to compare a regeneration).
 """
 import copy
 import json
@@ -270,7 +272,7 @@ def build_level_editor(game_screen):
     for i in range(5):
         children.append(pill(f"Charge{i}", "3", 148 + i * 62, 256, 56, 40, 5, 18))
     children.append(pill("ResetBtn", "ИСХОДНЫЙ", 470, 256, 118, 40, 5, 15))
-    children.append(pill("ExportBtn", "ЭКСПОРТ", 600, 256, 118, 40, 5, 15))
+    children.append(pill("FilesBtn", "ФАЙЛ", 600, 256, 118, 40, 5, 15))
     children.append(label("TasksLabel", "", 44, 304, 520, 30, 15, 3, font=FONT_REGULAR, col=NOTE_COLOR, halign="Left"))
     children.append(pill("TasksBtn", "ЗАДАЧИ", 580, 300, 138, 40, 5, 15))
     children.append(label("StatusLabel", "", 44, 338, 680, 30, 14, 3, font=FONT_REGULAR, col=GROUP_COLOR, halign="Left"))
@@ -305,6 +307,7 @@ def build_level_editor(game_screen):
     palette_children.append(pill("CancelBtn", "ОТМЕНА", 394, 800, 200, 52, 102))
     palette["Data"]["Children"] = palette_children
     children.append(palette)
+    children.append(build_files_overlay())
 
     screen = widget("Screen", None, children, [script_component("Scripts/WordFall/WordFallLevelEditorView.js")])
     screen["Data"]["Transform"] = {"offsetMin": {"x": -384.0, "y": -688.0}, "offsetMax": {"x": 384.0, "y": 688.0}}
@@ -364,6 +367,25 @@ def build_tasks_overlay():
     return widget("Tasks", None, children, enabled=False)
 
 
+# campaign and level files: save to the player, load back, export into the assets sources
+def build_files_overlay():
+    x, w = 134, 500
+    children = [
+        dim_button("Dim", 104),
+        image("Card", "ui_panel_board.png", 94, 400, 580, 576, 105, col=CARD_COLOR, slices=CARD_SLICES),
+        label("Title", "ФАЙЛЫ КАМПАНИИ", 94, 420, 580, 44, 26, 106),
+        label("Note", "", x, 476, w, 28, 15, 106, font=FONT_REGULAR, col=NOTE_COLOR),
+        label("Note2", "", x, 506, w, 28, 15, 106, font=FONT_REGULAR, col=NOTE_COLOR),
+        pill("SaveCampaignBtn", "СОХРАНИТЬ КАМПАНИЮ", x, 544, w, 64, 106, 20),
+        pill("SaveLevelBtn", "СОХРАНИТЬ УРОВЕНЬ", x, 620, w, 64, 106, 20),
+        pill("LoadBtn", "ЗАГРУЗИТЬ ИЗ ФАЙЛА", x, 696, w, 64, 106, 20),
+        pill("ExportBtn", "ЭКСПОРТ В ASSETS", x, 772, w, 64, 106, 20),
+        label("FilesStatus", "", x, 848, w, 30, 14, 106, font=FONT_REGULAR, col=STATUS_COLOR),
+        pill("FilesDoneBtn", "ЗАКРЫТЬ", 264, 886, 240, 60, 106),
+    ]
+    return widget("Files", None, children, enabled=False)
+
+
 # ---------------------------------------------------------------- cheats panel
 # groups of buttons in two columns; a group with one button gets the whole row
 def build_cheats_panel():
@@ -413,16 +435,22 @@ def dump(path, document, ensure_ascii):
 
 
 def main():
+    import sys
+    out = PROTOS
+    if len(sys.argv) == 3 and sys.argv[1] == "--out":
+        out = Path(sys.argv[2])
+        out.mkdir(parents=True, exist_ok=True)
+
     random.seed("wordfall-screens")  # the same ids on every run: reruns don't churn the prototypes
     game_path = PROTOS / "GameScreen.proto"
     raw = game_path.read_text(encoding="utf-8")
     game_screen_doc = json.loads(raw)
     ensure_ascii = "\\u0" in raw
 
-    dump(PROTOS / "LevelEditorScreen.proto", build_level_editor(game_screen_doc["mActor"]), ensure_ascii)
+    dump(out / "LevelEditorScreen.proto", build_level_editor(game_screen_doc["mActor"]), ensure_ascii)
     rewrite_cheats(game_screen_doc["mActor"])
-    dump(game_path, game_screen_doc, ensure_ascii)
-    print("written LevelEditorScreen.proto, GameScreen.proto (Cheats)")
+    dump(out / "GameScreen.proto", game_screen_doc, ensure_ascii)
+    print(f"written {out / 'LevelEditorScreen.proto'}, {out / 'GameScreen.proto'} (Cheats)")
 
 
 if __name__ == "__main__":

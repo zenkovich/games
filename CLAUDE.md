@@ -169,7 +169,9 @@ Rules that hold there:
   words and letters typed through the letter palette) keeps its edits per level index in
   `wordfall_levels.json` next to the executable (`WordFallGameService.editedLevelsPath`) on top of the
   campaign; «Экспорт» writes the whole campaign to `campaignExportPath` (`../../Assets/WordFall/campaign.json`
-  from `Bin/<Platform>`). Tests point `editedLevelsPath` at their own file.
+  from `Bin/<Platform>`); the «Файл» panel (`WordFallFileIO.js`) saves the campaign or a level to a
+  file and loads any of them back — in the browser through downloads and the file picker, natively
+  next to the executable. Tests point `editedLevelsPath` at their own file.
 - `LevelEditorScreen.proto` and the Cheats panel of `GameScreen.proto` are scaffolded by
   `Tools/WordFall/build_screens.py` (full copies of Tile/PillButton/IconButton.proto with fresh ids);
   after that the prototypes are the source of truth — rerunning the script discards editor tweaks.

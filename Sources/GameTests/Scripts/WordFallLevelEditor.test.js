@@ -248,6 +248,39 @@ include("Scripts/WordFall/WordFallGameService.js");
         expect(!o2.FileSystem.IsFileExist(levelsPath), "без правок файла нет");
     });
 
+    test("StoreImportsCampaignEditsAndSingleLevelsFromText", function()
+    {
+        var source = function(index) { return { moves: 10 + index, tasks: [{ word: "ДОМ" }] }; };
+        var store = new WordFallLevelStore(source, 3);
+
+        var level = JSON.parse(store.ExportLevelJson(1));
+        expectEq(level, { moves: 11, tasks: [{ word: "ДОМ" }] }, "уровень в формате campaign.json");
+
+        expectEq(store.ImportJson("not json", 0).ok, false);
+        expectEq(store.ImportJson("[]", 0).ok, false, "пустая кампания");
+        expectEq(store.ImportJson(JSON.stringify({ foo: 1 }), 0).ok, false, "не уровень");
+
+        var one = store.ImportJson(JSON.stringify({ moves: 4, letterCells: [{ x: 1, y: 2, letter: "Ю" }] }), 2);
+        expect(one.ok);
+        expectEq(one.count, 1);
+        expectEq(store.GetLevel(2).moves, 4, "одиночный уровень ложится по индексу");
+        expectEq(store.GetLevel(2).letterCells, [{ c: 1, r: 2, letter: "Ю" }]);
+
+        var tasks = [{ word: "ДОМ" }];
+        var campaign = [{ moves: 10, tasks: tasks }, { moves: 99, tasks: tasks }, { moves: 12, tasks: tasks }, { moves: 1 }];
+        var whole = store.ImportJson(JSON.stringify(campaign), 0);
+        expect(whole.ok);
+        expectEq(whole.count, 3, "лишние уровни файла отброшены");
+        expect(!store.IsEdited(0) && store.IsEdited(1) && !store.IsEdited(2), "правкой становится только отличие от исходного");
+        expectEq(store.GetLevel(1).moves, 99);
+
+        var edits = store.ImportJson(JSON.stringify({ levels: { "0": { moves: 7 }, "9": { moves: 1 } } }), 0);
+        expect(edits.ok);
+        expectEq(edits.count, 1, "правка вне кампании отброшена");
+        expectEq(store.GetLevel(0).moves, 7);
+        expect(!store.IsEdited(1), "прежние правки сняты");
+    });
+
     test("ServiceStartsEditedLevelsAndRemembersThem", function()
     {
         o2.FileSystem.FileDelete(levelsPath);

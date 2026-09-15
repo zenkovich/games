@@ -192,3 +192,40 @@ TEST_F(WordFallLevelEditorUI, TasksOverlayEditsLevelGoals)
 	EXPECT_EQ(mService->GetLevelIndex(), index);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSeededCells().Count(), 3);
 }
+
+// Панель «Файл»: уровень и кампания уходят в файл рядом с игрой и читаются обратно
+TEST_F(WordFallLevelEditorUI, FilesOverlaySavesAndLoadsLevelFiles)
+{
+	OpenEditor();
+	auto screen = Editor()->GetChild("Screen");
+	ASSERT_TRUE(screen);
+	int index = o2Scripts.Eval("WordFallViews.levelEditor.GetLevelIndex()").GetValue<int>();
+	String levelFile = String::Format("wordfall_level_%i.json", index + 1);
+	o2FileSystem.FileDelete(levelFile);
+	o2FileSystem.FileDelete("wordfall_campaign.json");
+
+	auto files = screen->GetChild("Files");
+	ASSERT_TRUE(files);
+	Tap(screen->GetChild("FilesBtn/Btn"));
+	EXPECT_TRUE(files->IsEnabled());
+
+	Tap(files->GetChild("SaveLevelBtn/Btn"));
+	EXPECT_TRUE(o2FileSystem.IsFileExist(levelFile));
+	Tap(files->GetChild("SaveCampaignBtn/Btn"));
+	EXPECT_TRUE(o2FileSystem.IsFileExist("wordfall_campaign.json"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "15g_level_editor_files.png"));
+
+	// файл уровня с другим числом ходов читается обратно и становится правкой
+	DataDocument level;
+	level["moves"] = 3;
+	level.SaveToFile(levelFile, DataDocument::Format::JSON);
+	o2FileSystem.FileDelete("wordfall_campaign.json"); // читается первый существующий: сначала кампания
+	Tap(files->GetChild("LoadBtn/Btn"));
+	AppTestDriver::PumpFrames(3);
+	EXPECT_EQ(LevelField(index, "moves"), String("3"));
+	EXPECT_TRUE(o2Scripts.Eval(String::Format("WordFallGame.service.IsLevelEdited(%i)", index)).GetValue<bool>());
+
+	Tap(files->GetChild("FilesDoneBtn/Btn"));
+	EXPECT_FALSE(files->IsEnabled());
+	o2FileSystem.FileDelete(levelFile);
+}
