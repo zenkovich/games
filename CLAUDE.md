@@ -88,3 +88,53 @@ contributor asks me to remember here in this file, not in host/private memory.
 Don't run `git commit` / `push` / `add` / `gh pr create` etc. by default — make changes and stop at
 "files modified"; the contributor reviews and commits. Git authorization is per-session only, never
 carried to future sessions.
+
+## Web editor and its agent
+
+The editor also runs in the browser (`cmake --preset wasm-editor`, served by the o2editor backend),
+and Claude Code can work on a project there — either this local Claude Code driving a locally running
+web editor, or the agent built into the page, which is Claude Code running on the server over a
+private copy of this repository. Both see the editor through the MCP server `o2` / `o2editor`
+(registered in `.mcp.json`): `screenshot`, `scene_tree`, `view_info`, `run_script`, `open_scene`,
+`save_scene`, `play_mode`, `rebuild_assets`, `read_log`, `click` / `type_text` / `press_key` (play mode
+only), `wait`.
+
+The page has two faces over one session, switched in the bottom bar and shared by
+the agent:
+
+- **Editor** — the scene editor, as before: `open_scene` / `save_scene` / `play_mode`
+  and the Game window.
+- **Game preview** — the game client itself (`GamePreview.html`, built by the
+  `GamePreview` target), running on the same session working copy instead of a
+  packed `.data`, so `rebuild_assets` works there too. There is no play mode: the
+  game is always running, and `restart` starts it over on the assets as they are
+  built now (the Restart button does the same). Both faces stay loaded and keep
+  running, so switching between them is instant and neither restarts — a client
+  that was already up needs `rebuild_assets` + `restart` to see new assets. The
+  pane emulates a window size or a device — drawn in its body, either orientation —
+  and `view_info` reports which mode is on. The agent panel is resizable in both modes (a splitter when docked)
+  and can be closed to give the game the whole pane.
+
+Rules that hold there:
+
+- Only `Assets/` is writable on the server; the rest of the repository is read-only reference and
+  nothing compiles — deliver through assets, scripts and the editor. Locally the usual rules apply.
+- The editor reads asset content from the built copy: after changing files under `Assets/` call
+  `rebuild_assets` once per batch (10-20 s freeze), then check `read_log` for build errors and
+  script exceptions before looking at a screenshot.
+- Read the scene with `scene_tree` / `view_info`, never by guessing from a picture; open the scene
+  you changed with `open_scene` before `play_mode`. The editor chrome ignores synthetic input —
+  `click` / `type_text` / `press_key` exist only to play the game (in the Game window, or in the
+  preview, where the canvas is the game and its pixels are the device's).
+- `run_script` executes JavaScript inside the engine (globals `sceneRoots`, `findActor(path)`,
+  `eachActor(fn)`, the `o2` namespace) without a script asset or play mode; it is not a text
+  processor and has no Node/require/filesystem.
+- Scripts: a `.js` asset defines a class named like the file, assigned to the global without
+  let/const (`Name = class Name extends o2.Component { ... }`); lifecycle hooks are exactly
+  `OnStart()`, `OnEnabled()`, `OnDisabled()`, `Update(dt)`; log with `print()`; never `Dump()` or
+  enumerate the JS global under browserjs. A window script reports to C++ through the injected
+  property named exactly `action`.
+- Never change an asset uid, an actor Id or a PrototypeLink number, and move a `.meta` together with
+  its file — references are by uid and break silently.
+- Particles: an emitter needs `"mPlaying": true` (and `"mLoop": "Repeat"` for a loop); `Play()` is
+  not scriptable; the particle image must be part of the built assets.

@@ -40,6 +40,18 @@ void GameApplication::OnStarted()
 	brain_farm::RegisterGameJsApi();
 	brain_farm::BuildBootstrapScene();
 	brain_farm::SaveBootstrapSceneIfMissing();
+
+}
+
+const String& GameApplication::GetScenePath() const
+{
+	return mScenePath;
+}
+
+void GameApplication::Restart()
+{
+	o2Scene.Clear();
+	OnStarted();
 }
 
 void GameApplication::OnUpdate(float dt)

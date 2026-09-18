@@ -1,0 +1,697 @@
+{
+    "graph": {
+        "nodes": [
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "de7fe7bd6935920d670889e8ede439f3",
+                    "nodeType": "sourceText",
+                    "position": {
+                        "x": 0.0,
+                        "y": 400.0
+                    },
+                    "outputs": [
+                        {
+                            "id": "882a1e4ab4542a87afc964072d6500dc",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "text": "A collectible coin made of Swiss cheese for a 2D pixel-art platformer"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "4e5ff3416a0f23185d83a0df1dbb7174",
+                    "nodeType": "promptGen",
+                    "position": {
+                        "x": 330.0,
+                        "y": 0.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "267c6c3f3a5a0cf03f7fb80150b32431",
+                            "name": "description"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "7d0064a6f0d953a2e4da82f9c044cef2",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "target": "image"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "ea108b4b89286e16422c0bbc0fd901df",
+                    "nodeType": "nanoBananaGen",
+                    "position": {
+                        "x": 660.0,
+                        "y": 0.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "1ea8fad3353748940acfac71216d60e6",
+                            "name": "prompt"
+                        },
+                        {
+                            "id": "07729951682c159a07e9314391f8106f",
+                            "name": "reference",
+                            "portType": "Image"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "269472ae07a323b2475468e8cacb9657",
+                            "name": "out",
+                            "portType": "Image"
+                        }
+                    ],
+                    "config": {
+                        "extraPrompt": "Centered on a solid pure white (#FFFFFF) background, no shadow, no text"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "c63d8caecb90a58888ef827d4fe5e28e",
+                    "nodeType": "imageEdit",
+                    "position": {
+                        "x": 990.0,
+                        "y": 0.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "62f4ebf7b082d03632329375d5c406e0",
+                            "name": "image",
+                            "portType": "Image"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "b90aaa8b391431e2586acd6e97a5fa0f",
+                            "name": "out",
+                            "portType": "Image"
+                        }
+                    ],
+                    "config": {
+                        "prompt": "Replace the background with a solid pure black (#000000) background. Keep the coin exactly the same: same position, size, colors and details."
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "e875efa5862531cf27f0ee3e10b8700d",
+                    "nodeType": "removeBackground",
+                    "position": {
+                        "x": 1320.0,
+                        "y": 0.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "863cae4ff3691c3ef105fe6a198f1826",
+                            "name": "white",
+                            "portType": "Image"
+                        },
+                        {
+                            "id": "64a2ae1a90e19764ee09dc53a9a33884",
+                            "name": "black",
+                            "portType": "Image"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "2faf1c88930049f0cd68005d5fa63f80",
+                            "name": "out",
+                            "portType": "Image"
+                        }
+                    ]
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "8d7f152272e73337a89d74ede440abd1",
+                    "nodeType": "finishImage",
+                    "position": {
+                        "x": 1650.0,
+                        "y": 0.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "78be2ef0cd78ce0a36731d733dc53a87",
+                            "name": "in",
+                            "portType": "Image"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/coin"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "79d65b5d4bd8bb2736a44ac440355548",
+                    "nodeType": "imageExtract",
+                    "position": {
+                        "x": 990.0,
+                        "y": 900.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "c805edb2df6f0220d1fdd4a2d3c88928",
+                            "name": "image",
+                            "portType": "Image"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "c4b4cbbb09befe0b4cc201f88667b9fd",
+                            "name": "out",
+                            "portType": "Image"
+                        }
+                    ],
+                    "config": {
+                        "prompt": "the cheese coin",
+                        "transparentBg": true,
+                        "transparentMode": "chroma",
+                        "roi": {
+                            "x": 0.15000000596046449,
+                            "y": 0.10000000149011612,
+                            "w": 0.699999988079071,
+                            "h": 0.800000011920929
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "096ec4999abc6b2a6aebbbde30a6e8be",
+                    "nodeType": "finishImage",
+                    "position": {
+                        "x": 1320.0,
+                        "y": 900.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "ffb1001deda708a32c305f40a6914888",
+                            "name": "in",
+                            "portType": "Image"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/coin_sprite"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "46adbc217d595e8734228c1530f4d8fb",
+                    "nodeType": "promptGen",
+                    "position": {
+                        "x": 330.0,
+                        "y": 1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "f6366d8a41a4a7e1fb6865dd0ff0b346",
+                            "name": "description"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "31cd105ccadfbf49ad03c74eb14ec75e",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "target": "video"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "93260cd40b84d8d448ee460fe8351b44",
+                    "nodeType": "videoGen",
+                    "position": {
+                        "x": 660.0,
+                        "y": 1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "9dea2cc758f4053af124073873ab5dec",
+                            "name": "prompt"
+                        },
+                        {
+                            "id": "bfbed86cd5a1aa4cfeb7c997b401f8e3",
+                            "name": "reference",
+                            "portType": "Image"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "74a72069ab6eba9d32b3240d7cf6bb81",
+                            "name": "out",
+                            "portType": "Video"
+                        }
+                    ],
+                    "config": {
+                        "duration": 4.0,
+                        "aspectRatio": "16:9"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "071339ef56f01888200776a414f08b57",
+                    "nodeType": "finishVideo",
+                    "position": {
+                        "x": 990.0,
+                        "y": 1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "6f32c0166b059ace388283150e6e770b",
+                            "name": "in",
+                            "portType": "Video"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/coin_spin"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "b0ed509a16ed09553c786db2fe2814c8",
+                    "nodeType": "aiText",
+                    "position": {
+                        "x": 330.0,
+                        "y": -900.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "89021f29a4e18043b0a4016226c9519e",
+                            "name": "prompt"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "ce22be7fde891a2a9ee758d0dc45525c",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "systemPrompt": "You write short item descriptions for a game shop. Answer with two sentences, no preamble."
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "7ac55c0228336870f1570251292b8daa",
+                    "nodeType": "textEdit",
+                    "position": {
+                        "x": 660.0,
+                        "y": -900.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "44495920cf23c2a061c75873650361e5",
+                            "name": "text"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "31306dde6c77fbd49b51da6ac4b4e399",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "instruction": "Make it playful and keep it under 25 words"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "55fe96fa90b144ba1e008800c766cf6d",
+                    "nodeType": "finishText",
+                    "position": {
+                        "x": 990.0,
+                        "y": -900.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "64b7171b54c3562596be3b94f96d4c8f",
+                            "name": "in"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/description"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "0a34856b90449202f36efdb72dbc9cb2",
+                    "nodeType": "ttsSpeech",
+                    "position": {
+                        "x": 990.0,
+                        "y": -650.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "300d973a669b61f8176e0cdf403c5cb1",
+                            "name": "text"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "ad9bff826c109e7993d8037d5adf6469",
+                            "name": "out",
+                            "portType": "Audio"
+                        }
+                    ],
+                    "config": {
+                        "provider": "gemini",
+                        "voice": "Kore"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "32a3d16a998b04551989859322519302",
+                    "nodeType": "finishAudio",
+                    "position": {
+                        "x": 1320.0,
+                        "y": -650.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "4f6d3ec7b422326dbc0016468cde8403",
+                            "name": "in",
+                            "portType": "Audio"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/voice"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "b4529143a32d785b5cc006b479823312",
+                    "nodeType": "promptGen",
+                    "position": {
+                        "x": 330.0,
+                        "y": -1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "257c7e6da8d259bb818526a49982b2a5",
+                            "name": "description"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "460509c5b8313e959a6ec48e4a68a4ec",
+                            "name": "out"
+                        }
+                    ],
+                    "config": {
+                        "target": "music"
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "f1aeb86a7a75b02b915c6d3d98ecbf9b",
+                    "nodeType": "musicGen",
+                    "position": {
+                        "x": 660.0,
+                        "y": -1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "134fff7c09754a3610ca5d687d5b13f8",
+                            "name": "prompt"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "bb0dbdf26d64d3739421e8a307110210",
+                            "name": "out",
+                            "portType": "Audio"
+                        }
+                    ],
+                    "config": {
+                        "instrumental": true
+                    }
+                }
+            },
+            {
+                "Type": "Editor::PipelineNode",
+                "Value": {
+                    "id": "33b5323f15fc5e0001889bf838984fd4",
+                    "nodeType": "finishAudio",
+                    "position": {
+                        "x": 990.0,
+                        "y": -1500.0
+                    },
+                    "inputs": [
+                        {
+                            "id": "f07e9b425ae9caa1feb59a082c6c5370",
+                            "name": "in",
+                            "portType": "Audio"
+                        }
+                    ],
+                    "config": {
+                        "assetPath": "Generated/GeminiShowcase/theme"
+                    }
+                }
+            }
+        ],
+        "edges": [
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "5c5dd9016ff31c9f7d20ae3ee69b741c",
+                    "fromNodeId": "de7fe7bd6935920d670889e8ede439f3",
+                    "fromPortId": "882a1e4ab4542a87afc964072d6500dc",
+                    "toNodeId": "4e5ff3416a0f23185d83a0df1dbb7174",
+                    "toPortId": "267c6c3f3a5a0cf03f7fb80150b32431"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "e97ae99272e0d294491e763d72560ab7",
+                    "fromNodeId": "4e5ff3416a0f23185d83a0df1dbb7174",
+                    "fromPortId": "7d0064a6f0d953a2e4da82f9c044cef2",
+                    "toNodeId": "ea108b4b89286e16422c0bbc0fd901df",
+                    "toPortId": "1ea8fad3353748940acfac71216d60e6"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "321258fd1421082eb42f1dde94143e99",
+                    "fromNodeId": "ea108b4b89286e16422c0bbc0fd901df",
+                    "fromPortId": "269472ae07a323b2475468e8cacb9657",
+                    "toNodeId": "c63d8caecb90a58888ef827d4fe5e28e",
+                    "toPortId": "62f4ebf7b082d03632329375d5c406e0"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "3980c6bd8a1475ee35a9a448e12285b4",
+                    "fromNodeId": "ea108b4b89286e16422c0bbc0fd901df",
+                    "fromPortId": "269472ae07a323b2475468e8cacb9657",
+                    "toNodeId": "e875efa5862531cf27f0ee3e10b8700d",
+                    "toPortId": "863cae4ff3691c3ef105fe6a198f1826"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "5020ad3bb95fe84d2d5620f0d1618755",
+                    "fromNodeId": "c63d8caecb90a58888ef827d4fe5e28e",
+                    "fromPortId": "b90aaa8b391431e2586acd6e97a5fa0f",
+                    "toNodeId": "e875efa5862531cf27f0ee3e10b8700d",
+                    "toPortId": "64a2ae1a90e19764ee09dc53a9a33884"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "22b5428135eaef192084e885d10cc104",
+                    "fromNodeId": "e875efa5862531cf27f0ee3e10b8700d",
+                    "fromPortId": "2faf1c88930049f0cd68005d5fa63f80",
+                    "toNodeId": "8d7f152272e73337a89d74ede440abd1",
+                    "toPortId": "78be2ef0cd78ce0a36731d733dc53a87"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "97910aa582ed75e3e6fed0f9b955171c",
+                    "fromNodeId": "ea108b4b89286e16422c0bbc0fd901df",
+                    "fromPortId": "269472ae07a323b2475468e8cacb9657",
+                    "toNodeId": "79d65b5d4bd8bb2736a44ac440355548",
+                    "toPortId": "c805edb2df6f0220d1fdd4a2d3c88928"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "b5d665126e344255dfeb0470657a2618",
+                    "fromNodeId": "79d65b5d4bd8bb2736a44ac440355548",
+                    "fromPortId": "c4b4cbbb09befe0b4cc201f88667b9fd",
+                    "toNodeId": "096ec4999abc6b2a6aebbbde30a6e8be",
+                    "toPortId": "ffb1001deda708a32c305f40a6914888"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "88f04ac7384feb821a733c11de969b7b",
+                    "fromNodeId": "de7fe7bd6935920d670889e8ede439f3",
+                    "fromPortId": "882a1e4ab4542a87afc964072d6500dc",
+                    "toNodeId": "46adbc217d595e8734228c1530f4d8fb",
+                    "toPortId": "f6366d8a41a4a7e1fb6865dd0ff0b346"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "5a9d653144bcdca12ce5d61a056b30a5",
+                    "fromNodeId": "46adbc217d595e8734228c1530f4d8fb",
+                    "fromPortId": "31cd105ccadfbf49ad03c74eb14ec75e",
+                    "toNodeId": "93260cd40b84d8d448ee460fe8351b44",
+                    "toPortId": "9dea2cc758f4053af124073873ab5dec"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "786926ce0d9de48d03e32a7ea9bb5499",
+                    "fromNodeId": "ea108b4b89286e16422c0bbc0fd901df",
+                    "fromPortId": "269472ae07a323b2475468e8cacb9657",
+                    "toNodeId": "93260cd40b84d8d448ee460fe8351b44",
+                    "toPortId": "bfbed86cd5a1aa4cfeb7c997b401f8e3"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "70aa8098a3681d4cfc642a084978e791",
+                    "fromNodeId": "93260cd40b84d8d448ee460fe8351b44",
+                    "fromPortId": "74a72069ab6eba9d32b3240d7cf6bb81",
+                    "toNodeId": "071339ef56f01888200776a414f08b57",
+                    "toPortId": "6f32c0166b059ace388283150e6e770b"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "8faebdff9f204ee03a41b74fd4e63a19",
+                    "fromNodeId": "de7fe7bd6935920d670889e8ede439f3",
+                    "fromPortId": "882a1e4ab4542a87afc964072d6500dc",
+                    "toNodeId": "b0ed509a16ed09553c786db2fe2814c8",
+                    "toPortId": "89021f29a4e18043b0a4016226c9519e"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "b7fb534a6cf6fa9df160b9382264cbe2",
+                    "fromNodeId": "b0ed509a16ed09553c786db2fe2814c8",
+                    "fromPortId": "ce22be7fde891a2a9ee758d0dc45525c",
+                    "toNodeId": "7ac55c0228336870f1570251292b8daa",
+                    "toPortId": "44495920cf23c2a061c75873650361e5"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "b60f2986cc55daa0bb514c9bef1a33d8",
+                    "fromNodeId": "7ac55c0228336870f1570251292b8daa",
+                    "fromPortId": "31306dde6c77fbd49b51da6ac4b4e399",
+                    "toNodeId": "55fe96fa90b144ba1e008800c766cf6d",
+                    "toPortId": "64b7171b54c3562596be3b94f96d4c8f"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "74827b1fef64fdbffc54ffd7cfe2f0db",
+                    "fromNodeId": "7ac55c0228336870f1570251292b8daa",
+                    "fromPortId": "31306dde6c77fbd49b51da6ac4b4e399",
+                    "toNodeId": "0a34856b90449202f36efdb72dbc9cb2",
+                    "toPortId": "300d973a669b61f8176e0cdf403c5cb1"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "d1e48667ed89f998c68357e7d766ec07",
+                    "fromNodeId": "0a34856b90449202f36efdb72dbc9cb2",
+                    "fromPortId": "ad9bff826c109e7993d8037d5adf6469",
+                    "toNodeId": "32a3d16a998b04551989859322519302",
+                    "toPortId": "4f6d3ec7b422326dbc0016468cde8403"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "69360f6c46b5b8a1aeb750156d368b68",
+                    "fromNodeId": "de7fe7bd6935920d670889e8ede439f3",
+                    "fromPortId": "882a1e4ab4542a87afc964072d6500dc",
+                    "toNodeId": "b4529143a32d785b5cc006b479823312",
+                    "toPortId": "257c7e6da8d259bb818526a49982b2a5"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "ea38cd1efe0c818f614463b5cff54bc5",
+                    "fromNodeId": "b4529143a32d785b5cc006b479823312",
+                    "fromPortId": "460509c5b8313e959a6ec48e4a68a4ec",
+                    "toNodeId": "f1aeb86a7a75b02b915c6d3d98ecbf9b",
+                    "toPortId": "134fff7c09754a3610ca5d687d5b13f8"
+                }
+            },
+            {
+                "Type": "Editor::PipelineEdge",
+                "Value": {
+                    "id": "74fc45a2dd175611276c39d6e2c409f5",
+                    "fromNodeId": "f1aeb86a7a75b02b915c6d3d98ecbf9b",
+                    "fromPortId": "bb0dbdf26d64d3739421e8a307110210",
+                    "toNodeId": "33b5323f15fc5e0001889bf838984fd4",
+                    "toPortId": "f07e9b425ae9caa1feb59a082c6c5370"
+                }
+            }
+        ]
+    }
+}
