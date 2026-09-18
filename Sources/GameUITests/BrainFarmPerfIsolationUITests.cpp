@@ -116,7 +116,7 @@ namespace
             brain->transform->SetPosition(Vec3F(-250.0f + 50.0f*i, -100.0f, 30.0f));
             auto mesh = brain->AddComponent<Mesh3DComponent>();
             mesh->SetMeshAsset(o2Assets.GetAssetRefByType<Mesh3DAsset>(String("Models/Brain.obj")));
-            mesh->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/BrainPalette.png")));
+            mesh->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/BrainPaint.png")));
             brains.Add(brain);
         }
         AppTestDriver::PumpFrames(5);
@@ -140,8 +140,8 @@ namespace
         farmer->SetLayer("3D");
         farmer->transform->SetEulerAngles(Vec3F(Math::Deg2rad(90.0f), 0, 0));
         auto skinned = farmer->AddComponent<SkinnedMeshComponent>();
-        skinned->SetModelAsset(o2Assets.GetAssetRefByType<SkinnedModelAsset>(String("Models/Farmer.glb")));
-        skinned->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/FarmerPalette.png")));
+        skinned->SetModelAsset(o2Assets.GetAssetRefByType<SkinnedModelAsset>(String("Models/Sahur.glb")));
+        skinned->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/SahurAtlas.png")));
         skinned->SetLooped(true);
         skinned->SetAnimation("CharacterArmature|Run");
         skinned->SetPlaying(true);
@@ -164,7 +164,7 @@ namespace
             brain->transform->SetPosition(Vec3F(-250.0f + 50.0f*i, -100.0f, 30.0f));
             auto mesh = brain->AddComponent<Mesh3DComponent>();
             mesh->SetMeshAsset(o2Assets.GetAssetRefByType<Mesh3DAsset>(String("Models/Brain.obj")));
-            mesh->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/BrainPalette.png")));
+            mesh->SetTexture(o2Assets.GetAssetRefByType<ImageAsset>(String("Models/BrainPaint.png")));
         }
         AppTestDriver::PumpFrames(5);
         Soak("F brains-st    ", 3, 150);

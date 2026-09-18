@@ -54,4 +54,22 @@ xcuserdata
 .DS_Store
 *DS_Store.meta
 
-/Work/
+/Work/*
+!/Work/ScreenShots/
+/Work/ScreenShots/*
+!/Work/ScreenShots/0[89]_sahur_*.png
+!/Work/ScreenShots/1[1-6]_wasm_*.png
+!/Work/ScreenShots/browser-validation.json
+
+!/Work/ScreenShots/10_native_victory.png
+!/Work/ScreenShots/2[0-9]_wasm_*.png
+!/Work/ScreenShots/3[01]_wasm_*.png
+!/Work/validation.json
+!/Work/GDD.md
+!/Work/Sahur-gameplay.webm
+
+!/Work/ScreenShots/4[0-6]_wide_*.png
+!/Work/ScreenShots/5[0-9]_wasm_*.png
+!/Work/ScreenShots/6[0-4]_wasm_*.png
+!/Work/ScreenShots/native-validation.json
+!/Work/ScreenShots/65_wasm_fixed_joystick.png

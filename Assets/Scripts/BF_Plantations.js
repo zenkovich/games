@@ -1,132 +1,73 @@
-// Plantations: brains ripen on spots, the player harvests them by proximity;
-// locked plantations are bought by standing on their buy zones
 BF.Plantation = class
 {
-    constructor(index, unlocked)
+    constructor(index,unlocked)
     {
-        this.index = index;
-        this.center = BF.points.plantations[index];
-        this.actor = Bridge.FindActor("Plantations/Plantation" + index);
-        this.unlocked = unlocked;
-        this.spots = [];
-        for (let i = 0; i < 4; i++)
-        {
-            this.spots.push({
-                actor: this.actor.GetChild("Spot" + i),
-                state: "empty", // empty -> growing -> ripe
-                progress: 0,
-                delay: i*0.9    // stagger the first wave
-            });
-        }
-        this._time = 0;
+        this.index=index;this.center=BF.points.plantations[index];
+        this.actor=Bridge.FindActor("Plantations/Plantation"+index);
+        this.unlocked=unlocked;this.golden=index==2;this.spots=[];
+        for(let row=0;row<BF.cfg.cropRows;row++)
+            for(let col=0;col<BF.cfg.cropColumns;col++)
+            {
+                let actor=this.actor.GetChild("Spot"+(row*BF.cfg.cropColumns+col));
+                let position=BF.getWorldPos(actor);
+                this.spots.push({actor:actor,x:position.x,y:position.y,
+                    state:unlocked?"ripe":"empty",progress:unlocked?1:0,delay:0,scaleStep:12});
+                actor.SetEnabled(unlocked);
+                BF.setScale(actor,BF.cfg.cropScale);
+            }
     }
 
     Unlock()
     {
-        this.unlocked = true;
-        this.actor.SetEnabled(true);
+        this.unlocked=true;
+        for(let s of this.spots)
+        {
+            s.state="growing";s.progress=.78;s.delay=0;s.scaleStep=-1;s.actor.SetEnabled(true);
+        }
     }
 
     Update(dt)
     {
-        if (!this.unlocked)
-            return;
-
-        this._time += dt;
-        for (let spot of this.spots)
+        if(!this.unlocked)return;
+        for(let s of this.spots)
         {
-            if (spot.state == "empty")
+            if(s.state=="ripe")continue;
+            if(s.state=="empty")
             {
-                if (spot.delay > 0)
-                {
-                    spot.delay -= dt;
-                    continue;
-                }
-
-                spot.state = "growing";
-                spot.progress = 0;
-                spot.actor.SetEnabled(true);
+                s.delay-=dt;
+                if(s.delay>0)continue;
+                s.state="growing";s.progress=0;s.scaleStep=-1;s.actor.SetEnabled(true);
             }
-
-            if (spot.state == "growing")
+            s.progress=Math.min(1,s.progress+dt/(this.golden?8.5:BF.cfg.growTime));
+            let step=Math.floor(s.progress*12);
+            if(step!==s.scaleStep)
             {
-                spot.progress = Math.min(1, spot.progress + dt/BF.cfg.growTime);
-                let ease = spot.progress*spot.progress*(3 - 2*spot.progress);
-                BF.setScale(spot.actor, 0.05 + 0.65*ease);
-                if (spot.progress >= 1)
-                    spot.state = "ripe";
+                s.scaleStep=step;let t=step/12;
+                BF.setScale(s.actor,BF.cfg.cropScale*(.08+.92*t*t*(3-2*t)));
             }
-
-            if (spot.state == "ripe")
-                spot.actor.GetTransform().SetAngle(this._time*1.2 + spot.delay); // ripe brains slowly spin
+            if(s.progress>=1)s.state="ripe";
         }
     }
 
-    HasRipe()
+    NearestRipe(x,y,radius)
     {
-        return this.spots.some(s => s.state == "ripe");
-    }
-
-    // Takes one ripe brain off its spot; returns its world position or null
-    PopRipe()
-    {
-        for (let spot of this.spots)
+        if(!this.unlocked)return null;
+        let best=null,limit=radius*radius;
+        for(let s of this.spots)
         {
-            if (spot.state != "ripe")
-                continue;
-
-            let pos = BF.getWorldPos(spot.actor);
-            spot.state = "empty";
-            spot.delay = 0.4 + Math.random()*0.8;
-            spot.actor.SetEnabled(false);
-            BF.setScale(spot.actor, 0.05);
-            return pos;
+            if(s.state!=="ripe")continue;
+            let distance=BF.dist2(x,y,s.x,s.y);
+            if(distance<limit){best={spot:s,distance:distance};limit=distance;}
         }
-
-        return null;
-    }
-};
-
-BF.BuyZone = class
-{
-    constructor(index, plantation) // index 1..2, the zone unlocks `plantation`
-    {
-        this.plantation = plantation;
-        this.cost = BF.cfg.plantationCosts[plantation.index];
-        this.paid = 0;
-        this.done = false;
-        this.actor = Bridge.FindActor("BuyZones/BuyZone" + index);
-        this.center = plantation.center;
-        this.label = null; // created by the HUD, positioned by world projection
+        return best;
     }
 
-    Remaining() { return Math.max(0, this.cost - this.paid); }
+    HasRipe(){return this.unlocked&&this.spots.some(s=>s.state=="ripe");}
 
-    Update(dt, player, game)
+    PopRipe(spot)
     {
-        if (this.done)
-            return;
-
-        let near = BF.dist2(player.x, player.y, this.center.x, this.center.y) <
-                   BF.cfg.buyRadius*BF.cfg.buyRadius;
-        if (near && game.money > 0)
-        {
-            let pay = Math.min(BF.cfg.buyRate*dt, this.Remaining(), game.money);
-            game.SpendMoney(pay);
-            this.paid += pay;
-
-            // the disc shrinks as the zone gets paid
-            let t = 1 - this.paid/this.cost;
-            BF.setScale(this.actor, 0.35 + 0.65*t);
-        }
-
-        if (this.Remaining() <= 0.0001)
-        {
-            this.done = true;
-            this.actor.SetEnabled(false);
-            this.plantation.Unlock();
-            if (this.label)
-                this.label.SetEnabled(false);
-        }
+        if(!spot || spot.state!=="ripe")return null;
+        spot.state="empty";spot.delay=.8;spot.actor.SetEnabled(false);
+        return{x:spot.x,y:spot.y,z:12};
     }
 };

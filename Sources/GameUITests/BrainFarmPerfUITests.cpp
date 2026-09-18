@@ -81,7 +81,7 @@ namespace
         brain_farm::BuildBootstrapScene();
         AppTestDriver::PumpFrames(5);
 
-        Eval("BF.game.AddMoney(400); for (let z of BF.game.buyZones) z.paid = z.cost;");
+        Eval("for (let z of BF.game.buyZones) { z.paid = z.cost; BF.game.progression.Update(0); } BF.game.victoryOpen = false;");
         AppTestDriver::PumpFrames(10);
 
         const int chunks = 16;
@@ -92,9 +92,9 @@ namespace
         {
             // alternate between the plantation cluster and the counter to keep the economy churning
             bool atCounter = (i % 2) == 1;
-            Eval(atCounter ? String("BF.game.player.x = 0; BF.game.player.y = 330;")
-                           : String("BF.game.player.x = ") + (String)((i % 4 == 0) ? 0.0f : -200.0f) +
-                             "; BF.game.player.y = " + (String)((i % 4 == 0) ? -170.0f : -430.0f) + ";");
+            Eval(atCounter ? String("BF.game.player.x = 655; BF.game.player.y = -260;")
+                           : String("BF.game.player.x = ") + (String)(435.0f - 140.0f*(i/2 % 10)) +
+                             "; BF.game.player.y = " + (String)((i % 4 == 0) ? -260.0f : 580.0f) + ";");
 
             samples.Add(Sample(framesPerChunk));
             auto& s = samples.Last();

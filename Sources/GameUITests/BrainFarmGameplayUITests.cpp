@@ -49,72 +49,38 @@ namespace
         }
     };
 
-    TEST_F(BrainFarmGameplay, FullLoop_Harvest_Sell_Unlock)
+    TEST_F(BrainFarmGameplay, SweepRowsSellAndUpgrade)
     {
-        // 1: stand near the plantation until the stack fills up
-        Teleport(0.0f, -170.0f);
-        AppTestDriver::Wait(8.0f);
-
-        float stack = EvalNumber("BF.game.player.StackCount()");
-        EXPECT_GE(stack, 4);
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/03_harvested_stack.png");
-
-        // 2: carry to the counter drop point, brains move to the stand
-        Teleport(0.0f, 320.0f);
-        AppTestDriver::Wait(3.0f);
-
-        EXPECT_GT(EvalNumber("BF.game.counter.stock.length"), 0);
-
-        auto state = o2Scripts.Eval(R"JS(
-            let parts = [];
-            for (let b of BF.game.counter.stock)
-            {
-                let p = BF.getWorldPos(b);
-                parts.push("stock(" + p.x.toFixed(2) + "," + p.y.toFixed(2) + "," + p.z.toFixed(2) + ")");
-            }
-            parts.push("flights=" + BF.game.flights.length);
-            parts.push("stack=" + BF.game.player.stack.length);
-            let flightsRoot = Bridge.FindActor("Flights");
-            for (let ch of flightsRoot.GetChildren())
-            {
-                let p = BF.getWorldPos(ch);
-                parts.push("stray(" + p.x.toFixed(2) + "," + p.y.toFixed(2) + "," + p.z.toFixed(2) + ")");
-            }
-            parts.join(" ");
-        )JS");
-        printf("counter state: %s\n", ((String)state).Data());
-
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/04_counter_stocked.png");
-
-        // 3: zombies buy everything they can; force one sale to catch the money spark mid-flight
-        AppTestDriver::Wait(2.5f);
-        if (EvalNumber("BF.game.counter.stock.length") > 0 && EvalNumber("BF.game.zombies.list.length") > 0)
+        for (int row = 0; row < 10; row++)
         {
-            Eval("BF.game.counter.SellTo(BF.game.zombies.list[0], BF.game)");
-            AppTestDriver::Wait(0.5f);
-            EXPECT_GE(EvalNumber("BF.game.hud.moneyFlies.length"), 1) << "money spark must fly to the HUD";
-            AppTestDriver::SaveScreenshot("../../Work/ScreenShots/05a_money_fly.png");
+            Teleport(435 - row*70, -260);
+            AppTestDriver::Wait(.3f);
         }
-        AppTestDriver::Wait(3.5f);
-        float money = EvalNumber("BF.game.money");
-        EXPECT_GT(money, 0);
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/05_zombies_paid.png");
-
-        // 4: cheat up some cash and buy plantation 1 by standing on its zone
-        Eval("BF.game.AddMoney(300)");
-        Teleport(-200.0f, -320.0f);
-        AppTestDriver::Wait(0.4f);
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/06a_buy_zone.png");
-        Teleport(-200.0f, -430.0f);
-        AppTestDriver::Wait(2.5f);
-
-        EXPECT_EQ(EvalNumber("BF.game.plantations[1].unlocked ? 1 : 0"), 1);
-        EXPECT_EQ(EvalNumber("BF.game.buyZones[0].done ? 1 : 0"), 1);
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/06_plantation1_unlocked.png");
-
-        // 5: look at the stand area: queue, pines and fences
-        Teleport(0.0f, 650.0f);
-        AppTestDriver::Wait(1.5f);
-        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/07_stand_area.png");
+        AppTestDriver::Wait(.5f);
+        EXPECT_EQ(EvalNumber("BF.game.player.StackCount()"), 30);
+        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/43_wide_harvest.png");
+        Teleport(655,-260);
+        AppTestDriver::Wait(1.3f);
+        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/44_wide_market.png");
+        AppTestDriver::Wait(10.7f);
+        EXPECT_EQ(EvalNumber("BF.game.sold"), 30);
+        EXPECT_EQ(EvalNumber("BF.game.money"), 60);
+        Teleport(570,160);
+        AppTestDriver::Wait(.8f);
+        EXPECT_EQ(EvalNumber("BF.game.progression.index"), 1);
+        EXPECT_EQ(EvalNumber("BF.game.money"), 20);
+        Eval("BF.game.AddMoney(400)");
+        Teleport(590,-840);
+        AppTestDriver::Wait(.9f);
+        EXPECT_EQ(EvalNumber("BF.game.capacity"), 60);
+        Teleport(570,580);
+        AppTestDriver::Wait(1.4f);
+        Teleport(850,-600);
+        AppTestDriver::Wait(2.0f);
+        EXPECT_EQ(EvalNumber("BF.game.progression.index"), 4);
+        AppTestDriver::SaveScreenshot("../../Work/ScreenShots/45_wide_victory.png");
+        AppTestDriver::Click(Vec2F(0, -104.0f*800.0f/960.0f));
+        AppTestDriver::PumpFrames(5);
+        EXPECT_EQ(EvalNumber("BF.game.victoryOpen ? 1 : 0"), 0);
     }
 }

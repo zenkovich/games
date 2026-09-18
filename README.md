@@ -1,82 +1,73 @@
-[![Windows](https://github.com/o2-engine/o2-Template/actions/workflows/windows-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/windows-cmake.yml)
-[![Linux](https://github.com/o2-engine/o2-Template/actions/workflows/linux-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/linux-cmake.yml)
-[![macOS](https://github.com/o2-engine/o2-Template/actions/workflows/mac-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/mac-cmake.yml)
-[![iOS](https://github.com/o2-engine/o2-Template/actions/workflows/ios-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/ios-cmake.yml)
-[![WebAssembly](https://github.com/o2-engine/o2-Template/actions/workflows/wasm-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/wasm-cmake.yml)
-[![Android](https://github.com/o2-engine/o2-Template/actions/workflows/android-cmake.yml/badge.svg?branch=main)](https://github.com/o2-engine/o2-Template/actions/workflows/android-cmake.yml)
+# Sahur's Brain Farm
 
-# o2-Template
+A small 3D playable on [o2](https://github.com/zenkovich/o2): drag to move Sahur,
+collect and stack brains, sell them to zombies and progress to a VIP market.
+The 22×26 m farm has three long beds with 240 planting spots, a rotated following
+camera and a relocated market. Four upgrades add a second garden, a 60-item stack,
+golden brains and larger orders. Ordinary brains sell for $2; golden brains for $4.
 
-Minimal project template for the [o2 engine](https://github.com/zenkovich/o2). Fork or copy it to
-start a new game: the engine is wired in as a submodule, CMake builds the game, the editor and the
-tests, and the sample scene shows a deferred 3D layer with a 2D overlay on top.
+The original wooden character has a bat, Idle/Run animations, 10 bones and one
+1024×1024 baked atlas. The Blender pipeline repairs open surfaces and validates
+exported topology. Authored trees, ferns, rocks and barrels use combined meshes. The web version stays in portrait orientation and accepts mouse or touch.
+The beds face an open counter with visible stock.
+A camera-relative joystick stays anchored at the press position until release; a lightweight color grade
+runs inside the existing lighting pass.
 
-## Getting started
+## Build and run
 
 ```sh
-git clone --recursive https://github.com/o2-engine/o2-Template.git
-cd o2-Template
-
-# Configure + build (presets: mac / windows / linux, *-release variants)
+git submodule update --init --recursive
 cmake --preset mac
-cmake --build --preset mac -j 8
-
-# Run
-Bin/Mac/Editor   # the o2 editor with the project opened
-Bin/Mac/Game     # the game itself (loads Assets/Main.scn)
+cmake --build --preset mac --target Game GameTests GameUITests -j 8
+Bin/Mac/Game
 ```
 
-If you cloned without `--recursive`, run `git submodule update --init --recursive`.
-
-`GenerateProject.command` / `GenerateProject.bat` open a small GUI wrapper around the same CMake
-presets for generating Xcode / Visual Studio / CLion projects.
-
-## Tests
+Native editor (launch from its output directory so relative asset paths resolve):
 
 ```sh
-ctest --test-dir build --output-on-failure -C Debug --parallel 4
+cmake --build --preset mac --target Editor -j 8
+(cd Bin/Mac && ./Editor)
 ```
 
-Targets: `o2UtilTests`, `o2SystemTests`, `o2RenderTests`, `o2EditorTests`, `o2EditorUITests`
-(engine), `GameTests` (headless game tests), `GameUITests` (rendered: real window, screenshots).
-Run a single binary with `ctest -R '^GameTests/'`.
+WebAssembly Release (requires emsdk at `~/emsdk`):
 
-## Project layout
+```sh
+python3 Tools/build_sahur_web.py
+python3 Platforms/WebAssembly/serve.py 8090 Bin/WebAssembly
+```
 
-- `Assets/` — raw assets: `Main.scn` (sample scene: 3D primitives, lights, perspective camera with
-  the deferred pipeline + 2D sprites and a label), sprites, `debugFont.ttf`, `Fox.glb` (glTF sample
-  model used by tests; from [glTF-Sample-Models](https://github.com/KhronosGroup/glTF-Sample-Models),
-  CC-BY 4.0 by PixelMannen). Built by `AssetsBuilder` into `BuiltAssets/<Platform>/`.
-- `Sources/Game/` — game code (`GameLib`): `GameApplication`, sample `RotatorComponent`,
-  `GameLib.cpp` reflection aggregator (maintained by the o2 CodeTool).
-- `Sources/Editor/` — editor-side extensions (`EditorLib`): custom property viewers etc.
-- `Sources/GameTests/`, `Sources/GameUITests/` — game test suites (Google Test).
-- `Platforms/` — per-platform entry points: Windows/Linux/Mac (`Windows/`), `iOS/`, `Android/`
-  (Gradle project), `WebAssembly/` (shell page + dev server).
-- `o2/` — the engine submodule.
+Open http://localhost:8090/Game.html. The script builds native asset tools,
+WebAssembly resources, the game and gzip files. Only game and framework assets
+are packaged; web editor assets are excluded. Serve `.wasm`, `.js` and `.data`
+with gzip/Brotli on deployment. `Sahur-playable.zip` contains the complete playable
+and credits; the build fails above the 5,000,000-byte package budget.
 
-## Platforms
+## Checks
 
-Desktop (Windows, Linux, macOS) builds the game, the editor and the tests. Cross targets build the
-game only and use pre-built host assets: `cmake --preset ios` / `ios-sim`, `wasm` (needs emsdk;
-serve with `Platforms/WebAssembly/serve.py`), Android via the Gradle project in
-`Platforms/Android/`.
+```sh
+ctest --test-dir build --output-on-failure -C Debug --parallel 1 \
+  -R '^GameTests/|^GameUITests/(BrainFarmScene|BrainFarmGameplay|BrainFarmJsBridge|BrainFarmPerf|BrainFarmPerfIsolation)$'
+python3 Tools/Tests/test_assets_builder.py -v
+```
 
-### Web editor
+The AssetsBuilder regression checks replace folder metadata while preserving child
+asset IDs, then verify both the rebuild and the next incremental build.
 
-The editor itself also builds for the browser: `cmake --preset wasm-editor` +
-`cmake --build --preset wasm-editor` produces `Bin/WebAssembly/Editor.html` next to the page shell
-copied from `Platforms/WebAssembly/shell/` (assets browser, changes dialog, AI agent). Editor and
-game assets have to be pre-built by host tools first (`AssetsBuilder -platform WebAssembly`).
+These cover model parsing/budgets, movement, harvest/sell/unlock, screenshots
+ordered progression, gold/VIP payouts, the final button and a 4800-frame performance run. The portrait test also saves the current
+`Assets/Bootstrap.scn` through the engine for the editor.
 
-Unlike `serve.py`, the page expects a session server: it streams the project tree into MEMFS on
-start and mirrors every write back, so each browser tab edits its own copy of the project.
+## Source
 
-## Making it yours
+- `Sources/Game/BrainFarm/` — scene construction and JS bridge.
+- `Assets/Scripts/BF_*.js` — gameplay and HUD.
+- `Tools/Art/sculpt_farm.py` — Blender sculpting, remeshing and baking.
+  See [art notes](Tools/Art/README.md) for the complete export and validation pipeline.
+- `Tools/Browser/verify_sahur.cjs` — full mouse-driven progression, touch check,
+  screenshots and video; requires Node and Playwright with Chrome available.
+- `Work/ScreenShots/` and `Work/report.html` — local visual verification.
+- `Work/Models/CREDITS.md` — third-party model attribution;
+  `Assets/Fonts/OFL.txt` — rounded font licence.
 
-1. Rename the `Game` target in `CMakeLists.txt` and `CMakePresets.json` (iOS/WASM/Android build
-   presets reference it by name), the bundle id `com.o2.template` and the Android package.
-2. Replace `Assets/Main.scn` with your scenes; the boot scene is loaded in
-   `Sources/Game/GameApplication.cpp`.
-3. Add game components next to `RotatorComponent` — the CodeTool picks them up and registers the
-   reflection automatically during the build.
+The template's native and web editor targets remain available through the
+`mac` and `wasm-editor` presets.

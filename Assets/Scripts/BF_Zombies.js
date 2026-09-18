@@ -11,7 +11,7 @@ BF.Zombies = class
         // queue spots run from the stand toward the gate in the back fence, head first
         this.queueSpots = [];
         for (let i = 0; i < BF.cfg.queueLength; i++)
-            this.queueSpots.push({ x: 0.12*i*BF.M, y: (5.65 + 0.8*i)*BF.M });
+            this.queueSpots.push({ x: 1030, y: -300+85*i });
     }
 
     QueueIndexFree(index)
@@ -30,7 +30,7 @@ BF.Zombies = class
         return -1;
     }
 
-    Spawn()
+    Spawn(first)
     {
         let spot = this.FirstFreeSpot();
         if (spot < 0)
@@ -45,12 +45,14 @@ BF.Zombies = class
 
         let z = {
             actor: actor,
-            x: BF.points.zombieSpawn.x,
-            y: BF.points.zombieSpawn.y,
+            x: first ? 1030 : BF.points.zombieSpawn.x,
+            y: first ? -200 : BF.points.zombieSpawn.y,
             state: "toQueue",
             spot: spot,
             sellTimer: BF.cfg.sellDelay,
-            anim: ""
+            anim: "",
+            remaining: BF.game.marketLevel == 2 ? 15 : (BF.game.progression && BF.game.progression.index > 0 ? 10 : 6),
+            vip: BF.game.marketLevel == 2 && this._nameCounter%3 == 0
         };
         BF.setPos(actor, z.x, z.y, 0);
         this.list.push(z);
@@ -131,8 +133,12 @@ BF.Zombies = class
                         z.sellTimer = BF.cfg.sellDelay;
                         if (counter.SellTo(z, game))
                         {
-                            z.state = "leave";
-                            this.SetAnim(z, "Walk", 1.6);
+                            z.remaining--;
+                            if (z.remaining <= 0)
+                            {
+                                z.state = "leave";
+                                this.SetAnim(z, "Walk", 1.6);
+                            }
                         }
                     }
                 }

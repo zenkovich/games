@@ -48,48 +48,111 @@ namespace
         }
     };
 
-    TEST_F(BrainFarmLogic, BrainsGrowAndHarvestIntoLimitedStack)
+    TEST_F(BrainFarmLogic, JoystickAnchorStaysAtPressUntilRelease)
     {
-        Teleport(0.0f, -170.0f);
-        Simulate(2.0f);
-        EXPECT_EQ(EvalNumber("BF.game.player.StackCount()"), 0) << "nothing is ripe yet";
+        Eval(R"JS(
+            let originalCursor=BF.cursorUI,originalDown=Bridge.IsCursorDown;
+            let cursor={x:0,y:-200},down=true,p=BF.game.player;
+            try {
+                BF.cursorUI=()=>cursor;Bridge.IsCursorDown=()=>down;
+                p.UpdateJoystick(.1);
+                cursor={x:240,y:-200};p.UpdateJoystick(.1);
+                BF.joystickProbe=[p.joyOriginX,p.joyOriginY,p.joyDX];
+                cursor={x:220,y:-200};
+                for(let i=0;i<10;i++)p.UpdateJoystick(.1);
+                BF.joystickProbe.push(Math.hypot(p.dirX,p.dirY));
+                down=false;for(let i=0;i<10;i++)p.UpdateJoystick(.1);
+                BF.joystickProbe.push(Math.hypot(p.dirX,p.dirY));
+                down=true;cursor={x:-100,y:-180};p.UpdateJoystick(.1);
+                BF.joystickProbe.push(p.joyOriginX,p.joyOriginY);
+            } finally {BF.cursorUI=originalCursor;Bridge.IsCursorDown=originalDown;}
+        )JS");
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[0]"), 0);
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[1]"), -200);
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[2]"), 74);
+        EXPECT_NEAR(EvalNumber("BF.joystickProbe[3]"), 1, .001f);
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[4]"), 0);
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[5]"), -100);
+        EXPECT_FLOAT_EQ(EvalNumber("BF.joystickProbe[6]"), -180);
+    }
 
-        Simulate(30.0f);
-        EXPECT_EQ(EvalNumber("BF.game.player.StackCount()"), 8) << "stack must fill up to the limit";
+    TEST_F(BrainFarmLogic, HarvestIsLocalAndReservesFlightSlots)
+    {
+        EXPECT_NEAR(EvalNumber("BF.game.plantations[0].spots[0].x"), 435, .01f);
+        EXPECT_NEAR(EvalNumber("BF.game.plantations[0].spots[0].y"), -362, .01f);
+        Teleport(435, -260);
+        Simulate(.15f);
+        EXPECT_GT(EvalNumber("BF.game.player.pending"), 0);
+        Simulate(.8f);
+        EXPECT_GT(EvalNumber("BF.game.harvested"), 0);
+        EXPECT_LT(EvalNumber("BF.game.harvested"), 20);
+        EXPECT_EQ(EvalNumber("BF.game.plantations[0].spots[79].state === 'ripe' ? 1 : 0"), 1);
+        for (int row = 0; row < 10; row++)
+        {
+            Teleport(435 - row*70, -260);
+            Simulate(.35f);
+        }
+        Simulate(1.0f);
+        EXPECT_EQ(EvalNumber("BF.game.player.StackCount()"), 30);
+        EXPECT_EQ(EvalNumber("BF.game.player.pending"), 0);
         EXPECT_EQ(EvalNumber("BF.game.player.StackFull() ? 1 : 0"), 1);
     }
 
-    TEST_F(BrainFarmLogic, FullSellCycleBringsMoney)
+    TEST_F(BrainFarmLogic, DenseHarvestSellsAtTwoDollarsEach)
     {
-        Teleport(0.0f, -170.0f);
-        Simulate(10.0f);
-        float stack = EvalNumber("BF.game.player.StackCount()");
-        ASSERT_GT(stack, 0);
-
-        Teleport(0.0f, 330.0f);
-        Simulate(2.0f);
-        EXPECT_GT(EvalNumber("BF.game.counter.stock.length"), 0) << "brains move to the counter";
-        EXPECT_LT(EvalNumber("BF.game.player.StackCount()"), stack);
-
-        Simulate(12.0f);
-        EXPECT_GT(EvalNumber("BF.game.money"), 0) << "zombies must buy and pay";
-        EXPECT_GT(EvalNumber("BF.game.zombies.list.length"), 0);
+        for (int row = 0; row < 10; row++)
+        {
+            Teleport(435 - row*70, -260);
+            Simulate(.35f);
+        }
+        Simulate(.5f);
+        EXPECT_EQ(EvalNumber("BF.game.player.StackCount()"), 30);
+        Teleport(655,-260);
+        Simulate(.1f);
+        EXPECT_GT(EvalNumber("BF.game.counter.pending"), 0);
+        EXPECT_EQ(EvalNumber("BF.game.counter.SellTo({x:1030,y:-300,vip:false},BF.game) ? 1 : 0"), 0);
+        Simulate(13.0f);
+        EXPECT_EQ(EvalNumber("BF.game.sold"), 30);
+        EXPECT_EQ(EvalNumber("BF.game.earned"), 60);
+        EXPECT_EQ(EvalNumber("BF.game.counter.pending"), 0);
+        EXPECT_EQ(EvalNumber("BF.game.counter.stock.length"), 0);
     }
 
-    TEST_F(BrainFarmLogic, BuyZoneDrainsMoneyAndUnlocksPlantation)
+    TEST_F(BrainFarmLogic, ProgressionUnlocksDenseFieldsAndLargerCargo)
     {
-        EXPECT_EQ(EvalNumber("BF.game.plantations[1].unlocked ? 1 : 0"), 0);
-
-        Eval("BF.game.AddMoney(300)");
-        Teleport(-200.0f, -430.0f);
-        Simulate(2.5f);
-
+        Eval("BF.game.AddMoney(500)");
+        Teleport(590,-840);
+        Simulate(1);
+        EXPECT_EQ(EvalNumber("BF.game.money"), 500);
+        EXPECT_EQ(EvalNumber("BF.game.capacity"), 30);
+        Teleport(570,160);
+        Simulate(.6f);
+        EXPECT_EQ(EvalNumber("BF.game.progression.index"), 1);
+        EXPECT_EQ(EvalNumber("BF.game.plantations[1].spots.length"), 80);
         EXPECT_EQ(EvalNumber("BF.game.plantations[1].unlocked ? 1 : 0"), 1);
-        EXPECT_EQ(EvalNumber("BF.game.buyZones[0].done ? 1 : 0"), 1);
-        EXPECT_NEAR(EvalNumber("BF.game.money"), 200.0f, 1.0f) << "exactly the plantation cost is drained";
+        Teleport(590,-840);
+        Simulate(.9f);
+        EXPECT_EQ(EvalNumber("BF.game.capacity"), 60);
+        EXPECT_EQ(EvalNumber("BF.game.moveSpeed"), 580);
+        Teleport(570,580);
+        Simulate(1.3f);
+        EXPECT_EQ(EvalNumber("BF.game.plantations[2].unlocked ? 1 : 0"), 1);
+        Teleport(850,-600);
+        Simulate(2.0f);
+        EXPECT_EQ(EvalNumber("BF.game.victory ? 1 : 0"), 1);
+        EXPECT_EQ(EvalNumber("BF.game.progression.index"), 4);
+        EXPECT_NEAR(EvalNumber("BF.game.money"), 100, .01f);
+        EXPECT_EQ(EvalNumber("BF.game.buyZones.filter(z => z.active).length"), 0);
+    }
 
-        // the second zone stays locked and keeps its price
-        EXPECT_EQ(EvalNumber("BF.game.plantations[2].unlocked ? 1 : 0"), 0);
-        EXPECT_NEAR(EvalNumber("BF.game.buyZones[1].Remaining()"), 250.0f, 1.0f);
+    TEST_F(BrainFarmLogic, CameraRelativeDirectionsAndGoldenVipPrice)
+    {
+        EXPECT_NEAR(EvalNumber("BF.screenToGround(1,0).x"), .81915f, .001f);
+        EXPECT_NEAR(EvalNumber("BF.screenToGround(1,0).y"), .57358f, .001f);
+        EXPECT_NEAR(EvalNumber("BF.screenToGround(0,1).x"), -.57358f, .001f);
+        EXPECT_NEAR(EvalNumber("BF.screenToGround(0,1).y"), .81915f, .001f);
+        Eval("BF.game.marketLevel=2;BF.game.RecordSale(BF.cfg.goldenPrice,{x:1030,y:-300,vip:true})");
+        EXPECT_EQ(EvalNumber("BF.game.money"), 16);
+        EXPECT_EQ(EvalNumber("BF.game.sold"), 1);
     }
 }

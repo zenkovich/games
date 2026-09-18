@@ -342,7 +342,9 @@ elseif (EMSCRIPTEN)
         "-sSTACK_SIZE=5MB"
         "-sEXPORTED_RUNTIME_METHODS=[ccall,cwrap,UTF8ToString]"
         "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/Platforms/WebAssembly/index.html"
-        "--preload-file" "${CMAKE_CURRENT_SOURCE_DIR}/BuiltAssets/WebAssembly@/"
+        "--preload-file=${CMAKE_CURRENT_SOURCE_DIR}/BuiltAssets/WebAssembly/Data@/Data"
+        "--preload-file=${CMAKE_CURRENT_SOURCE_DIR}/BuiltAssets/WebAssembly/Data.json@/Data.json"
+        "--preload-file=${CMAKE_CURRENT_SOURCE_DIR}/BuiltAssets/WebAssembly/FrameworkData@/FrameworkData"
         "--preload-file=${CMAKE_CURRENT_SOURCE_DIR}/ProjectSettings.json@/ProjectSettings.json")
 
     # Preloaded assets are packed at link time: relink when the built assets tree changes.
@@ -353,7 +355,8 @@ elseif (EMSCRIPTEN)
             "${CMAKE_CURRENT_SOURCE_DIR}/BuiltAssets/WebAssembly/Data.json")
     endif()
     set_property(TARGET Game APPEND PROPERTY LINK_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/ProjectSettings.json")
+        "${CMAKE_CURRENT_SOURCE_DIR}/ProjectSettings.json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/WebAssembly/index.html")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # Runtime safety + GL diagnostics + catchable C++ exceptions.
         target_link_options(Game PRIVATE

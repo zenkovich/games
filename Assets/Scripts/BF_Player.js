@@ -1,4 +1,4 @@
-// Player: floating joystick, movement with bounds and the stand obstacle, Idle/Run
+// Player: joystick anchored at press, movement with bounds and the stand obstacle, Idle/Run
 // animations and the brain stack carried on the back
 BF.Player = class
 {
@@ -6,11 +6,12 @@ BF.Player = class
     {
         this.actor = Bridge.FindActor("Player");
         this.stackRoot = Bridge.FindActor("Player/Stack");
-        this.x = 0;
-        this.y = -0.2;
+        this.x = BF.points.playerStart.x;
+        this.y = BF.points.playerStart.y;
         this.dirX = 0;
         this.dirY = 0;
         this.moving = false;
+        this.pending = 0;
         this.stack = [];      // brain actors, bottom to top
         this.joyActive = false;
         this.joyOriginX = 0;  // UI units
@@ -31,59 +32,46 @@ BF.Player = class
 
     UpdateJoystick(dt)
     {
-        let down = Bridge.IsCursorDown();
-        if (down && !this.joyActive)
+        let down=Bridge.IsCursorDown()&&!BF.game.victoryOpen,c=BF.cursorUI();
+        if(down&&!this.joyActive&&c.y<310)
         {
-            let c = BF.cursorUI();
-            this.joyActive = true;
-            this.joyOriginX = c.x;
-            this.joyOriginY = c.y;
+            this.joyActive=true;this.joyOriginX=c.x;this.joyOriginY=c.y;
         }
-
-        if (!down)
-            this.joyActive = false;
-
-        this.dirX = 0;
-        this.dirY = 0;
-        if (this.joyActive)
+        if(!down)this.joyActive=false;
+        let sx=0,sy=0;
+        this.joyDX=0;this.joyDY=0;
+        if(this.joyActive)
         {
-            let c = BF.cursorUI();
-            const radius = 95; // UI units of the full deflection
-            let dx = c.x - this.joyOriginX, dy = c.y - this.joyOriginY;
-            let len = Math.sqrt(dx*dx + dy*dy);
-            if (len > radius)
+            const radius=74,dead=7;
+            let dx=c.x-this.joyOriginX,dy=c.y-this.joyOriginY,len=Math.sqrt(dx*dx+dy*dy);
+            if(len>radius)
             {
-                // the base drags after the finger, the classic floating stick
-                this.joyOriginX = c.x - dx/len*radius;
-                this.joyOriginY = c.y - dy/len*radius;
-                dx = c.x - this.joyOriginX;
-                dy = c.y - this.joyOriginY;
-                len = radius;
+                dx=dx/len*radius;dy=dy/len*radius;len=radius;
             }
-
-            this.joyDX = dx;
-            this.joyDY = dy;
-            if (len > radius*0.12) // dead zone
+            this.joyDX=dx;this.joyDY=dy;
+            if(len>dead)
             {
-                this.dirX = dx/radius;
-                this.dirY = dy/radius;
+                let strength=(len-dead)/(radius-dead);
+                strength=strength*(.7+.3*strength);
+                sx=dx/len*strength;sy=dy/len*strength;
             }
         }
-
-        if (BF.game && BF.game.hud)
-            BF.game.hud.UpdateJoystick(this.joyActive, this.joyOriginX, this.joyOriginY, this.joyDX, this.joyDY);
+        let desired=BF.screenToGround(sx,sy),k=1-Math.exp(-dt*(this.joyActive?20:32));
+        this.dirX=BF.lerp(this.dirX,desired.x,k);this.dirY=BF.lerp(this.dirY,desired.y,k);
+        if(BF.game.victoryOpen || (!this.joyActive&&Math.abs(this.dirX)+Math.abs(this.dirY)<.01))
+            this.dirX=this.dirY=0;
+        BF.game.hud.UpdateJoystick(this.joyActive,this.joyOriginX,this.joyOriginY,this.joyDX,this.joyDY,dt);
     }
 
-    // Keyboard fallback for desktop runs is intentionally absent: the demo is a mobile playable
     UpdateMovement(dt)
     {
         let speed = Math.sqrt(this.dirX*this.dirX + this.dirY*this.dirY);
-        this.moving = speed > 0.01;
+        this.moving = speed > 0.025;
 
         if (this.moving)
         {
-            this.x += this.dirX*BF.cfg.playerSpeed*dt;
-            this.y += this.dirY*BF.cfg.playerSpeed*dt;
+            this.x += this.dirX*BF.game.moveSpeed*dt;
+            this.y += this.dirY*BF.game.moveSpeed*dt;
 
             let b = BF.points.bounds;
             this.x = BF.clamp(this.x, b.minX, b.maxX);
@@ -100,35 +88,65 @@ BF.Player = class
                 this.y = s.y + dy/d*standRadius;
             }
 
-            BF.faceDir(this.actor, this.dirX, this.dirY);
+            let target = Math.atan2(-this.dirX, this.dirY) + Math.PI;
+            let current = this.actor.GetTransform().GetAngle();
+            let delta = Math.atan2(Math.sin(target-current), Math.cos(target-current));
+            this.actor.GetTransform().SetAngle(current + delta*Math.min(1,dt*15));
         }
 
-        BF.setPos(this.actor, this.x, this.y, 0);
+        if(this._placedX!==this.x || this._placedY!==this.y)
+        {
+            BF.setPos(this.actor,this.x,this.y,0);
+            this._placedX=this.x;this._placedY=this.y;
+        }
         this.SetAnim(this.moving ? "Run" : "Idle");
     }
 
     StackCount() { return this.stack.length; }
-    StackFull() { return this.stack.length >= BF.cfg.stackLimit; }
+    StackFull() { return this.stack.length + this.pending >= BF.game.capacity; }
 
-    // The brain actor becomes a child of the stack root at its slot position
-    PushToStack(brain)
+    StackOffset(slot)
     {
-        this.stackRoot.AddChild(brain);
-        let slot = this.stack.length;
-        this.stack.push(brain);
-        BF.setPos(brain, 0, 0, slot*0.42*BF.M);
-        brain.GetTransform().SetAngle(slot*0.9); // vary yaw so the pile looks alive
-        BF.setScale(brain, 1);
+        let columns=BF.game.capacity>30?3:2;
+        return{x:(slot%columns-(columns-1)*.5)*27,y:0,z:Math.floor(slot/columns)*22};
     }
 
-    PopFromStack()
+    StackPosition(slot)
     {
-        return this.stack.pop() || null;
+        let p=BF.getWorldPos(this.stackRoot),offset=this.StackOffset(slot),angle=this.actor.GetTransform().GetAngle();
+        return{x:p.x+Math.cos(angle)*offset.x,y:p.y+Math.sin(angle)*offset.x,z:p.z+offset.z};
+    }
+
+    PushToStack(item)
+    {
+        this.stackRoot.AddChild(item.actor);
+        this.stack.push(item);
+        this._settledCount=-1;
+        BF.setScale(item.actor,BF.cfg.brainScale);
+        this.UpdateStack(0);
+    }
+
+    PopFromStack() { return this.stack.pop() || null; }
+
+    UpdateStack(dt)
+    {
+        if(!this.moving && this._settledCount===this.stack.length)return;
+        this._settledCount=this.moving?-1:this.stack.length;
+        let t=BF.game.time;
+        for (let i=0;i<this.stack.length;i++)
+        {
+            let sway=this.moving ? Math.sin(t*9-i*.42)*Math.min(i*1.0,7) : 0;
+            let a=this.stack[i].actor;
+            let offset=this.StackOffset(i);
+            BF.setPos(a,offset.x+sway,offset.y,offset.z);
+            a.GetTransform().SetAngle(this.moving?Math.sin(t*2+i)*.06:0);
+        }
     }
 
     Update(dt)
     {
         this.UpdateJoystick(dt);
         this.UpdateMovement(dt);
+        this.UpdateStack(dt);
     }
 };

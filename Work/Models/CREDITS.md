@@ -1,22 +1,16 @@
-# Атрибуция 3D-моделей
+# Sahur's Brain Farm — art credits
 
-Все модели скачаны с poly.pizza, конвертированы офлайн-тулзами (`glbtool.py`):
-персонажи — repack в одно-примитивный GLB с палитро-текстурой, статика — в OBJ (Z-up)
-с запеканием цветов материалов в палитру.
-
-| Ассет в игре | Источник | Автор | Лицензия |
+| Asset | Author / source | License | Changes |
 |---|---|---|---|
-| Models/Farmer.glb (игрок) | [Farmer](https://poly.pizza/m/7pn3R6hPvE) | Quaternius | CC0 1.0 |
-| Models/Zombie.glb | [Animated Zombie](https://poly.pizza/m/jkrEvQZb8J) | Quaternius | CC-BY 3.0 |
-| Models/Brain.obj | [Brain](https://poly.pizza/m/5mPRPZkI3qt) | Poly by Google | CC-BY 3.0 |
-| Models/Stand.obj (прилавок) | [Market Stand](https://poly.pizza/m/DGIM5HGISb) | Quaternius | CC0 1.0 |
-| Models/Dirt.obj (грядка) | [Farm Dirt](https://poly.pizza/m/8BQFbUMOeC) | Quaternius | CC0 1.0 |
-| Models/Fence.obj | [Fence](https://poly.pizza/m/U7g0Wxpt63) | Quaternius | CC0 1.0 |
-| Models/PineTrunk/PineLeaves.obj | [Pine](https://poly.pizza/m/79gmlLnweB) | Quaternius | CC0 1.0 |
-| Models/Bat.obj | [Baseball Bat](https://poly.pizza/m/POXTjdMP2c) | Pichuliru | CC0 1.0 |
+| Sahur character | Original model for this project, `Tools/Art/` | Project asset | Sculpted wooden body and face, closed surfaces, 10-joint rig, Idle/Run, baked atlas |
+| Zombie | [Quaternius — Animated Zombie](https://poly.pizza/m/jkrEvQZb8J) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Repacked mesh and palette |
+| Brain | [Poly by Google — Brain](https://poly.pizza/m/5mPRPZkI3qt) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Remeshed, simplified, recolored, baked AO, gold variant |
+| Market | [Quaternius — Market Stand](https://poly.pizza/m/DGIM5HGISb) | CC0 | Counter, sign, lanterns, painted materials and atlas |
+| Oak | [Poly by Google — Oak](https://poly.pizza/m/6pwiq7hSrHr) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Simplified, arranged and combined into environment atlas |
+| Barrel | [Quaternius — Barrel](https://poly.pizza/m/ONdghDBByN) | CC0 | Recolored and baked |
+| Fern | [Quaternius — Fern](https://poly.pizza/m/jqcanvH7D6) | CC0 | Recolored and combined |
+| Rocks | [Quaternius — Rocks](https://poly.pizza/m/OQvi8PIZ40) | CC0 | Rescaled, recolored and combined |
+| UI font | Rounded Mplus 1c Black, Copyright 2016 The Rounded M+ Project Authors | SIL OFL 1.1 | Latin subset, license in `Assets/Fonts/OFL.txt` |
 
-CC-BY: требуется указание авторства (Quaternius, Poly by Google) в кредитах игры.
-
-Персонаж мем-версии («тум-тум-тум-сахур») в свободном доступе с пригодной лицензией не
-найден: модели на Sketchfab требуют аккаунта для скачивания, Meshy-генерации не ригнуты.
-Роль игрока исполняет CC0-фермер Quaternius; бейсбольная бита — пасхалка на прилавке.
+Terrain painting, garden beds, fence, interaction pads and UI are authored for the project.
+The previous Farmer, Pine, Dirt, Fence and Bat models are no longer runtime assets.

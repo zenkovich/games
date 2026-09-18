@@ -2,6 +2,7 @@
 #include "GameJsBridge.h"
 
 #include "BrainFarmBootstrap.h"
+#include "FarmLightingPass.h"
 
 #include "o2/Application/Application.h"
 #include "o2/Application/Input.h"
@@ -25,7 +26,7 @@ using namespace o2;
 
 namespace brain_farm
 {
-    static const String kFontPath = "debugFont.ttf";
+    static const String kFontPath = "Fonts/GameFontHeavy.ttf";
 
     // Only a mouse is ever cursor zero; a touch carries whatever id the platform assigns,
     // so asking for cursor zero finds nothing on a phone
@@ -73,8 +74,10 @@ namespace brain_farm
     static Ref<Button> MakeButton(const String& caption, int height)
     {
         auto button = mmake<Button>();
-        button->AddLayer("regular", mmake<Sprite>(Color4(64, 130, 90, 255)));
-        button->AddLayer("caption", MakeText(caption, height));
+        button->AddLayer("regular", mmake<Sprite>(String("UI/gold_card.png")));
+        auto text = MakeText(caption, height);
+        text->SetColor(Color4(40, 63, 52, 255));
+        button->AddLayer("caption", text);
         return button;
     }
 
@@ -154,6 +157,11 @@ namespace brain_farm
             return SpawnFromTemplate("Templates/BrainTemplate", "Templates");
         }));
 
+        bridge.SetProperty("SpawnGoldenBrain", Function<Ref<Actor>()>([]()
+        {
+            return SpawnFromTemplate("Templates/GoldenBrainTemplate", "Templates");
+        }));
+
         // Structured returns (Vec2F/Vec3F) marshal to JS with undefined fields, so every
         // cross-boundary read is a plain float getter
 
@@ -200,6 +208,13 @@ namespace brain_farm
                 return Ref<Button>();
 
             return MakeButton(caption, height);
+        }));
+
+        bridge.SetProperty("SetColorGrade", Function<void(bool)>([](bool enabled)
+        {
+            auto camera = DynamicCast<CameraActor>(o2Scene.FindActor("camera3d"));
+            if (camera)
+                camera->GetRenderPipeline()->GetPass<FarmLightingPass>()->SetColorCorrectionEnabled(enabled);
         }));
 
         bridge.SetProperty("Log", Function<void(const String&)>([](const String& text)

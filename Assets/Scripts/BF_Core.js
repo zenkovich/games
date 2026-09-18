@@ -7,32 +7,33 @@ BF.M = 100; // world units per meter, matches kUnitsPerMeter in the bootstrap
 BF.headless = o2.Integration.IsHeadless();
 
 BF.cfg = {
-    brainPrice: 10,          // $ paid by a zombie per brain
-    stackLimit: 8,           // brains the player carries at most
-    counterLimit: 6,         // brains the stand holds at most
-    growTime: 4.0,           // seconds for one brain to ripen
-    plantationCosts: [0, 100, 250],
-    playerSpeed: 3.4*BF.M,   // units/s
-    zombieSpeed: 1.5*BF.M,   // units/s
-    zombieInterval: 2.2,     // seconds between arrivals
-    queueLength: 5,
-    harvestRadius: 1.5*BF.M, // around a plantation center
-    counterRadius: 1.6*BF.M, // around the drop point
-    buyRadius: 1.05*BF.M,    // around a buy zone center
-    buyRate: 120,            // $ per second drained while standing on a zone
-    transferDelay: 0.12,     // seconds between brain hops (cascade feel)
-    sellDelay: 0.7,          // seconds between zombie purchases
-    flightTime: 0.32         // seconds of a brain flight
+    brainPrice: 2, goldenPrice: 4,
+    stackLimit: 30, upgradedStackLimit: 60,
+    counterLimit: 36, growTime: 7.0,
+    playerSpeed: 440, upgradedSpeed: 580,
+    zombieSpeed: 220, zombieInterval: .85, queueLength: 5,
+    harvestRadius: 115, counterRadius: 100,
+    transferDelay: .024, sellDelay: .065, flightTime: .23,
+    cropRows: 20, cropColumns: 4, brainScale: .55, cropScale: .85,
+    cameraYaw: 35*Math.PI/180, cameraPitch: Math.PI/4
 };
 
-// World anchor points, must match BrainFarmBootstrap.cpp
 BF.points = {
-    counterDrop: { x: 0, y: 3.35*BF.M },
-    standCenter: { x: 0, y: 4.6*BF.M },
-    zombieSpawn: { x: 0.9*BF.M, y: 10.8*BF.M },
-    zombieExit: { x: -0.9*BF.M, y: 10.8*BF.M },
-    plantations: [{ x: 0, y: -1.6*BF.M }, { x: -2.0*BF.M, y: -4.3*BF.M }, { x: 2.0*BF.M, y: -4.3*BF.M }],
-    bounds: { minX: -3.5*BF.M, maxX: 3.5*BF.M, minY: -6.3*BF.M, maxY: 7.7*BF.M }
+    playerStart: {x:610,y:-430},
+    counterDrop: {x:655,y:-260},
+    standCenter: {x:820,y:-260},
+    zombieSpawn: {x:1030,y:1050}, zombieExit: {x:1120,y:1200},
+    plantations: [{x:-230,y:-260},{x:-230,y:160},{x:-230,y:580}],
+    bounds: {minX:-990,maxX:1040,minY:-1090,maxY:1210},
+    cameraOffset: {x:1230,y:-1760,z:2300}
+};
+
+BF.screenToGround = function(x,y)
+{
+    let c=Math.cos(BF.cfg.cameraYaw),s=Math.sin(BF.cfg.cameraYaw);
+    let length=Math.sqrt(x*x+y*y), up=y/Math.cos(BF.cfg.cameraPitch);
+    let wx=c*x-s*up,wy=s*x+c*up,worldLength=Math.sqrt(wx*wx+wy*wy);
+    return worldLength>0?{x:wx/worldLength*length,y:wy/worldLength*length}:{x:0,y:0};
 };
 
 BF.clamp = function(v, a, b) { return v < a ? a : (v > b ? b : v); };
@@ -164,4 +165,15 @@ BF.makeLabel = function(parent, text, cx, cy, w, h, size, depth)
     lbl.SetVerAlign(1);
     lbl.SetDrawingDepth(depth || 110);
     return lbl;
+};
+
+BF.makeImage = function(parent, image, cx, cy, w, h, depth)
+{
+    let widget = new o2.Image();
+    parent.AddChild(widget);
+    widget.SetLayer("2D");
+    widget.SetImageName(image);
+    BF.place(widget, cx, cy, w, h);
+    widget.SetDrawingDepth(depth);
+    return widget;
 };

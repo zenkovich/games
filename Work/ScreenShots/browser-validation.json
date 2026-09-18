@@ -1,0 +1,197 @@
+{
+  "passed": true,
+  "realInput": true,
+  "noEconomyCheats": true,
+  "duration": 65.166,
+  "progressionSeconds": 58.199,
+  "trips": 4,
+  "final": {
+    "x": 839.839965026605,
+    "y": -584.4484772520161,
+    "money": 80,
+    "earned": 480,
+    "sold": 180,
+    "harvested": 180,
+    "stack": 0,
+    "capacity": 60,
+    "pending": 0,
+    "stock": 0,
+    "index": 4,
+    "victory": true,
+    "stage": null
+  },
+  "referenceField": {
+    "widthMeters": 22,
+    "lengthMeters": 26,
+    "beds": 3,
+    "brains": 240,
+    "cameraYaw": 35
+  },
+  "milestones": [
+    {
+      "x": 572.1582127527045,
+      "y": 136.68980250479788,
+      "money": 20,
+      "earned": 60,
+      "sold": 30,
+      "harvested": 30,
+      "stack": 0,
+      "capacity": 30,
+      "pending": 0,
+      "stock": 0,
+      "index": 1,
+      "victory": false,
+      "stage": {
+        "x": 590,
+        "y": -840,
+        "cost": 70
+      },
+      "seconds": 11.722
+    },
+    {
+      "x": 589.970254849263,
+      "y": -817.986943302367,
+      "money": 10,
+      "earned": 120,
+      "sold": 60,
+      "harvested": 60,
+      "stack": 0,
+      "capacity": 60,
+      "pending": 0,
+      "stock": 0,
+      "index": 2,
+      "victory": false,
+      "stage": {
+        "x": 570,
+        "y": 580,
+        "cost": 110
+      },
+      "seconds": 22.267
+    },
+    {
+      "x": 569.7554516882213,
+      "y": 561.4272014740909,
+      "money": 20,
+      "earned": 240,
+      "sold": 120,
+      "harvested": 120,
+      "stack": 0,
+      "capacity": 60,
+      "pending": 0,
+      "stock": 0,
+      "index": 3,
+      "victory": false,
+      "stage": {
+        "x": 850,
+        "y": -600,
+        "cost": 180
+      },
+      "seconds": 39.484
+    },
+    {
+      "x": 839.839965026605,
+      "y": -584.4484772520161,
+      "money": 80,
+      "earned": 480,
+      "sold": 180,
+      "harvested": 180,
+      "stack": 0,
+      "capacity": 60,
+      "pending": 0,
+      "stock": 0,
+      "index": 4,
+      "victory": true,
+      "stage": null,
+      "seconds": 58.199
+    }
+  ],
+  "touch": {
+    "x": 913.0652622417923,
+    "y": -538.7256296242032,
+    "joy": false
+  },
+  "fixedJoystick": {
+    "anchor": {
+      "x": 610,
+      "y": -430,
+      "ox": 0,
+      "oy": -264,
+      "active": true,
+      "speed": 0
+    },
+    "atEdge": {
+      "x": 493.26122698490707,
+      "y": -511.7413688665205,
+      "ox": 0,
+      "oy": -264,
+      "active": true,
+      "speed": 0.9993378380405934
+    },
+    "held": {
+      "x": 367.12183891253096,
+      "y": -600.065119259958,
+      "ox": 0,
+      "oy": -264,
+      "active": true,
+      "speed": 0.9999993961866714
+    },
+    "released": {
+      "x": 334.8010370180028,
+      "y": -622.6963883874895,
+      "ox": 0,
+      "oy": -264,
+      "active": false,
+      "speed": 0
+    },
+    "nextTap": {
+      "x": 334.8010370180028,
+      "y": -622.6963883874895,
+      "ox": -102,
+      "oy": -216,
+      "active": true,
+      "speed": 0
+    }
+  },
+  "desktop": {
+    "x": 386.875,
+    "y": 0,
+    "width": 506.25,
+    "height": 900
+  },
+  "files": [
+    {
+      "file": "Game.js",
+      "status": 200,
+      "encoding": "gzip",
+      "bytes": 47028
+    },
+    {
+      "file": "Game.data",
+      "status": 200,
+      "encoding": "gzip",
+      "bytes": 2561854
+    },
+    {
+      "file": "Game.wasm",
+      "status": 200,
+      "encoding": "gzip",
+      "bytes": 1943661
+    }
+  ],
+  "errors": [],
+  "perf": [
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 52, triangles 253158",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 45, triangles 232312",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 49, triangles 355744",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 50, triangles 314500",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 47, triangles 341906",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 54, triangles 357666",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 52, triangles 325334",
+    "[wasm.out] perf: FPS 60, RSS 0 MB, draw calls 50, triangles 328740",
+    "[wasm.out] perf: FPS 60, RSS 0 MB, draw calls 53, triangles 442676",
+    "[wasm.out] perf: FPS 60, RSS 0 MB, draw calls 60, triangles 438080",
+    "[wasm.out] perf: FPS 60, RSS 0 MB, draw calls 56, triangles 414090",
+    "[wasm.out] perf: FPS 60, RSS 0 MB, draw calls 51, triangles 409562",
+    "[wasm.out] perf: FPS 59, RSS 0 MB, draw calls 55, triangles 442616"
+  ]
+}

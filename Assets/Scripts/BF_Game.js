@@ -1,38 +1,30 @@
-// Game root: owns the money, wires the systems together, runs brain flights
-// and the camera follow
 BF.Game = class
 {
     constructor(rootActor)
     {
         this.root = rootActor;
-        this.money = 0;
-        this.flights = [];
-        this._harvestTimer = 0;
+        this.money = 0; this.earned = 0; this.sold = 0; this.harvested = 0;
+        this.capacity = BF.cfg.stackLimit; this.moveSpeed = BF.cfg.playerSpeed; this.marketLevel = 1;
+        this.victory = false; this.victoryOpen = false;
+        this.flights = []; this._harvestTimer = 0; this.time = 0;
     }
 
     Start()
     {
         this.camera = Bridge.FindActor("camera3d");
         this.flightsRoot = Bridge.FindActor("Flights");
-        this.camBase = { x: 0, y: -5.6*BF.M, z: 7.2*BF.M };
-
+        this.guide = Bridge.FindActor("Guide");
         this.hud = new BF.Hud(this.root);
         this.player = new BF.Player();
         this.counter = new BF.Counter();
         this.zombies = new BF.Zombies();
-
-        this.plantations = [
-            new BF.Plantation(0, true),
-            new BF.Plantation(1, false),
-            new BF.Plantation(2, false)
-        ];
-
-        this.buyZones = [
-            new BF.BuyZone(1, this.plantations[1]),
-            new BF.BuyZone(2, this.plantations[2])
-        ];
+        this.plantations = [new BF.Plantation(0,true),new BF.Plantation(1,false),new BF.Plantation(2,false)];
+        this.progression = new BF.Progression(this);
+        this.buyZones = this.progression.stages;
         this.hud.BindZones(this.buyZones);
-        this.hud.SetMoney(this.money);
+        this.hud.SetMoney(0);
+        this.hud.RefreshProgress();
+        this.zombies.Spawn(true);
     }
 
     AddMoney(amount)
@@ -43,100 +35,104 @@ BF.Game = class
 
     SpendMoney(amount)
     {
-        this.money = Math.max(0, this.money - amount);
+        this.money = Math.max(0,this.money - amount);
         this.hud.SetMoney(this.money);
     }
 
-    // Flies an actor from a point to a moving target along an arc, then hands it over
+    RecordSale(value, zombie)
+    {
+        let payment = value*this.marketLevel*(zombie.vip ? 2 : 1);
+        this.AddMoney(payment); this.earned += payment; this.sold++;
+        this.hud.FlyMoney(zombie.x,zombie.y,165,payment);
+    }
+
     StartFlight(actor, from, targetFn, onDone)
     {
         this.flightsRoot.AddChild(actor);
-        BF.setPos(actor, from.x, from.y, from.z);
-        this.flights.push({ actor: actor, from: from, targetFn: targetFn, onDone: onDone, t: 0 });
+        BF.setPos(actor,from.x,from.y,from.z);
+        this.flights.push({actor:actor,from:from,targetFn:targetFn,onDone:onDone,t:0});
     }
 
     UpdateFlights(dt)
     {
-        for (let f of this.flights)
+        let active = this.flights;
+        this.flights = [];
+        for (let f of active)
         {
-            f.t = Math.min(1, f.t + dt/BF.cfg.flightTime);
-            let e = f.t*f.t*(3 - 2*f.t);
-            let to = f.targetFn();
-            let x = BF.lerp(f.from.x, to.x, e);
-            let y = BF.lerp(f.from.y, to.y, e);
-            let z = BF.lerp(f.from.z, to.z, e) + Math.sin(f.t*Math.PI)*0.85*BF.M;
-            BF.setPos(f.actor, x, y, z);
-
-            if (f.t >= 1)
-            {
-                f.done = true;
-                f.onDone(f.actor);
-            }
+            f.t = Math.min(1,f.t + dt/BF.cfg.flightTime);
+            let e = 1-Math.pow(1-f.t,2), to = f.targetFn();
+            BF.setPos(f.actor,BF.lerp(f.from.x,to.x,e),BF.lerp(f.from.y,to.y,e),BF.lerp(f.from.z,to.z,e)+Math.sin(f.t*Math.PI)*70);
+            if (f.t >= 1) f.onDone(f.actor);
+            else this.flights.push(f);
         }
-
-        this.flights = this.flights.filter(f => !f.done);
     }
 
     UpdateHarvest(dt)
     {
         this._harvestTimer -= dt;
-        if (this._harvestTimer > 0 || this.player.StackFull())
-            return;
-
-        for (let plantation of this.plantations)
+        if (this._harvestTimer > 0 || this.player.StackFull()) return;
+        let nearest=null, source=null;
+        for(let p of this.plantations)
         {
-            if (!plantation.unlocked || !plantation.HasRipe())
-                continue;
-
-            let c = plantation.center;
-            if (BF.dist2(this.player.x, this.player.y, c.x, c.y) >
-                BF.cfg.harvestRadius*BF.cfg.harvestRadius)
-                continue;
-
-            let pos = plantation.PopRipe();
-            if (!pos)
-                continue;
-
-            this._harvestTimer = BF.cfg.transferDelay;
-
-            let brain = Bridge.SpawnBrain();
-            if (!brain)
-                return;
-
-            brain.SetEnabled(true);
-            BF.setScale(brain, 0.6);
-
-            let player = this.player;
-            this.StartFlight(brain, pos,
-                () => ({ x: player.x, y: player.y,
-                         z: (1.05 + player.StackCount()*0.23)*BF.M }),
-                (b) => player.PushToStack(b));
-            return; // one brain per tick keeps the cascade readable
+            let spot=p.NearestRipe(this.player.x,this.player.y,BF.cfg.harvestRadius);
+            if(spot && (!nearest || spot.distance<nearest.distance)){nearest=spot;source=p;}
         }
+        if(!source)return;
+        let actor=source.golden?Bridge.SpawnGoldenBrain():Bridge.SpawnBrain();
+        if(!actor)return;
+        let from=source.PopRipe(nearest.spot);
+        let item={actor:actor,value:source.golden?BF.cfg.goldenPrice:BF.cfg.brainPrice,golden:source.golden};
+        let slot=this.player.stack.length+this.player.pending;
+        this.player.pending++;this.harvested++;this._harvestTimer=BF.cfg.transferDelay;
+        actor.SetEnabled(true);BF.setScale(actor,BF.cfg.brainScale);
+        this.StartFlight(actor,from,()=>this.player.StackPosition(slot),()=>{
+            this.player.pending--;this.player.PushToStack(item);
+        });
+    }
+
+    Goal()
+    {
+        let stage=this.progression.Current(),drop=BF.points.counterDrop;
+        if(stage && this.money>=stage.Remaining())return{x:stage.x,y:stage.y,text:"BUILD "+stage.name};
+        if(this.player.StackFull())return{x:drop.x,y:drop.y,text:"STACK FULL - SELL!"};
+        if(this.counter.stock.length+this.counter.pending>0 && this.earned<40)
+            return{x:drop.x,y:drop.y,text:"ZOMBIES ARE BUYING!"};
+        let nearest=null;
+        for(let p of this.plantations)
+        {
+            let point=p.NearestRipe(this.player.x,this.player.y,1e6);
+            if(!point)continue;
+            let distance=point.distance*(p.golden?.55:1);
+            if(!nearest || distance<nearest.distance)nearest={x:point.spot.x,y:point.spot.y,distance:distance};
+        }
+        if(nearest)return{x:nearest.x,y:nearest.y,text:"SWEEP THE ROWS & COLLECT"};
+        return this.player.StackCount()>0?{x:drop.x,y:drop.y,text:"DELIVER YOUR HARVEST"}:
+            {x:this.plantations[0].spots[0].x,y:this.plantations[0].center.y,text:"YOUR CROPS ARE GROWING"};
     }
 
     UpdateCamera(dt)
     {
-        let tx = BF.clamp(this.player.x*0.55, -1.3*BF.M, 1.3*BF.M);
-        let ty = BF.clamp(this.player.y*0.75, -4.6*BF.M, 3.6*BF.M) + this.camBase.y;
-        let t = this.camera.GetTransform();
-        let k = Math.min(1, dt*4);
-        t.SetPositionX(BF.lerp(t.GetPositionX(), tx, k));
-        t.SetPositionY(BF.lerp(t.GetPositionY(), ty, k));
+        let t=this.camera.GetTransform(),k=1-Math.exp(-dt*4),offset=BF.points.cameraOffset;
+        t.SetPositionX(BF.lerp(t.GetPositionX(),this.player.x+offset.x,k));
+        t.SetPositionY(BF.lerp(t.GetPositionY(),this.player.y+offset.y,k));
+        let goal=this.Goal();
+        if(this.guide)
+        {
+            BF.setPos(this.guide,goal.x,goal.y,65+Math.sin(this.time*4)*6);
+            this.guide.GetTransform().SetAngle(BF.cfg.cameraYaw);
+            this.guide.SetEnabled(!this.victoryOpen);
+        }
     }
 
     Update(dt)
     {
-        dt = Math.min(dt, 0.05); // a long hitch must not teleport the simulation
-
+        dt=Math.min(dt,.05); this.time+=dt;
         this.player.Update(dt);
-        for (let plantation of this.plantations)
-            plantation.Update(dt);
-        for (let zone of this.buyZones)
-            zone.Update(dt, this.player, this);
+        for (let p of this.plantations) p.Update(dt);
+        this.progression.Update(dt);
         this.UpdateHarvest(dt);
-        this.counter.Update(dt, this.player, this);
-        this.zombies.Update(dt, this.counter, this);
+        this.counter.Update(dt,this.player,this);
+        this.zombies.Update(dt,this.counter,this);
         this.UpdateFlights(dt);
         this.UpdateCamera(dt);
         this.hud.Update(dt);

@@ -129,3 +129,141 @@
 навигируется нормально. Статические OBJ перезапечены ×100, GLB-персонажи масштабируются
 на Visual-акторе (фермер ×100, зомби ×25), камера near/far 10..10000, все координаты
 в bootstrap/JS/тестах переведены. Bootstrap.scn пересохранён. Все 7 сьют зелёные.
+
+## 2026-09-18 — Sahur playable art refresh
+
+- Сохранены локальные изменения ZeroLine в stash `codex: preserve zeroline editor work before sahur 2026-09-18`.
+- Sahur обновлён из origin/main и upstream/main. o2 → b9c1aabbd.
+- Созданы персонаж по референсу, клипы Idle/Run, общий атлас, новая ферма.
+- Настроены камера, свет, HUD; сохранена игровая сцена и просмотрены скриншоты.
+- Удалены неиспользуемые модели и GeminiShowcase из ресурсов игры.
+- Убрана упаковка EditorData в Game.data; добавлены воспроизводимая сборка и gzip.
+- Проверки: 12 тестов в 6 игровых suites, включая soak на 4800 кадров — PASS.
+- Native soak: финальный кадр ~4.8 мс; RSS после прогрева 184 → 193 МБ; JS 636 → 639 КБ.
+- Chrome: ~59 FPS, без JS/WebGL-ошибок; мышь, эмулированный touch, сбор/продажа/покупка — PASS.
+- WASM: только игровой контент, около 2.6 МиБ gzip. Реальное мобильное устройство не измерялось.
+
+## Stacking iteration and mesh repair — 2026-09-18
+
+- Replaced the primitive-only look with a Blender-sculpted Sahur and authored market,
+  oak, fern, barrel, rock and brain assets. Added baked diffuse/AO, painted grass,
+  worn paths, flagstones, garden borders, lanterns and a coordinated widget UI.
+- Reworked the economy into four purchases: second garden $40, capacity/speed $80,
+  gold garden $140 and VIP market $220. Inventory tracks value and gold status;
+  pending flights reserve slots and cannot be sold before landing. Orders grow from
+  one to three items, with VIP bonuses after the finale.
+- User reported holes in the models. Confirmed 352 boundary edges on Sahur; closed
+  the surfaces, recalculated normals and padded baked UVs. Remeshed the brain and
+  removed a problematic bevel on the imported stand. Six exported meshes now pass
+  `Tools/Art/check_meshes.py` with zero open edges. Market orientation also fixed.
+- First expanded build exceeded the limit at 6.43 MB. Shared OBJ attributes and
+  resized/indexed PNGs reduced the full archive below 5 MB without dropping models.
+- A native soak exposed repeated mesh rebuilds when baked vertex lighting switched
+  between render passes. Disabled that redundant option for the deferred scene.
+  Mature crops remain static; stationary player/stack transforms are not rewritten.
+  Brain LOD reduced to 1600 triangles; the exported mesh remains closed.
+- Browser run reached all upgrades with ordinary joystick input: 44 sales and $580
+  revenue. A zero-duration synthetic click missed the final Button; a realistic
+  150 ms press works, and the verification script now uses it. Final rerun, video,
+  build size and performance evidence are recorded in the generated report.
+
+Final verification: Mac and WASM green; 14/14 native tests, 4800-frame soak at
+10–12.5 ms/frame, RSS 312→326 MB after warm-up. Browser acceptance passed with no
+errors, mouse/touch/desktop layouts, 44 earned sales and all four purchases.
+Full ZIP: 4,564,212 bytes including credits. Chrome heartbeat: 59–60 FPS.
+Report and full gameplay video are available alongside the local playable.
+
+## Большая ферма, новая камера и управление — 2026-09-18
+
+- Поле увеличено до 22×26 м. Три грядки по 4×20 посадок; лавка, очередь,
+  дороги и площадки улучшений перенесены под новую планировку.
+- Камера: FOV 35°, наклон 45°, yaw 35°, плавное следование. Джойстик работает
+  в экранных направлениях, имеет аналоговую скорость, сглаживание, новую графику
+  и плавающее основание. Ценники вне видимой области скрыты, цель показывает
+  отдельный указатель у края экрана.
+- Сбор локальный вдоль рядов. Мозги стоят $2/$4, вместимость 30/60, прилавок 36,
+  улучшения стоят 40/70/110/180. В браузере полная прогрессия проходит четырьмя
+  доставками без выдачи денег и телепортов.
+- Цветокоррекция встроена в DeferredLightingPass через игровой FarmLightingPass:
+  насыщенность, контраст и тёплый баланс, GLSL и Metal. Дополнительного прохода нет.
+- Обновлены земля, длинные ограды и дорожки. Brain LOD снижен до 600 треугольников;
+  все шесть проверяемых solid-мешей по-прежнему без открытых рёбер.
+- Первый нагрузочный прогон с 240 посадками выявил ~23 мс в Debug. Профилирование
+  указало на повторный обход вершин при вычислении shadow bounds. FarmMeshComponent
+  кэширует границы и консервативно отсекает меши за frustum текущего render pass.
+  Добавлены проверки инвалидирования кэша и пересечения near/side planes.
+- Отчёт переписан под новую механику: сравнение планировки, видео прохождения,
+  цветокоррекция до/после, UI и фактические результаты сборок.
+
+Финальная проверка: 17/17 тестов в 7 наборах — PASS. Native Debug: 4800 кадров,
+14,2–17,8 мс, финальный замер 15,6 мс; RSS после прогрева 388 → 391 МБ.
+WASM ZIP 4,603,232 байт. Chrome 59–60 FPS, полный цикл за
+63.27 с, 180 продаж / $480, mouse/touch/desktop и
+возврат после финала — PASS. Ошибок браузера нет.
+
+## Фиксация джойстика, поворот грядок, открытый прилавок
+
+- Воспроизведено смещение центра джойстика на 166 UI-юнитов при длинном жесте.
+  Написан регрессионный тест, до исправления он падал. Основание теперь остаётся
+  в точке нажатия, ручка ограничена радиусом; новый тап задаёт новый центр.
+- Все три грядки повёрнуты на 90°, открытые торцы обращены к прилавку.
+  Мировые координаты сбора берутся из акторов посадок, поэтому совпадают с мешами.
+  Перенастроены дорожки, точки улучшений, старт и зона разгрузки.
+- Прилавок развёрнут к грядкам. Крыша и высокие элементы срезаны в исходном
+  арт-пайплайне, срезы закрыты; табличка перенесена на переднюю панель.
+  Товар поднят до поверхности стойки. Все solid-меши остаются без открытых рёбер.
+
+Проверка этой итерации: 18 тестов в 7 наборах — PASS; 4800 кадров нагрузки — PASS.
+WASM ZIP: 4,554,914 байт. Chrome 59–60 FPS, прогрессия за 58.20 с.
+Отдельный браузерный тест удержания у края, отпускания и следующего тапа — PASS.
+Обновлены видео, скриншоты и отчёт.
+
+## Публикация — 2026-09-18
+
+- Официальный web publish для gamesTemplate2 с полной пересборкой ассетов:
+  Sahur v3, https://games.zenkovich.space/sahur/. Добавлен Credits.txt.
+- Сервер обновлён через tools/deploy.py --only games:sahur; код завершения 0.
+- Публичная проверка Chrome — PASS: 240 посадок, фиксированный джойстик при
+  удержании у края, сбор 30 мозгов и продажа за $60. Ошибок браузера нет.
+  JS/WASM/data загружаются с ?v=3, Brotli; SHA-256 совпадают с publish.
+- Опубликованный ZIP: 4 554 864 байта; HTML+JS+WASM+data с Brotli: 3 905 800 байт.
+- Автоматическая очистка Cloudflare cache вернула HTTP 401. Публичный HTML
+  отдаётся как DYNAMIC с no-cache; свежая v3 подтверждена браузером.
+- Результат: Work/live-deployment-validation.json; скриншоты live_start.png
+  и live_market.png. Ссылка запуска в отчёте заменена на публичную.
+
+## Исправление сборки Editor — 2026-09-18
+
+- Воспроизведён SIGSEGV в AssetsBuilder::ProcessModifiedAssets. После изменения
+  ID папки Editor UI styles удалялись её дочерние объекты, но в индексах оставались
+  слабые ссылки на них. LLDB подтвердил обращение к удалённому объекту.
+- В o2/AssetsBuildTool исправлен ProcessRemovedAssets: удаление через AssetsTree
+  очищает индексы всех потомков; обход снимка списка не инвалидируется удалениями.
+- Добавлены два регрессионных теста Tools/Tests/test_assets_builder.py: замена
+  метаданных корневой и вложенной папки, сохранность файлов и следующая сборка.
+  До исправления оба падали с SIGSEGV; после — PASS.
+- cmake --build --preset mac --target Editor -j 8 — PASS, включая ассеты.
+  Повторная инкрементальная сборка — PASS. Bin/Mac/Editor запущен из Bin/Mac:
+  окно редактора открывается, Metal работает, заголовок показывает 60 FPS.
+  Проверочный процесс закрыт, автоматически изменённые настройки восстановлены.
+- README дополнен командами сборки/запуска Editor и регрессионной проверки.
+
+## Профилирование Editor: Scene + Game + выделенная плантация — 2026-09-18
+
+- Точный сценарий с открытыми Scene и Game и выбранной `Plantation0` воспроизводил
+  40–47 FPS. Контур выбора повторно отправлял в selection mask все 81 дочерних
+  мешей плантации. Для иерархий крупнее 32 drawable-компонентов маска теперь
+  строится по общему bounds из 12 треугольников; transform gizmo сохранён.
+- Scene остаётся live viewport и явно помечает render target на обновление при
+  каждом `Draw`. Оптимизация общего `ScrollView` не кеширует кадры окна Scene.
+- После устранения повторной маски оставшаяся нагрузка находилась в
+  `Render::UploadBuffers`: Metal расширял каждый обычный `Vertex` до `Vertex3Tex`
+  общим циклом с несколькими маленькими `memcpy` на вершину. Добавлен прямой путь
+  для стандартной пары layout-ов с тем же дублированием UV и без изменения кадра.
+- В итоговом сценарии Scene постоянно перерисовывается, Game открыт, контур и
+  gizmo видны: 59–60 FPS, 153 draw calls, 344 978 треугольников. Загрузка процесса
+  снизилась примерно с 97% до 60–61% одного CPU; верхние samples в
+  `UploadBuffers` — с 392 до 11.
+- `Editor` и `o2EditorUITests` собраны. 29 тестов `SceneGizmos`,
+  `SceneView3DModeUI`, `SceneStableCameraMode`, `TransformTools3DDrag` и
+  `ParticlesEditorPreview` прошли.

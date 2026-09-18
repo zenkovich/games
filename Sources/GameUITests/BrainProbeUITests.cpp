@@ -37,9 +37,9 @@ namespace
         )JS");
         ASSERT_NE(res.GetValueType(), ScriptValue::ValueType::Error) << (String)res.GetError();
         EXPECT_NEAR((float)res.GetElement(0), 2.0f, 0.001f);
-        EXPECT_NEAR((float)res.GetElement(1), -62.0f, 1.0f);
-        EXPECT_NEAR((float)res.GetElement(2), 425.0f, 1.0f);
-        EXPECT_NEAR((float)res.GetElement(3), 95.0f, 1.0f);
+        EXPECT_NEAR((float)res.GetElement(1), 785.0f, 1.0f);
+        EXPECT_NEAR((float)res.GetElement(2), -192.0f, 1.0f);
+        EXPECT_NEAR((float)res.GetElement(3), 101.0f, 1.0f);
 
         AppTestDriver::Wait(0.3f);
 

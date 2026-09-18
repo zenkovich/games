@@ -29,6 +29,7 @@ var BrainFarm = class extends o2.Component
         Bridge.RunScript("BF_Plantations.js");
         Bridge.RunScript("BF_Counter.js");
         Bridge.RunScript("BF_Zombies.js");
+        Bridge.RunScript("BF_Progression.js");
         Bridge.RunScript("BF_Game.js");
 
         BF.game = new BF.Game(this._actor);

@@ -1,0 +1,21 @@
+Sahur's Brain Farm — credits
+
+Zombie: Quaternius, Animated Zombie
+https://poly.pizza/m/jkrEvQZb8J
+Brain: Poly by Google
+https://poly.pizza/m/5mPRPZkI3qt
+Oak: Poly by Google
+https://poly.pizza/m/6pwiq7hSrHr
+These assets are licensed under Creative Commons Attribution 3.0:
+https://creativecommons.org/licenses/by/3.0/
+Changes: model repacking, remeshing, simplification, recoloring and texture baking.
+
+Market Stand, Barrel, Fern, Rocks: Quaternius (CC0).
+https://poly.pizza/m/DGIM5HGISb
+https://poly.pizza/m/ONdghDBByN
+https://poly.pizza/m/jqcanvH7D6
+https://poly.pizza/m/OQvi8PIZ40
+
+Sahur sculpt, rig, terrain, garden beds, fence and UI: authored for this project.
+Font: Rounded Mplus 1c Black, Copyright 2016 The Rounded M+ Project Authors.
+Licensed under the SIL Open Font License 1.1; full license packaged in game assets.

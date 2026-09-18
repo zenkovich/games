@@ -41,11 +41,11 @@
                                         "top": 1.0
                                     },
                                     "windows": [
-                                        "scene window",
                                         "animation state graph window",
+                                        "scene window",
                                         "pipeline window"
                                     ],
-                                    "active": "pipeline window"
+                                    "active": "scene window"
                                 },
                                 {
                                     "anchors": {
@@ -87,11 +87,11 @@
                         "properties window",
                         "game window"
                     ],
-                    "active": "properties window"
+                    "active": "game window"
                 }
             ]
         }
     },
-    "mLastLoadedScene": "Main.scn",
+    "mLastLoadedScene": "Bootstrap.scn",
     "mLastPipelineAsset": "Unnamed"
 }
