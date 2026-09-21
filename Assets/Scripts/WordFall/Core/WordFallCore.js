@@ -1,5 +1,6 @@
 // Ядро Word Fall: данные и правила без отображения
 include("Scripts/WordFall/Core/WordFallConfigs.js");
+include("Scripts/WordFall/Core/WordFallRemote.js");
 include("Scripts/WordFall/Core/WordFallRandom.js");
 include("Scripts/WordFall/Core/WordDictionary.js");
 include("Scripts/WordFall/Core/WordBoard.js");

@@ -53,6 +53,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._EnsureStarted();
         this._levelIndex = Math.min(Math.max(index, 0), this.GetLevelCount() - 1);
         this._level.Start(this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
+        this._LogRemote();
         this._lastMove = new WordMoveResult();
         this._revision++;
     }
@@ -208,7 +209,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         this._EnsureStarted();
         var config = this._BoardConfig();
-        this._motion.Configure(config.columns, config.rows, this.fallSpeedCells, this.fallCascadeDelay, 0.6);
+        this._motion.Configure(config.columns, config.rows, WordFallRemote.FallSpeed(this.fallSpeedCells), this.fallCascadeDelay, 0.6);
         this._motion.StartCollapse(this._lastMove.moved, this._lastMove.spawned);
     }
 
@@ -339,9 +340,18 @@ WordFallGameService = class WordFallGameService extends o2.Component
     GetDictionary() { return this._Dictionary(); }
     GetProgress() { this._EnsureStarted(); return this._progress; }
 
+    // Баланс уровня берётся на его старте: пришедший посреди уровня конфиг действует со следующего
+    _LogRemote()
+    {
+        var state = JSON.stringify(WordFallGame.remote || {});
+        if (state !== this._remoteLogged)
+            print("WordFall: balance " + state);
+        this._remoteLogged = state;
+    }
+
     _BoardConfig()
     {
-        return WordFallConfigs.NormalizeBoard(this.boardConfig);
+        return WordFallRemote.ApplyBoard(WordFallConfigs.NormalizeBoard(this.boardConfig));
     }
 
     // Словарь общий для всех сервисов: разбор 23 тысяч слов — не на каждый рестарт сцены

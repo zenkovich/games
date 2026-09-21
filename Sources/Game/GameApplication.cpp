@@ -5,6 +5,7 @@
 #include "o2/Render/Render.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Utils/Debug/Debug.h"
+#include "o2libs/o2libs.h"
 
 GameApplication::GameApplication(RefCounter* refCounter):
 	Application(refCounter), mScenePath(GAME_START_SCENE)
@@ -13,6 +14,8 @@ GameApplication::GameApplication(RefCounter* refCounter):
 void GameApplication::OnStarted()
 {
 	o2Application.SetWindowSize(Vec2I(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT));
+
+	O2LIBS_START;
 
 	// The game is its start scene: the same scene the editor opens
 	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + mScenePath);

@@ -7,6 +7,7 @@
 #include "o2Editor/Windows/WindowsManager.h"
 
 #include <unistd.h>
+#include "o2libs/o2libs.h"
 
 using namespace o2;
 
@@ -31,12 +32,14 @@ int main()
     o2::MemoryAnalyzer::enabledObjectsTracking = false;
     INITIALIZE_O2;
     InitializeTypesGameLib();
+    O2LIBS_INITIALIZE_TYPES;
     InitializeTypeso2Editor();
     InitializeTypesEditorLib();
     InitializeTypesAssetsBuildTool();
 
     auto app = mmake<Editor::EditorApplication>();
     app->Initialize();
+    O2LIBS_START;
     app->Launch();
 
     return 0;
