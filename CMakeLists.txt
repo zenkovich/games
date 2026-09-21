@@ -166,6 +166,7 @@ add_subdirectory(o2)
 
 # o2libs: optional modules on top of o2. A module is in the build when its option is ON
 set(O2LIBS_REMOTE_CONFIG ON CACHE BOOL "o2libs: remote configs and A/B tests client")
+set(O2LIBS_SAVES ON CACHE BOOL "o2libs: player saves")
 add_subdirectory(o2libs)
 
 # Vendored CDT throws and has no switch for it, so its two includers keep
