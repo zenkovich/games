@@ -16,7 +16,7 @@ const TOKEN = process.env.O2EDITOR_TOKEN || '';   // the AUTH_TOKEN of a gated i
 
 const num = { type: 'number' }, str = { type: 'string' }, bool = { type: 'boolean' };
 const TOOLS = [
-    { name: 'screenshot', description: 'Screenshot of the editor canvas at half size (image + size info).', input: {} },
+    { name: 'screenshot', description: 'Screenshot at half size of what the page shows: the editor canvas, or the game itself in the preview mode (image + size info).', input: {} },
     { name: 'scene_tree', description: 'Hierarchy of the open scene: names, paths, types, transforms, widget layouts, components, children. Reports which scene is open.',
       input: { path: { ...str, description: 'start at this actor path' }, depth: { ...num, description: 'levels of children, default 3' } } },
     { name: 'view_info', description: 'Canvas size, play state, the Game window rectangle, the camera and the world-to-pixel formula.', input: {} },
@@ -24,7 +24,8 @@ const TOOLS = [
       input: { code: { ...str, description: 'JavaScript source' } }, required: ['code'] },
     { name: 'open_scene', description: 'Open a scene by its path under Assets, e.g. Main.scn.', input: { path: str }, required: ['path'] },
     { name: 'save_scene', description: 'Save the scene open in the editor.', input: {} },
-    { name: 'play_mode', description: 'Start (on=true) or stop (on=false) the editor play mode.', input: { on: bool } },
+    { name: 'play_mode', description: 'Start (on=true) or stop (on=false) the editor play mode. In the game preview mode there is none, and the call restarts the client instead.', input: { on: bool } },
+    { name: 'restart', description: 'Restart the running game from the top with the assets as they are built now. The preview mode\'s answer to play_mode; in the editor it stops and starts play mode.', input: {} },
     { name: 'rebuild_assets', description: 'Rebuild the project assets inside the editor so file changes under Assets take effect (10-20 s). force=true rebuilds from scratch.', input: { force: bool } },
     { name: 'read_log', description: 'The engine log: asset build errors, script exceptions, prints.', input: { lines: num, filter: str } },
     { name: 'click', description: 'Mouse click in the Game window (play mode only), full-size canvas pixels.', input: { x: num, y: num, button: str, double: bool }, required: ['x', 'y'] },

@@ -275,6 +275,24 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "wasm-kit",
+            "inherits": "wasm-editor",
+            "displayName": "WebAssembly build kit for the o2 portal (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
+            }
+        },
+        {
+            "name": "wasm-kit-game",
+            "inherits": "wasm",
+            "displayName": "WebAssembly build kit for the o2 portal: the game without the editor (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit-game",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
+            }
         }
     ],
     "buildPresets": [

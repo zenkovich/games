@@ -63,7 +63,15 @@ if(EMSCRIPTEN)
     if(NOT O2_WASM_EDITOR)
         set(O2_EDITOR OFF CACHE BOOL "" FORCE)
     endif()
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    # OFF builds the libraries as plain wasm objects: a link against them takes seconds
+    # and little memory instead of re-optimizing the whole engine. That is what the
+    # portal's build kit is made of (o2portal/tools/make-kit.ts) - its server compiles
+    # only a project's own sources and links.
+    option(O2_WASM_LTO "Link-time optimization of WebAssembly release builds" ON)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT O2_WASM_LTO)
+        add_compile_options(-Os -msimd128 -DNDEBUG)
+        add_link_options(-O1 -msimd128)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         # Size-optimized (-Oz: like -Os with extra size passes) + LTO + WebAssembly SIMD
         add_compile_options(-Oz -flto -msimd128 -DNDEBUG)
         add_link_options(-Oz -flto -msimd128)
@@ -245,7 +253,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT EMSCRIPTEN AND NOT ANDROID)
                       COMMENT "Run CodeTool: ${CMAKE_CURRENT_SOURCE_DIR}/o2/CodeTool/Bin/o2CodeTool "
                               "-project GameLib "
                               "-sources \"${CMAKE_CURRENT_SOURCE_DIR}/Sources/Game\" "
-                              "-parent_projects \"${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml\""
+                              "-parent_projects \"${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml ${O2LIBS_CODEGEN_CACHES}\""
     )
     add_dependencies(GameLibCodegen o2CodeTool o2FrameworkCodegen)
     add_dependencies(GameLib o2Framework GameLibCodegen)
@@ -596,6 +604,10 @@ if(O2_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
         add_dependencies(${_test_target} BuildAssets)
     endforeach()
 
+    if(TARGET o2SvgRasterizer)
+        set_target_output_directories(o2SvgRasterizer)
+    endif()
+
     # Game component tests (links GameLib + shared o2 test support)
     include(GoogleTest)
 
@@ -642,6 +654,13 @@ if(O2_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
     o2_gtest_discover_tests(GameUITests
         WORKING_DIRECTORY $<TARGET_FILE_DIR:GameUITests>
     )
+
+    o2libs_add_tests()
+    if(TARGET o2libsTests)
+        o2_gtest_discover_tests(o2libsTests
+            WORKING_DIRECTORY $<TARGET_FILE_DIR:o2libsTests>
+        )
+    endif()
 endif()
 
 # Groups in IDE

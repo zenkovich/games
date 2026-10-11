@@ -37,9 +37,10 @@
                                     },
                                     "windows": [
                                         "scene window",
-                                        "animation state graph window"
+                                        "animation state graph window",
+                                        "pipeline window"
                                     ],
-                                    "active": "scene window"
+                                    "active": "pipeline window"
                                 },
                                 {
                                     "anchors": {
@@ -62,8 +63,8 @@
                                 "top": 0.3652697801589966
                             },
                             "windows": [
-                                "log window",
                                 "animation window",
+                                "log window",
                                 "assets window"
                             ],
                             "active": "animation window"
@@ -86,5 +87,6 @@
             ]
         }
     },
-    "mLastLoadedScene": "WordFall.scn"
+    "mLastLoadedScene": "WordFall.scn",
+    "mLastPipelineAsset": "Unnamed"
 }
