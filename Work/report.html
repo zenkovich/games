@@ -1,0 +1,51 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Potato Obby — отчёт</title>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:1100px;margin:32px auto;padding:0 16px;color:#222;line-height:1.5}
+h1,h2{color:#5a3a1a} figure{display:inline-block;margin:8px;width:520px} img{width:100%;border:1px solid #ccc;border-radius:6px}
+figcaption{font-size:13px;color:#555;text-align:center} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:4px 8px;text-align:left}
+code{background:#f3f0ea;padding:1px 4px;border-radius:3px} .warn{background:#fff3cd;border:1px solid #e0c36a;padding:10px;border-radius:6px}</style></head><body>
+<h1>Картофельное Обби — отчёт о прототипе</h1>
+<p>Сложное тролль-обби про картошку: 30 уровней-экранов, 2D платформер на движке o2. Ветка
+<code>games/potato_obby/main</code>, рабочее дерево <code>gamesTemplate3</code>.</p>
+<div class="warn"><b>Арт временный.</b> Генерация через Gemini недоступна: оба ключа (из <code>api_key.txt</code> и присланный)
+отвечают 402 «prepayment credits are depleted». Спрайты нарисованы скриптом
+<code>Tools/PotatoObby/make_placeholder_art.py</code>; после пополнения баланса их заменяет
+<code>python3 Tools/PotatoObby/art_prompts.py</code> (те же имена и размеры файлов).</div>
+<h2>Этапы</h2><ol>
+<li><b>Рабочее дерево и движок.</b> Отдельный worktree от <code>main</code>, чтобы не трогать незакоммиченный WordFall;
+вложенные подмодули o2 (boost, tracy, quickjs…) пришлось инициализировать рекурсивно — первая конфигурация упала.</li>
+<li><b>Архитектурное решение.</b> На этой версии движка JS не видит клавиатуру и не создаёт акторы (нет <code>@SCRIPTABLE</code> у Input/Scene),
+поэтому ядро на C++: <code>ObbyLevel</code> (модель), <code>ObbyWorld</code> (симуляция без сцены), <code>ObbyGameComponent</code> (сцена, HUD, меню, ввод),
+<code>ObbySceneFactory</code>. Контент — JSON-ассет <code>Assets/PotatoObby/levels.json</code>.</li>
+<li><b>Уровни.</b> 30 ASCII-карт 32×18 в <code>Tools/PotatoObby/build_levels.py</code>: 16 типов тайлов (фальшивые, невидимые, мимики, мигающие,
+пугливые блоки, вилки, платформы, батуты, конвейеры, переворот гравитации, настоящие и фальшивые чекпоинты и мешки, убегающий мешок)
+и флаги уровня (зеркало, низкая гравитация, падающий старт, темнота). Подсказки на старте иногда врут.</li>
+<li><b>Симуляция.</b> AABB-платформер (прыжок 3,3 тайла, щель до 4–5), койот-тайм, буфер прыжка, обрезание прыжка, перенос платформой,
+заморозка 0,5 с после смерти/телепорта.</li>
+<li><b>Тесты.</b> 45 headless-тестов (уровни, 25 механик мира, сцена, автопилот проходит уровни 1 и 3 и прогоняет все 30) и 10 UI-тестов
+с реальным окном (клики по меню, клавиатура, тач-кнопки, победа на 1-м уровне с сохранением, смерть, Esc, скриншоты). Все зелёные.</li>
+</ol>
+<h2>Сложности и решения</h2><table><tr><th>Проблема</th><th>Решение</th></tr>
+<tr><td>CodeTool ломается на <code>enum class Tile : char</code></td><td>Убрать базовый тип перечисления</td></tr>
+<tr><td><code>DEFAULT_VALUE("...")</code> для String не компилируется</td><td>Инициализатор поля <code>String("...")</code> — CodeTool копирует его в META</td></tr>
+<tr><td>Камера из <code>mmake&lt;CameraActor&gt;()</code> не рисует: регистрируется из конструктора базового Actor</td><td>Фабрика прогоняет сцену через <code>DataDocument</code> (как загрузка из файла)</td></tr>
+<tr><td>Дети с <code>NotInScene</code> + <code>AddChild</code> не попадают в сцену</td><td>Создавать акторы в режиме по умолчанию</td></tr>
+<tr><td><code>Scene::FindActorByType</code> — заглушка</td><td>Искать по имени</td></tr>
+<tr><td>Кадры тест-драйвера почти не двигают игровое время</td><td>В UI-тестах <code>AppTestDriver::Wait(sec)</code></td></tr>
+<tr><td>HUD и тач-кнопки перекрывали нижний ряд уровня</td><td>Камера 1280×900: уровень в центре, полосы HUD сверху и снизу</td></tr>
+</table>
+<h2>Скриншоты</h2><figure><img src="ScreenShots/00_menu.png" alt="00_menu.png"><figcaption>00_menu.png</figcaption></figure>
+<figure><img src="ScreenShots/01_level1_start.png" alt="01_level1_start.png"><figcaption>01_level1_start.png</figcaption></figure>
+<figure><img src="ScreenShots/02_jump.png" alt="02_jump.png"><figcaption>02_jump.png</figcaption></figure>
+<figure><img src="ScreenShots/03_level1_running.png" alt="03_level1_running.png"><figcaption>03_level1_running.png</figcaption></figure>
+<figure><img src="ScreenShots/04_level1_won.png" alt="04_level1_won.png"><figcaption>04_level1_won.png</figcaption></figure>
+<figure><img src="ScreenShots/05_level3_death.png" alt="05_level3_death.png"><figcaption>05_level3_death.png</figcaption></figure>
+<figure><img src="ScreenShots/10_level5_bounce.png" alt="10_level5_bounce.png"><figcaption>10_level5_bounce.png</figcaption></figure>
+<figure><img src="ScreenShots/11_level10_movers.png" alt="11_level10_movers.png"><figcaption>11_level10_movers.png</figcaption></figure>
+<figure><img src="ScreenShots/12_level13_gravity.png" alt="12_level13_gravity.png"><figcaption>12_level13_gravity.png</figcaption></figure>
+<figure><img src="ScreenShots/13_level15_darkness.png" alt="13_level15_darkness.png"><figcaption>13_level15_darkness.png</figcaption></figure>
+<figure><img src="ScreenShots/14_level23_trampolines.png" alt="14_level23_trampolines.png"><figcaption>14_level23_trampolines.png</figcaption></figure>
+<figure><img src="ScreenShots/15_level30_legend.png" alt="15_level30_legend.png"><figcaption>15_level30_legend.png</figcaption></figure>
+<h2>Что дальше</h2><ul><li>Перегенерировать арт через Gemini (<code>art_prompts.py</code>), добавить анимации героя и звуки.</li>
+<li>Проверить проходимость уровней 5–30 вручную (автопилот гарантирует только отсутствие падений симуляции; решения уровней 1 и 3 проверены).</li>
+<li>Деплой: <code>python3 ../tools/games_pipeline.py deploy --repo gamesTemplate3 --platforms web</code> после регистрации ветки в пайплайне.</li></ul>
+</body></html>

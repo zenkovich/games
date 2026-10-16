@@ -1,0 +1,59 @@
+{
+    "Layers": [
+        {
+            "mName": "Default"
+        }
+    ],
+    "DefaultLayer": "Default",
+    "Tags": null,
+    "Actors": [
+        {
+            "Type": "o2::CameraActor",
+            "Value": {
+                "mName": "camera",
+                "fillColor": {
+                    "r": 110,
+                    "g": 190,
+                    "b": 245,
+                    "a": 255
+                },
+                "mType": "FittedSize",
+                "mFixedOrFittedSize": {
+                    "x": 1280.0,
+                    "y": 720.0
+                },
+                "mUnits": "Pixels",
+                "Id": 12828182460854521602,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                }
+            }
+        },
+        {
+            "Type": "o2::Actor",
+            "Value": {
+                "mName": "Game",
+                "Id": 1017529143344760227,
+                "Transform": {
+                    "pivot": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.0
+                    }
+                },
+                "Components": [
+                    {
+                        "Type": "ObbyGameComponent",
+                        "Data": {
+                            "mId": 16089907497082805644
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

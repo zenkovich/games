@@ -88,3 +88,23 @@ contributor asks me to remember here in this file, not in host/private memory.
 Don't run `git commit` / `push` / `add` / `gh pr create` etc. by default — make changes and stop at
 "files modified"; the contributor reviews and commits. Git authorization is per-session only, never
 carried to future sessions.
+
+## Potato Obby (this game)
+
+- 2D troll obby, 30 levels. The core is C++ (`Sources/Game/Obby*.cpp`): `ObbyLevel` (level set
+  model, JSON), `ObbyWorld` (pure simulation: AABB physics, tiles with troll behaviour, movers,
+  triggers, events), `ObbyGameComponent` (the scene component: input, view, HUD, menu, progress),
+  `ObbySceneFactory` (builds `Assets/PotatoObby.scn`). The engine on this branch has no JS bindings
+  for keyboard input or actor creation, hence C++ instead of scripts.
+- Levels are authored in `Tools/PotatoObby/build_levels.py` (ASCII maps 32x18, bottom-aligned, the
+  tile legend is in `Work/GDD.md`) which writes `Assets/PotatoObby/levels.json`; the physics tunables
+  live in the same JSON. Rerun the script after editing, then rebuild assets.
+- The bootstrap scene asset is written by the headless test `ObbyScene.BootstrapSceneAssetExists`
+  only when it is missing (actor ids stay stable); delete `Assets/PotatoObby.scn` to regenerate.
+- Sprites in `Assets/PotatoObby/Sprites/` are placeholders from `Tools/PotatoObby/make_placeholder_art.py`;
+  `Tools/PotatoObby/art_prompts.py` regenerates them with Gemini (same names and sizes) once the
+  key has credits.
+- Tests: `GameTests/Obby*` (levels, world, scene; the runner in `ObbyTestSupport.h` beats levels 1
+  and 3 and smoke-runs all 30), `GameUITests/ObbyGameUI` (menu clicks, keyboard, touch buttons,
+  winning level 1, screenshots into `Work/ScreenShots/`). UI tests wait for game time
+  (`AppTestDriver::Wait`), pumped frames take almost none.
