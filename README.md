@@ -62,6 +62,16 @@ game only and use pre-built host assets: `cmake --preset ios` / `ios-sim`, `wasm
 serve with `Platforms/WebAssembly/serve.py`), Android via the Gradle project in
 `Platforms/Android/`.
 
+### Web editor
+
+The editor itself also builds for the browser: `cmake --preset wasm-editor` +
+`cmake --build --preset wasm-editor` produces `Bin/WebAssembly/Editor.html` next to the page shell
+copied from `Platforms/WebAssembly/shell/` (assets browser, changes dialog, AI agent). Editor and
+game assets have to be pre-built by host tools first (`AssetsBuilder -platform WebAssembly`).
+
+Unlike `serve.py`, the page expects a session server: it streams the project tree into MEMFS on
+start and mirrors every write back, so each browser tab edits its own copy of the project.
+
 ## Making it yours
 
 1. Rename the `Game` target in `CMakeLists.txt` and `CMakePresets.json` (iOS/WASM/Android build

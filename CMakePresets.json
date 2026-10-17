@@ -231,6 +231,68 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        },
+        {
+            "name": "wasm-editor",
+            "displayName": "WebAssembly Editor (Release)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-wasm-editor",
+            "environment": {
+                "EMSDK": "$penv{HOME}$penv{USERPROFILE}/emsdk"
+            },
+            "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
+                "O2_EDITOR": "ON",
+                "O2_TESTS": "OFF",
+                "O2_WASM_EDITOR": "ON"
+            },
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "wasm-editor-debug",
+            "displayName": "WebAssembly Editor (Debug)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-wasm-editor-debug",
+            "environment": {
+                "EMSDK": "$penv{HOME}$penv{USERPROFILE}/emsdk"
+            },
+            "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
+                "O2_EDITOR": "ON",
+                "O2_TESTS": "OFF",
+                "O2_WASM_EDITOR": "ON"
+            },
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "wasm-kit",
+            "inherits": "wasm-editor",
+            "displayName": "WebAssembly build kit for the o2 portal (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
+            }
+        },
+        {
+            "name": "wasm-kit-game",
+            "inherits": "wasm",
+            "displayName": "WebAssembly build kit for the o2 portal: the game without the editor (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit-game",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
+            }
         }
     ],
     "buildPresets": [
@@ -311,6 +373,18 @@
             "configurePreset": "android-release",
             "configuration": "Release",
             "targets": ["Game"]
+        },
+        {
+            "name": "wasm-editor",
+            "configurePreset": "wasm-editor",
+            "configuration": "Release",
+            "targets": ["Editor"]
+        },
+        {
+            "name": "wasm-editor-debug",
+            "configurePreset": "wasm-editor-debug",
+            "configuration": "Debug",
+            "targets": ["Editor"]
         }
     ]
 }

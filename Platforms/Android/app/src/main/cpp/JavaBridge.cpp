@@ -20,6 +20,7 @@
 #include "o2/Application/Application.h"
 #include "o2/Application/Input.h"
 #include "o2/Application/Android/AndroidPlatform.h"
+#include "o2libs/o2libs.h"
 
 extern void InitializeTypesGameLib();
 
@@ -79,9 +80,11 @@ Java_com_o2_template_NativeBridge_init(JNIEnv* env,
 
     INITIALIZE_O2;
     InitializeTypesGameLib();
+    O2LIBS_INITIALIZE_TYPES;
 
     gApp = mmake<GameApplication>();
     gApp->Initialize();
+    O2LIBS_START;
     gApp->Launch();
 }
 

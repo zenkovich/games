@@ -6,6 +6,10 @@
 /build-ios-sim
 /build-wasm
 /build-wasm-debug
+/build-wasm-editor
+/build-wasm-editor-debug
+/build-wasm-kit
+/build-wasm-kit-game
 /build-android
 /build-android-release
 cmake-build-*
@@ -51,3 +55,5 @@ xcuserdata
 # OS
 .DS_Store
 *DS_Store.meta
+
+/Work/

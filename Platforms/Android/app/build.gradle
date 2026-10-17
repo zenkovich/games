@@ -88,7 +88,14 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            minifyEnabled false
+            // R8 strips the appcompat code the game never touches — most of the
+            // dex is that library. Keep rules live in proguard-rules.pro; the JNI
+            // ones matter, since a renamed native method breaks the link only at
+            // runtime.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
             signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
 
             // AGP configures the native build as RelWithDebInfo, which o2 still treats as a
