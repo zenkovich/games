@@ -5,6 +5,11 @@
 
 console.log('[preview] game preview shell');
 
+// in the portal's headless page on the server the frame rate is capped, this window's included (boot.js)
+try { if (window.parent !== window && window.parent.__o2CapFrames) window.parent.__o2CapFrames(window); } catch (e) {}
+// ...and in a person's page the game gets frames only while it is the face in front (boot.js: o2Power)
+try { if (window.parent !== window && window.parent.o2Power) window.parent.o2Power.gate('preview', window); } catch (e) {}
+
 // The session is the tab's, not the frame's: sessionStorage is shared with the
 // parent page, so the client opens the very working copy the editor is editing.
 var sid = sessionStorage.getItem('o2sid');
@@ -35,61 +40,51 @@ function setStatus(text, frac) {
         progressBar.style.width = (frac * 100).toFixed(1) + '%';
 }
 
-function loadSnapshot(done, fail) {
-    fetch(o2Base + '/api/fs/snapshot').then(function (resp) {
-        if (!resp.ok) throw new Error('snapshot HTTP ' + resp.status);
-        var total = +resp.headers.get('X-Uncompressed-Length') || 0;
-        var reader = resp.body.getReader();
-        var chunks = [], loaded = 0;
-        function pump() {
-            return reader.read().then(function (r) {
-                if (r.done) return;
-                chunks.push(r.value);
-                loaded += r.value.length;
-                setStatus('Loading project… ' + (loaded / 1048576).toFixed(1) + ' MB', total ? loaded / total : 0);
-                return pump();
+// The project's files: shell/snapshot.js, as in boot.js - what this browser kept of earlier starts, the rest from
+// the server. The editor next door has usually just put the whole project there, so this frame waits for it to
+// finish doing that (its own wasm is downloaded and compiled meanwhile) and then downloads next to nothing.
+var projectFiles = (function () {
+    var job = null, failed = null, waiting = [];
+    function settle() { waiting.splice(0).forEach(function (fn) { fn(); }); }
+    (function pull(tries) {
+        var s = document.createElement('script');
+        s.src = 'shell/snapshot.js';
+        s.onload = function () {
+            var host = null;
+            try { if (window.parent !== window && window.parent.o2Snapshot) host = window.parent; } catch (e) {}
+            job = window.o2Snapshot.start({
+                base: o2Base, status: setStatus,
+                after: host ? host.o2Snapshot.shared(90000) : null,
+                noCache: /[?&]nocache=1/.test(location.search) || !!(host && (host.o2Headless || /[?&]nocache=1/.test(host.location.search))),
+                words: { full: 'Loading project… ', waiting: 'Loading the game client…' },
             });
-        }
-        return pump().then(function () {
-            var buf = new Uint8Array(loaded), off = 0;
-            for (var i = 0; i < chunks.length; i++) { buf.set(chunks[i], off); off += chunks[i].length; }
-            return buf;
-        });
-    }).then(function (buf) {
-        var magic = String.fromCharCode.apply(null, buf.subarray(0, 8));
-        if (magic !== 'O2SNAP01') throw new Error('bad snapshot magic');
-        var indexLen = new DataView(buf.buffer, buf.byteOffset + 8, 4).getUint32(0, true);
-        var index = JSON.parse(new TextDecoder().decode(buf.subarray(12, 12 + indexLen)));
-        var off = 12 + indexLen;
+            settle();
+        };
+        s.onerror = function () {
+            s.remove();
+            if (tries < 3) { setTimeout(function () { pull(tries + 1); }, 800 * (tries + 1)); return; }
+            failed = new Error('shell/snapshot.js did not load');
+            settle();
+        };
+        document.head.appendChild(s);
+    })(0);
+    return {
+        into: function (FS) {
+            return new Promise(function (resolve, reject) {
+                function go() { if (failed) reject(failed); else job.into(FS).then(resolve, reject); }
+                if (job || failed) go(); else waiting.push(go);
+            });
+        },
+    };
+})();
 
-        setStatus('Unpacking project…', 1);
-        var FS = Module.FS;
-        var madeDirs = {};
-        function mkdirs(dir) {
-            if (madeDirs[dir]) return;
-            FS.mkdirTree(dir);
-            madeDirs[dir] = true;
-        }
-        for (var i = 0; i < index.files.length; i++) {
-            var f = index.files[i];
-            var full = '/project/' + f.p;
-            mkdirs(full.substring(0, full.lastIndexOf('/')));
-            FS.writeFile(full, buf.subarray(off, off + f.s));
-            if (f.m) try { FS.utime(full, f.m, f.m); } catch (e) {}
-            off += f.s;
-        }
-        mkdirs('/project/Bin/WebAssembly');
-        console.log('[preview] snapshot unpacked:', index.files.length, 'files');
+function loadSnapshot(done, fail) {
+    projectFiles.into(Module.FS).then(function (stats) {
+        console.log('[preview] snapshot unpacked:', stats.files, 'files');
         done();
-    }).catch(function (e) {
-        // A dropped connection on the way in is not worth losing the client
-        // over: the stream is idempotent, so ask again before giving up.
+    }, function (e) {
+        // (a dropped connection has already been retried in there)
         console.error('[preview] snapshot failed', e);
-        if ((loadSnapshot.tries = (loadSnapshot.tries || 0) + 1) <= 2) {
-            setStatus('Reconnecting… (' + loadSnapshot.tries + ')');
-            setTimeout(function () { loadSnapshot(done, fail); }, 800 * loadSnapshot.tries);
-            return;
-        }
         setStatus('Failed to load the project: ' + e.message);
         fail(e);
     });
@@ -130,6 +125,20 @@ var crashHandled = false;
 function handleCrash(message, stack) {
     if (crashHandled) return;
     crashHandled = true;
+    // the client's wasm did not arrive: the network's doing, not the game's - try again a few times
+    // before telling anybody (boot.js does the same for the editor)
+    if (/fetching of the wasm failed/.test(String(message))) {
+        var tries = 0;
+        try { tries = +sessionStorage.getItem('o2_pv_dl_retries') || 0; } catch (e) {}
+        if (tries < 4) {
+            try { sessionStorage.setItem('o2_pv_dl_retries', String(tries + 1)); } catch (e) {}
+            setStatus('The connection dropped while downloading the game — retrying…');
+            setTimeout(function () { location.reload(); }, [1500, 3000, 6000, 10000][tries]);
+            return;
+        }
+        try { sessionStorage.removeItem('o2_pv_dl_retries'); } catch (e) {}
+        message = 'The game client could not be downloaded - a network problem, not a crash of the game. Restart it when the connection is back.';
+    }
     console.error('[preview.crash]', message, stack);
     setStatus('The game crashed');
     try {
@@ -151,8 +160,7 @@ window.addEventListener('unhandledrejection', function (e) {
 });
 
 // Heartbeat the parent can read: it tells whether the client is still ticking
-// while the editor is in front (it should be — it is a running game, not a tab
-// that was closed).
+// (behind the editor it is not: a face nobody looks at gets no frames, boot.js).
 window.__o2Ticks = 0;
 (function tick() { window.__o2Ticks++; requestAnimationFrame(tick); })();
 
@@ -184,6 +192,7 @@ var Module = {
     }],
     onRuntimeInitialized: function () {
         console.log('[preview.onRuntimeInitialized]');
+        try { sessionStorage.removeItem('o2_pv_dl_retries'); } catch (e) {}
         setStatus(null);
         try { parent.postMessage({ o2preview: 'ready' }, location.origin); } catch (e) {}
     },

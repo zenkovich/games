@@ -5,6 +5,7 @@
 #include "GameApplication.h"
 
 #include <unistd.h>
+#include "o2libs/o2libs.h"
 
 using namespace o2;
 
@@ -25,10 +26,12 @@ int main()
     o2::MemoryAnalyzer::enabledObjectsTracking = false;
     INITIALIZE_O2;
     InitializeTypesGameLib();
+    O2LIBS_INITIALIZE_TYPES;
     InitializeTypesAssetsBuildTool();
 
     auto app = mmake<GameApplication>();
     app->Initialize();
+    O2LIBS_START;
     app->Launch();
 
     return 0;

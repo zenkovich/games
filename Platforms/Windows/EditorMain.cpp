@@ -5,6 +5,7 @@
 #include "o2Editor/EditorConfig.h"
 #include "o2Editor/ToolsPanel.h"
 #include "o2Editor/Windows/WindowsManager.h"
+#include "o2libs/o2libs.h"
 
 #include "BrainFarm/GameJsBridge.h"
 
@@ -23,6 +24,7 @@ int main()
 	o2::MemoryAnalyzer::enabledObjectsTracking = false;
 	INITIALIZE_O2;
 	InitializeTypesGameLib();
+	O2LIBS_INITIALIZE_TYPES;
 	InitializeTypeso2Editor();
 	InitializeTypesEditorLib();
 	o2::MemoryAnalyzer::enabledObjectsTracking = true;
@@ -34,6 +36,7 @@ int main()
 	// the editor comes up empty and its script errors on every frame
 	brain_farm::RegisterGameJsApi();
 
+	O2LIBS_START;
 	app->Launch();
 
 	return 0;

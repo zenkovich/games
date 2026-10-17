@@ -6,6 +6,7 @@
 #include "o2/Render/Render.h"
 #include "o2/Scene/Scene.h"
 #include "o2/Utils/Debug/Debug.h"
+#include "o2libs/o2libs.h"
 
 #if defined(PLATFORM_MAC) || defined(PLATFORM_IOS)
 #include <mach/mach.h>
@@ -36,6 +37,8 @@ void GameApplication::OnStarted()
 {
 	// Portrait window emulates the mobile aspect on desktop
 	o2Application.SetWindowSize(Vec2I(450, 800));
+
+	O2LIBS_START;
 
 	brain_farm::RegisterGameJsApi();
 	brain_farm::BuildBootstrapScene();

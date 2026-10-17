@@ -8,6 +8,8 @@
 /build-wasm-debug
 /build-wasm-editor
 /build-wasm-editor-debug
+/build-wasm-kit
+/build-wasm-kit-game
 /build-android
 /build-android-release
 cmake-build-*

@@ -43,6 +43,17 @@ state (scene, subscriptions to `o2Scene`/global signals) via guards/destructors.
 New tests go in the matching tier; shared helpers live in `o2/Tests/Sources/Support/`
 (`SceneCleanGuard`, `TickFrame`/`TickFrames` in `Scene/SceneTestHelpers.h`).
 
+## Pipeline editor - three implementations
+
+The AI pipeline editor (`.pipeline` assets, the Pipeline window) lives in the o2 editor
+(`o2/Editor/Sources/o2Editor/Pipeline/`, `o2/Editor/Sources/o2Editor/Windows/PipelineWindow/`; docs
+`o2/Docs/{en,ru}/Editor/Pipeline/`) and exists twice more: the AssetsLine web editor + server
+(`../AssetsLine/`: `shared/`, `backend/src/`, `frontend/src/nodeEditor/`) and the Unity plugin
+(`../AssetsLineUnity/Packages/com.assetsline.pipelines/`). All three share one file format and sync
+pipelines with each other. A change to pipeline behaviour, a node type, a config key, the format, the
+executor/caching rules or the node UI must be made in all three together, with their tests and docs -
+otherwise synced pipelines diverge.
+
 ## Image generation tools (MCP `imagegen`)
 
 For generating game sprites/assets use the MCP server `imagegen` (registered in `.mcp.json`,
@@ -108,8 +119,9 @@ the agent:
   `GamePreview` target), running on the same session working copy instead of a
   packed `.data`, so `rebuild_assets` works there too. There is no play mode: the
   game is always running, and `restart` starts it over on the assets as they are
-  built now (the Restart button does the same). Both faces stay loaded and keep
-  running, so switching between them is instant and neither restarts — a client
+  built now (the Restart button does the same). Both faces stay loaded, so
+  switching between them is instant and neither restarts; the one nobody looks at
+  is paused (no frames, no sound) and wakes for as long as a tool runs — a client
   that was already up needs `rebuild_assets` + `restart` to see new assets. The
   pane emulates a window size or a device — drawn in its body, either orientation —
   and `view_info` reports which mode is on. The agent panel is resizable in both modes (a splitter when docked)
