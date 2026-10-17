@@ -106,4 +106,7 @@ jobs:
       #    o2EditorUITests/EditorVectorUIPerf (frame time of the editor drawn with vector against
       #    raster sprites): pixels and timing of a real GPU, excluded as the suites above.
       #    o2UtilTests/VectorMeshSimplifier (triangle counts, software rasterizer) stays in.
-      run: ctest --test-dir build --build-config ${{ matrix.build_config }} --output-on-failure --parallel 4 -E '_NOT_BUILT$|^o2RenderTests/(Render3D|RenderChunkedDraw|Mesh3DDraw|RenderPipelineDraw|TextureCopy|VectorSpriteRender|VectorSpritePerf|LayerImageRender|VectorWidgetsRender|RenderGeometryDraw)$|^o2EditorUITests/(EditorVectorUIParity|EditorVectorUIPerf)$'
+      #  - TextGlyphMeshesRender (a text drawn by glyph meshes against the one drawn from the font
+      #    texture, by pixels): never run on llvmpipe, excluded as the suites above.
+      #    o2UtilTests/VectorScalableMesh (software rasterizer) stays in.
+      run: ctest --test-dir build --build-config ${{ matrix.build_config }} --output-on-failure --parallel 4 -E '_NOT_BUILT$|^o2RenderTests/(Render3D|RenderChunkedDraw|Mesh3DDraw|RenderPipelineDraw|TextureCopy|VectorSpriteRender|VectorSpritePerf|LayerImageRender|VectorWidgetsRender|RenderGeometryDraw|TextGlyphMeshesRender)$|^o2EditorUITests/(EditorVectorUIParity|EditorVectorUIPerf)$'
