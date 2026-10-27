@@ -7,7 +7,7 @@
   "gradient": ["#667eea", "#06beb6"],
   "description": "Catch the falling letters and spell words against the clock.",
   "startScene": "WordFall.scn",
-  "windowSize": [768, 1376],
+  "windowSize": [768, 1673],
 
   "version": "1.0",
   "build": 1

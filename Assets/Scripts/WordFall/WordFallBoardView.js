@@ -17,6 +17,10 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this.cellSize = 96;     // шаг сетки — источник раскладки плиток
         this.tileSize = 88;     // размер плитки в ячейке
         this.boardCenterY = -121; // центр секции Board в экранных координатах
+        this.tileAspect = 1;    // высота плитки к ширине (у спрайта с тенью — больше 1)
+        this.showFrame = true;  // рамка формы поля из кусочков
+        this.showCellBacks = true; // подложки живых клеток
+        this.tintSprites = [];  // картинки плашек по цвету плитки (tint); пусто — плашка прототипа
 
         // «дыхание» бонуса на поле: плитка качает масштаб, аура — прозрачность,
         // сверху редкие искры по очереди на каждый бонус
@@ -85,7 +89,8 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                     crateHit: btn.GetLayer("crateHit"),
                     chain: btn.GetLayer("chain"),
                     snow: btn.GetLayer("snow"),
-                    parcel: btn.GetLayer("parcel")
+                    parcel: btn.GetLayer("parcel"),
+                    tint: -1
                 };
 
                 (function(cc, rr) {
@@ -230,7 +235,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                      "inner_tl", "inner_tr", "inner_br", "inner_bl"];
         var used = {};
         for (var i = 0; i < kinds.length; i++)
-            used[kinds[i]] = 0;
+            used[kinds[i]] = this.showFrame ? 0 : 24;
+        if (!this.showFrame)
+            inside = function() { return false; };
         var sizes = { edge_top: [100, 22], edge_bottom: [100, 22], edge_left: [22, 100], edge_right: [22, 100] }; // с нахлёстом, чтобы швы не читались
         var place = function(kind, x, y) {
             var index = used[kind]++;
@@ -388,9 +395,11 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         view.visible = !tile.hole && !tile.empty;
         view.btn.SetEnabled(view.visible);
         if (view.cellBack)
-            view.cellBack.SetEnabled(!tile.hole);
+            view.cellBack.SetEnabled(!tile.hole && this.showCellBacks);
         if (!view.visible)
             return;
+
+        this._PaintTint(view, tile.tint);
 
         // бонус или препятствие занимает слот: буквы и номинала нет, крупная иконка по центру
         view.letter.text = (isBonus || isObstacle) ? "" : tile.joker ? "?" : tile.letter;
@@ -432,6 +441,23 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                 view.bonusGlowDraw.SetColor(this._BonusGlowColor(tile.powerup));
         }
     }
+
+    // Плашка цвета плитки: картинка меняется, только когда цвет сменился
+    _PaintTint(view, tint)
+    {
+        if (!this.tintSprites || this.tintSprites.length == 0 || view.tint == tint)
+            return;
+        var path = this.tintSprites[Math.min(Math.max(tint || 0, 0), this.tintSprites.length - 1)];
+        // загрузка картинки сбрасывает размер спрайта к её собственному — прямоугольник слоя возвращаем
+        var drawable = view.back.drawable;
+        var rect = drawable.rect;
+        drawable.imageName = path;
+        drawable.rect = rect;
+        view.tint = tint;
+    }
+
+    // Цвет плашки, которую сейчас показывает клетка (для тестов)
+    GetTileTint(c, r) { return this._tiles[c][r].tint; }
 
     // Аура бонуса повторяет палитру его иконки
     _BonusGlowColor(kind)
@@ -575,11 +601,12 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         var pos = this.TileLocalPos(c, r);
         var half = this.tileSize*0.5*(scale || 1);
+        var halfY = half*this.tileAspect;
         var x = pos.x + this._shakeOffset.x;
         var y = pos.y + extraY + this._shakeOffset.y;
         var layout = this._tiles[c][r].btn.GetLayout();
-        layout.SetOffsetMin(new Vec2(x - half, y - half));
-        layout.SetOffsetMax(new Vec2(x + half, y + half));
+        layout.SetOffsetMin(new Vec2(x - half, y - halfY));
+        layout.SetOffsetMax(new Vec2(x + half, y + halfY));
     }
 
     // Запуск отображения обвала: офсеты и видимость применяются сразу, в этом

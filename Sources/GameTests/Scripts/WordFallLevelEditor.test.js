@@ -42,14 +42,14 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(draft.GetCell(cell).item, "");
 
         draft.Apply("snow", cell);
-        expectEq(draft.Apply("removeCell", cell), "changed");
+        expectEq(draft.Remove("cell", cell), "changed", "правый клик инструментом клетки убирает клетку");
         expectEq(draft.GetCell(cell), { hole: true, letter: "", overlay: "", crate: 0, item: "" });
         expectEq(draft.CountPlayable(), 55);
-        expectEq(draft.Apply("removeCell", cell), "", "дыра уже есть — менять нечего");
-        expectEq(draft.Apply("addCell", cell), "changed");
+        expectEq(draft.Remove("cell", cell), "", "дыра уже есть — менять нечего");
+        expectEq(draft.Apply("cell", cell), "changed", "левый клик возвращает клетку");
         expectEq(draft.GetCell(cell), { hole: false, letter: "", overlay: "", crate: 0, item: "" }, "клетка вернулась пустой");
-        expectEq(draft.Apply("addCell", cell), "", "клетка уже есть — менять нечего");
-        draft.Apply("removeCell", cell);
+        expectEq(draft.Apply("cell", cell), "", "клетка уже есть — менять нечего");
+        draft.Remove("cell", cell);
         draft.Apply("ice", cell);
         expectEq(draft.GetCell(cell), { hole: false, letter: "", overlay: "ice", crate: 0, item: "" }, "инструмент содержимого тоже возвращает клетку");
 
@@ -97,6 +97,85 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(draft.boosterCharges[2], 0, "после последней ступени — ноль");
     });
 
+    test("RightClickRemovesTheToolElementOrTheTopOne", function()
+    {
+        var draft = new WordFallLevelDraft(WordFallConfigs.DefaultLevelConfig(), 7, 8);
+        var cell = { c: 1, r: 1 };
+        draft.SetLetter(cell, "Ж");
+        draft.Apply("ice", cell);
+        expectEq(draft.Remove("ice", cell), "changed");
+        expectEq(draft.GetCell(cell), { hole: false, letter: "Ж", overlay: "", crate: 0, item: "" }, "лёд снят, буква осталась");
+
+        draft.Apply("chain", cell);
+        expectEq(draft.Remove("bomb", cell), "changed", "бомбы нет — снимается верхний элемент");
+        expectEq(draft.GetCell(cell).overlay, "");
+        expectEq(draft.Remove("bomb", cell), "changed");
+        expectEq(draft.GetCell(cell).letter, "", "затем заданная буква");
+        expectEq(draft.Remove("bomb", cell), "", "пустая клетка — снимать нечего");
+
+        draft.Apply("snow", cell);
+        expectEq(draft.Remove("snow", cell), "changed");
+        draft.Apply("crate", cell);
+        expectEq(draft.Remove("crate", cell), "changed");
+        expectEq(draft.GetCell(cell).crate, 0);
+
+        expectEq(draft.Remove("cell", cell), "changed", "инструмент клетки убирает саму клетку");
+        expect(draft.GetCell(cell).hole);
+        expectEq(draft.Remove("ice", cell), "", "у дыры снимать нечего");
+        expectEq(draft.Remove("ice", { c: -1, r: 0 }), "");
+    });
+
+    test("CrateBrushGradeAndWheelOverACrate", function()
+    {
+        var draft = new WordFallLevelDraft(WordFallConfigs.DefaultLevelConfig(), 7, 8);
+        draft.StepCrateGrade(1);
+        draft.StepCrateGrade(1);
+        draft.StepCrateGrade(1);
+        expectEq(draft.crateGrade, 3, "кисть не выше максимума");
+        draft.Apply("crate", { c: 0, r: 0 });
+        draft.Apply("crate", { c: 1, r: 0 });
+        expectEq([draft.GetCell({ c: 0, r: 0 }).crate, draft.GetCell({ c: 1, r: 0 }).crate], [3, 3], "подряд ставятся ящики прочности кисти");
+        draft.SetCrateGrade(0);
+        expectEq(draft.crateGrade, 1);
+
+        expectEq(draft.StepCellCrate({ c: 0, r: 0 }, -1), "changed");
+        expectEq(draft.GetCell({ c: 0, r: 0 }).crate, 2, "колесо над ящиком меняет его прочность");
+        expectEq(draft.StepCellCrate({ c: 1, r: 0 }, 1), "", "выше 3 некуда");
+        expectEq(draft.StepCellCrate({ c: 3, r: 3 }, 1), "", "не ящик");
+        expectEq(draft.ToConfig().crateGrades, [2, 3]);
+    });
+
+    test("DraftEditsWordsAndAgentParameters", function()
+    {
+        var draft = new WordFallLevelDraft(WordFallConfigs.NormalizeLevel({ id: "L009", tasks: [{ word: "дом" }] }), 7, 8);
+        expectEq(draft.words, ["ДОМ"], "старая задача-слово — слово уровня");
+        expectEq(draft.AddWord("кот"), 1);
+        expectEq(draft.AddWord("КОТ"), -1, "повтор не добавляется");
+        expectEq(draft.AddWord(""), -1);
+        draft.SetWord(0, "лес");
+        draft.RemoveWord(1);
+        expectEq(draft.words, ["ЛЕС"]);
+        for (var i = 0; i < 40; i++)
+            draft.AddWord("СЛОВО" + i);
+        expectEq(draft.words.length, WordFallLevelDraft.WordLimit);
+
+        draft.SetWordsAuto(4);
+        draft.SetWordMinLength(6);
+        draft.SetWordMaxLength(4);
+        expectEq([draft.wordMinLength, draft.wordMaxLength], [4, 4], "минимум не больше максимума");
+        draft.SetWordMinLength(0);
+        expectEq(draft.wordMinLength, 0, "0 — по сложности");
+        draft.SetDifficulty(42);
+        expectEq(draft.difficulty, 10);
+        draft.SetAutoTarget(true);
+        draft.SetName(" Лес ");
+
+        var config = draft.ToConfig();
+        expectEq([config.id, config.name, config.wordsAuto, config.difficulty, config.autoTarget], ["L009", "Лес", 4, 10, true]);
+        expectEq(config.tasks.length, 0);
+        expectEq(new WordFallLevelDraft(config, 7, 8).ToConfig(), config, "черновик сохраняет всё");
+    });
+
     test("DraftEditsTasks", function()
     {
         var draft = new WordFallLevelDraft(WordFallConfigs.DefaultLevelConfig(), 7, 8);
@@ -118,8 +197,7 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(draft.tasks[0].taskType, "Powerup", "неизвестный тип не ставится");
 
         draft.SetTaskType(0, "Word");
-        draft.SetTaskWord(0, "кот");
-        expectEq(draft.tasks[0].word, "КОТ");
+        expectEq(draft.tasks[0].taskType, "Powerup", "слова — не задача, тип не ставится");
         draft.SetTaskType(0, "Letter");
         draft.SetTaskLetter(0, "ж");
         expectEq(draft.tasks[0].letter, "Ж");
@@ -128,12 +206,12 @@ include("Scripts/WordFall/WordFallGameService.js");
         draft.SetTaskLength(0, 1);
         expectEq(draft.tasks[0].length, 2);
 
-        draft.AddTask({ taskType: "Word", word: "ДОМ" });
+        expectEq(draft.AddTask({ taskType: "Word", word: "ДОМ" }), -1, "задача-слово не добавляется");
+        draft.AddTask({ taskType: "Crates" });
         expectEq(draft.ToConfig().tasks.length, 2);
-        expectEq(draft.ToConfig().tasks[1].word, "ДОМ");
         draft.RemoveTask(0);
         expectEq(draft.tasks.length, 1);
-        expectEq(draft.tasks[0].word, "ДОМ");
+        expectEq(draft.tasks[0].taskType, "Crates");
 
         while (draft.AddTask() >= 0) {}
         expectEq(draft.tasks.length, WordFallLevelDraft.TaskLimit, "лимит задач");
@@ -159,7 +237,15 @@ include("Scripts/WordFall/WordFallGameService.js");
         config.powerupCells = [{ c: 6, r: 5 }, { c: 6, r: 6 }]; // параллельные списки: в порядке обхода черновика
         config.powerupKinds = ["fireworks", "bomb"];
         config.letterCells = [{ c: 1, r: 1, letter: "Ю" }, { c: 3, r: 0, letter: "Д" }];
-        config.tasks = [WordFallConfigs.MakeWord("ДОМ"), WordFallConfigs.MakeLetter("Т", 3)];
+        config.id = "L042";
+        config.name = "Тест";
+        config.difficulty = 6;
+        config.words = ["ДОМ", "КОТ"];
+        config.wordsAuto = 2;
+        config.wordMinLength = 4;
+        config.wordMaxLength = 6;
+        config.autoTarget = true;
+        config.tasks = [WordFallConfigs.MakeLetter("Т", 3)];
 
         var draft = new WordFallLevelDraft(config, 7, 8);
         var restored = draft.ToConfig();
@@ -183,10 +269,12 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(compact.letterCells[0], { x: 2, y: 5, letter: "Ф" });
         expectEq(WordFallConfigs.NormalizeLevel(compact), level);
 
-        var withTasks = WordFallConfigs.NormalizeLevel({ tasks: [{ word: "КОТ" }, { taskType: "Length", length: 4, count: 2 }] });
-        var compactTasks = WordFallConfigs.CompactLevel(withTasks).tasks;
-        expectEq(compactTasks, [{ word: "КОТ" }, { taskType: "Length", count: 2 }], "поля заданий по умолчанию опущены");
-        expectEq(WordFallConfigs.NormalizeLevel({ tasks: compactTasks }).tasks, withTasks.tasks);
+        var withTasks = WordFallConfigs.NormalizeLevel({ tasks: [{ word: "кот" }, { taskType: "Length", length: 4, count: 2 }] });
+        expectEq(withTasks.words, ["КОТ"], "старая задача-слово переехала в слова уровня");
+        var compact2 = WordFallConfigs.CompactLevel(withTasks);
+        expectEq(compact2.tasks, [{ taskType: "Length", count: 2 }], "поля заданий по умолчанию опущены");
+        expectEq(compact2.words, ["КОТ"]);
+        expectEq(WordFallConfigs.NormalizeLevel(compact2), withTasks);
     });
 
     test("BoardFillPlacesPresetLettersAndSeedsAround", function()
@@ -239,7 +327,7 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(exported.length, 5);
         expectEq(exported[2].moves, 3);
         expectEq(exported[2].letterCells, [{ x: 1, y: 1, letter: "Я" }]);
-        expectEq(exported[1], { moves: 11, tasks: [{ word: "ДОМ" }] }, "формат campaign.json");
+        expectEq(exported[1], { id: "L002", words: ["ДОМ"], moves: 11 }, "формат campaign.json: id, слова отдельно");
 
         reloaded.ResetLevel(2);
         expect(!reloaded.IsEdited(2));
@@ -254,7 +342,7 @@ include("Scripts/WordFall/WordFallGameService.js");
         var store = new WordFallLevelStore(source, 3);
 
         var level = JSON.parse(store.ExportLevelJson(1));
-        expectEq(level, { moves: 11, tasks: [{ word: "ДОМ" }] }, "уровень в формате campaign.json");
+        expectEq(level, { id: "L002", words: ["ДОМ"], moves: 11 }, "уровень в формате campaign.json");
 
         expectEq(store.ImportJson("not json", 0).ok, false);
         expectEq(store.ImportJson("[]", 0).ok, false, "пустая кампания");
@@ -270,8 +358,11 @@ include("Scripts/WordFall/WordFallGameService.js");
         var campaign = [{ moves: 10, tasks: tasks }, { moves: 99, tasks: tasks }, { moves: 12, tasks: tasks }, { moves: 1 }];
         var whole = store.ImportJson(JSON.stringify(campaign), 0);
         expect(whole.ok);
-        expectEq(whole.count, 3, "лишние уровни файла отброшены");
+        expectEq(whole.count, 4, "кампания из файла целиком");
+        expectEq(store.GetCount(), 4);
         expect(!store.IsEdited(0) && store.IsEdited(1) && !store.IsEdited(2), "правкой становится только отличие от исходного");
+        expect(store.IsNew(3) && store.IsEdited(3), "лишний уровень файла — новый уровень кампании");
+        expectEq(store.GetId(3), "L004");
         expectEq(store.GetLevel(1).moves, 99);
 
         var edits = store.ImportJson(JSON.stringify({ levels: { "0": { moves: 7 }, "9": { moves: 1 } } }), 0);

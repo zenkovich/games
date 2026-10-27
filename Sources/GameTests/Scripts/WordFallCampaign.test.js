@@ -30,9 +30,10 @@ include("Scripts/WordFall/Core/WordFallCore.js");
         campaign.forEach(function(level, i) {
             var name = "уровень " + (i + 1);
             expect(level.moves >= 9 && level.moves <= 18, name);
-            expect(level.tasks.length >= 2 && level.tasks.length <= 5, name);
-            expectEq(level.tasks[0].taskType, "Word", name + ": первое задание — слово, оно же сидится");
-            expect(dictionary.Contains(level.tasks[0].word), name + ": " + level.tasks[0].word);
+            expect(level.tasks.length >= 1 && level.tasks.length <= 4, name);
+            expectEq(level.words.length, 1, name + ": у уровня слово, оно же сидится");
+            expect(dictionary.Contains(level.words[0]), name + ": " + level.words[0]);
+            expectEq(level.id, WordFallConfigs.LevelId(i), name + ": постоянный id");
         });
     });
 

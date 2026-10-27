@@ -20,7 +20,8 @@ TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 
 	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
 	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/Bar"));
-	EXPECT_TRUE(root->GetChild("Screen/Tasks/Task0"));
+	EXPECT_TRUE(root->GetChild("Screen/Tasks/Words/W0_0"));
+	EXPECT_TRUE(root->GetChild("Screen/Tasks/Others/Item0"));
 	EXPECT_TRUE(root->GetChild("Screen/WordBar/AcceptBtn"));
 	EXPECT_TRUE(root->GetChild("Screen/WordBar/Tray/Slot0"));
 	EXPECT_TRUE(root->GetChild("Screen/Boosters/Booster4/Btn"));
@@ -61,7 +62,7 @@ TEST_F(WordFallUI, ClickingTilesSelectsWordAndSlotsFly)
 	EXPECT_FALSE(root->GetChild("Screen/Board/Tile_3_0")->IsEnabled());
 
 	// клик по первому слоту лотка снимает выбор с буквы и хвоста — весь выбор
-	Click(Vec2F(-166, 331));
+	Click(SlotPosition(0));
 	AppTestDriver::PumpFrames(2);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 0);
 	EXPECT_TRUE(root->GetChild("Screen/Board/Tile_1_0")->IsEnabled());
@@ -74,7 +75,7 @@ TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	// скрин подтверждения: буквы ещё на месте, играют вспышки и цифры
@@ -140,7 +141,7 @@ TEST_F(WordFallUI, ConsecutiveWordsKeepFlyingLettersVisible)
 		ClickTile(3, 0);
 		EXPECT_EQ(mService->GetCurrentWord(), String(words[word])) << "word " << word;
 
-		Click(Vec2F(222, 331)); // ПРИНЯТЬ
+		Click(AcceptPosition()); // ПРИНЯТЬ
 		AppTestDriver::PumpFrames(2);
 		EXPECT_TRUE(mService->GetLastMoveResult().ok) << "word " << word << ": " << mService->GetLastMoveResult().reason;
 
@@ -175,7 +176,7 @@ TEST_F(WordFallUI, ClearButtonDropsSelection)
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 
-	Click(Vec2F(326, 331)); // крестик сброса
+	Click(ClearPosition()); // крестик сброса
 	AppTestDriver::PumpFrames(2);
 
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 0);
@@ -183,7 +184,7 @@ TEST_F(WordFallUI, ClearButtonDropsSelection)
 
 TEST_F(WordFallUI, HammerBoosterRemovesTileWithoutMove)
 {
-	Click(Vec2F(-264, -600)); // молоток — режим прицела
+	Click(BoosterPosition(0)); // молоток — режим прицела
 	AppTestDriver::PumpFrames(2);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "05_hammer_aim.png"));
 
@@ -205,7 +206,7 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	// победа зафиксирована сразу, попап ждёт окончания начисления очков
@@ -243,7 +244,7 @@ TEST_F(WordFallUI, FailingEffectDoesNotStallMovesOrWinPopup)
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 	ClickTile(3, 0);
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(3.0f);
 	EXPECT_FALSE(o2Scripts.Eval("WordFallViews.fx.IsBusy()").GetValue<bool>());
 
@@ -255,7 +256,7 @@ TEST_F(WordFallUI, FailingEffectDoesNotStallMovesOrWinPopup)
 	ClickTile(3, 0);
 	EXPECT_EQ(mService->GetCurrentWord(), String("ТОК"));
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(3.0f);
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
@@ -280,18 +281,23 @@ TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
 
-	// уровень 1 содержит 3 задачи — первые три строки заполнены, остальные пустые
-	auto task0 = DynamicCast<Label>(root->GetChild("Screen/Tasks/Task0/Text"));
-	auto task2 = DynamicCast<Label>(root->GetChild("Screen/Tasks/Task2/Text"));
-	auto task3 = DynamicCast<Label>(root->GetChild("Screen/Tasks/Task3/Text"));
-	ASSERT_TRUE(task0 && task2 && task3);
-	EXPECT_FALSE(task0->GetText().IsEmpty());
-	EXPECT_FALSE(task2->GetText().IsEmpty());
-	EXPECT_TRUE(task3->GetText().IsEmpty());
+	// слова уровня — рядами плашек в своей панели, прочие задачи — иконками в полосе под ней
+	auto shown = o2Scripts.Eval("JSON.stringify(WordFallViews.tasks.GetShownWords())").ToString();
+	auto firstWord = o2Scripts.Eval("WordFallGame.service.GetWords()[0].word").ToString();
+	EXPECT_FALSE(firstWord.IsEmpty());
+	EXPECT_NE(shown.Find("\"" + firstWord + "\""), -1) << shown.Data();
+	int tasks = o2Scripts.Eval("WordFallGame.service.GetTasks().length").GetValue<int>();
+	ASSERT_GT(tasks, 0);
+	for (int i = 0; i < 5; i++)
+		EXPECT_EQ(root->GetChild(String::Format("Screen/Tasks/Others/Item%i", i))->IsEnabled(), i < tasks) << i;
+	auto count = DynamicCast<Label>(root->GetChild("Screen/Tasks/Others/Item0/Count"));
+	ASSERT_TRUE(count);
+	EXPECT_NE(String(count->GetText()).Find("/"), -1) << "счётчик задачи: прогресс/цель";
 
 	auto levelLabel = DynamicCast<Label>(root->GetChild("Screen/Hud/LevelBox/Value"));
 	ASSERT_TRUE(levelLabel);
 	EXPECT_EQ(levelLabel->GetText(), WString("1"));
+	EXPECT_FALSE(root->GetChild("Screen/Hud/LevelBox")->IsEnabled()) << "в концепте нет плашки уровня";
 
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "07_tasks_panel.png"));
 }
@@ -308,7 +314,7 @@ TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
 	for (int i = 1; i <= 5; i++)
 		ClickTile(i, 0);
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	// бомба в модели — сразу, занимает слот вместо буквы
@@ -359,7 +365,7 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	auto& move = mService->GetLastMoveResult();
@@ -418,7 +424,7 @@ TEST_F(WordFallUI, SelectionDoesNotBreakIceOrStone)
 	// лёд скалывается только после принятия слова
 	ClickTile(2, 0);
 	ClickTile(3, 0);
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(2, 1)).ice, 0);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(0, 1)).stone, 1);
@@ -429,9 +435,9 @@ TEST_F(WordFallUI, SelectionDoesNotBreakIceOrStone)
 TEST_F(WordFallUI, PressedButtonShowsPressIn)
 {
 	// зажатая кнопка ПРИНЯТЬ — снимок вдавленного состояния
-	AppTestDriver::MoveCursor(ToWindow(Vec2F(222, 331)));
+	AppTestDriver::MoveCursor(ToWindow(AcceptPosition()));
 	AppTestDriver::PumpFrames(2);
-	AppTestDriver::PressCursor(ToWindow(Vec2F(222, 331)));
+	AppTestDriver::PressCursor(ToWindow(AcceptPosition()));
 	AppTestDriver::PumpFrames(4);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "09_pressed.png"));
 	AppTestDriver::ReleaseCursor();
@@ -469,7 +475,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	ClickTile(2, 0);
 	ClickTile(3, 0);
 
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
 	auto root = o2Scene.FindActor("WordFall");
@@ -485,7 +491,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	ASSERT_TRUE(flyer);
 	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
-	float minFill = 0.12f;
+	float minFill = o2Scripts.Eval("WordFallViews.hud.barMinFill").GetValue<float>();
 	float target = (float)mService->GetTargetScore();
 	auto fillX = [&](float score) { return barRect.left + barRect.Width()*(minFill + (1.0f - minFill)*score/target) - 12.0f; };
 	Vec2F tipNow = tip->GetRect().Center();
@@ -535,7 +541,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 	ClickTile(3, 0);
-	Click(Vec2F(222, 331));
+	Click(AcceptPosition());
 	AppTestDriver::PumpFrames(3);
 
 	Vec2F tipCenter = tip->GetRect().Center();
@@ -563,7 +569,7 @@ TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
 		ClickTile(2, 0);
 		ClickTile(3, 0);
 
-		Click(Vec2F(222, 331)); // ПРИНЯТЬ
+		Click(AcceptPosition()); // ПРИНЯТЬ
 		AppTestDriver::PumpFrames(2);
 		offsets.Add(trajectory->GetRandomOffset());
 
@@ -593,7 +599,7 @@ TEST_F(WordFallUI, LetterFlightSparksSimulateWithoutEditorBaking)
 	ClickTile(1, 0);
 	ClickTile(2, 0);
 	ClickTile(3, 0);
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(0.45f);
 
 	auto root = o2Scene.FindActor("WordFall");

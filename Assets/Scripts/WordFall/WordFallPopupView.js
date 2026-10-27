@@ -105,10 +105,14 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
         var score = svc.GetScore();
         var target = svc.GetTargetScore();
         var best = svc.GetBestScore();
+        var words = svc.GetWords();
         var tasks = svc.GetTasks();
         var done = 0;
         for (var i = 0; i < tasks.length; i++)
             done += tasks[i].done ? 1 : 0;
+        for (var i = 0; i < words.length; i++)
+            done += words[i].found ? 1 : 0;
+        var goals = tasks.length + words.length;
         var bonus = Math.max(0, score - target);
         this._anims = [];
         this._idle = false;
@@ -118,10 +122,10 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
         this._title.SetText(won ? (last ? "ФИНАЛ!" : "ПОБЕДА!") : "НЕ ВЫШЛО");
         this._scoreLine.SetText("0");
         this._badgeText.SetText("+" + bonus);
-        this._tasksLine.SetText("Задачи " + done + "/" + tasks.length);
+        this._tasksLine.SetText("Задачи " + done + "/" + goals);
         this._tasksCheck.SetEnabled(false);
         this._subtitle.SetText(won ? (best > 0 && score > best ? "Новый рекорд! Было " + best : best > 0 ? "Рекорд: " + best : "")
-                                   : (done < tasks.length ? "Задачи не закрыты" : score < target ? "Не хватило " + (target - score) + " очков" : "Не хватило ходов"));
+                                   : (done < goals ? "Задачи не закрыты" : score < target ? "Не хватило " + (target - score) + " очков" : "Не хватило ходов"));
         this._buttonCaption.text = won ? (last ? "СНАЧАЛА" : "ДАЛЬШЕ") : "ЕЩЁ РАЗ";
         this._content.SetEnabled(true);
 
@@ -156,10 +160,7 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
         fade(this._tasksLine, 0.55); fade(this._subtitle, 0.65); fade(this._restart, 0.75);
 
         // плитки-буквы вокруг карточки: буквы слова-задания (или запасные), лёгкое покачивание
-        var letters = [];
-        for (var i = 0; i < tasks.length; i++)
-            if (tasks[i].type == "word" && tasks[i].word)
-                letters = tasks[i].word.split("");
+        var letters = words.length > 0 ? words[0].word.split("") : [];
         var spare = ["П", "О", "Б", "Е", "Д", "А"];
         for (var i = 0; i < this._confetti.length; i++)
         {
@@ -211,7 +212,7 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
                 self._badge.SetTransparency(Math.min(1, k*3));
             }, function() { self._SetRect(self._badge, 124, 66, 112, 60); });
         }
-        if (done == tasks.length)
+        if (done == goals)
             this._Fx(0.7, 0.01, function(k) {}, function() { self._tasksCheck.SetEnabled(true); });
 
         // звёзды: заработанные зажигаются по очереди с бликами

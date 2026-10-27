@@ -107,25 +107,24 @@ TEST_F(WordFallFeaturesUI, BoardBackingFollowsTheFieldShape)
 	AppTestDriver::PumpFrames(4);
 	auto board = Screen()->GetChild("Board");
 	auto& model = mService->GetLevel().GetBoard();
-	int holes = 0, shownHoles = 0, shownCells = 0;
+	int holes = 0, tilesInHoles = 0, backs = 0;
 	for (int c = 0; c < model.GetColumns(); c++)
 	{
 		for (int r = 0; r < model.GetRows(); r++)
 		{
 			auto back = board->GetChild(String::Format("CellBack_%i_%i", c, r));
 			ASSERT_TRUE(back);
+			backs += back->IsEnabled() ? 1 : 0;
 			if (model.IsHole(Vec2I(c, r)))
 			{
 				holes++;
-				shownHoles += back->IsEnabled() ? 1 : 0;
+				tilesInHoles += board->GetChild(String::Format("Tile_%i_%i", c, r))->IsEnabled() ? 1 : 0;
 			}
-			else
-				shownCells += back->IsEnabled() ? 1 : 0;
 		}
 	}
 	EXPECT_GT(holes, 0);
-	EXPECT_EQ(shownHoles, 0) << "у дыр подложки нет";
-	EXPECT_EQ(shownCells, model.GetColumns()*model.GetRows() - holes);
+	EXPECT_EQ(tilesInHoles, 0) << "в дырах плиток нет";
+	EXPECT_EQ(backs, 0) << "по концепту плашки стоят прямо на фоне, без подложек клеток";
 	EXPECT_FALSE(board->GetChild("Panel")) << "единой квадратной подложки больше нет";
 	DismissTutorial();
 	Shot("feature_board_shape");
@@ -256,11 +255,12 @@ TEST_F(WordFallFeaturesUI, BlockingTutorialStepSwallowsClicksInsideTheCutout)
 {
 	mService->MarkTutorialSeen("basics");
 	mService->StartLevel(1); // на втором уровне показывается шаг про бустеры
-	AppTestDriver::Wait(0.9f);
-
 	auto caption = Screen()->GetChild("Tutorial/Caption");
 	auto glow = Screen()->GetChild("Tutorial/Dim/Glow0");
 	ASSERT_TRUE(caption && glow);
+	AppTestDriver::Wait(0.9f);
+	for (int i = 0; i < 30 && !caption->IsEnabled(); i++) // под нагрузкой параллельного прогона шаг появляется позже
+		AppTestDriver::Wait(0.1f);
 	ASSERT_TRUE(caption->IsEnabled());
 	EXPECT_TRUE(glow->IsEnabled()) << "вырез подсвечен каймой";
 
@@ -370,14 +370,14 @@ TEST_F(WordFallFeaturesUI, DuplicateWordShowsMessage)
 
 	PlantKot();
 	ClickTile(1, 0); ClickTile(2, 0); ClickTile(3, 0);
-	Click(Vec2F(222, 331));
+	Click(AcceptPosition());
 	AppTestDriver::Wait(2.5f);
 	EXPECT_TRUE(mService->IsWordUsed("КОТ"));
 
 	int moves = mService->GetMovesLeft();
 	PlantKot();
 	ClickTile(1, 0); ClickTile(2, 0); ClickTile(3, 0);
-	Click(Vec2F(222, 331));
+	Click(AcceptPosition());
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetMovesLeft(), moves) << "дубль не тратит ход";
 	EXPECT_TRUE(message->IsEnabled()) << "сообщение о дубле";
@@ -451,7 +451,7 @@ TEST_F(WordFallFeaturesUI, BonusLettersFlyIntoTheBar)
 	mService->DebugSetPowerup(1, 1, "bomb");
 	AppTestDriver::PumpFrames(2);
 	ClickTile(1, 0); ClickTile(2, 0); ClickTile(3, 0);
-	Click(Vec2F(222, 331));
+	Click(AcceptPosition());
 
 	auto fx = Screen()->GetChild("Fx");
 	int maxFlying = 0;

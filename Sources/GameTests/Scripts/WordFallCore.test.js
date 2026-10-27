@@ -476,7 +476,7 @@ include("Scripts/WordFall/Core/WordFallCore.js");
         Plant(board, "КОТ");
         SelectRow(board, 3);
         level.AcceptWord(dictionary);
-        expect(level.GetTasks()[0].done);
+        expect(level.GetWords()[0].found, "слово уровня найдено");
     });
 
     test("LengthTaskCountsWordsOfExactLength", function()
@@ -538,15 +538,13 @@ include("Scripts/WordFall/Core/WordFallCore.js");
             var config = WordFallLevels.Generate(index, dictionary, boardConfig);
             expect(config.targetScore > 0);
             expect(config.moves >= 12 && config.moves <= 16);
-            expect(config.tasks.length >= 3 && config.tasks.length <= 5);
+            expect(config.tasks.length >= 1 && config.tasks.length <= 4);
             expectEq(config.boosterCharges[2], 30, "подсказок много — помощь в тупиках");
 
-            // первое задание — точечное слово, слова заданий в словаре
-            expectEq(config.tasks[0].taskType, "Word");
-            config.tasks.forEach(function(task) {
-                if (task.taskType == "Word")
-                    expect(dictionary.Contains(task.word), task.word);
-            });
+            // у уровня есть слова, все в словаре; слова — не задачи
+            expect(config.words.length >= 1 && config.words.length <= 2);
+            config.words.forEach(function(word) { expect(dictionary.Contains(word), word); });
+            expect(config.tasks.every(function(task) { return task.taskType != "Word"; }));
 
             // «разбить весь лёд» ограничивает количество льда
             if (config.tasks.some(function(t) { return t.taskType == "ClearIce"; }))

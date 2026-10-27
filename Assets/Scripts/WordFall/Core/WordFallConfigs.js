@@ -1,13 +1,16 @@
 // Конфиги поля, уровней и задач. Уровни читаются в формате campaign.json
 // (C++-сериализация: клетки {x, y}, поля со значением по умолчанию опущены),
-// внутри клетки — {c, r}
+// внутри клетки — {c, r}. Слова уровня — отдельный список words, не задачи:
+// старые задачи "Word" при чтении переезжают в него
 WordFallConfigs = class WordFallConfigs
 {
-    // Типы задач уровня
+    // Типы задач уровня (слова — отдельный блок уровня)
     static get TaskTypes()
     {
-        return ["Word", "Length", "Powerup", "ClearIce", "AnyWords", "WordScore", "Letter", "Deliver", "Melt", "Crates"];
+        return ["Length", "Powerup", "ClearIce", "AnyWords", "WordScore", "Letter", "Deliver", "Melt", "Crates"];
     }
+
+    static get MaxDifficulty() { return 10; }
 
     // Мешок и номиналы русского прототипа (100 плиток, без Ъ/Ё)
     static DefaultRussianLetters()
@@ -80,6 +83,14 @@ WordFallConfigs = class WordFallConfigs
     static DefaultLevelConfig()
     {
         return {
+            id: "",             // постоянный идентификатор уровня, не зависит от места в кампании
+            name: "",
+            difficulty: 3,      // 1..10: агент подбирает по ней слова и цель по очкам
+            words: [],          // слова, которые надо найти (заданные вручную)
+            wordsAuto: 0,       // сколько ещё слов подбирает агент по словарю языка
+            wordMinLength: 0,   // длины слов агента; 0 — по сложности
+            wordMaxLength: 0,
+            autoTarget: false,  // цель по очкам считает агент
             targetScore: 250,
             moves: 12,
             iceCells: [],
@@ -132,11 +143,22 @@ WordFallConfigs = class WordFallConfigs
                 config[key] = value.map(toCell);
             else if (key == "tasks")
                 config.tasks = value.map(function(task) { return WordFallConfigs.MakeTask(task); });
+            else if (key == "words")
+                config.words = value.map(function(word) { return String(word).toUpperCase(); }).filter(function(word) { return word.length > 0; });
             else if (Array.isArray(value))
                 config[key] = value.slice();
             else
                 config[key] = value;
         }
+
+        var legacyWords = config.tasks.filter(function(task) { return task.taskType == "Word"; });
+        config.tasks = config.tasks.filter(function(task) { return task.taskType != "Word"; });
+        legacyWords.forEach(function(task) {
+            var word = (task.word || "").toUpperCase();
+            if (word && config.words.indexOf(word) < 0)
+                config.words.push(word);
+        });
+        config.difficulty = Math.min(Math.max(Math.round(config.difficulty), 1), WordFallConfigs.MaxDifficulty);
         return config;
     }
 
@@ -152,7 +174,9 @@ WordFallConfigs = class WordFallConfigs
             if (JSON.stringify(value) === JSON.stringify(defaults[key]))
                 continue;
 
-            if (key == "letterCells")
+            if (key == "words")
+                compact[key] = value.slice();
+            else if (key == "letterCells")
                 compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r, letter: cell.letter }; });
             else if (key.endsWith("Cells"))
                 compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r }; });
@@ -181,7 +205,6 @@ WordFallConfigs = class WordFallConfigs
     {
         switch (task.taskType)
         {
-            case "Word": return "Слово " + task.word;
             case "Length": return "Слова из " + task.length + " букв ×" + task.count;
             case "Powerup": return ({ bomb: "Бомба", rocket: "Ракета", fireworks: "Салют" }[task.powerupKind] || "Бонус") + " ×" + task.count;
             case "ClearIce": return "Весь лёд";
@@ -201,25 +224,54 @@ WordFallConfigs = class WordFallConfigs
         var cells = function(list) { return list.map(function(p) { return { c: p[0], r: p[1] }; }); };
 
         var level1 = WordFallConfigs.DefaultLevelConfig();
+        level1.id = "L001";
         level1.targetScore = 250;
         level1.moves = 12;
         level1.iceCells = cells([[1, 6], [5, 2], [4, 7], [0, 1]]);
-        level1.tasks = [WordFallConfigs.MakeWord("КОТ"), WordFallConfigs.MakeLength(4, 2), WordFallConfigs.MakeClearIce()];
+        level1.words = ["КОТ"];
+        level1.tasks = [WordFallConfigs.MakeLength(4, 2), WordFallConfigs.MakeClearIce()];
 
         var level2 = WordFallConfigs.DefaultLevelConfig();
+        level2.id = "L002";
         level2.targetScore = 350;
         level2.moves = 12;
         level2.iceCells = cells([[0, 5], [2, 6], [4, 6], [6, 5], [3, 3], [5, 2]]);
-        level2.tasks = [WordFallConfigs.MakeWord("ЧАШКА"), WordFallConfigs.MakeLength(4, 2), WordFallConfigs.MakePowerup("bomb", 1)];
+        level2.words = ["ЧАШКА"];
+        level2.tasks = [WordFallConfigs.MakeLength(4, 2), WordFallConfigs.MakePowerup("bomb", 1)];
 
         var level3 = WordFallConfigs.DefaultLevelConfig();
+        level3.id = "L003";
         level3.targetScore = 500;
         level3.moves = 14;
         level3.iceCells = cells([[0, 6], [1, 5], [2, 7], [3, 4], [4, 7], [5, 5], [6, 6], [3, 2]]);
-        level3.tasks = [WordFallConfigs.MakeWord("РАКЕТА"), WordFallConfigs.MakeLength(5, 1),
-                        WordFallConfigs.MakePowerup("rocket", 1), WordFallConfigs.MakeClearIce()];
+        level3.words = ["РАКЕТА"];
+        level3.tasks = [WordFallConfigs.MakeLength(5, 1), WordFallConfigs.MakePowerup("rocket", 1), WordFallConfigs.MakeClearIce()];
 
         return [level1, level2, level3];
+    }
+
+    // Идентификатор уровня по номеру в кампании: L001, L002...
+    static LevelId(index)
+    {
+        var number = "" + (index + 1);
+        while (number.length < 3)
+            number = "0" + number;
+        return "L" + number;
+    }
+
+    // Название уровня для списков: имя, иначе идентификатор
+    static LevelTitle(config)
+    {
+        return config.name ? config.name : config.id;
+    }
+
+    // «слово / слова / слов» для числа n
+    static WordsNoun(n)
+    {
+        var tens = n % 100, ones = n % 10;
+        if (tens >= 11 && tens <= 14)
+            return "слов";
+        return ones == 1 ? "слово" : ones >= 2 && ones <= 4 ? "слова" : "слов";
     }
 
     // Длина слова, которое приносит бонус вида kind

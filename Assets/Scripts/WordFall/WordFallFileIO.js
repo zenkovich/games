@@ -54,8 +54,9 @@ WordFallFileIO = class WordFallFileIO
     }
 
     // Просит у игрока файл; прочитанное ждёт в TakeResult(). localPaths — откуда читать
-    // в нативной сборке, берётся первый существующий. Возвращает {ok, message} про сам запрос
-    static PickText(localPaths)
+    // в нативной сборке, берётся первый существующий; accept — фильтр диалога браузера.
+    // Возвращает {ok, message} про сам запрос
+    static PickText(localPaths, accept)
     {
         WordFallFileIO._result = null;
 
@@ -76,7 +77,7 @@ WordFallFileIO = class WordFallFileIO
             var document = globalThis.document;
             var input = document.createElement("input");
             input.type = "file";
-            input.accept = ".json,application/json,text/plain";
+            input.accept = accept || ".json,application/json,text/plain";
             input.style.position = "fixed";
             input.style.left = "-1000px";
             document.body.appendChild(input);

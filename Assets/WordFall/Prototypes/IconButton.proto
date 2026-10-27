@@ -62,8 +62,8 @@
                                         "Type": "o2::Sprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "8a225d558499c24d67d660589b042c36",
-                                                "path": "WordFall/Sprites/ui_btn_accept.png"
+                                                "id": "8af11fad27be7052bb22aab91646842c",
+                                                "path": "WordFall/SpritesNew/layer_accept_btn.png"
                                             }
                                         }
                                     },
@@ -84,8 +84,8 @@
                                                 "a": 0
                                             },
                                             "mImageAsset": {
-                                                "id": "8a225d558499c24d67d660589b042c36",
-                                                "path": "WordFall/Sprites/ui_btn_accept.png"
+                                                "id": "8af11fad27be7052bb22aab91646842c",
+                                                "path": "WordFall/SpritesNew/layer_accept_btn.png"
                                             }
                                         }
                                     },
@@ -118,7 +118,7 @@
                                                                             "mKeys": [
                                                                                 {
                                                                                     "uid": 5215402005912431957,
-                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "rightSupportPosition": 0.024000000208616257,
                                                                                     "supportsType": "Broken"
                                                                                 },
                                                                                 {
@@ -143,7 +143,7 @@
                                                                             "mKeys": [
                                                                                 {
                                                                                     "uid": 9780988620153907819,
-                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "rightSupportPosition": 0.024000000208616257,
                                                                                     "supportsType": "Broken"
                                                                                 },
                                                                                 {
@@ -188,7 +188,7 @@
                                                                             "mKeys": [
                                                                                 {
                                                                                     "uid": 17781362364216072566,
-                                                                                    "rightSupportPosition": 0.024000000208616258,
+                                                                                    "rightSupportPosition": 0.024000000208616257,
                                                                                     "supportsType": "Broken"
                                                                                 },
                                                                                 {

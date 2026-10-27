@@ -23,6 +23,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this.tileSize = 88;         // стартовый размер летящей буквы
 
         this.slotSlideSpeed = 14; // скорость плавного сдвига слотов, 1/с
+        this.slotAspect = 1;      // высота слота к ширине (спрайт плашки с тенью)
+        this.tintSprites = [];    // плашки по цвету плитки — буква в лотке того же цвета, что на поле
 
         this._slots = [];
         this._flyers = [];
@@ -45,6 +47,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
                 widget: slot,
                 letter: slot.GetLayer("letter").drawable,
                 points: slot.GetLayer("points").drawable,
+                back: slot.GetLayer("back"),
+                tint: -1,
                 x: 0,
                 targetX: 0,
                 placed: false
@@ -64,6 +68,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
                 widget: flyer,
                 letter: flyer.GetLayer("letter").drawable,
                 points: flyer.GetLayer("points").drawable,
+                back: flyer.GetLayer("back"),
+                tint: -1,
                 busy: false
             });
         }
@@ -86,15 +92,24 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
     _SetRect(widget, x, y, size)
     {
         var half = size*0.5;
+        var halfY = half*this.slotAspect;
         var layout = widget.GetLayout();
-        layout.SetOffsetMin(new Vec2(x - half, y - half));
-        layout.SetOffsetMax(new Vec2(x + half, y + half));
+        layout.SetOffsetMin(new Vec2(x - half, y - halfY));
+        layout.SetOffsetMax(new Vec2(x + half, y + halfY));
     }
 
     _FillLetterView(view, tile)
     {
         view.letter.text = tile.joker ? "?" : tile.letter;
         view.points.text = tile.joker ? "" : ("" + tile.value);
+        if (this.tintSprites && this.tintSprites.length > 0 && view.back && view.tint !== tile.tint)
+        {
+            var drawable = view.back.drawable;
+            var rect = drawable.rect;
+            drawable.imageName = this.tintSprites[Math.min(Math.max(tile.tint || 0, 0), this.tintSprites.length - 1)];
+            drawable.rect = rect;
+            view.tint = tile.tint;
+        }
     }
 
     OnSlotClick(index)

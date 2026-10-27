@@ -1,7 +1,8 @@
 include("Scripts/WordFall/Core/WordBoard.js");
+include("Scripts/WordFall/Core/WordFallWordAgent.js");
 
-// Состояние уровня: задачи, ходы, счёт, заряды бустеров, победа/поражение.
-// Очки — обязательное финальное условие: победа при закрытых задачах И score >= target
+// Состояние уровня: слова, задачи, ходы, счёт, заряды бустеров, победа/поражение.
+// Очки — обязательное финальное условие: победа при найденных словах, закрытых задачах И score >= target
 WordLevel = class WordLevel
 {
     // Индексы бустеров
@@ -16,6 +17,7 @@ WordLevel = class WordLevel
         this.board = new WordBoard();
         this.config = WordFallConfigs.DefaultLevelConfig();
         this.tasks = [];           // [{config, progress, done}]
+        this.words = [];           // [{word, found}] — слова уровня, отдельно от задач
         this.state = "playing";    // playing | won | lost
         this.score = 0;
         this.movesLeft = 0;
@@ -25,10 +27,15 @@ WordLevel = class WordLevel
         this._parcelsSpawned = 0;  // выпущено конвертов, включая стартовые
     }
 
-    // Стартует уровень: поле, сид слова из заданий, задачи
+    // Стартует уровень: слова (заданные и подобранные агентом), цель, поле, сид первого слова, задачи
     Start(config, boardConfig, dictionary, seed)
     {
+        config = WordFallConfigs.NormalizeLevel(config);
+        var words = WordFallWordAgent.ResolveWords(config, dictionary, boardConfig);
+        if (config.autoTarget)
+            config.targetScore = WordFallWordAgent.TargetScore(config, words, boardConfig);
         this.config = config;
+        this.words = words.map(function(word) { return { word: word, found: false }; });
         this.score = 0;
         this.movesLeft = config.moves;
         this._moveIndex = 0;
@@ -63,19 +70,8 @@ WordLevel = class WordLevel
         }
         this.board.Init(levelBoard, seed);
 
-        // одно из слов заданий обязано оказаться на поле — игроку проще начать
-        var seededWord = "";
-        for (var i = 0; i < this.tasks.length; i++)
-        {
-            var task = this.tasks[i].config;
-            if (task.taskType == "Word" && task.word)
-            {
-                seededWord = task.word;
-                break;
-            }
-        }
-
-        this.board.Fill(config, seededWord);
+        // первое слово уровня обязано оказаться на поле — игроку проще начать
+        this.board.Fill(config, this.words.length > 0 ? this.words[0].word : "");
         this._parcelsSpawned = this.board.CountParcels();
         this._RefreshIceTasks();
         this._RefreshObstacleTasks();
@@ -88,6 +84,18 @@ WordLevel = class WordLevel
     GetTargetScore() { return this.config.targetScore; }
     GetMovesLeft() { return this.movesLeft; }
     GetTasks() { return this.tasks; }
+    GetWords() { return this.words; }
+
+    // Первое ещё не найденное слово
+    NextWord()
+    {
+        for (var i = 0; i < this.words.length; i++)
+        {
+            if (!this.words[i].found)
+                return this.words[i].word;
+        }
+        return "";
+    }
     GetBoosterCharges(booster) { return this._charges[booster] || 0; }
 
     // Слово уже принималось на этом уровне
@@ -127,6 +135,7 @@ WordLevel = class WordLevel
         if (result.powerupEarned)
             this._OnPowerupEarned(result.powerupEarned);
 
+        result.wordFound = this._MarkWordFound(pattern);
         this._UpdateTasksAfterWord(pattern, result.wordScore);
         this._UpdateTasksAfterMove(result);
         this._RefreshIceTasks();
@@ -175,8 +184,9 @@ WordLevel = class WordLevel
         if (this.state != "playing" || this._charges[WordLevel.Hint] <= 0)
             return false;
 
-        var taskWord = "", letterWanted = "";
+        var taskWord = this.NextWord(), letterWanted = "";
         var lengthWanted = 0, powerupLength = 0, scoreWanted = 0;
+        var wanted = this.words.filter(function(word) { return !word.found; }).map(function(word) { return word.word; });
         for (var i = 0; i < this.tasks.length; i++)
         {
             var task = this.tasks[i];
@@ -185,7 +195,6 @@ WordLevel = class WordLevel
 
             switch (task.config.taskType)
             {
-                case "Word": if (!taskWord) taskWord = task.config.word; break;
                 case "Length": lengthWanted = task.config.length; break;
                 case "Letter": letterWanted = task.config.letter; break;
                 case "WordScore": scoreWanted = task.config.scoreThreshold; break;
@@ -199,6 +208,8 @@ WordLevel = class WordLevel
                 return 0;
             if (taskWord && candidate == taskWord)
                 return 100000;
+            if (wanted.indexOf(candidate) >= 0)
+                return 50000;
 
             var weight = value;
             var length = candidate.length;
@@ -257,6 +268,9 @@ WordLevel = class WordLevel
     MakeRocketPriorities()
     {
         var priorities = WordBoard.EmptyRocketPriorities();
+        // буквы засеянного слова стоят на поле, пока слова не найдены
+        if (this.NextWord())
+            priorities.keepCells = WordFallCells.Copy(this.board.GetSeededCells());
         for (var i = 0; i < this.tasks.length; i++)
         {
             var task = this.tasks[i];
@@ -269,10 +283,6 @@ WordLevel = class WordLevel
                 case "Crates": priorities.crates = true; break;
                 case "Melt": priorities.snow = true; break;
                 case "Letter": priorities.keepLetter = task.config.letter; break;
-                case "Word":
-                    // буквы засеянного слова-задания стоят на поле, пока задание не закрыто
-                    priorities.keepCells = priorities.keepCells.concat(WordFallCells.Copy(this.board.GetSeededCells()));
-                    break;
             }
         }
         return priorities;
@@ -305,6 +315,8 @@ WordLevel = class WordLevel
 
     DebugCompleteTasks()
     {
+        for (var i = 0; i < this.words.length; i++)
+            this.words[i].found = true;
         for (var i = 0; i < this.tasks.length; i++)
         {
             this.tasks[i].progress = this.tasks[i].config.count;
@@ -321,7 +333,21 @@ WordLevel = class WordLevel
 
     _AreTasksDone()
     {
-        return this.tasks.every(function(task) { return task.done; });
+        return this.words.every(function(word) { return word.found; }) && this.tasks.every(function(task) { return task.done; });
+    }
+
+    // Принятое слово закрывает первое совпавшее ненайденное слово уровня (джокер — любая буква)
+    _MarkWordFound(pattern)
+    {
+        for (var i = 0; i < this.words.length; i++)
+        {
+            if (!this.words[i].found && WordDictionary.MatchPattern(pattern, this.words[i].word))
+            {
+                this.words[i].found = true;
+                return this.words[i].word;
+            }
+        }
+        return "";
     }
 
     _BumpTask(task)
@@ -340,9 +366,7 @@ WordLevel = class WordLevel
                 continue;
 
             var config = task.config;
-            if (config.taskType == "Word" && WordDictionary.MatchPattern(pattern, config.word))
-                this._BumpTask(task);
-            else if (config.taskType == "Length" && pattern.length == config.length)
+            if (config.taskType == "Length" && pattern.length == config.length)
                 this._BumpTask(task);
             else if (config.taskType == "AnyWords")
                 this._BumpTask(task);
@@ -430,6 +454,11 @@ WordLevel = class WordLevel
         if (!board.AnyWordExists(dictionary, 0))
             board.PlantMissingLetters(board.RandomDictWord(dictionary, 4), repaired);
 
+        // следующее слово уровня всегда собираемо из букв поля
+        var nextWord = this.NextWord();
+        if (nextWord && !board.CanAssembleWord(nextWord))
+            board.PlantMissingLetters(nextWord, repaired);
+
         // полный перебор словаря дорогой — лучшее слово считаем не более одного раза
         var best = undefined;
 
@@ -441,9 +470,7 @@ WordLevel = class WordLevel
 
             var config = task.config;
             var type = config.taskType;
-            if (type == "Word" && !board.CanAssembleWord(config.word))
-                board.PlantMissingLetters(config.word, repaired);
-            else if (type == "Length" && !board.AnyWordExists(dictionary, config.length))
+            if (type == "Length" && !board.AnyWordExists(dictionary, config.length))
                 board.PlantMissingLetters(board.RandomDictWord(dictionary, config.length), repaired);
             else if (type == "Letter" && config.letter && !board.CanAssembleWord(config.letter))
                 board.PlantMissingLetters(config.letter, repaired);

@@ -233,19 +233,36 @@ namespace
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
 	const String kTestLevelsPath = "wordfall_test_levels.json"; // правки редактора уровней в тестах — не в файле игрока
 
-	// Центр плитки в экранных координатах: поле 7×8, шаг 96, центр секции поля (0, -121)
+	const Vec2F kScreenSize(768, 1673); // логический экран игры, fitted-камера сцены WordFall.scn
+
+	// Центр плитки в экранных координатах — как его считает вьюха поля
 	Vec2F TilePosition(int column, int row)
 	{
-		return Vec2F((column - 3)*96.0f, -121.0f + (row - 3.5f)*96.0f);
+		auto pos = o2Scripts.Eval(String::Format("(function() { var p = WordFallViews.board.TileWorldPos(%i, %i); return [p.x, p.y]; })()", column, row));
+		return Vec2F(pos.GetElement(0).GetValue<float>(), pos.GetElement(1).GetValue<float>());
 	}
 
-	// Портретное окно 768x1376 система может ужать по высоте экрана; fitted-камера
-	// масштабирует картинку, ввод конвертируется через камеру — кликаем в оконных
-	// координатах: мировые * масштаб камеры
+	// Центр виджета экрана игры по пути от корня WordFall (кнопки лотка, бустеры, слоты)
+	Vec2F WidgetCenter(const String& path)
+	{
+		auto root = o2Scene.FindActor("WordFall");
+		auto widget = root ? DynamicCast<Widget>(root->GetChild(path)) : nullptr;
+		EXPECT_TRUE(widget) << path.Data();
+		return widget ? widget->layout->GetWorldRect().Center() : Vec2F();
+	}
+
+	Vec2F AcceptPosition() { return WidgetCenter("Screen/WordBar/AcceptBtn/Btn"); }
+	Vec2F ClearPosition() { return WidgetCenter("Screen/WordBar/ClearBtn/Btn"); }
+	Vec2F BoosterPosition(int index) { return WidgetCenter(String::Format("Screen/Boosters/Booster%i/Btn", index)); }
+	Vec2F SlotPosition(int index) { return WidgetCenter(String::Format("Screen/WordBar/Tray/Slot%i", index)); }
+
+	// Портретное окно система может ужать по высоте экрана; fitted-камера масштабирует
+	// картинку, ввод конвертируется через камеру — кликаем в оконных координатах:
+	// мировые * масштаб камеры
 	Vec2F ToWindow(const Vec2F& worldPos)
 	{
 		Vec2F resolution = (Vec2F)o2Render.GetResolution();
-		float scale = Math::Min(resolution.x/768.0f, resolution.y/1376.0f);
+		float scale = Math::Min(resolution.x/kScreenSize.x, resolution.y/kScreenSize.y);
 		return worldPos*scale;
 	}
 
@@ -260,12 +277,15 @@ namespace
 		AppTestDriver::PumpFrames(2);
 	}
 
-	// Число перед "/" в подписи счёта "N/M"
+	// Число перед "/" в подписи счёта «Очки: N / M»
 	int ShownScore(const Ref<Label>& label)
 	{
 		String text = label->GetText();
+		int i = 0;
+		while (i < text.Length() && (text[i] < '0' || text[i] > '9'))
+			i++;
 		int value = 0;
-		for (int i = 0; i < text.Length() && text[i] >= '0' && text[i] <= '9'; i++)
+		for (; i < text.Length() && text[i] >= '0' && text[i] <= '9'; i++)
 			value = value*10 + (text[i] - '0');
 		return value;
 	}
@@ -305,7 +325,7 @@ protected:
 
 	void SetUp() override
 	{
-		o2Application.SetWindowSize(Vec2I(768, 1376));
+		o2Application.SetWindowSize(Vec2I((int)kScreenSize.x, (int)kScreenSize.y));
 		o2FileSystem.FileDelete("wordfall_progress.json"); // чистый прогресс для каждого теста
 		o2FileSystem.FileDelete(kTestLevelsPath);
 

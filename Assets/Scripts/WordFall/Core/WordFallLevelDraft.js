@@ -2,21 +2,26 @@ include("Scripts/WordFall/Core/WordFallConfigs.js");
 
 // Черновик уровня для редактора: клетка несёт либо букву (случайную или заданную) с
 // накладкой лёд/камень/цепь, либо один предмет — ящик, снежок, конверт, бонус, либо дыру.
-// Инструмент по клетке ставит своё или снимает то же самое; удаление и добавление клетки —
-// отдельные инструменты; ToConfig собирает конфиг уровня
+// Инструмент по клетке (левый клик) ставит своё или снимает то же самое, правый клик (Remove)
+// убирает: инструмент «клетка» — саму клетку, остальные — свой элемент, а если его нет —
+// верхний элемент клетки. Ящик ставится с прочностью «кисти» crateGrade.
+// Слова уровня — отдельный список, плюс параметры агента подбора; ToConfig собирает конфиг уровня
 WordFallLevelDraft = class WordFallLevelDraft
 {
-    static get Tools() { return ["addCell", "removeCell", "ice", "stone", "crate", "chain", "snow", "parcel", "bomb", "rocket", "fireworks", "letter", "erase"]; }
+    static get Tools() { return ["cell", "ice", "stone", "crate", "chain", "snow", "parcel", "bomb", "rocket", "fireworks", "letter", "erase"]; }
     static get Overlays() { return ["ice", "stone", "chain"]; }
     static get Items() { return ["snow", "parcel", "bomb", "rocket", "fireworks"]; }
     static get ChargeSteps() { return [0, 1, 3, 5, 10, 30]; }
     static get TaskLimit() { return 5; }
+    static get WordLimit() { return 30; }
+    static get MaxCrateGrade() { return 3; }
     static get PowerupKinds() { return ["bomb", "rocket", "fireworks"]; }
 
     constructor(config, columns, rows)
     {
         this.columns = columns;
         this.rows = rows;
+        this.crateGrade = 1;
         this.Load(config);
     }
 
@@ -25,6 +30,14 @@ WordFallLevelDraft = class WordFallLevelDraft
     Load(config)
     {
         var level = WordFallConfigs.NormalizeLevel(config);
+        this.id = level.id;
+        this.name = level.name;
+        this.difficulty = level.difficulty;
+        this.words = level.words.slice();
+        this.wordsAuto = level.wordsAuto;
+        this.wordMinLength = level.wordMinLength;
+        this.wordMaxLength = level.wordMaxLength;
+        this.autoTarget = level.autoTarget;
         this.moves = level.moves;
         this.targetScore = level.targetScore;
         this.extraVowels = level.extraVowels;
@@ -95,13 +108,7 @@ WordFallLevelDraft = class WordFallLevelDraft
             return "palette";
 
         var target = this.cells[cell.c][cell.r];
-        if (tool == "removeCell")
-        {
-            if (target.hole)
-                return "";
-            WordFallLevelDraft._Clear(target).hole = true;
-        }
-        else if (tool == "addCell")
+        if (tool == "cell")
         {
             if (!target.hole)
                 return "";
@@ -125,9 +132,9 @@ WordFallLevelDraft = class WordFallLevelDraft
         else if (tool == "crate")
         {
             if (target.crate > 0)
-                target.crate = target.crate < 3 ? target.crate + 1 : 0;
+                target.crate = target.crate < WordFallLevelDraft.MaxCrateGrade ? target.crate + 1 : 0;
             else
-                WordFallLevelDraft._Clear(target).crate = 1;
+                WordFallLevelDraft._Clear(target).crate = this.crateGrade;
         }
         else if (WordFallLevelDraft.Items.indexOf(tool) >= 0)
         {
@@ -136,6 +143,62 @@ WordFallLevelDraft = class WordFallLevelDraft
             else
                 WordFallLevelDraft._Clear(target).item = tool;
         }
+        return "changed";
+    }
+
+    // Правый клик: инструмент «клетка» убирает клетку, остальные — свой элемент, а если его
+    // в клетке нет — верхний элемент (предмет, ящик, накладку, заданную букву). "changed" или ""
+    Remove(tool, cell)
+    {
+        if (!this.IsValidCell(cell))
+            return "";
+
+        var target = this.cells[cell.c][cell.r];
+        if (target.hole)
+            return "";
+        if (tool == "cell")
+        {
+            WordFallLevelDraft._Clear(target).hole = true;
+            return "changed";
+        }
+
+        if (WordFallLevelDraft.Overlays.indexOf(tool) >= 0 && target.overlay == tool)
+            target.overlay = "";
+        else if (tool == "crate" && target.crate > 0)
+            target.crate = 0;
+        else if (WordFallLevelDraft.Items.indexOf(tool) >= 0 && target.item == tool)
+            target.item = "";
+        else if (tool == "letter" && target.letter)
+            target.letter = "";
+        else if (target.item)
+            target.item = "";
+        else if (target.crate > 0)
+            target.crate = 0;
+        else if (target.overlay)
+            target.overlay = "";
+        else if (target.letter)
+            target.letter = "";
+        else
+            return "";
+        return "changed";
+    }
+
+    // Прочность «кисти» ящика: с ней ставятся новые ящики
+    SetCrateGrade(grade) { this.crateGrade = Math.min(Math.max(Math.round(grade), 1), WordFallLevelDraft.MaxCrateGrade); }
+    StepCrateGrade(delta) { this.SetCrateGrade(this.crateGrade + delta); }
+
+    // Колесо над ящиком на поле: прочность ящика в клетке, "changed" или ""
+    StepCellCrate(cell, delta)
+    {
+        if (!this.IsValidCell(cell))
+            return "";
+        var target = this.cells[cell.c][cell.r];
+        if (target.crate <= 0)
+            return "";
+        var grade = Math.min(Math.max(target.crate + delta, 1), WordFallLevelDraft.MaxCrateGrade);
+        if (grade == target.crate)
+            return "";
+        target.crate = grade;
         return "changed";
     }
 
@@ -155,6 +218,54 @@ WordFallLevelDraft = class WordFallLevelDraft
     ClearLetter(cell) { this.SetLetter(cell, ""); }
 
     SetMoves(moves) { this.moves = Math.max(1, Math.floor(moves)); }
+    SetDifficulty(value) { this.difficulty = Math.min(Math.max(Math.round(value), 1), WordFallConfigs.MaxDifficulty); }
+    SetName(name) { this.name = (name || "").trim(); }
+    SetAutoTarget(on) { this.autoTarget = !!on; }
+
+    // --- слова уровня ---
+
+    // Добавляет слово в конец списка: индекс или -1 (пусто, повтор, лимит)
+    AddWord(word)
+    {
+        word = (word || "").toUpperCase().trim();
+        if (!word || this.words.indexOf(word) >= 0 || this.words.length >= WordFallLevelDraft.WordLimit)
+            return -1;
+        this.words.push(word);
+        return this.words.length - 1;
+    }
+
+    SetWord(index, word)
+    {
+        if (index < 0 || index >= this.words.length)
+            return;
+        this.words[index] = (word || "").toUpperCase().trim();
+    }
+
+    RemoveWord(index)
+    {
+        if (index >= 0 && index < this.words.length)
+            this.words.splice(index, 1);
+    }
+
+    // Слова без пустых — то, что уходит в уровень
+    CleanWords() { this.words = this.words.filter(function(word) { return word.length > 0; }); }
+
+    SetWordsAuto(count) { this.wordsAuto = Math.min(Math.max(Math.floor(count), 0), WordFallLevelDraft.WordLimit); }
+
+    // Длины слов агента: 0 — по сложности; минимум не больше максимума
+    SetWordMinLength(length)
+    {
+        this.wordMinLength = length <= 0 ? 0 : Math.min(Math.max(Math.floor(length), 2), 8);
+        if (this.wordMinLength > 0 && this.wordMaxLength > 0 && this.wordMaxLength < this.wordMinLength)
+            this.wordMaxLength = this.wordMinLength;
+    }
+
+    SetWordMaxLength(length)
+    {
+        this.wordMaxLength = length <= 0 ? 0 : Math.min(Math.max(Math.floor(length), 2), 8);
+        if (this.wordMinLength > 0 && this.wordMaxLength > 0 && this.wordMinLength > this.wordMaxLength)
+            this.wordMinLength = this.wordMaxLength;
+    }
     SetTargetScore(score) { this.targetScore = Math.max(10, Math.floor(score)); }
     SetExtraVowels(count) { this.extraVowels = Math.min(Math.max(Math.floor(count), 0), 30); }
     SetExtraRare(count) { this.extraRare = Math.min(Math.max(Math.floor(count), 0), 30); }
@@ -192,7 +303,10 @@ WordFallLevelDraft = class WordFallLevelDraft
     {
         if (this.tasks.length >= WordFallLevelDraft.TaskLimit)
             return -1;
-        this.tasks.push(WordFallConfigs.MakeTask(fields || { taskType: "AnyWords", count: 3 }));
+        var task = WordFallConfigs.MakeTask(fields || { taskType: "AnyWords", count: 3 });
+        if (WordFallConfigs.TaskTypes.indexOf(task.taskType) < 0)
+            return -1;
+        this.tasks.push(task);
         return this.tasks.length - 1;
     }
 
@@ -222,7 +336,6 @@ WordFallLevelDraft = class WordFallLevelDraft
         this.SetTaskType(index, types[(types.indexOf(task.taskType) + 1) % types.length]);
     }
 
-    SetTaskWord(index, word) { var task = this._Task(index); if (task) task.word = (word || "").toUpperCase(); }
     SetTaskLetter(index, letter) { var task = this._Task(index); if (task) task.letter = letter ? letter.charAt(0).toUpperCase() : ""; }
     SetTaskCount(index, count) { var task = this._Task(index); if (task) task.count = Math.min(Math.max(Math.floor(count), 1), 20); }
     SetTaskLength(index, length) { var task = this._Task(index); if (task) task.length = Math.min(Math.max(Math.floor(length), 2), 8); }
@@ -258,6 +371,14 @@ WordFallLevelDraft = class WordFallLevelDraft
     ToConfig()
     {
         var config = WordFallConfigs.DefaultLevelConfig();
+        config.id = this.id;
+        config.name = this.name;
+        config.difficulty = this.difficulty;
+        config.words = this.words.filter(function(word) { return word.length > 0; });
+        config.wordsAuto = this.wordsAuto;
+        config.wordMinLength = this.wordMinLength;
+        config.wordMaxLength = this.wordMaxLength;
+        config.autoTarget = this.autoTarget;
         config.moves = this.moves;
         config.targetScore = this.targetScore;
         config.extraVowels = this.extraVowels;

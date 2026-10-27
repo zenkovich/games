@@ -17,6 +17,7 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this.scorePunch = 0.12; // «удар» бара по прилёту буквы: быстро трогается, без раскачки
         this.barTipInset = 12;  // ближе к началу бара кончик не бывает (скругление торца)
         this.hudWorldY = 603;  // центр секции Hud в экранных координатах
+        this.scorePrefix = ""; // подпись перед счётом: «Очки: 120 / 250»
 
         this._lastRevision = -1;
         this._displayScore = 0;  // экранный счёт отстаёт от модели до конца анимации
@@ -89,7 +90,8 @@ WordFallHudView = class WordFallHudView extends o2.Component
     {
         var svc = this._svc;
         this._levelLabel.SetText("" + (svc.GetLevelIndex() + 1));
-        this._scoreLabel.SetText(this._displayScore + "/" + svc.GetTargetScore());
+        this._scoreLabel.SetText(this.scorePrefix ? this.scorePrefix + this._displayScore + " / " + svc.GetTargetScore()
+                                                  : this._displayScore + "/" + svc.GetTargetScore());
         this._movesLabel.SetText("" + svc.GetMovesLeft());
 
         this._bar.SetValueForcible(this.BarFill(this._displayScore));

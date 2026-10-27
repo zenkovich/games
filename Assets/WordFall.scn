@@ -226,15 +226,15 @@
                     ]
                 },
                 "fillColor": {
-                    "r": 101,
-                    "g": 148,
-                    "b": 208,
+                    "r": 243,
+                    "g": 224,
+                    "b": 192,
                     "a": 255
                 },
                 "mType": "FittedSize",
                 "mFixedOrFittedSize": {
                     "x": 768.0,
-                    "y": 1376.0
+                    "y": 1673.0
                 },
                 "mUnits": "Pixels",
                 "Id": 15784748879015365761,

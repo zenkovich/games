@@ -93,7 +93,8 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         var holes = [];
         var cell = function(c, r) {
             var p = board.TileWorldPos(c, r);
-            return { x: p.x - 50, y: p.y - 50, w: 100, h: 100 };
+            var half = board.cellSize*0.52;
+            return { x: p.x - half, y: p.y - half, w: half*2, h: half*2 };
         };
         if (step.seeded && board)
         {
@@ -106,11 +107,24 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
                 holes.push(cell(step.cells[i].c, step.cells[i].r));
         else if (step.cell && board)
             holes.push(cell(step.cell.c, step.cell.r));
-        if (step.target == "accept")
-            holes.push({ x: 170, y: 279, w: 104, h: 104 }); // кнопка ✓ панели слова
-        if (step.target == "boosters")
-            holes.push({ x: -340, y: -660, w: 680, h: 130 });
+        if (step.target == "accept" || step.target == "boosters")
+        {
+            var rect = this._TargetRect(step.target);
+            if (rect)
+                holes.push(rect);
+        }
         return holes;
+    }
+
+    // Мировой прямоугольник цели шага с полями: кнопка ✓ панели слова или ряд бустеров
+    _TargetRect(target)
+    {
+        var widget = this._actor.GetChild(target == "accept" ? "../WordBar/AcceptBtn" : "../Boosters");
+        if (!widget)
+            return null;
+        var r = widget.GetLayout().GetWorldRect();
+        var pad = target == "accept" ? 6 : 4;
+        return { x: r.left - pad, y: r.bottom - pad, w: r.right - r.left + pad*2, h: r.top - r.bottom + pad*2 };
     }
 
     // Затемнение полосами: экран режется горизонтальными полосами по границам вырезов,
@@ -119,7 +133,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
     // шагах сверху лежит прозрачный кусок во весь экран, чтобы вырез не пропускал клики
     _ShowDim(holes, blockAll)
     {
-        var W = 800, H = 1440; // с запасом шире экрана 768×1376
+        var W = 800, H = 1760; // с запасом шире экрана 768×1673
         var xs = [-W/2, W/2], ys = [-H/2, H/2];
         for (var i = 0; i < holes.length; i++)
         {
@@ -361,10 +375,11 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         }
         if (step.cell && board)
             return board.TileWorldPos(step.cell.c, step.cell.r);
-        if (step.target == "accept")
-            return { x: 156, y: 328 };   // кнопка ✓ в панели слова
-        if (step.target == "boosters")
-            return { x: 0, y: -600 };    // ряд бустеров
+        if (step.target == "accept" || step.target == "boosters")
+        {
+            var rect = this._TargetRect(step.target);
+            return rect ? { x: rect.x + rect.w*(step.target == "accept" ? 0.4 : 0.5), y: rect.y + rect.h*0.55 } : null;
+        }
         return null;
     }
 

@@ -2,14 +2,16 @@ include("Scripts/WordFall/Core/WordFallConfigs.js");
 include("Scripts/WordFall/Core/WordFallRandom.js");
 
 // Процедурная цепочка уровней: конфиг детерминированно строится по индексу —
-// цель, ходы, лёд и задания растут по рампе сложности. Первое задание — всегда
-// точечное слово (оно же сидится на поле)
+// цель, ходы, лёд и задания растут по рампе сложности. Первое слово уровня
+// сидится на поле
 WordFallLevels = class WordFallLevels
 {
     static Generate(index, dictionary, boardConfig)
     {
         var rng = new WordFallRandom((977 + index*7919) >>> 0);
         var config = WordFallConfigs.DefaultLevelConfig();
+        config.id = WordFallConfigs.LevelId(index);
+        config.difficulty = Math.min(1 + Math.floor(index/10), WordFallConfigs.MaxDifficulty);
 
         var tier = Math.floor(index/10);
         config.moves = 12 + Math.min(4, Math.floor(index/25));
@@ -39,7 +41,7 @@ WordFallLevels = class WordFallLevels
             config.stoneCells.push(cell);
         }
 
-        config.tasks.push(WordFallConfigs.MakeWord(WordFallLevels._PickTaskWord(3 + rng.NextInt(3), rng, dictionary, boardConfig)));
+        config.words.push(WordFallLevels._PickTaskWord(3 + rng.NextInt(3), rng, dictionary, boardConfig));
 
         var pool = ["length", "anyWords", "wordScore", "powerup", "clearIce", "word2"];
         for (var i = pool.length - 1; i > 0; i--)
@@ -68,7 +70,11 @@ WordFallLevels = class WordFallLevels
             else if (kind == "clearIce")
                 config.tasks.push(WordFallConfigs.MakeClearIce());
             else
-                config.tasks.push(WordFallConfigs.MakeWord(WordFallLevels._PickTaskWord(4 + rng.NextInt(2), rng, dictionary, boardConfig)));
+            {
+                var word = WordFallLevels._PickTaskWord(4 + rng.NextInt(2), rng, dictionary, boardConfig);
+                if (word && config.words.indexOf(word) < 0)
+                    config.words.push(word);
+            }
         }
 
         // «разбить весь лёд» при 8-10 льдинах невыполнимо за лимит ходов

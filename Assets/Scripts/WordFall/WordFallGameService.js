@@ -18,6 +18,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.progressPath = "wordfall_progress.json"; // файл сохранения прогресса
         this.editedLevelsPath = "wordfall_levels.json"; // правки редактора уровней поверх кампании
         this.campaignExportPath = "../../Assets/WordFall/campaign.json"; // куда редактор экспортирует кампанию
+        this.match3ImportPath = "match3_level.xml";   // уровень «три в ряд» для импорта в нативной сборке
         this.fallSpeedCells = 9.5;                   // скорость падения, клеток/с
         this.fallCascadeDelay = 0.05;                // пауза стартов плиток колонки
 
@@ -86,20 +87,98 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     GetLevelConfig(index) { this._EnsureStarted(); return this._store.GetLevel(index); }
     IsLevelEdited(index) { this._EnsureStarted(); return this._store.IsEdited(index); }
+    IsLevelNew(index) { this._EnsureStarted(); return this._store.IsNew(index); }
+    IsCampaignStructureEdited() { this._EnsureStarted(); return this._store.IsStructureEdited(); }
     GetEditedLevelCount() { this._EnsureStarted(); return this._store.EditedCount(); }
+    GetLevelId(index) { this._EnsureStarted(); return this._store.GetId(index); }
+    GetLevelTitle(index) { this._EnsureStarted(); return this._store.GetTitle(index); }
+    FindLevel(id) { this._EnsureStarted(); return this._store.IndexOf(id); }
 
     SetLevelConfig(index, config)
     {
         this._EnsureStarted();
         this._store.SetLevel(index, config);
-        this._store.Save(this.editedLevelsPath);
+        this._SaveStore();
     }
 
     ResetLevelConfig(index)
     {
         this._EnsureStarted();
         this._store.ResetLevel(index);
-        this._store.Save(this.editedLevelsPath);
+        this._SaveStore();
+    }
+
+    RenameLevel(index, name)
+    {
+        this._EnsureStarted();
+        this._store.Rename(index, name);
+        this._SaveStore();
+    }
+
+    // Структура кампании: новый, копия, удаление, перестановка. Возвращают номер уровня, с которым работать дальше
+    CreateLevel(index)
+    {
+        this._EnsureStarted();
+        var at = this._store.CreateLevel(index);
+        this._SaveStore();
+        return at;
+    }
+
+    DuplicateLevel(index)
+    {
+        this._EnsureStarted();
+        var at = this._store.DuplicateLevel(index);
+        this._SaveStore();
+        return at;
+    }
+
+    RemoveLevel(index)
+    {
+        this._EnsureStarted();
+        if (!this._store.RemoveLevel(index))
+            return index;
+        this._SaveStore();
+        return Math.min(index, this.GetLevelCount() - 1);
+    }
+
+    MoveLevel(index, to)
+    {
+        this._EnsureStarted();
+        var at = this._store.MoveLevel(index, to);
+        this._SaveStore();
+        return at;
+    }
+
+    // Снимок правок и порядка кампании для отмены/повтора в редакторе
+    GetEditorState() { this._EnsureStarted(); return this._store.GetState(); }
+
+    SetEditorState(state)
+    {
+        this._EnsureStarted();
+        this._store.SetState(state);
+        this._SaveStore();
+    }
+
+    // Агент: слова и цель уровня в том виде, в каком их получит игрок на этом словаре
+    PreviewLevelWords(config)
+    {
+        this._EnsureStarted();
+        return WordFallWordAgent.ResolveWords(WordFallConfigs.NormalizeLevel(config), this._dictionary, this._BoardConfig());
+    }
+
+    PreviewTargetScore(config)
+    {
+        this._EnsureStarted();
+        var level = WordFallConfigs.NormalizeLevel(config);
+        return WordFallWordAgent.TargetScore(level, WordFallWordAgent.ResolveWords(level, this._dictionary, this._BoardConfig()), this._BoardConfig());
+    }
+
+    // count новых слов от агента в дополнение к words уровня
+    PickLevelWords(config, count)
+    {
+        this._EnsureStarted();
+        var level = WordFallConfigs.NormalizeLevel(config);
+        return WordFallWordAgent.PickWords(level, this._dictionary, this._BoardConfig(), level.words, count);
     }
 
     // Записывает кампанию с правками в campaignExportPath (исходники ассетов)
@@ -118,11 +197,22 @@ WordFallGameService = class WordFallGameService extends o2.Component
     ImportJson(text, index)
     {
         this._EnsureStarted();
-        var result = this._store.ImportJson(text, Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
+        var at = Math.min(Math.max(index, 0), this.GetLevelCount() - 1);
+        var result;
+        if (WordFallMatch3Import.LooksLikeMatch3(text))
+        {
+            var board = this._BoardConfig();
+            var imported = WordFallMatch3Import.Import(text, this._store.GetLevel(at), board.columns, board.rows);
+            if (imported.ok)
+                this._store.SetLevel(at, imported.config);
+            result = { ok: imported.ok, count: imported.ok ? 1 : 0, message: imported.message };
+        }
+        else
+            result = this._store.ImportJson(text, at);
         if (!result.ok)
             return result;
 
-        this._store.Save(this.editedLevelsPath);
+        this._SaveStore();
         this.StartLevel(this._levelIndex);
         return result;
     }
@@ -161,6 +251,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
             chained: tile.chained,
             snow: tile.snow,
             parcel: tile.parcel,
+            tint: tile.tint,
             empty: !WordBoard.IsTileOccupied(tile) && !WordBoard.IsTileStatic(tile)
         };
     }
@@ -172,13 +263,16 @@ WordFallGameService = class WordFallGameService extends o2.Component
         return WordFallCells.Copy(this._level.GetBoard().GetSelection());
     }
 
-    // Задачи: [{type, word, length, kind, count, score, letter, progress, done}]
+    // Задачи: [{type, word, length, kind, count, score, letter, progress, done, remaining}];
+    // remaining — сколько льда / ящиков ещё на поле
     GetTasks()
     {
         this._EnsureStarted();
+        var board = this._level.GetBoard();
         return this._level.GetTasks().map(function(task) {
             var config = task.config;
             return {
+                remaining: config.taskType == "ClearIce" ? board.CountIce() : config.taskType == "Crates" ? board.CountCrates() : 0,
                 type: config.taskType.charAt(0).toLowerCase() + config.taskType.slice(1),
                 word: config.word,
                 length: config.length,
@@ -190,6 +284,13 @@ WordFallGameService = class WordFallGameService extends o2.Component
                 done: task.done
             };
         });
+    }
+
+    // Слова уровня: [{word, found}]
+    GetWords()
+    {
+        this._EnsureStarted();
+        return this._level.GetWords().map(function(word) { return { word: word.word, found: word.found }; });
     }
 
     GetScore() { this._EnsureStarted(); return this._level.GetScore(); }
@@ -393,15 +494,25 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
         var self = this;
         var count = this.levels.length > 0 ? this.levels.length : this._campaign.length > 0 ? this._campaign.length : this.campaignLength;
+        var listed = this.levels.length > 0 ? this.levels : this._campaign;
+        var ids = [];
+        for (var i = 0; i < listed.length; i++)
+            ids.push(listed[i] && listed[i].id ? listed[i].id : WordFallConfigs.LevelId(i));
         this._store = new WordFallLevelStore(function(index) {
             return self.levels.length > 0 ? self.levels[index]
                 : self._campaign.length > 0 ? self._campaign[index]
                 : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
-        }, count);
+        }, count, ids);
         this._store.Load(this.editedLevelsPath);
 
         this._progress.Load(this.progressPath);
         this.StartLevel(this._progress.currentLevel);
+    }
+
+    _SaveStore()
+    {
+        if (!this._store.Save(this.editedLevelsPath))
+            print("WordFall: failed to save edited levels to " + this.editedLevelsPath);
     }
 
     _Mutation(ok)
@@ -424,6 +535,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
             ok: result.ok,
             reason: result.reason,
             word: result.word,
+            wordFound: result.wordFound || "",
             wordScore: result.wordScore,
             extraScore: result.extraScore,
             gain: result.gain,

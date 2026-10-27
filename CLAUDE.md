@@ -190,17 +190,29 @@ Rules that hold there:
 ## WordFall levels and screens
 
 - A level is a `campaign.json` entry (`WordFallConfigs.NormalizeLevel` reads it, `CompactLevel` writes
-  it back): cells as `{x, y}`, fixed letters in `letterCells` as `{x, y, letter}`; every other cell gets
-  a random letter. Obstacle cells are reserved from the seeded task word, so what a level lists is what
-  shows up.
+  it back): a permanent `id` (L001…) and `name`, cells as `{x, y}`, fixed letters in `letterCells` as
+  `{x, y, letter}`; every other cell gets a random letter. The words to find are a separate `words` list,
+  not tasks (an old `{"word": ...}` task is read into `words`); `wordsAuto` more words are picked at level
+  start by `WordFallWordAgent` from the language's dictionary by `difficulty` (1–10) and
+  `wordMinLength/wordMaxLength` (0 — by difficulty), deterministically per level id; `autoTarget` lets the
+  agent set the target score. The first word is seeded on the board. Obstacle cells are reserved from it.
+- `WordFallLevelStore` keeps edits by level id and the campaign order separately (levels are created,
+  copied, deleted and moved without losing edits); the edits file `wordfall_levels.json` next to the
+  executable (`WordFallGameService.editedLevelsPath`) is `{"version": 2, "order": [...], "levels": {id: ...}}`,
+  the old `{"levels": {"<index>": ...}}` still loads. Tests point `editedLevelsPath` at their own file.
 - The in-game level editor (cheats → «Открыть редактор», prototype `LevelEditorScreen.proto`, view
-  `WordFallLevelEditorView.js`, model `Core/WordFallLevelDraft.js`; cells, parameters and up to 5 tasks,
-  words and letters typed through the letter palette) keeps its edits per level index in
-  `wordfall_levels.json` next to the executable (`WordFallGameService.editedLevelsPath`) on top of the
-  campaign; «Экспорт» writes the whole campaign to `campaignExportPath` (`../../Assets/WordFall/campaign.json`
-  from `Bin/<Platform>`); the «Файл» panel (`WordFallFileIO.js`) saves the campaign or a level to a
-  file and loads any of them back — in the browser through downloads and the file picker, natively
-  next to the executable. Tests point `editedLevelsPath` at their own file.
-- `LevelEditorScreen.proto` and the Cheats panel of `GameScreen.proto` are scaffolded by
-  `Tools/WordFall/build_screens.py` (full copies of Tile/PillButton/IconButton.proto with fresh ids);
-  after that the prototypes are the source of truth — rerunning the script discards editor tweaks.
+  `WordFallLevelEditorView.js`, model `Core/WordFallLevelDraft.js`, undo/redo `Core/WordFallEditHistory.js`):
+  the level list with a scroll bar, new / copy / delete / move / rename, cells (left click places, right
+  click removes, the wheel sets a crate's grade), parameters, the words block with the agent, up to 5
+  tasks with a type picker. «Экспорт» writes the whole campaign to `campaignExportPath`
+  (`../../Assets/WordFall/campaign.json` from `Bin/<Platform>`); the «Файл» panel (`WordFallFileIO.js`)
+  saves the campaign or a level to a file and loads any of them back, and takes the field (shape,
+  crates, chains, ice, stones, bonuses) from a Gardenscapes / Homescapes level XML
+  (`Core/WordFallMatch3Import.js`; natively from `match3ImportPath` next to the executable).
+- The main screen (768x1673, the concept `Assets/Generated/concept_new.png`) is laid out by
+  `Tools/WordFall/restyle_main_screen.py` (geometry in `main_screen_layout.py`) from the sprites the Test
+  pipeline's composer saved into `WordFall/SpritesNew` (`Tools/WordFall/save_composer_layers.py` — the
+  composer's "Save layers to Assets" over the pipeline cache). Tile colours are the model's `tint`
+  (random, travels with the tile). `LevelEditorScreen.proto` and the Cheats panel of `GameScreen.proto`
+  are scaffolded by `Tools/WordFall/build_screens.py`. After that the prototypes are the source of truth —
+  rerunning a script discards editor tweaks.

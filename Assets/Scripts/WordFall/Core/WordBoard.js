@@ -19,6 +19,7 @@ WordTile = class WordTile
         this.chained = false;         // буква на цепи: не падает и держит колонку
         this.snow = false;            // снежок: падает, тает от слова рядом
         this.parcel = false;          // конверт: падает, доставляется на дне колонки
+        this.tint = 0;                // цвет плашки 0..3, едет вместе с плиткой
     }
 };
 
@@ -30,6 +31,7 @@ WordMoveResult = class WordMoveResult
         this.ok = false;
         this.reason = "";          // invalid | blocked | duplicate
         this.word = "";            // паттерн слова (с '?')
+        this.wordFound = "";       // найденное этим ходом слово уровня
         this.baseScore = 0;
         this.lengthMultiplier = 1;
         this.clusterSize = 1;
@@ -66,6 +68,7 @@ WordBoard = class WordBoard
         this._reservedCells = [];
         this._bag = [];
         this._random = new WordFallRandom(1);
+        this._tintRandom = new WordFallRandom(1);
         this._pendingParcels = 0;
         this._pendingSnow = 0;
         this._rocketPriorities = WordBoard.EmptyRocketPriorities();
@@ -76,10 +79,15 @@ WordBoard = class WordBoard
         return { ice: false, crates: false, snow: false, keepLetter: "", keepCells: [] };
     }
 
+    // Доли цветов плашек: светлые чаще, оранжевые реже
+    static get TintWeights() { return [0.36, 0.32, 0.2, 0.12]; }
+
     Init(config, seed)
     {
         this.config = config;
         this._random = new WordFallRandom(seed);
+        // свой генератор: цвет плашек не сдвигает последовательность букв
+        this._tintRandom = new WordFallRandom((Math.imul(this._random.seed, 2654435761) ^ 0x5bd1e995) >>> 0);
     }
 
     // Новое поле: заполнение из мешка, сид слова, препятствия и предметы уровня
@@ -796,7 +804,21 @@ WordBoard = class WordBoard
     {
         var tile = new WordTile(letter);
         tile.value = this._LetterValue(letter);
+        tile.tint = this._NextTint();
         return tile;
+    }
+
+    _NextTint()
+    {
+        var roll = this._tintRandom.Next01();
+        var weights = WordBoard.TintWeights;
+        for (var i = 0; i < weights.length - 1; i++)
+        {
+            if (roll < weights[i])
+                return i;
+            roll -= weights[i];
+        }
+        return weights.length - 1;
     }
 
     _LetterValue(letter)

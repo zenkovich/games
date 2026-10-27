@@ -87,7 +87,7 @@ protected:
 		ClickTile(2, 0);
 		ClickTile(3, 0);
 
-		Click(Vec2F(222, 331)); // ПРИНЯТЬ
+		Click(AcceptPosition()); // ПРИНЯТЬ
 	}
 };
 
@@ -381,7 +381,7 @@ TEST_F(WordFallVfxShowcase, LongWordGivesFireworksAndItLaunchesSalvo)
 
 	for (int i = 0; i < letters.Length(); i++)
 		ClickTile(i, 0);
-	Click(Vec2F(222, 331)); // ПРИНЯТЬ
+	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(3.0f);
 
 	auto& earned = mService->GetLastMoveResult();
@@ -410,7 +410,7 @@ TEST_F(WordFallVfxShowcase, LongWordGivesFireworksAndItLaunchesSalvo)
 	ClickTile(column, row);
 	ClickTile(column + 1, row);
 	ClickTile(column + 2, row);
-	Click(Vec2F(222, 331));
+	Click(AcceptPosition());
 
 	int maxFlying = 0;
 	CaptureClip("fireworks_salvo", 3.4f, [&]()

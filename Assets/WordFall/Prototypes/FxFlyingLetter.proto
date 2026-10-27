@@ -451,8 +451,8 @@
                             "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
-                                    "path": "WordFall/Sprites/ui_tile.png"
+                                    "id": "f4f115f36049d703699ad80d1cc8eec0",
+                                    "path": "WordFall/SpritesNew/layer_tile.png"
                                 }
                             }
                         },

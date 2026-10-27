@@ -40,8 +40,8 @@
                             "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "7fe4a1c0b07f57459b8e77236225c37d",
-                                    "path": "WordFall/Sprites/ui_tile.png"
+                                    "id": "f4f115f36049d703699ad80d1cc8eec0",
+                                    "path": "WordFall/SpritesNew/layer_tile.png"
                                 }
                             }
                         },
@@ -53,8 +53,12 @@
                     "Value": {
                         "layout": {
                             "mOffsetMin": {
-                                "x": 0.0,
-                                "y": 5.0
+                                "x": -2.9,
+                                "y": 2.1
+                            },
+                            "mOffsetMax": {
+                                "x": -2.9,
+                                "y": 2.1
                             }
                         },
                         "name": "letter",
@@ -62,13 +66,13 @@
                             "Type": "o2::Text",
                             "Value": {
                                 "mColor": {
-                                    "r": 74,
-                                    "g": 48,
-                                    "b": 34,
+                                    "r": 52,
+                                    "g": 26,
+                                    "b": 12,
                                     "a": 255
                                 },
                                 "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
-                                "mHeight": 36,
+                                "mHeight": 44,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
@@ -92,12 +96,12 @@
                                 "y": 0.0
                             },
                             "mOffsetMin": {
-                                "x": -33.0,
-                                "y": 11.0
+                                "x": -25.790399999999998,
+                                "y": 5.0148
                             },
                             "mOffsetMax": {
-                                "x": -11.0,
-                                "y": 26.0
+                                "x": -5.0148,
+                                "y": 23.6412
                             }
                         },
                         "name": "points",
@@ -105,13 +109,13 @@
                             "Type": "o2::Text",
                             "Value": {
                                 "mColor": {
-                                    "r": 150,
-                                    "g": 108,
-                                    "b": 70,
+                                    "r": 92,
+                                    "g": 58,
+                                    "b": 30,
                                     "a": 255
                                 },
-                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
-                                "mHeight": 12,
+                                "mFontAssetId": "e0a97f49fbea71ab91e6d15c55613bf7",
+                                "mHeight": 19,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
