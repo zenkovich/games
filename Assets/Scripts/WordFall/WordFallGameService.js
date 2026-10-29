@@ -49,10 +49,11 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     // --- уровень и прогресс ---
 
+    // Уровень без слов текущего языка не играется: стартует ближайший следующий валидный
     StartLevel(index)
     {
         this._EnsureStarted();
-        this._levelIndex = Math.min(Math.max(index, 0), this.GetLevelCount() - 1);
+        this._levelIndex = this._ValidLevelFrom(Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
         this._level.Start(this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
         this._LogRemote();
         this._lastMove = new WordMoveResult();
@@ -76,6 +77,37 @@ WordFallGameService = class WordFallGameService extends o2.Component
     }
 
     GetLevelIndex() { return this._levelIndex; }
+
+    // --- язык: алфавит и номиналы букв, словарь, слова уровней ---
+
+    GetLanguage() { this._EnsureStarted(); return WordFallLanguages.Current(); }
+    GetLanguages() { return WordFallLanguages.List(); }
+    GetAlphabet() { this._EnsureStarted(); return WordFallLanguages.Alphabet(); }
+
+    // Меняет язык игрока: сохраняет его в прогрессе и перезапускает текущий уровень на новом алфавите
+    SetLanguage(code)
+    {
+        this._EnsureStarted();
+        var language = WordFallLanguages.SetCurrent(code);
+        this._progress.language = language;
+        if (!this._progress.Save(this.progressPath))
+            print("WordFall: failed to save progress to " + this.progressPath);
+        this._Dictionary();
+        print("WordFall: language " + language + ", valid levels " + this.GetValidLevelCount() + "/" + this.GetLevelCount());
+        this.StartLevel(this._levelIndex);
+        return language;
+    }
+
+    IsLevelValid(index) { this._EnsureStarted(); return WordFallConfigs.IsLevelValid(this._store.GetLevel(index)); }
+
+    GetValidLevelCount()
+    {
+        this._EnsureStarted();
+        var count = 0;
+        for (var i = 0; i < this.GetLevelCount(); i++)
+            count += this.IsLevelValid(i) ? 1 : 0;
+        return count;
+    }
 
     GetLevelCount()
     {
@@ -500,19 +532,27 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     _BoardConfig()
     {
-        return WordFallRemote.ApplyBoard(WordFallConfigs.NormalizeBoard(this.boardConfig));
+        return WordFallRemote.ApplyBoard(WordFallLanguages.ApplyBoard(WordFallConfigs.NormalizeBoard(this.boardConfig)));
     }
 
-    // Словарь общий для всех сервисов: разбор 23 тысяч слов — не на каждый рестарт сцены
     _Dictionary()
     {
-        if (!WordFallGame.dictionary || WordFallGame.dictionarySource !== WordFallDictionaryData)
-        {
-            WordFallGame.dictionarySource = WordFallDictionaryData;
-            WordFallGame.dictionary = WordDictionary.LoadDefault();
-        }
-        this._dictionary = WordFallGame.dictionary;
+        this._dictionary = WordFallLanguages.Dictionary();
         return this._dictionary;
+    }
+
+    // index, если уровень валиден на текущем языке, иначе следующий валидный по кругу
+    _ValidLevelFrom(index)
+    {
+        var count = this.GetLevelCount();
+        for (var step = 0; step < count; step++)
+        {
+            var at = (index + step) % count;
+            if (this.IsLevelValid(at))
+                return at;
+        }
+        print("WordFall: no level has words of language " + WordFallLanguages.Current());
+        return index;
     }
 
     _EnsureStarted()
@@ -523,6 +563,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._started = true;
         if (!Array.isArray(this.levels))
             this.levels = [];
+        this._progress.Load(this.progressPath);
+        WordFallLanguages.SetCurrent(this._progress.language);
         this._Dictionary();
 
         // ручная кампания в редакторе > data-ассет кампании > процедурная генерация
@@ -534,7 +576,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
             {
                 var data = JSON.parse(asset.Get().GetJson());
                 if (Array.isArray(data))
-                    this._campaign = data.map(function(level) { return WordFallConfigs.NormalizeLevel(level); });
+                    this._campaign = data.map(function(level) { return WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(level)); });
             }
             if (this._campaign.length == 0)
                 print("WordFall: campaign asset " + this.campaignPath + " is missing or empty, using the procedural campaign");
@@ -547,13 +589,12 @@ WordFallGameService = class WordFallGameService extends o2.Component
         for (var i = 0; i < listed.length; i++)
             ids.push(listed[i] && listed[i].id ? listed[i].id : WordFallConfigs.LevelId(i));
         this._store = new WordFallLevelStore(function(index) {
-            return self.levels.length > 0 ? self.levels[index]
+            return self.levels.length > 0 ? WordFallConfigs.UpgradeFileLevel(self.levels[index])
                 : self._campaign.length > 0 ? self._campaign[index]
                 : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
         }, count, ids);
         this._store.Load(this.editedLevelsPath);
 
-        this._progress.Load(this.progressPath);
         this.StartLevel(this._progress.currentLevel);
     }
 

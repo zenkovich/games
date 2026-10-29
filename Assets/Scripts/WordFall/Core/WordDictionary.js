@@ -1,5 +1,3 @@
-include("Scripts/WordFall/Core/WordFallDictionaryData.js");
-
 // Словарь допустимых слов. Матчинг с джокером: '?' совпадает с любой буквой
 WordDictionary = class WordDictionary
 {
@@ -10,7 +8,21 @@ WordDictionary = class WordDictionary
 
     static LoadDefault()
     {
-        return new WordDictionary(WordFallDictionaryData.split(" ").filter(function(w) { return w.length > 0; }));
+        return WordDictionary.LoadAsset("WordFall/Dictionaries/ru.json");
+    }
+
+    // Словарь из data-ассета {"language", "words"}: слова одной строкой через пробел
+    static LoadAsset(path)
+    {
+        var asset = new o2.AssetRefDataAsset(path);
+        if (!asset.IsValid())
+        {
+            print("WordFall: no dictionary asset " + path);
+            return new WordDictionary([]);
+        }
+
+        var words = JSON.parse(asset.Get().GetJson()).words || "";
+        return new WordDictionary(words.split(" ").filter(function(w) { return w.length > 0; }));
     }
 
     Load(words)
@@ -65,7 +77,7 @@ WordDictionary = class WordDictionary
     // Число различимых кодов букв
     static get LetterCodesCount() { return 64; }
 
-    // Код буквы: кириллица А..Я — 0..31, Ё — 32, прочие по порядку появления
+    // Код буквы: кириллица А..Я — 0..31, Ё — 32, латиница A..Z — 33..58, прочие по порядку появления
     static LetterCode(letter)
     {
         var code = letter.charCodeAt(0);
@@ -73,10 +85,12 @@ WordDictionary = class WordDictionary
             return code - 0x410;
         if (code == 0x401)
             return 32;
+        if (code >= 0x41 && code <= 0x5A)
+            return 33 + code - 0x41;
 
         var other = WordDictionary._otherCodes || (WordDictionary._otherCodes = {});
         if (other[letter] === undefined)
-            other[letter] = Math.min(33 + Object.keys(other).length, WordDictionary.LetterCodesCount - 1);
+            other[letter] = Math.min(59 + Object.keys(other).length, WordDictionary.LetterCodesCount - 1);
         return other[letter];
     }
 

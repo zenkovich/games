@@ -266,14 +266,14 @@ include("Scripts/WordFall/WordFallGameService.js");
 
         var compact = WordFallConfigs.CompactLevel(level);
         expectEq(Object.keys(compact), ["letterCells"], "только отличия от умолчаний");
-        expectEq(compact.letterCells[0], { x: 2, y: 5, letter: "Ф" });
+        expectEq(compact.letterCells, { ru: [{ x: 2, y: 5, letter: "Ф" }, { x: 1, y: 0, letter: "А" }] }, "буквы клеток — по языкам");
         expectEq(WordFallConfigs.NormalizeLevel(compact), level);
 
         var withTasks = WordFallConfigs.NormalizeLevel({ tasks: [{ word: "кот" }, { taskType: "Length", length: 4, count: 2 }] });
         expectEq(withTasks.words, ["КОТ"], "старая задача-слово переехала в слова уровня");
         var compact2 = WordFallConfigs.CompactLevel(withTasks);
         expectEq(compact2.tasks, [{ taskType: "Length", count: 2 }], "поля заданий по умолчанию опущены");
-        expectEq(compact2.words, ["КОТ"]);
+        expectEq(compact2.words, { ru: ["КОТ"] }, "слова — по языкам");
         expectEq(WordFallConfigs.NormalizeLevel(compact2), withTasks);
     });
 
@@ -326,8 +326,8 @@ include("Scripts/WordFall/WordFallGameService.js");
         var exported = JSON.parse(reloaded.ExportJson());
         expectEq(exported.length, 5);
         expectEq(exported[2].moves, 3);
-        expectEq(exported[2].letterCells, [{ x: 1, y: 1, letter: "Я" }]);
-        expectEq(exported[1], { id: "L002", words: ["ДОМ"], moves: 11 }, "формат campaign.json: id, слова отдельно");
+        expectEq(exported[2].letterCells, { ru: [{ x: 1, y: 1, letter: "Я" }] });
+        expectEq(exported[1], { id: "L002", words: { ru: ["ДОМ"] }, moves: 11 }, "формат campaign.json: id, слова отдельно и по языкам");
 
         reloaded.ResetLevel(2);
         expect(!reloaded.IsEdited(2));
@@ -342,7 +342,7 @@ include("Scripts/WordFall/WordFallGameService.js");
         var store = new WordFallLevelStore(source, 3);
 
         var level = JSON.parse(store.ExportLevelJson(1));
-        expectEq(level, { id: "L002", words: ["ДОМ"], moves: 11 }, "уровень в формате campaign.json");
+        expectEq(level, { id: "L002", words: { ru: ["ДОМ"] }, moves: 11 }, "уровень в формате campaign.json");
 
         expectEq(store.ImportJson("not json", 0).ok, false);
         expectEq(store.ImportJson("[]", 0).ok, false, "пустая кампания");

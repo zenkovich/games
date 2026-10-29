@@ -262,7 +262,7 @@ WordFallLevelStore = class WordFallLevelStore
             if (data.length == 0)
                 return { ok: false, count: 0, message: "В файле нет уровней" };
 
-            var edits = this.ImportCampaign(data);
+            var edits = this.ImportCampaign(data.map(WordFallConfigs.UpgradeFileLevel));
             return { ok: true, count: data.length, message: "Загружена кампания: уровней " + data.length + ", с правками " + edits };
         }
 
@@ -274,7 +274,7 @@ WordFallLevelStore = class WordFallLevelStore
 
         if (WordFallLevelStore.LooksLikeLevel(data))
         {
-            var level = WordFallConfigs.NormalizeLevel(data);
+            var level = WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(data));
             var keepName = level.name || this.GetName(levelIndex);
             level.name = keepName;
             this.SetLevel(levelIndex, level);
@@ -315,7 +315,7 @@ WordFallLevelStore = class WordFallLevelStore
             if (!id || (this._sourceIndex[id] === undefined && this._order.indexOf(id) < 0))
                 continue;
 
-            var compact = JSON.parse(JSON.stringify(level));
+            var compact = WordFallConfigs.UpgradeFileLevel(level);
             compact.id = id;
             this._edited[id] = compact;
         }
