@@ -2376,15 +2376,15 @@
                 "height": 1100
             },
             "config": {
-                "model": "sourceful/riverflow-v2.5-pro",
-                "prompt": "экран геймплея без фона телефона. Сохрани цвет фона",
+                "model": "gemini-3.1-flash-image",
+                "prompt": "экран геймплея без фона телефона. Сохрани цвет фона. Убери закругления по краям",
                 "transparentBg": false,
                 "transparentMode": "chroma",
                 "roi": {
-                    "x": 0,
-                    "y": 0,
-                    "w": 1,
-                    "h": 1
+                    "x": 0.12963570033222719,
+                    "y": 0.06834206595445326,
+                    "w": 0.7418289940590188,
+                    "h": 0.8665909357481535
                 },
                 "paramsOpen": true
             },
@@ -4695,6 +4695,182 @@
                     "type": "image"
                 }
             ]
+        },
+        {
+            "id": "fa8f1fda-1096-4fba-8015-ea31bb7e2cca",
+            "type": "imageToUi",
+            "position": {
+                "x": 12300,
+                "y": -5760
+            },
+            "size": {
+                "width": 600,
+                "height": 920
+            },
+            "config": {
+                "model": "gemini-3.1-pro-preview",
+                "imageModel": "gemini-3.1-flash-image",
+                "maxTurns": "60",
+                "sprites": "auto",
+                "background": "auto",
+                "screenName": "Screen",
+                "hint": "",
+                "paramsOpen": true
+            },
+            "inputs": [
+                {
+                    "id": "eb906e8c-6043-4651-8140-fc5f2e82767e",
+                    "name": "image",
+                    "type": "image"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "624fef2a-b820-4419-9f28-c28f5b1ee8e9",
+                    "name": "preview",
+                    "type": "image"
+                },
+                {
+                    "id": "1c54362e-7091-4d68-bf34-bc2a630bbd98",
+                    "name": "layout",
+                    "type": "text"
+                },
+                {
+                    "id": "sp-bg_backdrop",
+                    "name": "bg_backdrop",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-panel_dark_brown",
+                    "name": "panel_dark_brown",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_tile_light_wood_small",
+                    "name": "icon_tile_light_wood_small",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_tile_orange_small",
+                    "name": "icon_tile_orange_small",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_tile_blue_small",
+                    "name": "icon_tile_blue_small",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-panel_parchment",
+                    "name": "panel_parchment",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-panel_light_beige",
+                    "name": "panel_light_beige",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_tile_light_wood_large_2",
+                    "name": "icon_tile_light_wood_large_2",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_star_rainbow_2",
+                    "name": "icon_star_rainbow_2",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_green_small",
+                    "name": "button_green_small",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_check_white",
+                    "name": "icon_check_white",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-bar_progress_track",
+                    "name": "bar_progress_track",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_progress_fill",
+                    "name": "icon_progress_fill",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_star_rainbow",
+                    "name": "icon_star_rainbow",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-panel_input_field",
+                    "name": "panel_input_field",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_green_large",
+                    "name": "button_green_large",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_check_white_2",
+                    "name": "icon_check_white_2",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_red_large",
+                    "name": "button_red_large",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_cross_white",
+                    "name": "icon_cross_white",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_tile_orange_large",
+                    "name": "icon_tile_orange_large",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_blue_round",
+                    "name": "button_blue_round",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_magnifying_glass",
+                    "name": "icon_magnifying_glass",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_magnifying_glass_plus",
+                    "name": "icon_magnifying_glass_plus",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_lightbulb",
+                    "name": "icon_lightbulb",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_yellow_round",
+                    "name": "button_yellow_round",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-button_red_round",
+                    "name": "button_red_round",
+                    "type": "image"
+                },
+                {
+                    "id": "sp-icon_shuffle",
+                    "name": "icon_shuffle",
+                    "type": "image"
+                }
+            ]
         }
     ],
     "edges": [
@@ -5733,6 +5909,13 @@
             "fromPortId": "c3f66d40-9078-49de-a2d0-d6739e8f1aa9",
             "toNodeId": "20c51eb5-3cb3-4e21-aa4f-f576a65b1f15",
             "toPortId": "7b1ce4aa-d0c7-4538-8aef-d47a388b282c"
+        },
+        {
+            "id": "8afa15e1-0fff-4ff9-9750-49525c9f9d9a",
+            "fromNodeId": "f149f271-5e82-4199-a2cc-3f4fa0f2dc96",
+            "fromPortId": "5074e968-c907-45f0-a3ed-43391e8aa5c3",
+            "toNodeId": "fa8f1fda-1096-4fba-8015-ea31bb7e2cca",
+            "toPortId": "eb906e8c-6043-4651-8140-fc5f2e82767e"
         }
     ],
     "camera": {
