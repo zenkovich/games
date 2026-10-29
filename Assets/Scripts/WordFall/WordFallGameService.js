@@ -290,7 +290,14 @@ WordFallGameService = class WordFallGameService extends o2.Component
     GetWords()
     {
         this._EnsureStarted();
-        return this._level.GetWords().map(function(word) { return { word: word.word, found: word.found }; });
+        return this._level.GetWords().map(function(word) {
+            var out = { word: word.word, found: word.found };
+            if (word.states)
+                out.states = word.states;
+            if (word.values)
+                out.values = word.values;
+            return out;
+        });
     }
 
     GetScore() { this._EnsureStarted(); return this._level.GetScore(); }
@@ -384,6 +391,47 @@ WordFallGameService = class WordFallGameService extends o2.Component
     DebugAddScore(score) { this._Debug(function(level) { level.DebugAddScore(score); }); }
     DebugAddCharges(charges) { this._Debug(function(level) { level.DebugAddCharges(charges); }); }
     DebugLoseLevel() { this._Debug(function(level) { level.DebugLose(); }); }
+
+    // Экран макета (концепта): поле строками сверху вниз, номиналы, цвета плашек c/p/o/y — кремовая,
+    // персиковая, оранжевая, жёлтая (удвоенная); слова с состояниями букв n/f/a — обычная, найдена,
+    // в наборе; прочие задачи, ходы и счёт
+    DebugApplyMock(mock)
+    {
+        this._Debug(function(level) {
+            var board = level.GetBoard();
+            var rows = mock.rows || [];
+            var tints = { c: 0, p: 1, o: 3, y: 0 };
+            for (var r = 0; r < rows.length; r++)
+            {
+                for (var c = 0; c < rows[r].length; c++)
+                {
+                    var tile = new WordTile(rows[r].charAt(c));
+                    tile.value = parseInt((mock.values || [])[r] ? mock.values[r].charAt(c) : "1") || 1;
+                    var style = (mock.styles || [])[r] ? mock.styles[r].charAt(c) : "c";
+                    tile.tint = tints[style] || 0;
+                    tile.doubled = style == "y";
+                    if (tile.doubled)
+                        tile.value = Math.max(1, Math.round(tile.value/2));
+                    board.grid[c][rows.length - 1 - r] = tile;
+                }
+            }
+            if (mock.moves !== undefined) level.movesLeft = mock.moves;
+            if (mock.score !== undefined) level.score = mock.score;
+            if (mock.target !== undefined) level.config.targetScore = mock.target;
+            if (mock.words)
+            {
+                level.words = mock.words.map(function(word) {
+                    return { word: word.word, found: word.states.indexOf("n") < 0 && word.states.indexOf("a") < 0, states: word.states, values: word.values };
+                });
+            }
+            if (mock.tasks)
+            {
+                level.tasks = mock.tasks.map(function(task) {
+                    return { config: WordFallConfigs.MakeTask(task), progress: task.progress || 0, done: !!task.done };
+                });
+            }
+        });
+    }
 
     // Случайный бонус на свободную клетку
     DebugSpawnRandomPowerup()

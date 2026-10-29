@@ -59,15 +59,25 @@
                                 "Value": {
                                     "name": "back",
                                     "mDrawable": {
-                                        "Type": "o2::Sprite",
+                                        "Type": "o2::VectorSprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "8af11fad27be7052bb22aab91646842c",
-                                                "path": "WordFall/SpritesNew/layer_accept_btn.png"
+                                                "id": "b244d65ef71cb339b432626e4b3a14e3",
+                                                "path": "WordFall/Svg/button_check.svg"
                                             }
                                         }
                                     },
-                                    "mUID": 3327422564056848897
+                                    "mUID": 3327422564056848897,
+                                    "layout": {
+                                        "mOffsetMin": {
+                                            "x": 0.0,
+                                            "y": -4.89
+                                        },
+                                        "mOffsetMax": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        }
+                                    }
                                 }
                             },
                             {
@@ -75,23 +85,33 @@
                                 "Value": {
                                     "name": "pressed",
                                     "mDrawable": {
-                                        "Type": "o2::Sprite",
+                                        "Type": "o2::VectorSprite",
                                         "Value": {
+                                            "mImageAsset": {
+                                                "id": "b244d65ef71cb339b432626e4b3a14e3",
+                                                "path": "WordFall/Svg/button_check.svg"
+                                            },
                                             "mColor": {
                                                 "r": 24,
                                                 "g": 30,
                                                 "b": 52,
                                                 "a": 0
-                                            },
-                                            "mImageAsset": {
-                                                "id": "8af11fad27be7052bb22aab91646842c",
-                                                "path": "WordFall/SpritesNew/layer_accept_btn.png"
                                             }
                                         }
                                     },
                                     "mUID": 10315525236195693256,
                                     "mTransparency": 0.0,
-                                    "mDepth": 1.0
+                                    "mDepth": 1.0,
+                                    "layout": {
+                                        "mOffsetMin": {
+                                            "x": 0.0,
+                                            "y": -4.89
+                                        },
+                                        "mOffsetMax": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        }
+                                    }
                                 }
                             }
                         ],

@@ -1,9 +1,9 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха целей уровня: сверху — панель слов (ряд плашек на слово; найденное — оранжевое,
-// набираемое сейчас — подсвечено по префиксу; не влезающие слова сводятся в последний ряд
-// «ещё N»), под ней — полоса прочих задач: иконка + счётчик, закрытая — с галочкой; галочка
-// в конце полосы загорается, когда закрыто всё. Синк по ревизии сервиса.
+// набираемый префикс — в синей рамке; не влезающие слова сводятся в последний ряд «ещё N»),
+// под ней — полоса прочих задач: плашка + счётчик, закрытая — с галочкой, за ними гнездо со
+// звездой и галочка, которая загорается, когда закрыто всё. Синк по ревизии сервиса.
 // Координаты раскладки — локальные, от левого верхнего угла панели / полосы, y вниз
 
 WordFallTasksView = class WordFallTasksView extends o2.Component
@@ -14,19 +14,21 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
     {
         super();
         this.wordTile = 70;        // плашка буквы слова
+        this.wordTileAspect = 1;   // её высота к ширине
         this.wordPitchX = 74.5;
         this.wordPitchY = 68.5;
         this.wordOriginX = 4;
         this.wordOriginY = 4;
         this.wordsWidth = 518;     // ширина ряда слов внутри панели
-        this.itemIcon = 77;        // иконка задачи в полосе
-        this.itemPitch = 170;
-        this.itemFirst = 20;
-        this.itemCountWidth = 86;
-        this.checkSize = 80;       // галочка «всё закрыто» у правого края полосы
-        this.checkRight = 18;
+        this.itemIcon = 77;        // плашка задачи в полосе
+        this.itemCount = 86;       // место под счётчик
+        this.itemGap = 20;         // промежутки полосы
+        this.itemFirst = 20;       // отступ первой плашки
+        this.slotSize = [80, 80];  // гнездо со звездой и галочка «всё закрыто» — за задачами
+        this.checkSize = [80, 80];
+        this.stripWidth = 744;
         this.stripHeight = 135;
-        this.activeColor = new Color4(176, 214, 255, 255);
+        this.countRaise = 0;       // подъём счётчика: o2 центрирует высоту заглавной, вёрстка — строку
 
         this._lastRevision = -1;
         this._words = [];
@@ -87,6 +89,7 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
                     widget: tile,
                     back: tile.GetLayer("back"),
                     found: tile.GetLayer("found"),
+                    active: tile.GetLayer("active"),
                     letter: tile.GetLayer("letter").drawable,
                     points: tile.GetLayer("points").drawable
                 });
@@ -96,6 +99,7 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
 
         var others = this._actor.GetChild("Others");
         this._check = others.GetChild("AllDone");
+        this._slot = others.GetChild("Slot");
         this._items = [];
         for (var i = 0; i < 5; i++)
         {
@@ -143,9 +147,10 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             var tiles = this._words[r];
             var length = word ? word.word.length : 0;
             var pitch = length > 1 ? Math.min(this.wordPitchX, (this.wordsWidth - this.wordTile)/(length - 1)) : this.wordPitchX;
-            var size = Math.min(this.wordTile, pitch + 4);
+            var size = Math.min(this.wordTile, pitch);
             var active = word && !word.found && current.length > 0 && current.length <= length &&
                          WordDictionary.MatchPattern(current, word.word.substring(0, current.length));
+            var states = word ? WordFallTasksView.LetterStates(word, active ? current.length : 0) : "";
             for (var i = 0; i < tiles.length; i++)
             {
                 var view = tiles[i];
@@ -155,12 +160,13 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
                     continue;
 
                 var letter = word.word[i];
-                this._SetRect(view.widget, this.wordOriginX + i*pitch, this.wordOriginY + r*this.wordPitchY, size, size*1.03);
+                this._SetRect(view.widget, this.wordOriginX + i*pitch, this.wordOriginY + r*this.wordPitchY, size, size*this.wordTileAspect);
                 view.letter.text = letter;
-                view.points.text = "" + this._svc.GetLetterValue(letter);
-                view.found.SetEnabled(word.found);
-                view.back.SetEnabled(!word.found);
-                view.back.drawable.color = active && i < current.length ? this.activeColor : new Color4(255, 255, 255, 255);
+                view.points.text = word.values ? word.values.charAt(i) : "" + this._svc.GetLetterValue(letter);
+                var state = states.charAt(i);
+                view.found.SetEnabled(state == "f");
+                view.active.SetEnabled(state == "a");
+                view.back.SetEnabled(state == "n");
             }
         }
 
@@ -168,17 +174,33 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
         if (visible.hidden > 0)
         {
             this._more.SetText("ещё " + visible.hidden + " " + WordFallConfigs.WordsNoun(visible.hidden));
-            this._SetRect(this._more, this.wordOriginX, this.wordOriginY + (rows - 1)*this.wordPitchY, this.wordsWidth, this.wordTile);
+            this._SetRect(this._more, this.wordOriginX, this.wordOriginY + (rows - 1)*this.wordPitchY, this.wordsWidth, this.wordTile*this.wordTileAspect);
         }
     }
 
+    // Состояния букв слова: n — обычная, f — найдена, a — в наборе (префикс из typed букв);
+    // у слова мока (макет экрана) они заданы явно
+    static LetterStates(word, typed)
+    {
+        if (word.states)
+            return word.states;
+        var states = "";
+        for (var i = 0; i < word.word.length; i++)
+            states += word.found ? "f" : i < typed ? "a" : "n";
+        return states;
+    }
+
+    // Полоса как в вёрстке: плашка, счётчик, ..., гнездо со звездой, галочка — подряд с равными
+    // промежутками; задачи, которые не влезают, ужимаются целиком: плашка, счётчик и его текст
     _SyncTasks(tasks, allDone)
     {
         var count = Math.min(tasks.length, this._items.length);
-        var room = 744 - this.itemFirst - this.checkSize - this.checkRight - 10;
-        var pitch = count > 0 ? Math.min(this.itemPitch, room/count) : this.itemPitch;
-        var icon = Math.min(this.itemIcon, pitch*0.5);
-        var top = (this.stripHeight - icon*1.03)*0.5;
+        var room = this.stripWidth - 2*this.itemFirst - this.slotSize[0] - this.checkSize[0] - 2*this.itemGap;
+        var natural = this.itemIcon + this.itemCount + 2*this.itemGap;
+        var k = count > 0 ? Math.min(1, room/(count*natural)) : 1;
+        var icon = this.itemIcon*k, countWidth = this.itemCount*k, gap = this.itemGap*k;
+        var pitch = natural*k;
+        var top = (this.stripHeight - icon)*0.5;
         for (var i = 0; i < this._items.length; i++)
         {
             var item = this._items[i];
@@ -189,7 +211,7 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
 
             var x = this.itemFirst + i*pitch;
             this._SetRect(item.widget, x, 0, pitch, this.stripHeight);
-            this._SetRect(item.icon, 0, top, icon, icon*1.03);
+            this._SetRect(item.icon, 0, top, icon, icon);
             var path = WordFallTasksView.IconFor(task);
             item.tile.SetEnabled(!path);
             item.image.SetEnabled(!!path);
@@ -202,15 +224,26 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
                 item.imagePath = path;
             }
             item.symbol.text = path ? "" : WordFallTasksView.SymbolFor(task);
-            item.symbol.height = item.symbol.text.length > 2 ? Math.round(icon*0.34) : Math.round(icon*0.62);
+            if (item.symbolHeight === undefined)
+                item.symbolHeight = item.symbol.height;
+            item.symbol.height = Math.round(item.symbolHeight*k*(item.symbol.text.length > 2 ? 0.55 : 1));
 
             item.count.SetEnabled(!task.done);
             item.count.SetText(WordFallTasksView.CountFor(task));
-            this._SetRect(item.count, icon + 8, 0, Math.max(10, pitch - icon - 12), this.stripHeight);
+            var countText = item.count.GetLayer("text").drawable;
+            if (item.countHeight === undefined)
+                item.countHeight = countText.height;
+            countText.height = Math.round(item.countHeight*k);
+            this._SetRect(item.count, icon + gap, -this.countRaise, countWidth, this.stripHeight);
             item.done.SetEnabled(task.done);
-            this._SetRect(item.done, icon + 6, (this.stripHeight - icon*0.75)*0.5, icon*0.7, icon*0.75);
+            var doneW = this.checkSize[0]*0.8*k, doneH = this.checkSize[1]*0.8*k;
+            this._SetRect(item.done, icon + gap, (this.stripHeight - doneH)*0.5, doneW, doneH);
         }
 
+        var x = this.itemFirst + count*pitch;
+        this._SetRect(this._slot, x, (this.stripHeight - this.slotSize[1])*0.5, this.slotSize[0], this.slotSize[1]);
+        x += this.slotSize[0] + this.itemGap;
+        this._SetRect(this._check, x, (this.stripHeight - this.checkSize[1])*0.5, this.checkSize[0], this.checkSize[1]);
         this._check.SetEnabled(true);
         this._check.SetTransparency(allDone ? 1 : 0.35);
     }

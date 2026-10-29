@@ -1,0 +1,15 @@
+{
+    "moves": 35,
+    "score": 1200,
+    "target": 2500,
+    "rows": ["WORDHUK", "TSEARCV", "GAMEPLL", "YKICKVA", "FUNNYQR", "STARTMC", "PLAYTIO", "ERELAXP"],
+    "values": ["6212416", "1212122", "2141611", "2212421", "1211221", "1111142", "6122111", "1211162"],
+    "styles": ["cccppco", "cpppccp", "cppcocc", "ppccpyc", "pccppcc", "ppcpppc", "occpppc", "cccccop"],
+    "words": [
+        { "word": "PUZZLE", "values": "133311", "states": "nfffnn" },
+        { "word": "BRAIN", "values": "31111", "states": "fnaan" },
+        { "word": "LOGIC", "values": "11212", "states": "nfaaa" },
+        { "word": "CONNECT", "values": "3111111", "states": "nfnfnfn" }
+    ],
+    "tasks": [ { "taskType": "Letter", "letter": "W", "count": 10, "progress": 1 } ]
+}

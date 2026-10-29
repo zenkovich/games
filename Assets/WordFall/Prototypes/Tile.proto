@@ -21,12 +21,12 @@
                     "y": 0.5
                 },
                 "offsetMin": {
-                    "x": -50.0,
-                    "y": -51.5
+                    "x": -49.73,
+                    "y": -49.73
                 },
                 "offsetMax": {
-                    "x": 50.0,
-                    "y": 51.5
+                    "x": 49.73,
+                    "y": 49.73
                 }
             },
             "InternalWidgets": [],
@@ -36,15 +36,25 @@
                     "Value": {
                         "name": "back",
                         "mDrawable": {
-                            "Type": "o2::Sprite",
+                            "Type": "o2::VectorSprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "f4f115f36049d703699ad80d1cc8eec0",
-                                    "path": "WordFall/SpritesNew/layer_tile.png"
+                                    "id": "777c7e6d782b94ea20616544237a27d8",
+                                    "path": "WordFall/Svg/tile_board_cream.svg"
                                 }
                             }
                         },
-                        "mUID": 16242162826660439330
+                        "mUID": 16242162826660439330,
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": 0.0,
+                                "y": -4.89
+                            },
+                            "mOffsetMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            }
+                        }
                     }
                 },
                 {
@@ -249,27 +259,36 @@
                     "Type": "o2::WidgetLayer",
                     "Value": {
                         "layout": {
+                            "mAnchorMin": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "mAnchorMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
                             "mOffsetMin": {
-                                "x": -4.0,
-                                "y": 3.0
+                                "x": 1.63,
+                                "y": 2.53
                             },
                             "mOffsetMax": {
-                                "x": -4.0,
-                                "y": 3.0
+                                "x": 97.83,
+                                "y": 98.73
                             }
                         },
                         "name": "letter",
                         "mDrawable": {
                             "Type": "o2::Text",
                             "Value": {
+                                "mText": "",
                                 "mColor": {
-                                    "r": 52,
-                                    "g": 26,
-                                    "b": 12,
+                                    "r": 42,
+                                    "g": 10,
+                                    "b": 0,
                                     "a": 255
                                 },
-                                "mFontAssetId": "3f1c9a52e07b4d68a91c5d2b8e447a10",
-                                "mHeight": 62,
+                                "mFontAssetId": "c3a6818c839afb05ff3e8594194189d7",
+                                "mHeight": 56,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
@@ -285,34 +304,35 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 1.0,
+                                "x": 0.0,
                                 "y": 0.0
                             },
                             "mAnchorMax": {
-                                "x": 1.0,
+                                "x": 0.0,
                                 "y": 0.0
                             },
                             "mOffsetMin": {
-                                "x": -36.0,
-                                "y": 7.000000000000001
+                                "x": 24.46,
+                                "y": 8.15
                             },
                             "mOffsetMax": {
-                                "x": -7.000000000000001,
-                                "y": 33.0
+                                "x": 83.16,
+                                "y": 27.72
                             }
                         },
                         "name": "points",
                         "mDrawable": {
                             "Type": "o2::Text",
                             "Value": {
+                                "mText": "",
                                 "mColor": {
-                                    "r": 92,
-                                    "g": 58,
-                                    "b": 30,
+                                    "r": 42,
+                                    "g": 10,
+                                    "b": 0,
                                     "a": 255
                                 },
-                                "mFontAssetId": "e0a97f49fbea71ab91e6d15c55613bf7",
-                                "mHeight": 27,
+                                "mFontAssetId": "6f6ce35e1c3925e8125db85ac9179fa8",
+                                "mHeight": 15,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
@@ -544,23 +564,33 @@
                     "Value": {
                         "name": "pressed",
                         "mDrawable": {
-                            "Type": "o2::Sprite",
+                            "Type": "o2::VectorSprite",
                             "Value": {
+                                "mImageAsset": {
+                                    "id": "777c7e6d782b94ea20616544237a27d8",
+                                    "path": "WordFall/Svg/tile_board_cream.svg"
+                                },
                                 "mColor": {
                                     "r": 24,
                                     "g": 30,
                                     "b": 52,
                                     "a": 0
-                                },
-                                "mImageAsset": {
-                                    "id": "f4f115f36049d703699ad80d1cc8eec0",
-                                    "path": "WordFall/SpritesNew/layer_tile.png"
                                 }
                             }
                         },
                         "mUID": 14724012899663205962,
                         "mTransparency": 0.0,
-                        "mDepth": 16.0
+                        "mDepth": 16.0,
+                        "layout": {
+                            "mOffsetMin": {
+                                "x": 0.0,
+                                "y": -4.89
+                            },
+                            "mOffsetMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            }
+                        }
                     }
                 }
             ],

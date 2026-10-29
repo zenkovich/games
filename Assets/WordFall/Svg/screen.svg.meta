@@ -1,0 +1,15 @@
+{
+    "Type": "o2::VectorImageAsset::Meta",
+    "Value": {
+        "mId": "7d9b00f4f463945c23a60b3b9f14df78",
+        "scalableMesh": true,
+        "rasterized": true,
+        "sliceBorder": {
+            "left": 8,
+            "bottom": 8,
+            "right": 8,
+            "top": 8
+        },
+        "defaultMode": "Sliced"
+    }
+}

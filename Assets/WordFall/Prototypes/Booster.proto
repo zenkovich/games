@@ -60,15 +60,25 @@
                                 "Value": {
                                     "name": "icon",
                                     "mDrawable": {
-                                        "Type": "o2::Sprite",
+                                        "Type": "o2::VectorSprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "3553def69bc2acb3b5b652378b8749bb",
-                                                "path": "WordFall/SpritesNew/layer_search_btn.png"
+                                                "id": "cedc77266c5c0b8b9123256f83d20766",
+                                                "path": "WordFall/Svg/booster_magnifier.svg"
                                             }
                                         }
                                     },
-                                    "mUID": 13879726056123998788
+                                    "mUID": 13879726056123998788,
+                                    "layout": {
+                                        "mOffsetMin": {
+                                            "x": 0.0,
+                                            "y": -6.52
+                                        },
+                                        "mOffsetMax": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        }
+                                    }
                                 }
                             },
                             {
@@ -76,23 +86,33 @@
                                 "Value": {
                                     "name": "pressed",
                                     "mDrawable": {
-                                        "Type": "o2::Sprite",
+                                        "Type": "o2::VectorSprite",
                                         "Value": {
+                                            "mImageAsset": {
+                                                "id": "cedc77266c5c0b8b9123256f83d20766",
+                                                "path": "WordFall/Svg/booster_magnifier.svg"
+                                            },
                                             "mColor": {
                                                 "r": 24,
                                                 "g": 30,
                                                 "b": 52,
                                                 "a": 0
-                                            },
-                                            "mImageAsset": {
-                                                "id": "3553def69bc2acb3b5b652378b8749bb",
-                                                "path": "WordFall/SpritesNew/layer_search_btn.png"
                                             }
                                         }
                                     },
                                     "mUID": 7607720896464213418,
                                     "mTransparency": 0.0,
-                                    "mDepth": 1.0
+                                    "mDepth": 1.0,
+                                    "layout": {
+                                        "mOffsetMin": {
+                                            "x": 0.0,
+                                            "y": -6.52
+                                        },
+                                        "mOffsetMax": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        }
+                                    }
                                 }
                             }
                         ],
@@ -280,11 +300,11 @@
                                 "Value": {
                                     "name": "image",
                                     "mDrawable": {
-                                        "Type": "o2::Sprite",
+                                        "Type": "o2::VectorSprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "3821eb7094ad012ae5f70c3a5e99dd33",
-                                                "path": "WordFall/Sprites/ui_badge.png"
+                                                "id": "48b0761c05983c897dca9eeb69453e24",
+                                                "path": "WordFall/Svg/charge_badge.svg"
                                             }
                                         }
                                     },

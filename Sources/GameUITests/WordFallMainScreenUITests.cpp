@@ -51,10 +51,11 @@ TEST_F(WordFallMainScreenUI, FoundWordTurnsOrangeAndTypedPrefixLightsUp)
 	PlantWord("ЛУН");
 	ClickTile(1, 0);
 	ClickTile(2, 0);
-	auto color = tile->GetLayer("back")->GetDrawable()->GetColor();
-	EXPECT_LT(color.r, 220) << "набранный префикс ЛУ подсвечен в слове ЛУНА";
+	EXPECT_TRUE(tile->GetLayer("active")->IsEnabled()) << "набранный префикс ЛУ в синей рамке в слове ЛУНА";
+	EXPECT_FALSE(tile->GetLayer("back")->IsEnabled());
 	auto third = DynamicCast<Widget>(words->GetChild("W1_2"));
-	EXPECT_EQ(third->GetLayer("back")->GetDrawable()->GetColor().r, 255) << "дальше префикса — обычная плашка";
+	EXPECT_FALSE(third->GetLayer("active")->IsEnabled()) << "дальше префикса — обычная плашка";
+	EXPECT_TRUE(third->GetLayer("back")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "31_words_prefix.png"));
 	Click(ClearPosition());
 	AppTestDriver::PumpFrames(3);
@@ -138,4 +139,55 @@ TEST_F(WordFallMainScreenUI, TileColoursAreRandomAndTravelWithTheTiles)
 	EXPECT_EQ(model(2, 0), fallen) << "плитка из ряда выше упала вместе со своим цветом";
 	EXPECT_EQ(tint(2, 0), model(2, 0));
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "34_tints_after_fall.png"));
+}
+
+// Экран в состоянии концепта (мок поля, слов, задач и счёта) лежит по координатам HTML-вёрстки
+// Tools/WordFall/CssScreen/game.html: rem страницы 471x1026 × 768/471 (раскладка прилипает к пикселям — допуск 2);
+// снимок — для сравнения с concept.png
+TEST_F(WordFallMainScreenUI, ConceptScreenFollowsTheHtmlLayout)
+{
+	String mock = o2FileSystem.ReadFile("../../Sources/GameUITests/Data/wordfall_concept_mock.json");
+	ASSERT_FALSE(mock.IsEmpty());
+	o2Scripts.Eval("WordFallGame.service.DebugApplyMock(" + mock + ")");
+	o2Scripts.Eval("WordFallViews.hud.scorePrefix = 'Progress: '");
+	auto root = o2Scene.FindActor("WordFall");
+	DynamicCast<Label>(root->GetChild("Screen/Hud/MovesBox/Caption"))->SetText("Moves Left:");
+	AppTestDriver::PumpFrames(5);
+	o2Scripts.Eval("WordFallViews.hud.SnapScore()");
+	AppTestDriver::PumpFrames(2);
+
+	const float s = 768.0f/471.0f;
+	auto expectRect = [&](const String& path, float x, float y, float w, float h) {
+		auto widget = DynamicCast<Widget>(root->GetChild(path));
+		ASSERT_TRUE(widget) << path.Data();
+		RectF rect = widget->layout->GetWorldRect();
+		EXPECT_NEAR(rect.left, x*s - 384.0f, 2.0f) << path.Data();
+		EXPECT_NEAR(rect.top, 836.5f - y*s, 2.0f) << path.Data();
+		EXPECT_NEAR(rect.Width(), w*s, 2.0f) << path.Data();
+		EXPECT_NEAR(rect.Height(), h*s, 2.0f) << path.Data();
+	};
+	expectRect("Screen/Tasks/Words", 8, 8, 328, 174);
+	expectRect("Screen/Tasks/Words/W1_2", 104, 54, 44, 40);
+	expectRect("Screen/Hud/MovesBox", 341, 4, 122, 126);
+	expectRect("Screen/Tasks/Others", 8, 189, 455, 81);
+	expectRect("Screen/Tasks/Others/Item0/Icon", 21, 201.5f, 56, 56);
+	expectRect("Screen/Tasks/Others/Slot", 195, 202.5f, 56, 54);
+	expectRect("Screen/Tasks/Others/AllDone", 265, 201.5f, 52, 56);
+	expectRect("Screen/Hud/ScorePanel/Star", 6, 270, 58, 58);
+	expectRect("Screen/WordBar/Tray", 7, 334, 338, 59);
+	expectRect("Screen/WordBar/AcceptBtn", 352, 335.5f, 52, 56);
+	expectRect("Screen/WordBar/ClearBtn", 411, 335.5f, 52, 56);
+	expectRect("Screen/Board/Tile_0_7", 8, 404, 61, 61);
+	expectRect("Screen/Board/Tile_6_0", 401.94f, 866, 61, 61);
+	expectRect("Screen/Boosters/Booster0", 11, 940, 72, 72);
+	expectRect("Screen/Boosters/Booster1", 388, 940, 72, 72);
+
+	auto words = root->GetChild("Screen/Tasks/Words");
+	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W0_1"))->GetLayer("found")->IsEnabled()) << "найденная буква — оранжевая";
+	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W1_2"))->GetLayer("active")->IsEnabled()) << "набираемая — в синей рамке";
+	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W0_0"))->GetLayer("back")->IsEnabled());
+	EXPECT_EQ(String(DynamicCast<Label>(root->GetChild("Screen/Tasks/Others/Item0/Count"))->GetText()), String("1/10"));
+	// в концепте галочка полосы яркая, хотя задача не закрыта — для снимка так же
+	DynamicCast<Widget>(root->GetChild("Screen/Tasks/Others/AllDone"))->SetTransparency(1.0f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "40_concept_screen.png"));
 }

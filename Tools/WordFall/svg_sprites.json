@@ -1,0 +1,514 @@
+{
+ "tile_board_cream": {
+  "size": [
+   61,
+   64
+  ],
+  "box": [
+   61,
+   61
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_board_peach": {
+  "size": [
+   61,
+   64
+  ],
+  "box": [
+   61,
+   61
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_board_orange": {
+  "size": [
+   61,
+   64
+  ],
+  "box": [
+   61,
+   61
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_board_yellow": {
+  "size": [
+   61,
+   64
+  ],
+  "box": [
+   61,
+   61
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_small_cream": {
+  "size": [
+   44,
+   43
+  ],
+  "box": [
+   44,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_small_peach": {
+  "size": [
+   44,
+   43
+  ],
+  "box": [
+   44,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_small_orange": {
+  "size": [
+   44,
+   43
+  ],
+  "box": [
+   44,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_small_yellow": {
+  "size": [
+   44,
+   43
+  ],
+  "box": [
+   44,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_small_active": {
+  "size": [
+   44,
+   43
+  ],
+  "box": [
+   44,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_medium_cream": {
+  "size": [
+   56,
+   59
+  ],
+  "box": [
+   56,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_medium_peach": {
+  "size": [
+   56,
+   59
+  ],
+  "box": [
+   56,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_medium_orange": {
+  "size": [
+   56,
+   59
+  ],
+  "box": [
+   56,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "tile_medium_yellow": {
+  "size": [
+   56,
+   59
+  ],
+  "box": [
+   56,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "words_panel": {
+  "size": [
+   328,
+   174
+  ],
+  "box": [
+   328,
+   174
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "moves_box": {
+  "size": [
+   122,
+   126
+  ],
+  "box": [
+   122,
+   126
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "task_panel": {
+  "size": [
+   455,
+   84
+  ],
+  "box": [
+   455,
+   81
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "star_slot": {
+  "size": [
+   56,
+   57
+  ],
+  "box": [
+   56,
+   54
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "input_field": {
+  "size": [
+   338,
+   62
+  ],
+  "box": [
+   338,
+   59
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "bar_track": {
+  "size": [
+   393,
+   41
+  ],
+  "box": [
+   393,
+   38
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "bar_fill": {
+  "size": [
+   24,
+   34
+  ],
+  "box": [
+   24,
+   34
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "button_check": {
+  "size": [
+   52,
+   59
+  ],
+  "box": [
+   52,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "button_cross": {
+  "size": [
+   52,
+   59
+  ],
+  "box": [
+   52,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "button_task_check": {
+  "size": [
+   52,
+   59
+  ],
+  "box": [
+   52,
+   56
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   3
+  ]
+ },
+ "booster_magnifier": {
+  "size": [
+   72,
+   76
+  ],
+  "box": [
+   72,
+   72
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   4
+  ]
+ },
+ "booster_zoom": {
+  "size": [
+   72,
+   76
+  ],
+  "box": [
+   72,
+   72
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   4
+  ]
+ },
+ "booster_bulb": {
+  "size": [
+   72,
+   76
+  ],
+  "box": [
+   72,
+   72
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   4
+  ]
+ },
+ "booster_bulb_yellow": {
+  "size": [
+   72,
+   76
+  ],
+  "box": [
+   72,
+   72
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   4
+  ]
+ },
+ "booster_shuffle": {
+  "size": [
+   72,
+   76
+  ],
+  "box": [
+   72,
+   72
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   4
+  ]
+ },
+ "star": {
+  "size": [
+   59.0,
+   60.5
+  ],
+  "box": [
+   58,
+   58
+  ],
+  "margins": [
+   0,
+   0,
+   1.0,
+   2.5
+  ]
+ },
+ "star_small": {
+  "size": [
+   50.862,
+   52.155
+  ],
+  "box": [
+   50,
+   50
+  ],
+  "margins": [
+   0,
+   0,
+   0.862,
+   2.155
+  ]
+ },
+ "charge_badge": {
+  "size": [
+   20,
+   20
+  ],
+  "box": [
+   20,
+   20
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "screen": {
+  "size": [
+   40,
+   40
+  ],
+  "box": [
+   40,
+   40
+  ],
+  "margins": [
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+}

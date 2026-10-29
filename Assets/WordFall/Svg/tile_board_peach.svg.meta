@@ -1,0 +1,8 @@
+{
+    "Type": "o2::VectorImageAsset::Meta",
+    "Value": {
+        "mId": "b5b3ca9092f9f75d36fef610037770af",
+        "scalableMesh": true,
+        "rasterized": true
+    }
+}

@@ -15,12 +15,14 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         // падение считает модель WordBoardMotion в сервисе — вью только
         // отображает офсеты и видимость плиток
         this.cellSize = 96;     // шаг сетки — источник раскладки плиток
+        this.cellSizeX = 0;     // шаг по горизонтали, если отличается (0 — как cellSize)
         this.tileSize = 88;     // размер плитки в ячейке
         this.boardCenterY = -121; // центр секции Board в экранных координатах
         this.tileAspect = 1;    // высота плитки к ширине (у спрайта с тенью — больше 1)
         this.showFrame = true;  // рамка формы поля из кусочков
         this.showCellBacks = true; // подложки живых клеток
         this.tintSprites = [];  // картинки плашек по цвету плитки (tint); пусто — плашка прототипа
+        this.doubledSprite = ""; // плашка удвоенной буквы
 
         // «дыхание» бонуса на поле: плитка качает масштаб, аура — прозрачность,
         // сверху редкие искры по очереди на каждый бонус
@@ -117,7 +119,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     // Центр плитки в локальных координатах секции Board
     TileLocalPos(c, r)
     {
-        return new Vec2((c - 3)*this.cellSize, (r - 3.5)*this.cellSize);
+        return new Vec2((c - 3)*(this.cellSizeX || this.cellSize), (r - 3.5)*this.cellSize);
     }
 
     // Центр плитки в экранных координатах (для флаеров и VFX)
@@ -399,20 +401,20 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         if (!view.visible)
             return;
 
-        this._PaintTint(view, tile.tint);
+        this._PaintTint(view, tile.doubled && this.doubledSprite ? -2 : tile.tint);
 
         // бонус или препятствие занимает слот: буквы и номинала нет, крупная иконка по центру
         view.letter.text = (isBonus || isObstacle) ? "" : tile.joker ? "?" : tile.letter;
         view.letter.color = tile.joker ? new Color4(160, 90, 200, 255)
                           : tile.ice > 0 ? new Color4(44, 106, 158, 255)    // на льду синеет
                           : tile.stone > 0 ? new Color4(245, 245, 248, 255) // на камне светлеет
-                          : new Color4(74, 48, 34, 255);
+                          : new Color4(42, 10, 0, 255);
 
         view.points.text = (isBonus || isObstacle || tile.joker) ? "" : ("" + tile.value);
         view.points.color = tile.doubled ? new Color4(215, 150, 20, 255)
                           : tile.ice > 0 ? new Color4(64, 124, 172, 255)
                           : tile.stone > 0 ? new Color4(200, 200, 210, 255)
-                          : new Color4(150, 108, 70, 255);
+                          : new Color4(42, 10, 0, 255);
 
         // бонус рисуется в своей золотой оправе поверх ауры, буквенной плашки нет;
         // конверт лежит на плашке, ящик и снежок закрывают клетку целиком
@@ -447,7 +449,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         if (!this.tintSprites || this.tintSprites.length == 0 || view.tint == tint)
             return;
-        var path = this.tintSprites[Math.min(Math.max(tint || 0, 0), this.tintSprites.length - 1)];
+        var path = tint == -2 ? this.doubledSprite : this.tintSprites[Math.min(Math.max(tint || 0, 0), this.tintSprites.length - 1)];
         // загрузка картинки сбрасывает размер спрайта к её собственному — прямоугольник слоя возвращаем
         var drawable = view.back.drawable;
         var rect = drawable.rect;

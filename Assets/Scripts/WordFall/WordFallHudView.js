@@ -32,12 +32,13 @@ WordFallHudView = class WordFallHudView extends o2.Component
     BarTip() { return this.BarTipForScore(this._displayScore); }
 
     // Мировая точка, где кончик заливки окажется при данном счёте: буква целится в точку,
-    // куда она сама доталкивает бар. Геометрия — из слоя-якоря "track" (весь бар)
+    // куда она сама доталкивает бар. Геометрия — из виджета прогресса (область заливки)
     BarTipForScore(score)
     {
-        if (this._track)
+        if (this._bar)
         {
-            var rect = this._track.GetRect();
+            // прогресс — область заливки внутри рамки бара: доля заливки откладывается по ней
+            var rect = this._bar.GetLayout().GetWorldRect();
             // минус barTipInset: бьём в центр скругления кончика, а не в самый край заливки
             var x = rect.left + (rect.right - rect.left)*this.BarFill(score) - this.barTipInset;
             x = Math.max(rect.left + this.barTipInset, Math.min(rect.right - this.barTipInset, x));
@@ -83,7 +84,6 @@ WordFallHudView = class WordFallHudView extends o2.Component
         this._scoreLabel = this._actor.GetChild("ScorePanel/ScoreLabel");
         this._movesLabel = this._actor.GetChild("MovesBox/Value");
         this._bar = this._actor.GetChild("ScorePanel/Bar");
-        this._track = this._bar ? this._bar.GetLayer("track") : null;
     }
 
     Sync()

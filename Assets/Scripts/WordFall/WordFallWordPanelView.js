@@ -25,6 +25,7 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this.slotSlideSpeed = 14; // скорость плавного сдвига слотов, 1/с
         this.slotAspect = 1;      // высота слота к ширине (спрайт плашки с тенью)
         this.tintSprites = [];    // плашки по цвету плитки — буква в лотке того же цвета, что на поле
+        this.doubledSprite = "";  // плашка удвоенной буквы
 
         this._slots = [];
         this._flyers = [];
@@ -102,13 +103,14 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
     {
         view.letter.text = tile.joker ? "?" : tile.letter;
         view.points.text = tile.joker ? "" : ("" + tile.value);
-        if (this.tintSprites && this.tintSprites.length > 0 && view.back && view.tint !== tile.tint)
+        var tint = tile.doubled && this.doubledSprite ? -2 : tile.tint;
+        if (this.tintSprites && this.tintSprites.length > 0 && view.back && view.tint !== tint)
         {
             var drawable = view.back.drawable;
             var rect = drawable.rect;
-            drawable.imageName = this.tintSprites[Math.min(Math.max(tile.tint || 0, 0), this.tintSprites.length - 1)];
+            drawable.imageName = tint == -2 ? this.doubledSprite : this.tintSprites[Math.min(Math.max(tint || 0, 0), this.tintSprites.length - 1)];
             drawable.rect = rect;
-            view.tint = tile.tint;
+            view.tint = tint;
         }
     }
 
