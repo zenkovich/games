@@ -1,0 +1,52 @@
+{
+ "bar": {
+  "dx": -0.5,
+  "dy": 1,
+  "size": 0.947
+ },
+ "board": {
+  "dx": 0,
+  "size": 31.5,
+  "top": 15
+ },
+ "count": {
+  "dx": -0.5,
+  "dy": 2,
+  "size": 0.902
+ },
+ "digit": {
+  "bottom": 8,
+  "right": 9.25,
+  "size": 8.793
+ },
+ "icon": {
+  "dx": 0,
+  "dy": 1,
+  "size": 1.0
+ },
+ "moves": {
+  "dx": 0.5,
+  "dy": 3,
+  "size": 0.855
+ },
+ "movesv": {
+  "dx": 0,
+  "dy": 0,
+  "size": 1.0
+ },
+ "strip": {
+  "dx": -0.5,
+  "size": 26.172,
+  "top": 16
+ },
+ "wdigit": {
+  "bottom": 7,
+  "right": 8,
+  "size": 5.265
+ },
+ "word": {
+  "dx": -0.5,
+  "size": 22.942,
+  "top": 10
+ }
+}

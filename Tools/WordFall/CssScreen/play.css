@@ -1,0 +1,207 @@
+/* WordFall play: what the gameplay adds on top of game.css — cell backs and obstacles of the
+   board, powerups, booster charges, the aim mode label, messages, the effects layer, the intro
+   flight and the level-end popup. Units: rem = concept pixel (see game.css). */
+
+.screen { touch-action: manipulation; }
+
+/* ---- board cells ---------------------------------------------------------------------------- */
+
+.board { overflow: hidden; height: 526rem; }
+
+.cellback {
+  position: absolute;
+  width: 61rem;
+  height: 61rem;
+  border-radius: 9rem;
+  background: rgba(120, 80, 45, .18);
+  box-shadow: inset 0 1rem 2rem rgba(80, 50, 20, .25);
+}
+
+.board .tile { position: absolute; will-change: transform; }
+.board .tile.hidden { visibility: hidden; }
+
+.tile.ice {
+  background: linear-gradient(rgb(214, 238, 250), rgb(160, 206, 236));
+  border-color: rgb(96, 150, 190);
+  box-shadow: inset 0 2rem 0 rgba(255, 255, 255, .8), inset 0 -3rem 0 rgb(120, 176, 214), inset 0 0 12rem rgba(255, 255, 255, .6), var(--drop);
+  color: rgb(44, 106, 158);
+}
+.tile.ice .points { color: rgb(64, 124, 172); }
+
+.tile.stone {
+  background: linear-gradient(rgb(170, 172, 178), rgb(112, 114, 120));
+  border-color: rgb(60, 62, 68);
+  box-shadow: inset 0 2rem 0 rgba(255, 255, 255, .35), inset 0 -3rem 0 rgb(80, 82, 88), var(--drop);
+  color: rgb(245, 245, 248);
+}
+.tile.stone .points { color: rgb(200, 200, 210); }
+
+.tile.joker { color: rgb(160, 90, 200); }
+.tile.yellow .points { color: rgb(215, 150, 20); }
+
+.tile.crate {
+  background: repeating-linear-gradient(90deg, rgb(176, 120, 60) 0, rgb(176, 120, 60) 12rem, rgb(150, 98, 44) 12rem, rgb(150, 98, 44) 15rem);
+  border-color: rgb(96, 58, 20);
+  box-shadow: inset 0 0 0 4rem rgb(120, 76, 30), inset 0 0 0 5rem rgb(196, 140, 76), var(--drop);
+}
+.tile.crate .grade {
+  position: absolute; inset: 0; display: flex; justify-content: center; align-items: center;
+  font-size: 22rem; font-weight: bold; color: rgb(250, 225, 180); text-shadow: 0 1rem 0 rgb(90, 50, 15);
+}
+.tile.crate.cracked { background: repeating-linear-gradient(90deg, rgb(160, 104, 48) 0, rgb(160, 104, 48) 12rem, rgb(120, 72, 30) 12rem, rgb(120, 72, 30) 15rem); }
+.tile.crate.cracked::after {
+  content: ""; position: absolute; left: 10rem; top: 8rem; width: 40rem; height: 44rem;
+  background: linear-gradient(35deg, transparent 47%, rgb(60, 30, 10) 48%, rgb(60, 30, 10) 52%, transparent 53%),
+              linear-gradient(-60deg, transparent 47%, rgb(60, 30, 10) 48%, rgb(60, 30, 10) 52%, transparent 53%);
+}
+
+.tile.chained::after {
+  content: ""; position: absolute; inset: 0; border-radius: 7rem; pointer-events: none;
+  background: linear-gradient(transparent 38%, rgba(70, 70, 80, .85) 40%, rgba(70, 70, 80, .85) 48%, transparent 50%),
+              linear-gradient(90deg, transparent 38%, rgba(70, 70, 80, .85) 40%, rgba(70, 70, 80, .85) 48%, transparent 50%);
+  box-shadow: inset 0 0 0 2rem rgba(70, 70, 80, .9);
+}
+
+.tile.snow {
+  border-radius: 50%;
+  border-color: rgb(170, 200, 220);
+  background: radial-gradient(circle at 35% 30%, #fff, rgb(220, 236, 248) 60%, rgb(176, 206, 228));
+  box-shadow: inset -3rem -4rem 6rem rgba(120, 160, 200, .4), var(--drop);
+}
+
+.tile.parcel .letter {
+  background: rgb(248, 240, 224);
+  margin: 12rem 8rem;
+  border: 1rem solid rgb(170, 140, 100);
+  border-radius: 3rem;
+}
+.tile.parcel .letter::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%;
+  background: linear-gradient(135deg, transparent 48%, rgb(190, 160, 120) 49%, rgb(190, 160, 120) 51%, transparent 52%) left/50% 100% no-repeat,
+              linear-gradient(45deg, transparent 48%, rgb(190, 160, 120) 49%, rgb(190, 160, 120) 51%, transparent 52%) right/50% 100% no-repeat;
+}
+
+.tile.bonus { background: radial-gradient(circle, rgb(255, 236, 190), rgb(238, 190, 110)); border-color: rgb(150, 100, 30); }
+.tile.bonus .letter { font-size: 34rem; }
+.tile.bonus.rocket { background: radial-gradient(circle, rgb(220, 244, 255), rgb(140, 200, 240)); border-color: rgb(50, 110, 160); }
+.tile.bonus.fireworks { background: radial-gradient(circle, rgb(255, 225, 245), rgb(230, 140, 210)); border-color: rgb(150, 50, 130); }
+.tile.bonus::before {
+  content: ""; position: absolute; inset: -6rem; border-radius: 14rem; pointer-events: none;
+  background: radial-gradient(circle, var(--glow, rgba(255, 190, 110, .8)) 0, transparent 70%);
+  opacity: var(--glow-a, .5);
+}
+.tile.bonus.rocket { --glow: rgba(150, 225, 255, .8); }
+.tile.bonus.fireworks { --glow: rgba(255, 150, 220, .8); }
+
+.tile.shake { animation: shake .3s; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4rem); } 75% { transform: translateX(4rem); } }
+
+/* ---- the tasks strip ------------------------------------------------------------------------ */
+
+.task { gap: 8rem; padding: 0 8rem; }
+.others { display: flex; gap: 10rem; align-items: center; }
+.other { display: flex; align-items: center; gap: 6rem; }
+.other .count { font-family: Label, Roboto, sans-serif; font-size: 24rem; line-height: 1; width: 48rem; }
+.other .count.done { color: rgb(76, 150, 60); }
+.task .check { margin-left: auto; }
+.task .level { position: absolute; right: 10rem; bottom: 3rem; font-family: Label, Roboto, sans-serif; font-size: 11rem; color: rgba(74, 48, 34, .7); }
+.words { position: relative; }
+.word .tile { cursor: default; }
+
+/* ---- the tray ------------------------------------------------------------------------------- */
+
+.field { position: relative; padding: 0; }
+.field .tile { position: absolute; top: 8rem; cursor: pointer; }
+.field .tile.valid { color: rgb(56, 142, 60); }
+.field .tile.bad { color: rgb(200, 60, 40); }
+.input .message {
+  position: absolute; left: 0; width: 338rem; top: 60rem; text-align: center;
+  font-family: Label, Roboto, sans-serif; font-size: 13rem; color: rgb(170, 40, 30);
+  opacity: 0; transition: opacity .3s; pointer-events: none;
+}
+.input .message.shown { opacity: 1; }
+
+/* ---- boosters ------------------------------------------------------------------------------- */
+
+.booster .charge {
+  position: absolute; right: -2rem; top: -2rem; min-width: 20rem; height: 20rem; padding: 0 5rem;
+  border-radius: 10rem; background: rgb(250, 245, 230); border: 1rem solid rgb(120, 80, 40);
+  font-family: Label, Roboto, sans-serif; font-size: 12rem; line-height: 18rem; color: var(--ink); text-align: center;
+}
+.booster.armed { box-shadow: 0 0 0 3rem rgb(255, 220, 90), 0 3rem 0 rgba(90, 50, 20, .3); }
+.booster.empty { opacity: .45; }
+.mode {
+  position: absolute; left: 0; right: 0; top: 924rem; text-align: center; font-family: Label, Roboto, sans-serif;
+  font-size: 12rem; color: rgb(255, 245, 225); pointer-events: none;
+}
+.mode span { background: rgba(60, 30, 10, .8); border-radius: 8rem; padding: 2rem 10rem; }
+
+/* ---- effects layers ------------------------------------------------------------------------- */
+
+.fx, .particles, .intro { position: absolute; inset: 0; pointer-events: none; }
+.fx .tile, .intro .tile { position: absolute; left: 0; top: 0; }
+.fx .flash {
+  position: absolute; border-radius: 50%; left: 0; top: 0;
+  background: radial-gradient(circle, rgba(255, 255, 240, .95) 0, rgba(255, 220, 140, .7) 40%, rgba(255, 200, 100, 0) 70%);
+}
+.fx .gain {
+  position: absolute; left: 0; top: 0; font-family: Label, Roboto, sans-serif; font-size: 26rem; font-weight: bold;
+  color: rgb(255, 240, 200); -webkit-text-stroke: 1.5rem rgb(110, 60, 20); paint-order: stroke fill;
+}
+.fx .rocket { position: absolute; left: 0; top: 0; width: 34rem; height: 14rem; margin: -7rem 0 0 -17rem; }
+.fx .rocket i {
+  position: absolute; left: 0; top: 0; width: 26rem; height: 14rem; border-radius: 7rem 9rem 9rem 7rem / 50%;
+  background: linear-gradient(rgb(255, 255, 255), rgb(190, 200, 215)); box-shadow: inset 0 -3rem 0 rgb(150, 160, 180);
+}
+.fx .rocket i::before {
+  content: ""; position: absolute; right: -8rem; top: 2rem; width: 0; height: 0;
+  border-left: 10rem solid rgb(230, 70, 60); border-top: 5rem solid transparent; border-bottom: 5rem solid transparent;
+}
+.fx .rocket i::after {
+  content: ""; position: absolute; left: -9rem; top: 2rem; width: 12rem; height: 10rem; border-radius: 50%;
+  background: radial-gradient(circle at 70% 50%, rgb(255, 250, 200), rgb(255, 170, 60) 60%, transparent);
+}
+
+/* ---- level-end popup ------------------------------------------------------------------------ */
+
+.popup { position: absolute; inset: 0; display: none; }
+.popup.shown { display: block; }
+.popup .dim { position: absolute; inset: 0; background: rgba(20, 20, 40, .78); }
+.popup .card {
+  position: absolute; left: 50%; top: 50%; width: 300rem; height: 320rem; margin: -150rem 0 0 -150rem;
+  border-radius: 18rem; background: linear-gradient(rgb(78, 94, 130), rgb(44, 54, 82));
+  border: 2rem solid rgb(140, 160, 200); box-shadow: 0 10rem 30rem rgba(0, 0, 0, .5);
+  text-align: center; color: rgb(250, 245, 235);
+}
+.popup .plate {
+  position: absolute; left: 24rem; right: 24rem; top: -22rem; height: 48rem; line-height: 46rem;
+  border-radius: 12rem; background: linear-gradient(rgb(255, 238, 206), rgb(232, 196, 140)); border: 2rem solid rgb(130, 90, 40);
+  color: var(--ink); font-family: Label, Roboto, sans-serif; font-size: 24rem; font-weight: bold;
+}
+.popup .stars { display: flex; justify-content: center; gap: 14rem; margin-top: 44rem; }
+.popup .stars i {
+  width: 52rem; height: 52rem; display: block;
+  clip-path: polygon(50% 2%, 64.1% 30.6%, 95.7% 35.2%, 72.8% 57.4%, 78.2% 88.8%, 50% 74%, 21.8% 88.8%, 27.2% 57.4%, 4.3% 35.2%, 35.9% 30.6%);
+  background: rgb(30, 36, 56); transform: scale(0);
+  transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), background .2s;
+}
+.popup .stars i.slot { transform: scale(1); }
+.popup .stars i.lit { background: linear-gradient(rgb(255, 230, 120), rgb(240, 170, 40)); transform: scale(1); }
+.popup .result { margin-top: 14rem; font-size: 54rem; line-height: 1; position: relative; }
+.popup .badge {
+  position: absolute; margin-left: 10rem; margin-top: 8rem; padding: 2rem 8rem; border-radius: 10rem;
+  background: rgb(90, 180, 80); font-family: Label, Roboto, sans-serif; font-size: 16rem; line-height: 1.3; color: #fff; display: none;
+}
+.popup .badge.shown { display: inline-block; }
+.popup .tasks { margin-top: 14rem; font-family: Label, Roboto, sans-serif; font-size: 16rem; }
+.popup .subtitle { margin-top: 6rem; font-family: Label, Roboto, sans-serif; font-size: 13rem; opacity: .85; min-height: 16rem; }
+.popup .go {
+  position: absolute; left: 50%; bottom: 20rem; transform: translateX(-50%); padding: 10rem 34rem; border-radius: 14rem;
+  background: linear-gradient(rgb(255, 200, 90), rgb(236, 140, 30)); border: 2rem solid rgb(130, 70, 10);
+  color: rgb(70, 30, 0); font-family: Label, Roboto, sans-serif; font-size: 20rem; font-weight: bold; white-space: nowrap;
+}
+.popup .card.pop { animation: pop .4s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.popup .card.wobble { animation: wobble .5s; }
+@keyframes wobble { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10rem); } 40% { transform: translateX(8rem); } 60% { transform: translateX(-6rem); } 80% { transform: translateX(4rem); } }
+.popup .confetti { position: absolute; left: 0; top: 0; }

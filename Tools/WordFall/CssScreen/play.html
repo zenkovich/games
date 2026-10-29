@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WordFall Play</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="play.css">
+</head>
+<body>
+<main class="screen" id="screen">
+
+  <header class="top">
+    <section class="words" id="words" aria-label="Word tasks"></section>
+    <aside class="moves" aria-label="Moves left">
+      <div class="paper"></div>
+      <p class="caption">Moves Left:</p>
+      <p class="value" id="moves">0</p>
+    </aside>
+  </header>
+
+  <section class="task panel" aria-label="Current tasks">
+    <div class="others" id="others"></div>
+    <div class="slot"><div class="star" id="taskstar"></div></div>
+    <div class="btn green check" id="taskcheck"><span class="icon">θ</span></div>
+    <p class="level" id="level"></p>
+  </section>
+
+  <section class="progress" aria-label="Progress">
+    <div class="star"></div>
+    <div class="bar" id="bar">
+      <div class="fill" id="fill"></div>
+      <p class="text" id="score"></p>
+    </div>
+  </section>
+
+  <section class="input" aria-label="Word input">
+    <div class="field" id="tray"></div>
+    <button class="btn green" type="button" id="accept" aria-label="Accept"><span class="icon">ζ</span></button>
+    <button class="btn red" type="button" id="cancel" aria-label="Cancel"><span class="icon">η</span></button>
+    <p class="message" id="message"></p>
+  </section>
+
+  <section class="board" id="board" aria-label="Board"></section>
+
+  <p class="mode" id="mode"></p>
+
+  <footer class="boosters" aria-label="Boosters">
+    <button class="booster blue" type="button" data-booster="0"><span class="icon">α</span><span class="charge">0</span></button>
+    <button class="booster blue" type="button" data-booster="1"><span class="icon">ε</span><span class="charge">0</span></button>
+    <button class="booster blue" type="button" data-booster="2"><span class="icon">γ</span><span class="charge">0</span></button>
+    <button class="booster yellow" type="button" data-booster="3"><span class="icon">δ</span><span class="charge">0</span></button>
+    <button class="booster red" type="button" data-booster="4"><span class="icon">β</span><span class="charge">0</span></button>
+  </footer>
+
+  <div class="fx" id="fx"></div>
+  <canvas class="particles" id="particles"></canvas>
+
+  <div class="intro" id="intro"></div>
+
+  <div class="popup" id="popup">
+    <div class="dim"></div>
+    <div class="card" id="card">
+      <div class="plate" id="title">ПОБЕДА!</div>
+      <div class="stars"><i></i><i></i><i></i></div>
+      <div class="result"><span id="popscore">0</span><span class="badge" id="badge">+0</span></div>
+      <p class="tasks" id="poptasks"></p>
+      <p class="subtitle" id="popsub"></p>
+      <button class="go" type="button" id="popbtn">ДАЛЬШЕ</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // the engine's script runtime: include() pulls sibling scripts, here they are script tags
+  var include = function() {};
+  var print = function(s) { console.log(s); };
+</script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordFallConfigs.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordFallRandom.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordFallRemote.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordFallDictionaryData.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordDictionary.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordBoard.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordBoardMotion.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordLevel.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/WordFallLevels.js"></script>
+<script src="../../../Assets/Scripts/WordFall/Core/PlayerProgress.js"></script>
+<script src="campaign.js"></script>
+<script src="play.js"></script>
+</body>
+</html>

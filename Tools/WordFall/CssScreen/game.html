@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WordFall</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<main class="screen">
+
+  <header class="top">
+    <section class="words" aria-label="Word tasks">
+      <div class="word" data-word="PUZZLE">
+        <div class="tile small"><span class="letter">P</span><span class="points">1</span></div>
+        <div class="tile small found"><span class="letter">U</span><span class="points">3</span></div>
+        <div class="tile small found"><span class="letter">Z</span><span class="points">3</span></div>
+        <div class="tile small found"><span class="letter">Z</span><span class="points">3</span></div>
+        <div class="tile small"><span class="letter">L</span><span class="points">1</span></div>
+        <div class="tile small"><span class="letter">E</span><span class="points">1</span></div>
+      </div>
+      <div class="word" data-word="BRAIN">
+        <div class="tile small found"><span class="letter">B</span><span class="points">3</span></div>
+        <div class="tile small"><span class="letter">R</span><span class="points">1</span></div>
+        <div class="tile small active"><span class="letter">A</span><span class="points">1</span></div>
+        <div class="tile small active"><span class="letter">I</span><span class="points">1</span></div>
+        <div class="tile small"><span class="letter">N</span><span class="points">1</span></div>
+      </div>
+      <div class="word" data-word="LOGIC">
+        <div class="tile small"><span class="letter">L</span><span class="points">1</span></div>
+        <div class="tile small found"><span class="letter">O</span><span class="points">1</span></div>
+        <div class="tile small active"><span class="letter">G</span><span class="points">2</span></div>
+        <div class="tile small active"><span class="letter">I</span><span class="points">1</span></div>
+        <div class="tile small active"><span class="letter">C</span><span class="points">2</span></div>
+      </div>
+      <div class="word" data-word="CONNECT">
+        <div class="tile small"><span class="letter">C</span><span class="points">3</span></div>
+        <div class="tile small found"><span class="letter">O</span><span class="points">1</span></div>
+        <div class="tile small"><span class="letter">N</span><span class="points">1</span></div>
+        <div class="tile small found"><span class="letter">N</span><span class="points">1</span></div>
+        <div class="tile small"><span class="letter">E</span><span class="points">1</span></div>
+        <div class="tile small found"><span class="letter">C</span><span class="points">1</span></div>
+        <div class="tile small"><span class="letter">T</span><span class="points">1</span></div>
+      </div>
+    </section>
+
+    <aside class="moves" aria-label="Moves left">
+      <div class="paper"></div>
+      <p class="caption">Moves Left:</p>
+      <p class="value">35</p>
+    </aside>
+  </header>
+
+  <section class="task panel" aria-label="Current task">
+    <div class="tile medium"><span class="letter">W</span></div>
+    <p class="count">1/10</p>
+    <div class="slot"><div class="star"></div></div>
+    <button class="btn green" type="button" aria-label="Claim"><span class="icon">θ</span></button>
+  </section>
+
+  <section class="progress" aria-label="Progress">
+    <div class="star"></div>
+    <div class="bar" style="--fill: 43%">
+      <div class="fill"></div>
+      <p class="text">Progress: 1200 / 2500</p>
+    </div>
+  </section>
+
+  <section class="input" aria-label="Word input">
+    <div class="field"></div>
+    <button class="btn green" type="button" aria-label="Accept"><span class="icon">ζ</span></button>
+    <button class="btn red" type="button" aria-label="Cancel"><span class="icon">η</span></button>
+  </section>
+
+  <section class="board" aria-label="Board">
+    <div class="tile" data-col="0" data-row="0"><span class="letter">W</span><span class="points">6</span></div>
+    <div class="tile" data-col="1" data-row="0"><span class="letter">O</span><span class="points">2</span></div>
+    <div class="tile" data-col="2" data-row="0"><span class="letter">R</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="3" data-row="0"><span class="letter">D</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="4" data-row="0"><span class="letter">H</span><span class="points">4</span></div>
+    <div class="tile" data-col="5" data-row="0"><span class="letter">U</span><span class="points">1</span></div>
+    <div class="tile orange" data-col="6" data-row="0"><span class="letter">K</span><span class="points">6</span></div>
+
+    <div class="tile" data-col="0" data-row="1"><span class="letter">T</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="1" data-row="1"><span class="letter">S</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="2" data-row="1"><span class="letter">E</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="3" data-row="1"><span class="letter">A</span><span class="points">2</span></div>
+    <div class="tile" data-col="4" data-row="1"><span class="letter">R</span><span class="points">1</span></div>
+    <div class="tile" data-col="5" data-row="1"><span class="letter">C</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="6" data-row="1"><span class="letter">V</span><span class="points">2</span></div>
+
+    <div class="tile" data-col="0" data-row="2"><span class="letter">G</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="1" data-row="2"><span class="letter">A</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="2" data-row="2"><span class="letter">M</span><span class="points">4</span></div>
+    <div class="tile" data-col="3" data-row="2"><span class="letter">E</span><span class="points">1</span></div>
+    <div class="tile orange" data-col="4" data-row="2"><span class="letter">P</span><span class="points">6</span></div>
+    <div class="tile" data-col="5" data-row="2"><span class="letter">L</span><span class="points">1</span></div>
+    <div class="tile" data-col="6" data-row="2"><span class="letter">L</span><span class="points">1</span></div>
+
+    <div class="tile peach" data-col="0" data-row="3"><span class="letter">Y</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="1" data-row="3"><span class="letter">K</span><span class="points">2</span></div>
+    <div class="tile" data-col="2" data-row="3"><span class="letter">I</span><span class="points">1</span></div>
+    <div class="tile" data-col="3" data-row="3"><span class="letter">C</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="4" data-row="3"><span class="letter">K</span><span class="points">4</span></div>
+    <div class="tile yellow" data-col="5" data-row="3"><span class="letter">V</span><span class="points">2</span></div>
+    <div class="tile" data-col="6" data-row="3"><span class="letter">A</span><span class="points">1</span></div>
+
+    <div class="tile peach" data-col="0" data-row="4"><span class="letter">F</span><span class="points">1</span></div>
+    <div class="tile" data-col="1" data-row="4"><span class="letter">U</span><span class="points">2</span></div>
+    <div class="tile" data-col="2" data-row="4"><span class="letter">N</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="3" data-row="4"><span class="letter">N</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="4" data-row="4"><span class="letter">Y</span><span class="points">2</span></div>
+    <div class="tile" data-col="5" data-row="4"><span class="letter">Q</span><span class="points">2</span></div>
+    <div class="tile" data-col="6" data-row="4"><span class="letter">R</span><span class="points">1</span></div>
+
+    <div class="tile peach" data-col="0" data-row="5"><span class="letter">S</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="1" data-row="5"><span class="letter">T</span><span class="points">1</span></div>
+    <div class="tile" data-col="2" data-row="5"><span class="letter">A</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="3" data-row="5"><span class="letter">R</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="4" data-row="5"><span class="letter">T</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="5" data-row="5"><span class="letter">M</span><span class="points">4</span></div>
+    <div class="tile" data-col="6" data-row="5"><span class="letter">C</span><span class="points">2</span></div>
+
+    <div class="tile orange" data-col="0" data-row="6"><span class="letter">P</span><span class="points">6</span></div>
+    <div class="tile" data-col="1" data-row="6"><span class="letter">L</span><span class="points">1</span></div>
+    <div class="tile" data-col="2" data-row="6"><span class="letter">A</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="3" data-row="6"><span class="letter">Y</span><span class="points">2</span></div>
+    <div class="tile peach" data-col="4" data-row="6"><span class="letter">T</span><span class="points">1</span></div>
+    <div class="tile peach" data-col="5" data-row="6"><span class="letter">I</span><span class="points">1</span></div>
+    <div class="tile" data-col="6" data-row="6"><span class="letter">O</span><span class="points">1</span></div>
+
+    <div class="tile" data-col="0" data-row="7"><span class="letter">E</span><span class="points">1</span></div>
+    <div class="tile" data-col="1" data-row="7"><span class="letter">R</span><span class="points">2</span></div>
+    <div class="tile" data-col="2" data-row="7"><span class="letter">E</span><span class="points">1</span></div>
+    <div class="tile" data-col="3" data-row="7"><span class="letter">L</span><span class="points">1</span></div>
+    <div class="tile" data-col="4" data-row="7"><span class="letter">A</span><span class="points">1</span></div>
+    <div class="tile orange" data-col="5" data-row="7"><span class="letter">X</span><span class="points">6</span></div>
+    <div class="tile peach" data-col="6" data-row="7"><span class="letter">P</span><span class="points">2</span></div>
+  </section>
+
+  <footer class="boosters" aria-label="Boosters">
+    <button class="booster blue" type="button" data-booster="search"><span class="icon">α</span></button>
+    <button class="booster blue" type="button" data-booster="zoom"><span class="icon">β</span></button>
+    <button class="booster blue" type="button" data-booster="hint"><span class="icon">γ</span></button>
+    <button class="booster yellow" type="button" data-booster="idea"><span class="icon">δ</span></button>
+    <button class="booster red" type="button" data-booster="shuffle"><span class="icon">ε</span></button>
+  </footer>
+
+</main>
+</body>
+</html>
