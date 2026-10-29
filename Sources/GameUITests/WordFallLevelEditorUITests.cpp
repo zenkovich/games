@@ -376,7 +376,7 @@ TEST_F(WordFallLevelEditorUI, WordsBlockTakesManualWordsAndTheAgent)
 	auto shown = Eval("JSON.stringify(WordFallViews.levelEditor.GetShownWords())");
 	EXPECT_NE(shown.Find("\"КОТ\",\"ДОМ\""), -1) << shown.Data();
 	EXPECT_NE(shown.Find("ещё 2 слова"), -1) << "пять слов в четырёх рядах: " << shown.Data();
-	EXPECT_NE(Text("WordsTitle").Find("СЛОВА: 2 + 3 агент"), -1) << Text("WordsTitle").Data();
+	EXPECT_NE(Text("WordsTitle").Find("СЛОВА RU: 2 + 3 агент"), -1) << Text("WordsTitle").Data();
 
 	// цель по очкам считает агент
 	Tap("AutoTargetBtn/Btn");

@@ -73,7 +73,7 @@ TEST_F(WordFallMainScreenUI, FoundWordTurnsOrangeAndTypedPrefixLightsUp)
 
 TEST_F(WordFallMainScreenUI, OtherTasksShowIconsCountsAndTheFinalCheck)
 {
-	o2Scripts.Eval("(function() { var c = WordFallGame.service.GetLevelConfig(0); c.words = []; c.wordsAuto = 0;"
+	o2Scripts.Eval("(function() { var c = WordFallGame.service.GetLevelConfig(0); c.words = ['КОТ']; c.wordsAuto = 0;"
 				   " c.tasks = [{taskType: 'Letter', letter: 'О', count: 10}, {taskType: 'AnyWords', count: 2}, {taskType: 'Powerup', powerupKind: 'bomb', count: 1}];"
 				   " c.targetScore = 10; WordFallGame.service.SetLevelConfig(0, c); WordFallGame.service.StartLevel(0); })()");
 	AppTestDriver::PumpFrames(3);
