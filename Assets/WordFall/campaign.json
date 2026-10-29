@@ -1,9 +1,14 @@
 [
   {
     "id": "L001",
-    "words": [
-      "ДОМ"
-    ],
+    "words": {
+      "en": [
+        "PIG"
+      ],
+      "ru": [
+        "ДОМ"
+      ]
+    },
     "targetScore": 140,
     "moves": 9,
     "boosterCharges": [
@@ -48,15 +53,23 @@
       {
         "taskType": "Letter",
         "count": 3,
-        "letter": "Т"
+        "letter": {
+          "en": "T",
+          "ru": "Т"
+        }
       }
     ]
   },
   {
     "id": "L002",
-    "words": [
-      "СОН"
-    ],
+    "words": {
+      "en": [
+        "DOG"
+      ],
+      "ru": [
+        "СОН"
+      ]
+    },
     "targetScore": 240,
     "moves": 16,
     "boosterCharges": [
@@ -120,9 +133,14 @@
   },
   {
     "id": "L003",
-    "words": [
-      "ДОМ"
-    ],
+    "words": {
+      "en": [
+        "BED"
+      ],
+      "ru": [
+        "ДОМ"
+      ]
+    },
     "targetScore": 140,
     "moves": 9,
     "boosterCharges": [
@@ -180,9 +198,14 @@
   },
   {
     "id": "L004",
-    "words": [
-      "ЛЕС"
-    ],
+    "words": {
+      "en": [
+        "BUS"
+      ],
+      "ru": [
+        "ЛЕС"
+      ]
+    },
     "targetScore": 240,
     "moves": 16,
     "boosterCharges": [
@@ -250,9 +273,14 @@
   },
   {
     "id": "L005",
-    "words": [
-      "КОТ"
-    ],
+    "words": {
+      "en": [
+        "RUG"
+      ],
+      "ru": [
+        "КОТ"
+      ]
+    },
     "targetScore": 240,
     "moves": 16,
     "boosterCharges": [
@@ -340,15 +368,23 @@
       {
         "taskType": "Letter",
         "count": 9,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       }
     ]
   },
   {
     "id": "L006",
-    "words": [
-      "МАК"
-    ],
+    "words": {
+      "en": [
+        "BEE"
+      ],
+      "ru": [
+        "МАК"
+      ]
+    },
     "targetScore": 240,
     "moves": 16,
     "boosterCharges": [
@@ -397,9 +433,14 @@
   },
   {
     "id": "L007",
-    "words": [
-      "ОКНО"
-    ],
+    "words": {
+      "en": [
+        "BEAR"
+      ],
+      "ru": [
+        "ОКНО"
+      ]
+    },
     "targetScore": 240,
     "moves": 16,
     "boosterCharges": [
@@ -484,9 +525,14 @@
   },
   {
     "id": "L008",
-    "words": [
-      "ЛУНА"
-    ],
+    "words": {
+      "en": [
+        "BIRD"
+      ],
+      "ru": [
+        "ЛУНА"
+      ]
+    },
     "targetScore": 360,
     "moves": 16,
     "boosterCharges": [
@@ -599,9 +645,14 @@
   },
   {
     "id": "L009",
-    "words": [
-      "СНЕГ"
-    ],
+    "words": {
+      "en": [
+        "SILK"
+      ],
+      "ru": [
+        "СНЕГ"
+      ]
+    },
     "targetScore": 240,
     "moves": 12,
     "boosterCharges": [
@@ -706,9 +757,14 @@
   },
   {
     "id": "L010",
-    "words": [
-      "ОКНО"
-    ],
+    "words": {
+      "en": [
+        "SEED"
+      ],
+      "ru": [
+        "ОКНО"
+      ]
+    },
     "targetScore": 240,
     "moves": 12,
     "boosterCharges": [
@@ -779,9 +835,14 @@
   },
   {
     "id": "L011",
-    "words": [
-      "ЗИМА"
-    ],
+    "words": {
+      "en": [
+        "WOOD"
+      ],
+      "ru": [
+        "ЗИМА"
+      ]
+    },
     "targetScore": 180,
     "moves": 9,
     "boosterCharges": [
@@ -857,15 +918,23 @@
       {
         "taskType": "Letter",
         "count": 12,
-        "letter": "Е"
+        "letter": {
+          "en": "E",
+          "ru": "Е"
+        }
       }
     ]
   },
   {
     "id": "L012",
-    "words": [
-      "СЛОН"
-    ],
+    "words": {
+      "en": [
+        "CORN"
+      ],
+      "ru": [
+        "СЛОН"
+      ]
+    },
     "targetScore": 190,
     "moves": 12,
     "boosterCharges": [
@@ -942,9 +1011,14 @@
   },
   {
     "id": "L013",
-    "words": [
-      "ЛУНА"
-    ],
+    "words": {
+      "en": [
+        "POND"
+      ],
+      "ru": [
+        "ЛУНА"
+      ]
+    },
     "targetScore": 270,
     "moves": 11,
     "boosterCharges": [
@@ -1033,9 +1107,14 @@
   },
   {
     "id": "L014",
-    "words": [
-      "СЛОН"
-    ],
+    "words": {
+      "en": [
+        "COAT"
+      ],
+      "ru": [
+        "СЛОН"
+      ]
+    },
     "targetScore": 240,
     "moves": 12,
     "boosterCharges": [
@@ -1134,9 +1213,14 @@
   },
   {
     "id": "L015",
-    "words": [
-      "СНЕГ"
-    ],
+    "words": {
+      "en": [
+        "GIFT"
+      ],
+      "ru": [
+        "СНЕГ"
+      ]
+    },
     "targetScore": 250,
     "moves": 15,
     "boosterCharges": [
@@ -1213,9 +1297,14 @@
   },
   {
     "id": "L016",
-    "words": [
-      "РОЗА"
-    ],
+    "words": {
+      "en": [
+        "HILL"
+      ],
+      "ru": [
+        "РОЗА"
+      ]
+    },
     "targetScore": 290,
     "moves": 18,
     "boosterCharges": [
@@ -1286,15 +1375,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "Т"
+        "letter": {
+          "en": "T",
+          "ru": "Т"
+        }
       }
     ]
   },
   {
     "id": "L017",
-    "words": [
-      "РОЗА"
-    ],
+    "words": {
+      "en": [
+        "LAKE"
+      ],
+      "ru": [
+        "РОЗА"
+      ]
+    },
     "targetScore": 260,
     "moves": 11,
     "boosterCharges": [
@@ -1349,15 +1446,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       }
     ]
   },
   {
     "id": "L018",
-    "words": [
-      "ЛУНА"
-    ],
+    "words": {
+      "en": [
+        "DOOR"
+      ],
+      "ru": [
+        "ЛУНА"
+      ]
+    },
     "targetScore": 260,
     "moves": 12,
     "boosterCharges": [
@@ -1430,15 +1535,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       }
     ]
   },
   {
     "id": "L019",
-    "words": [
-      "СНЕГ"
-    ],
+    "words": {
+      "en": [
+        "WIND"
+      ],
+      "ru": [
+        "СНЕГ"
+      ]
+    },
     "targetScore": 250,
     "moves": 11,
     "boosterCharges": [
@@ -1511,15 +1624,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       }
     ]
   },
   {
     "id": "L020",
-    "words": [
-      "ПАРК"
-    ],
+    "words": {
+      "en": [
+        "MOON"
+      ],
+      "ru": [
+        "ПАРК"
+      ]
+    },
     "targetScore": 270,
     "moves": 16,
     "boosterCharges": [
@@ -1613,15 +1734,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       }
     ]
   },
   {
     "id": "L021",
-    "words": [
-      "ГОРА"
-    ],
+    "words": {
+      "en": [
+        "HOME"
+      ],
+      "ru": [
+        "ГОРА"
+      ]
+    },
     "targetScore": 400,
     "moves": 15,
     "boosterCharges": [
@@ -1703,9 +1832,14 @@
   },
   {
     "id": "L022",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "BOARD"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 310,
     "moves": 11,
     "boosterCharges": [
@@ -1787,9 +1921,14 @@
   },
   {
     "id": "L023",
-    "words": [
-      "ТРОН"
-    ],
+    "words": {
+      "en": [
+        "TREE"
+      ],
+      "ru": [
+        "ТРОН"
+      ]
+    },
     "targetScore": 290,
     "moves": 18,
     "boosterCharges": [
@@ -1839,9 +1978,14 @@
   },
   {
     "id": "L024",
-    "words": [
-      "МОРЕ"
-    ],
+    "words": {
+      "en": [
+        "GOLD"
+      ],
+      "ru": [
+        "МОРЕ"
+      ]
+    },
     "targetScore": 330,
     "moves": 16,
     "boosterCharges": [
@@ -1911,9 +2055,14 @@
   },
   {
     "id": "L025",
-    "words": [
-      "СНЕГ"
-    ],
+    "words": {
+      "en": [
+        "KITE"
+      ],
+      "ru": [
+        "СНЕГ"
+      ]
+    },
     "targetScore": 280,
     "moves": 12,
     "boosterCharges": [
@@ -2003,9 +2152,14 @@
   },
   {
     "id": "L026",
-    "words": [
-      "СЛОН"
-    ],
+    "words": {
+      "en": [
+        "SOAP"
+      ],
+      "ru": [
+        "СЛОН"
+      ]
+    },
     "targetScore": 310,
     "moves": 12,
     "boosterCharges": [
@@ -2072,15 +2226,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       }
     ]
   },
   {
     "id": "L027",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "CAMEL"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 460,
     "moves": 15,
     "boosterCharges": [
@@ -2189,9 +2351,14 @@
   },
   {
     "id": "L028",
-    "words": [
-      "РЕКА"
-    ],
+    "words": {
+      "en": [
+        "DEER"
+      ],
+      "ru": [
+        "РЕКА"
+      ]
+    },
     "targetScore": 290,
     "moves": 18,
     "boosterCharges": [
@@ -2275,9 +2442,14 @@
   },
   {
     "id": "L029",
-    "words": [
-      "РЕКА"
-    ],
+    "words": {
+      "en": [
+        "BOAT"
+      ],
+      "ru": [
+        "РЕКА"
+      ]
+    },
     "targetScore": 310,
     "moves": 12,
     "boosterCharges": [
@@ -2367,15 +2539,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       }
     ]
   },
   {
     "id": "L030",
-    "words": [
-      "ОКНО"
-    ],
+    "words": {
+      "en": [
+        "TENT"
+      ],
+      "ru": [
+        "ОКНО"
+      ]
+    },
     "targetScore": 420,
     "moves": 18,
     "boosterCharges": [
@@ -2484,9 +2664,14 @@
   },
   {
     "id": "L031",
-    "words": [
-      "СНЕГ"
-    ],
+    "words": {
+      "en": [
+        "FARM"
+      ],
+      "ru": [
+        "СНЕГ"
+      ]
+    },
     "targetScore": 310,
     "moves": 12,
     "boosterCharges": [
@@ -2558,15 +2743,23 @@
       {
         "taskType": "Letter",
         "count": 5,
-        "letter": "Е"
+        "letter": {
+          "en": "E",
+          "ru": "Е"
+        }
       }
     ]
   },
   {
     "id": "L032",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "CROWD"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 550,
     "moves": 16,
     "boosterCharges": [
@@ -2671,9 +2864,14 @@
   },
   {
     "id": "L033",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "ZEBRA"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 330,
     "moves": 9,
     "boosterCharges": [
@@ -2781,9 +2979,14 @@
   },
   {
     "id": "L034",
-    "words": [
-      "КНИГА"
-    ],
+    "words": {
+      "en": [
+        "LIGHT"
+      ],
+      "ru": [
+        "КНИГА"
+      ]
+    },
     "targetScore": 400,
     "moves": 11,
     "boosterCharges": [
@@ -2874,9 +3077,14 @@
   },
   {
     "id": "L035",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "CHESS"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 330,
     "moves": 9,
     "boosterCharges": [
@@ -2932,7 +3140,10 @@
       {
         "taskType": "Letter",
         "count": 9,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       },
       {
         "taskType": "Powerup",
@@ -2943,9 +3154,14 @@
   },
   {
     "id": "L036",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "STAMP"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 310,
     "moves": 9,
     "boosterCharges": [
@@ -3016,7 +3232,10 @@
       {
         "taskType": "Letter",
         "count": 6,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       },
       {
         "taskType": "Powerup",
@@ -3027,9 +3246,14 @@
   },
   {
     "id": "L037",
-    "words": [
-      "ЛАМПА"
-    ],
+    "words": {
+      "en": [
+        "HEART"
+      ],
+      "ru": [
+        "ЛАМПА"
+      ]
+    },
     "targetScore": 480,
     "moves": 14,
     "boosterCharges": [
@@ -3133,9 +3357,14 @@
   },
   {
     "id": "L038",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "SHEEP"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 410,
     "moves": 12,
     "boosterCharges": [
@@ -3186,7 +3415,10 @@
       {
         "taskType": "Letter",
         "count": 9,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       },
       {
         "taskType": "Powerup",
@@ -3197,9 +3429,14 @@
   },
   {
     "id": "L039",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "WITCH"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 530,
     "moves": 16,
     "boosterCharges": [
@@ -3277,9 +3514,14 @@
   },
   {
     "id": "L040",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "CANDY"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -3358,9 +3600,14 @@
   },
   {
     "id": "L041",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "CABIN"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 440,
     "moves": 12,
     "boosterCharges": [
@@ -3434,9 +3681,14 @@
   },
   {
     "id": "L042",
-    "words": [
-      "ЛАМПА"
-    ],
+    "words": {
+      "en": [
+        "HOUSE"
+      ],
+      "ru": [
+        "ЛАМПА"
+      ]
+    },
     "targetScore": 610,
     "moves": 16,
     "boosterCharges": [
@@ -3513,9 +3765,14 @@
   },
   {
     "id": "L043",
-    "words": [
-      "ПАЛУБА"
-    ],
+    "words": {
+      "en": [
+        "FLOWER"
+      ],
+      "ru": [
+        "ПАЛУБА"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -3626,9 +3883,14 @@
   },
   {
     "id": "L044",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "CREAM"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 460,
     "moves": 12,
     "boosterCharges": [
@@ -3718,7 +3980,10 @@
       {
         "taskType": "Letter",
         "count": 11,
-        "letter": "Н"
+        "letter": {
+          "en": "N",
+          "ru": "Н"
+        }
       },
       {
         "taskType": "Powerup",
@@ -3729,9 +3994,14 @@
   },
   {
     "id": "L045",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "PANDA"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 430,
     "moves": 12,
     "boosterCharges": [
@@ -3806,9 +4076,14 @@
   },
   {
     "id": "L046",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "SCHOOL"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 350,
     "moves": 9,
     "boosterCharges": [
@@ -3875,7 +4150,10 @@
       {
         "taskType": "Letter",
         "count": 6,
-        "letter": "Н"
+        "letter": {
+          "en": "N",
+          "ru": "Н"
+        }
       },
       {
         "taskType": "AnyWords",
@@ -3890,9 +4168,14 @@
   },
   {
     "id": "L047",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "WINDOW"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 470,
     "moves": 12,
     "boosterCharges": [
@@ -3968,9 +4251,14 @@
   },
   {
     "id": "L048",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "PAPER"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 590,
     "moves": 16,
     "boosterCharges": [
@@ -4082,9 +4370,14 @@
   },
   {
     "id": "L049",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "TEETH"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 560,
     "moves": 16,
     "boosterCharges": [
@@ -4143,9 +4436,14 @@
   },
   {
     "id": "L050",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "FENCE"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -4252,9 +4550,14 @@
   },
   {
     "id": "L051",
-    "words": [
-      "ПАЛУБА"
-    ],
+    "words": {
+      "en": [
+        "POCKET"
+      ],
+      "ru": [
+        "ПАЛУБА"
+      ]
+    },
     "targetScore": 420,
     "moves": 11,
     "boosterCharges": [
@@ -4355,9 +4658,14 @@
   },
   {
     "id": "L052",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "MOTOR"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 390,
     "moves": 11,
     "boosterCharges": [
@@ -4452,9 +4760,14 @@
   },
   {
     "id": "L053",
-    "words": [
-      "КОРОНА"
-    ],
+    "words": {
+      "en": [
+        "LADDER"
+      ],
+      "ru": [
+        "КОРОНА"
+      ]
+    },
     "targetScore": 350,
     "moves": 9,
     "boosterCharges": [
@@ -4510,7 +4823,10 @@
       {
         "taskType": "Letter",
         "count": 12,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       },
       {
         "taskType": "Powerup",
@@ -4525,9 +4841,14 @@
   },
   {
     "id": "L054",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "ROBOT"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 520,
     "moves": 14,
     "boosterCharges": [
@@ -4593,9 +4914,14 @@
   },
   {
     "id": "L055",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "MUSIC"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -4657,9 +4983,14 @@
   },
   {
     "id": "L056",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "LLAMA"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 300,
     "moves": 9,
     "boosterCharges": [
@@ -4736,9 +5067,14 @@
   },
   {
     "id": "L057",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "LIZARD"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 620,
     "moves": 16,
     "boosterCharges": [
@@ -4847,9 +5183,14 @@
   },
   {
     "id": "L058",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "SPACE"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 560,
     "moves": 16,
     "boosterCharges": [
@@ -4933,9 +5274,14 @@
   },
   {
     "id": "L059",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "MAGIC"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 330,
     "moves": 9,
     "boosterCharges": [
@@ -5024,9 +5370,14 @@
   },
   {
     "id": "L060",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "BREAD"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 430,
     "moves": 12,
     "boosterCharges": [
@@ -5143,9 +5494,14 @@
   },
   {
     "id": "L061",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "APPLE"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -5227,9 +5583,14 @@
   },
   {
     "id": "L062",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "ONION"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 300,
     "moves": 9,
     "boosterCharges": [
@@ -5290,9 +5651,14 @@
   },
   {
     "id": "L063",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "DREAM"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 540,
     "moves": 16,
     "boosterCharges": [
@@ -5382,9 +5748,14 @@
   },
   {
     "id": "L064",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "MOOSE"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 610,
     "moves": 16,
     "boosterCharges": [
@@ -5475,9 +5846,14 @@
   },
   {
     "id": "L065",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "KITTEN"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 360,
     "moves": 9,
     "boosterCharges": [
@@ -5558,9 +5934,14 @@
   },
   {
     "id": "L066",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "JACKET"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 480,
     "moves": 12,
     "boosterCharges": [
@@ -5687,9 +6068,14 @@
   },
   {
     "id": "L067",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "STICK"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 490,
     "moves": 13,
     "boosterCharges": [
@@ -5776,9 +6162,14 @@
   },
   {
     "id": "L068",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "BERRY"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 600,
     "moves": 16,
     "boosterCharges": [
@@ -5848,9 +6239,14 @@
   },
   {
     "id": "L069",
-    "words": [
-      "КНИГА"
-    ],
+    "words": {
+      "en": [
+        "GHOST"
+      ],
+      "ru": [
+        "КНИГА"
+      ]
+    },
     "targetScore": 320,
     "moves": 9,
     "boosterCharges": [
@@ -5915,9 +6311,14 @@
   },
   {
     "id": "L070",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "GRAPE"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -6000,9 +6401,14 @@
   },
   {
     "id": "L071",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "TRUCK"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 350,
     "moves": 9,
     "boosterCharges": [
@@ -6086,9 +6492,14 @@
   },
   {
     "id": "L072",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "SPOON"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 480,
     "moves": 12,
     "boosterCharges": [
@@ -6151,9 +6562,14 @@
   },
   {
     "id": "L073",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "CLOUD"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 380,
     "moves": 10,
     "boosterCharges": [
@@ -6201,7 +6617,10 @@
       {
         "taskType": "Letter",
         "count": 8,
-        "letter": "Т"
+        "letter": {
+          "en": "T",
+          "ru": "Т"
+        }
       },
       {
         "taskType": "Length",
@@ -6216,9 +6635,14 @@
   },
   {
     "id": "L074",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "GRASS"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 550,
     "moves": 16,
     "boosterCharges": [
@@ -6284,9 +6708,14 @@
   },
   {
     "id": "L075",
-    "words": [
-      "ПАЛУБА"
-    ],
+    "words": {
+      "en": [
+        "HAMMER"
+      ],
+      "ru": [
+        "ПАЛУБА"
+      ]
+    },
     "targetScore": 360,
     "moves": 9,
     "boosterCharges": [
@@ -6384,9 +6813,14 @@
   },
   {
     "id": "L076",
-    "words": [
-      "ДОРОГА"
-    ],
+    "words": {
+      "en": [
+        "BASKET"
+      ],
+      "ru": [
+        "ДОРОГА"
+      ]
+    },
     "targetScore": 470,
     "moves": 12,
     "boosterCharges": [
@@ -6474,9 +6908,14 @@
   },
   {
     "id": "L077",
-    "words": [
-      "КНИГА"
-    ],
+    "words": {
+      "en": [
+        "NIGHT"
+      ],
+      "ru": [
+        "КНИГА"
+      ]
+    },
     "targetScore": 560,
     "moves": 14,
     "boosterCharges": [
@@ -6552,9 +6991,14 @@
   },
   {
     "id": "L078",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "EAGLE"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 390,
     "moves": 12,
     "boosterCharges": [
@@ -6610,9 +7054,14 @@
   },
   {
     "id": "L079",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "MEDAL"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 580,
     "moves": 16,
     "boosterCharges": [
@@ -6685,9 +7134,14 @@
   },
   {
     "id": "L080",
-    "words": [
-      "ЛАМПА"
-    ],
+    "words": {
+      "en": [
+        "HORSE"
+      ],
+      "ru": [
+        "ЛАМПА"
+      ]
+    },
     "targetScore": 430,
     "moves": 12,
     "boosterCharges": [
@@ -6809,9 +7263,14 @@
   },
   {
     "id": "L081",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "HOTEL"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 350,
     "moves": 10,
     "boosterCharges": [
@@ -6922,9 +7381,14 @@
   },
   {
     "id": "L082",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "JUNGLE"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 490,
     "moves": 12,
     "boosterCharges": [
@@ -7051,9 +7515,14 @@
   },
   {
     "id": "L083",
-    "words": [
-      "ЛАМПА"
-    ],
+    "words": {
+      "en": [
+        "FRUIT"
+      ],
+      "ru": [
+        "ЛАМПА"
+      ]
+    },
     "targetScore": 310,
     "moves": 9,
     "boosterCharges": [
@@ -7124,9 +7593,14 @@
   },
   {
     "id": "L084",
-    "words": [
-      "КОРОНА"
-    ],
+    "words": {
+      "en": [
+        "BUTTON"
+      ],
+      "ru": [
+        "КОРОНА"
+      ]
+    },
     "targetScore": 480,
     "moves": 12,
     "boosterCharges": [
@@ -7227,9 +7701,14 @@
   },
   {
     "id": "L085",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "MONEY"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 360,
     "moves": 9,
     "boosterCharges": [
@@ -7301,9 +7780,14 @@
   },
   {
     "id": "L086",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "IGLOO"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 470,
     "moves": 12,
     "boosterCharges": [
@@ -7391,9 +7875,14 @@
   },
   {
     "id": "L087",
-    "words": [
-      "ПАЛУБА"
-    ],
+    "words": {
+      "en": [
+        "CHEESE"
+      ],
+      "ru": [
+        "ПАЛУБА"
+      ]
+    },
     "targetScore": 650,
     "moves": 16,
     "boosterCharges": [
@@ -7489,9 +7978,14 @@
   },
   {
     "id": "L088",
-    "words": [
-      "ЛАМПА"
-    ],
+    "words": {
+      "en": [
+        "OLIVE"
+      ],
+      "ru": [
+        "ЛАМПА"
+      ]
+    },
     "targetScore": 490,
     "moves": 12,
     "boosterCharges": [
@@ -7582,9 +8076,14 @@
   },
   {
     "id": "L089",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "SALAD"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 530,
     "moves": 13,
     "boosterCharges": [
@@ -7654,9 +8153,14 @@
   },
   {
     "id": "L090",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "TICKET"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 480,
     "moves": 12,
     "boosterCharges": [
@@ -7757,9 +8261,14 @@
   },
   {
     "id": "L091",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "JEWEL"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 320,
     "moves": 9,
     "boosterCharges": [
@@ -7849,9 +8358,14 @@
   },
   {
     "id": "L092",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "NOVEL"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 580,
     "moves": 14,
     "boosterCharges": [
@@ -7943,9 +8457,14 @@
   },
   {
     "id": "L093",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "JUICE"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 440,
     "moves": 12,
     "boosterCharges": [
@@ -8035,9 +8554,14 @@
   },
   {
     "id": "L094",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "FOREST"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 490,
     "moves": 12,
     "boosterCharges": [
@@ -8093,7 +8617,10 @@
       {
         "taskType": "Letter",
         "count": 11,
-        "letter": "Т"
+        "letter": {
+          "en": "T",
+          "ru": "Т"
+        }
       },
       {
         "taskType": "WordScore",
@@ -8103,9 +8630,14 @@
   },
   {
     "id": "L095",
-    "words": [
-      "ДОРОГА"
-    ],
+    "words": {
+      "en": [
+        "DONKEY"
+      ],
+      "ru": [
+        "ДОРОГА"
+      ]
+    },
     "targetScore": 370,
     "moves": 9,
     "boosterCharges": [
@@ -8168,7 +8700,10 @@
       {
         "taskType": "Letter",
         "count": 8,
-        "letter": "О"
+        "letter": {
+          "en": "O",
+          "ru": "О"
+        }
       },
       {
         "taskType": "Powerup",
@@ -8179,9 +8714,14 @@
   },
   {
     "id": "L096",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "DRESS"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 500,
     "moves": 12,
     "boosterCharges": [
@@ -8280,9 +8820,14 @@
   },
   {
     "id": "L097",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "MOUSE"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 500,
     "moves": 12,
     "boosterCharges": [
@@ -8325,7 +8870,10 @@
       {
         "taskType": "Letter",
         "count": 6,
-        "letter": "Е"
+        "letter": {
+          "en": "E",
+          "ru": "Е"
+        }
       },
       {
         "taskType": "Length",
@@ -8340,9 +8888,14 @@
   },
   {
     "id": "L098",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "GLASS"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 510,
     "moves": 14,
     "boosterCharges": [
@@ -8406,9 +8959,14 @@
   },
   {
     "id": "L099",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "PLANT"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 610,
     "moves": 16,
     "boosterCharges": [
@@ -8487,9 +9045,14 @@
   },
   {
     "id": "L100",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "WINTER"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 490,
     "moves": 12,
     "boosterCharges": [
@@ -8571,9 +9134,14 @@
   },
   {
     "id": "L101",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "QUEEN"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -8632,9 +9200,14 @@
   },
   {
     "id": "L102",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "CAMERA"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 500,
     "moves": 12,
     "boosterCharges": [
@@ -8744,9 +9317,14 @@
   },
   {
     "id": "L103",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "MANGO"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 320,
     "moves": 9,
     "boosterCharges": [
@@ -8853,9 +9431,14 @@
   },
   {
     "id": "L104",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "PAINT"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 460,
     "moves": 11,
     "boosterCharges": [
@@ -8954,9 +9537,14 @@
   },
   {
     "id": "L105",
-    "words": [
-      "ПАЛУБА"
-    ],
+    "words": {
+      "en": [
+        "WALLET"
+      ],
+      "ru": [
+        "ПАЛУБА"
+      ]
+    },
     "targetScore": 450,
     "moves": 11,
     "boosterCharges": [
@@ -9038,9 +9626,14 @@
   },
   {
     "id": "L106",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "PLATE"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 470,
     "moves": 12,
     "boosterCharges": [
@@ -9138,15 +9731,23 @@
       {
         "taskType": "Letter",
         "count": 9,
-        "letter": "Т"
+        "letter": {
+          "en": "T",
+          "ru": "Т"
+        }
       }
     ]
   },
   {
     "id": "L107",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "CLIFF"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 500,
     "moves": 12,
     "boosterCharges": [
@@ -9279,9 +9880,14 @@
   },
   {
     "id": "L108",
-    "words": [
-      "ЛОДКА"
-    ],
+    "words": {
+      "en": [
+        "PIANO"
+      ],
+      "ru": [
+        "ЛОДКА"
+      ]
+    },
     "targetScore": 660,
     "moves": 16,
     "boosterCharges": [
@@ -9346,9 +9952,14 @@
   },
   {
     "id": "L109",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "TOWEL"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 320,
     "moves": 9,
     "boosterCharges": [
@@ -9441,9 +10052,14 @@
   },
   {
     "id": "L110",
-    "words": [
-      "КОРОНА"
-    ],
+    "words": {
+      "en": [
+        "PARROT"
+      ],
+      "ru": [
+        "КОРОНА"
+      ]
+    },
     "targetScore": 370,
     "moves": 9,
     "boosterCharges": [
@@ -9504,7 +10120,10 @@
       {
         "taskType": "Letter",
         "count": 10,
-        "letter": "А"
+        "letter": {
+          "en": "A",
+          "ru": "А"
+        }
       },
       {
         "taskType": "WordScore",
@@ -9519,9 +10138,14 @@
   },
   {
     "id": "L111",
-    "words": [
-      "РАКЕТА"
-    ],
+    "words": {
+      "en": [
+        "BUTTER"
+      ],
+      "ru": [
+        "РАКЕТА"
+      ]
+    },
     "targetScore": 370,
     "moves": 9,
     "boosterCharges": [
@@ -9555,7 +10179,10 @@
       {
         "taskType": "Letter",
         "count": 12,
-        "letter": "И"
+        "letter": {
+          "en": "I",
+          "ru": "И"
+        }
       },
       {
         "taskType": "Powerup",
@@ -9571,9 +10198,14 @@
   },
   {
     "id": "L112",
-    "words": [
-      "ЧАШКА"
-    ],
+    "words": {
+      "en": [
+        "SHARK"
+      ],
+      "ru": [
+        "ЧАШКА"
+      ]
+    },
     "targetScore": 350,
     "moves": 9,
     "boosterCharges": [
@@ -9681,7 +10313,10 @@
       {
         "taskType": "Letter",
         "count": 6,
-        "letter": "Н"
+        "letter": {
+          "en": "N",
+          "ru": "Н"
+        }
       },
       {
         "taskType": "AnyWords",
@@ -9691,9 +10326,14 @@
   },
   {
     "id": "L113",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "BRICK"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 580,
     "moves": 16,
     "boosterCharges": [
@@ -9768,9 +10408,14 @@
   },
   {
     "id": "L114",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "PILOT"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 490,
     "moves": 13,
     "boosterCharges": [
@@ -9812,15 +10457,23 @@
       {
         "taskType": "Letter",
         "count": 12,
-        "letter": "И"
+        "letter": {
+          "en": "I",
+          "ru": "И"
+        }
       }
     ]
   },
   {
     "id": "L115",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "FROST"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 460,
     "moves": 12,
     "boosterCharges": [
@@ -9917,9 +10570,14 @@
   },
   {
     "id": "L116",
-    "words": [
-      "ДОРОГА"
-    ],
+    "words": {
+      "en": [
+        "COOKIE"
+      ],
+      "ru": [
+        "ДОРОГА"
+      ]
+    },
     "targetScore": 510,
     "moves": 12,
     "boosterCharges": [
@@ -10039,9 +10697,14 @@
   },
   {
     "id": "L117",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "SMILE"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 420,
     "moves": 11,
     "boosterCharges": [
@@ -10122,9 +10785,14 @@
   },
   {
     "id": "L118",
-    "words": [
-      "ПОЛКА"
-    ],
+    "words": {
+      "en": [
+        "OCEAN"
+      ],
+      "ru": [
+        "ПОЛКА"
+      ]
+    },
     "targetScore": 590,
     "moves": 14,
     "boosterCharges": [
@@ -10219,9 +10887,14 @@
   },
   {
     "id": "L119",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "TABLE"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 550,
     "moves": 13,
     "boosterCharges": [
@@ -10325,9 +10998,14 @@
   },
   {
     "id": "L120",
-    "words": [
-      "ГОРОД"
-    ],
+    "words": {
+      "en": [
+        "PEACH"
+      ],
+      "ru": [
+        "ГОРОД"
+      ]
+    },
     "targetScore": 350,
     "moves": 9,
     "boosterCharges": [
@@ -10403,9 +11081,14 @@
   },
   {
     "id": "L121",
-    "words": [
-      "ПЕСОК"
-    ],
+    "words": {
+      "en": [
+        "PEARL"
+      ],
+      "ru": [
+        "ПЕСОК"
+      ]
+    },
     "targetScore": 450,
     "moves": 12,
     "boosterCharges": [
@@ -10507,9 +11190,14 @@
   },
   {
     "id": "L122",
-    "words": [
-      "СЛОВО"
-    ],
+    "words": {
+      "en": [
+        "TOWER"
+      ],
+      "ru": [
+        "СЛОВО"
+      ]
+    },
     "targetScore": 440,
     "moves": 11,
     "boosterCharges": [
@@ -10582,9 +11270,14 @@
   },
   {
     "id": "L123",
-    "words": [
-      "КОРОНА"
-    ],
+    "words": {
+      "en": [
+        "BOTTLE"
+      ],
+      "ru": [
+        "КОРОНА"
+      ]
+    },
     "targetScore": 460,
     "moves": 11,
     "boosterCharges": [
@@ -10674,9 +11367,14 @@
   },
   {
     "id": "L124",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "ROCKET"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 690,
     "moves": 16,
     "boosterCharges": [
@@ -10810,9 +11508,14 @@
   },
   {
     "id": "L125",
-    "words": [
-      "ВЕТЕР"
-    ],
+    "words": {
+      "en": [
+        "SAUCE"
+      ],
+      "ru": [
+        "ВЕТЕР"
+      ]
+    },
     "targetScore": 420,
     "moves": 11,
     "boosterCharges": [
@@ -10933,9 +11636,14 @@
   },
   {
     "id": "L126",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "LEMON"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 370,
     "moves": 9,
     "boosterCharges": [
@@ -11047,9 +11755,14 @@
   },
   {
     "id": "L127",
-    "words": [
-      "ТАПКА"
-    ],
+    "words": {
+      "en": [
+        "STORM"
+      ],
+      "ru": [
+        "ТАПКА"
+      ]
+    },
     "targetScore": 490,
     "moves": 12,
     "boosterCharges": [
@@ -11184,9 +11897,14 @@
   },
   {
     "id": "L128",
-    "words": [
-      "ЗАМОК"
-    ],
+    "words": {
+      "en": [
+        "BEACH"
+      ],
+      "ru": [
+        "ЗАМОК"
+      ]
+    },
     "targetScore": 540,
     "moves": 14,
     "boosterCharges": [
@@ -11293,9 +12011,14 @@
   },
   {
     "id": "L129",
-    "words": [
-      "ГАВАНЬ"
-    ],
+    "words": {
+      "en": [
+        "SUMMER"
+      ],
+      "ru": [
+        "ГАВАНЬ"
+      ]
+    },
     "targetScore": 500,
     "moves": 12,
     "boosterCharges": [
@@ -11434,9 +12157,14 @@
   },
   {
     "id": "L130",
-    "words": [
-      "ОБЛАКО"
-    ],
+    "words": {
+      "en": [
+        "RABBIT"
+      ],
+      "ru": [
+        "ОБЛАКО"
+      ]
+    },
     "targetScore": 460,
     "moves": 11,
     "boosterCharges": [

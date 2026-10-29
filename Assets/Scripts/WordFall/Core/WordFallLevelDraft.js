@@ -33,6 +33,9 @@ WordFallLevelDraft = class WordFallLevelDraft
         this.id = level.id;
         this.name = level.name;
         this.difficulty = level.difficulty;
+        this.language = level.language;
+        this.otherWords = JSON.parse(JSON.stringify(level.otherWords));
+        this.otherLetterCells = JSON.parse(JSON.stringify(level.otherLetterCells));
         this.words = level.words.slice();
         this.wordsAuto = level.wordsAuto;
         this.wordMinLength = level.wordMinLength;
@@ -296,14 +299,14 @@ WordFallLevelDraft = class WordFallLevelDraft
 
     // --- задачи уровня ---
 
-    GetTasks() { return this.tasks.map(function(task) { return WordFallConfigs.MakeTask(task); }); }
+    GetTasks() { var language = this.language; return this.tasks.map(function(task) { return WordFallConfigs.MakeTask(task, language); }); }
 
     // Добавляет задачу (по умолчанию «собрать 3 слова»), возвращает её индекс или -1 при лимите
     AddTask(fields)
     {
         if (this.tasks.length >= WordFallLevelDraft.TaskLimit)
             return -1;
-        var task = WordFallConfigs.MakeTask(fields || { taskType: "AnyWords", count: 3 });
+        var task = WordFallConfigs.MakeTask(fields || { taskType: "AnyWords", count: 3 }, this.language);
         if (WordFallConfigs.TaskTypes.indexOf(task.taskType) < 0)
             return -1;
         this.tasks.push(task);
@@ -374,6 +377,9 @@ WordFallLevelDraft = class WordFallLevelDraft
         config.id = this.id;
         config.name = this.name;
         config.difficulty = this.difficulty;
+        config.language = this.language;
+        config.otherWords = JSON.parse(JSON.stringify(this.otherWords));
+        config.otherLetterCells = JSON.parse(JSON.stringify(this.otherLetterCells));
         config.words = this.words.filter(function(word) { return word.length > 0; });
         config.wordsAuto = this.wordsAuto;
         config.wordMinLength = this.wordMinLength;
@@ -384,7 +390,8 @@ WordFallLevelDraft = class WordFallLevelDraft
         config.extraVowels = this.extraVowels;
         config.extraRare = this.extraRare;
         config.boosterCharges = this.boosterCharges.slice();
-        config.tasks = this.tasks.map(function(task) { return WordFallConfigs.MakeTask(task); });
+        var language = this.language;
+        config.tasks = this.tasks.map(function(task) { return WordFallConfigs.MakeTask(task, language); });
         config.snowPerMove = this.snowPerMove;
         config.parcelTotal = this.parcelTotal;
         config.parcelOnScreen = this.parcelOnScreen;

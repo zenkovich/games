@@ -14,7 +14,14 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
 {
     get _svc() { return WordFallGame.service; }
 
-    static get Letters() { return "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЬЭЮЯ"; }
+    static get Letters() { return WordFallLanguages.Alphabet(); }
+
+    // Буква новой задачи «буква»: первая гласная языка
+    static get DefaultLetter()
+    {
+        var language = WordFallLanguages.Get(WordFallLanguages.Current());
+        return language && language.vowels ? language.vowels.charAt(0) : WordFallLevelEditorView.Letters.charAt(0);
+    }
     static get NameKeys() { return "0123456789_-"; }
 
     static get ToolNames()
@@ -321,17 +328,16 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         this._paletteTitle = this._palette.GetChild("Title");
         this._paletteRandom = this._palette.GetChild("RandomBtn");
         this._paletteCancel = this._palette.GetChild("CancelBtn");
-        var letters = WordFallLevelEditorView.Letters;
-        for (var i = 0; i < letters.length; i++)
+        this._letterButtons = [];
+        for (var i = 0; self._palette.GetChild("Letter" + i); i++)
         {
-            (function(letter, index) {
+            (function(index) {
                 var button = self._palette.GetChild("Letter" + index);
-                if (!button)
-                    return;
-                self._Paint(self._TileView(button), { hole: false, letter: letter, overlay: "", crate: 0, item: "" });
-                button.onClick = function() { self.PickLetter(letter); };
-            })(letters[i], i);
+                self._letterButtons.push(button);
+                button.onClick = function() { var letter = WordFallLevelEditorView.Letters.charAt(index); if (letter) self.PickLetter(letter); };
+            })(i);
         }
+        this._PaintPaletteLetters();
         this._keys = [];
         var keys = WordFallLevelEditorView.NameKeys;
         for (var i = 0; i < keys.length; i++)
@@ -638,7 +644,8 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         var svc = this._svc;
         var level = svc.GetLevelConfig(index);
         var words = level.words.slice(0, 2).join(", ") + (level.words.length > 2 ? "…" : "") + (level.wordsAuto > 0 ? " +" + level.wordsAuto + " агент" : "");
-        var marks = (svc.IsLevelNew(index) ? " • новый" : svc.IsLevelEdited(index) ? " • правки" : "");
+        var marks = (svc.IsLevelNew(index) ? " • новый" : svc.IsLevelEdited(index) ? " • правки" : "")
+                  + (level.words.length == 0 ? " • нет слов " + svc.GetLanguage().toUpperCase() : "");
         return (index == this._index ? "> " : "") + (index + 1) + ". " + level.id + (level.name ? " " + level.name : "")
              + (words ? " · " + words : "") + " · ходы " + level.moves + marks;
     }
@@ -668,8 +675,22 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
 
     // --- палитра: буква клетки, буква задачи, слово уровня, имя уровня ---
 
+    // Буквы палитры — алфавит текущего языка; лишние плитки скрыты
+    _PaintPaletteLetters()
+    {
+        var letters = WordFallLevelEditorView.Letters;
+        for (var i = 0; i < this._letterButtons.length; i++)
+        {
+            var button = this._letterButtons[i];
+            button.SetEnabled(i < letters.length);
+            if (i < letters.length)
+                this._Paint(this._TileView(button), { hole: false, letter: letters.charAt(i), overlay: "", crate: 0, item: "" });
+        }
+    }
+
     OpenPalette(mode, taskIndex, wordIndex)
     {
+        this._PaintPaletteLetters();
         this._paletteMode = mode;
         this._paletteTask = taskIndex;
         this._paletteWord = wordIndex !== undefined ? wordIndex : -1;
@@ -881,7 +902,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         this._Edit(function(d) {
             if (target < 0)
             {
-                var fields = { taskType: type, count: type == "Letter" ? 3 : type == "Length" ? 2 : 1, letter: type == "Letter" ? "О" : "" };
+                var fields = { taskType: type, count: type == "Letter" ? 3 : type == "Length" ? 2 : 1, letter: type == "Letter" ? WordFallLevelEditorView.DefaultLetter : "" };
                 if (type == "Powerup")
                     fields.powerupKind = "bomb";
                 d.AddTask(fields);
@@ -1122,7 +1143,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         }
         this._wordsMore.SetEnabled(words.length > rows);
         this._wordsMore.SetText("ещё " + (words.length - shown) + " " + WordFallConfigs.WordsNoun(words.length - shown));
-        this._wordsTitle.SetText("СЛОВА: " + manual + (draft.wordsAuto > 0 ? " + " + (words.length - manual) + " агент" : ""));
+        this._wordsTitle.SetText("СЛОВА " + this._svc.GetLanguage().toUpperCase() + ": " + (manual == 0 ? "нет — уровень не играется" : manual) + (draft.wordsAuto > 0 ? " + " + (words.length - manual) + " агент" : ""));
 
         var tasks = draft.tasks;
         this._tasksTitle.SetText("ЗАДАЧИ: " + tasks.length);
@@ -1215,7 +1236,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         else if (name == "erase")
             caption = "СТЕРЕТЬ";
         else if (name == "letter")
-            cell.letter = "А";
+            cell.letter = WordFallLevelEditorView.Letters.charAt(0);
         else if (name == "crate")
         {
             cell.crate = this._draft ? this._draft.crateGrade : 1;
@@ -1224,7 +1245,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         else if (WordFallLevelDraft.Overlays.indexOf(name) >= 0)
         {
             cell.overlay = name;
-            cell.letter = "А";
+            cell.letter = WordFallLevelEditorView.Letters.charAt(0);
         }
         else
             cell.item = name;

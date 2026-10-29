@@ -306,8 +306,8 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
 
     _RandomLetter()
     {
-        var letters = "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЫЭЮЯ";
-        return letters[Math.floor(Math.random()*letters.length)];
+        var letters = WordFallLanguages.Alphabet();
+        return letters.charAt(Math.floor(Math.random()*letters.length));
     }
 
     OnButton()

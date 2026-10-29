@@ -1,7 +1,12 @@
+include("Scripts/WordFall/Core/WordFallLanguages.js");
+
 // Конфиги поля, уровней и задач. Уровни читаются в формате campaign.json
 // (C++-сериализация: клетки {x, y}, поля со значением по умолчанию опущены),
 // внутри клетки — {c, r}. Слова уровня — отдельный список words, не задачи:
-// старые задачи "Word" при чтении переезжают в него
+// старые задачи "Word" при чтении переезжают в него.
+// Слова, буквы клеток и буква задачи "Letter" в файле хранятся по языкам: {"ru": ..., "en": ...}.
+// Нормализованный конфиг несёт их для своего языка language, а других языков — в other*,
+// чтобы правка уровня на одном языке не стирала остальные
 WordFallConfigs = class WordFallConfigs
 {
     // Типы задач уровня (слова — отдельный блок уровня)
@@ -58,7 +63,8 @@ WordFallConfigs = class WordFallConfigs
         return config;
     }
 
-    static MakeTask(fields)
+    // language — язык, к которому относится строковая fields.letter (по умолчанию текущий)
+    static MakeTask(fields, language)
     {
         var task = { taskType: "Word", word: "", length: 4, powerupKind: "", count: 1, scoreThreshold: 18, letter: "" };
         for (var key in fields)
@@ -66,6 +72,9 @@ WordFallConfigs = class WordFallConfigs
             if (fields[key] !== undefined && fields[key] !== null)
                 task[key] = fields[key];
         }
+        var toLetter = function(letter) { return letter ? String(letter).charAt(0).toUpperCase() : ""; };
+        var letters = WordFallConfigs._AllLanguages(fields.letter, fields.otherLetters, language || WordFallLanguages.Current(), toLetter);
+        task.letter = WordFallConfigs._Split(letters, toLetter(""), function(other) { task.otherLetters = other; });
         return task;
     }
 
@@ -124,32 +133,39 @@ WordFallConfigs = class WordFallConfigs
         var toCell = function(cell) {
             return cell.c !== undefined ? { c: cell.c, r: cell.r } : { c: cell.x || 0, r: cell.y || 0 };
         };
+        var toLetterCells = function(list) {
+            return (Array.isArray(list) ? list : []).map(function(cell) {
+                var letterCell = toCell(cell);
+                letterCell.letter = String(cell.letter || "").toUpperCase();
+                return letterCell;
+            }).filter(function(cell) { return cell.letter.length > 0; });
+        };
+        var toWords = function(list) {
+            return (Array.isArray(list) ? list : []).map(function(word) { return String(word).toUpperCase(); }).filter(function(word) { return word.length > 0; });
+        };
 
+        var own = raw.language || WordFallLanguages.Current();
         for (var key in config)
         {
             var value = raw[key];
-            if (value === undefined || value === null)
+            if (value === undefined || value === null || key == "words" || key == "letterCells")
                 continue;
 
-            if (key == "letterCells")
-            {
-                config.letterCells = value.map(function(cell) {
-                    var letterCell = toCell(cell);
-                    letterCell.letter = cell.letter || "";
-                    return letterCell;
-                }).filter(function(cell) { return cell.letter.length > 0; });
-            }
-            else if (key.endsWith("Cells"))
+            if (key.endsWith("Cells"))
                 config[key] = value.map(toCell);
             else if (key == "tasks")
-                config.tasks = value.map(function(task) { return WordFallConfigs.MakeTask(task); });
-            else if (key == "words")
-                config.words = value.map(function(word) { return String(word).toUpperCase(); }).filter(function(word) { return word.length > 0; });
+                config.tasks = value.map(function(task) { return WordFallConfigs.MakeTask(task, own); });
             else if (Array.isArray(value))
                 config[key] = value.slice();
             else
                 config[key] = value;
         }
+
+        config.language = WordFallLanguages.Current();
+        config.words = WordFallConfigs._Split(WordFallConfigs._AllLanguages(raw.words, raw.otherWords, own, toWords), [],
+                                              function(other) { config.otherWords = other; });
+        config.letterCells = WordFallConfigs._Split(WordFallConfigs._AllLanguages(raw.letterCells, raw.otherLetterCells, own, toLetterCells), [],
+                                                    function(other) { config.otherLetterCells = other; });
 
         var legacyWords = config.tasks.filter(function(task) { return task.taskType == "Word"; });
         config.tasks = config.tasks.filter(function(task) { return task.taskType != "Word"; });
@@ -162,6 +178,93 @@ WordFallConfigs = class WordFallConfigs
         return config;
     }
 
+    // Уровень играбелен на текущем языке: в конфиге есть слова этого языка
+    static IsLevelValid(config)
+    {
+        return WordFallConfigs.NormalizeLevel(config).words.length > 0;
+    }
+
+    // Уровень из файла старого формата: слова списком и буквы строкой — это базовый язык
+    static UpgradeFileLevel(raw)
+    {
+        if (!raw || typeof raw != "object")
+            return raw;
+
+        var level = JSON.parse(JSON.stringify(raw));
+        var base = WordFallLanguages.BaseLanguage;
+        if (!level.language)
+        {
+            if (Array.isArray(level.words))
+                level.words = WordFallConfigs._Single(base, level.words);
+            if (Array.isArray(level.letterCells))
+                level.letterCells = WordFallConfigs._Single(base, level.letterCells);
+            if (Array.isArray(level.tasks))
+            {
+                level.tasks.forEach(function(task) {
+                    if (task && typeof task.letter == "string")
+                        task.letter = WordFallConfigs._Single(base, task.letter);
+                });
+            }
+        }
+        return level;
+    }
+
+    static _Single(code, value)
+    {
+        var map = {};
+        map[code] = value;
+        return map;
+    }
+
+    static _IsMap(value)
+    {
+        return value !== null && typeof value == "object" && !Array.isArray(value);
+    }
+
+    // Значения всех языков {код: значение}: из файла (value — карта) или из нормализованного
+    // конфига (others — другие языки, value — значение языка own)
+    static _AllLanguages(value, others, own, convert)
+    {
+        var map = {};
+        if (WordFallConfigs._IsMap(others))
+        {
+            for (var code in others)
+                map[code] = convert(others[code]);
+        }
+        if (WordFallConfigs._IsMap(value))
+        {
+            for (var code in value)
+                map[code] = convert(value[code]);
+        }
+        else if (value !== undefined && value !== null)
+            map[own] = convert(value);
+        return map;
+    }
+
+    // Значение текущего языка (empty, если его нет); непустые значения остальных — в setOthers
+    static _Split(map, empty, setOthers)
+    {
+        var current = WordFallLanguages.Current();
+        var others = {};
+        for (var code in map)
+        {
+            if (code != current && map[code].length > 0)
+                others[code] = map[code];
+        }
+        setOthers(others);
+        return map[current] !== undefined ? map[current] : empty;
+    }
+
+    // Значения всех языков нормализованного поля: другие языки и значение текущего
+    static _WithCurrent(others, value)
+    {
+        var map = {};
+        for (var code in others || {})
+            map[code] = others[code];
+        map[WordFallLanguages.Current()] = value;
+        return map;
+    }
+
     // Конфиг уровня в формате campaign.json: только отличия от умолчаний, клетки {x, y}
     static CompactLevel(config)
     {
@@ -171,14 +274,26 @@ WordFallConfigs = class WordFallConfigs
         for (var key in defaults)
         {
             var value = level[key];
+            if (key == "words")
+            {
+                var words = WordFallConfigs._CompactMap(WordFallConfigs._WithCurrent(level.otherWords, level.words), function(list) { return list.slice(); });
+                if (words)
+                    compact.words = words;
+                continue;
+            }
+            if (key == "letterCells")
+            {
+                var letterCells = WordFallConfigs._CompactMap(WordFallConfigs._WithCurrent(level.otherLetterCells, level.letterCells), function(list) {
+                    return list.map(function(cell) { return { x: cell.c, y: cell.r, letter: cell.letter }; });
+                });
+                if (letterCells)
+                    compact.letterCells = letterCells;
+                continue;
+            }
             if (JSON.stringify(value) === JSON.stringify(defaults[key]))
                 continue;
 
-            if (key == "words")
-                compact[key] = value.slice();
-            else if (key == "letterCells")
-                compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r, letter: cell.letter }; });
-            else if (key.endsWith("Cells"))
+            if (key.endsWith("Cells"))
                 compact[key] = value.map(function(cell) { return { x: cell.c, y: cell.r }; });
             else if (key == "tasks")
                 compact[key] = value.map(WordFallConfigs.CompactTask);
@@ -191,13 +306,34 @@ WordFallConfigs = class WordFallConfigs
     static CompactTask(task)
     {
         var defaults = WordFallConfigs.MakeTask({});
+        var normalized = WordFallConfigs.MakeTask(task);
         var compact = {};
         for (var key in defaults)
         {
-            if (task[key] !== undefined && JSON.stringify(task[key]) !== JSON.stringify(defaults[key]))
-                compact[key] = task[key];
+            if (key == "letter" || key == "otherLetters")
+                continue;
+            if (normalized[key] !== undefined && JSON.stringify(normalized[key]) !== JSON.stringify(defaults[key]))
+                compact[key] = normalized[key];
         }
+        var letters = WordFallConfigs._CompactMap(WordFallConfigs._WithCurrent(normalized.otherLetters, normalized.letter), function(letter) { return letter; });
+        if (letters)
+            compact.letter = letters;
         return compact;
+    }
+
+    // Карта по языкам без пустых значений, в порядке кодов; null — пусто во всех языках
+    static _CompactMap(map, convert)
+    {
+        var result = {};
+        var any = false;
+        Object.keys(map || {}).sort().forEach(function(code) {
+            if (map[code] && map[code].length > 0)
+            {
+                result[code] = convert(map[code]);
+                any = true;
+            }
+        });
+        return any ? result : null;
     }
 
     // Подпись задания по его конфигу

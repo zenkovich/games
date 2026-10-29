@@ -1,4 +1,4 @@
-// Прогресс игрока: текущий уровень кампании, лучшие результаты, показанные туториалы.
+// Прогресс игрока: текущий уровень кампании, лучшие результаты, показанные туториалы, язык.
 // Хранится JSON-файлом; путь задаёт сервис
 PlayerProgress = class PlayerProgress
 {
@@ -7,6 +7,7 @@ PlayerProgress = class PlayerProgress
         this.currentLevel = 0;
         this.bestScores = [];
         this.seenTutorials = [];
+        this.language = "";       // код языка из настроек игрока; пусто — язык по умолчанию
     }
 
     IsTutorialSeen(key)
@@ -41,7 +42,7 @@ PlayerProgress = class PlayerProgress
 
     Save(path)
     {
-        var data = { currentLevel: this.currentLevel, bestScores: this.bestScores, seenTutorials: this.seenTutorials };
+        var data = { currentLevel: this.currentLevel, bestScores: this.bestScores, seenTutorials: this.seenTutorials, language: this.language };
         return o2.FileSystem.WriteFile(path, JSON.stringify(data, null, 4));
     }
 
@@ -57,6 +58,7 @@ PlayerProgress = class PlayerProgress
             this.currentLevel = data.currentLevel || 0;
             this.bestScores = Array.isArray(data.bestScores) ? data.bestScores : [];
             this.seenTutorials = Array.isArray(data.seenTutorials) ? data.seenTutorials : [];
+            this.language = typeof data.language == "string" ? data.language : "";
             return true;
         }
         catch (e)
