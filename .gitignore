@@ -14,8 +14,10 @@
 /build-android-release
 cmake-build-*
 
-# Locally built Tracy profiler GUI (13 MB binary, rebuild from the vendored 0.9.1 source)
-/Tools/Tracy/Tracy
+# Tracy profiler GUI, built from the tracy submodule by Tools/Tracy/build_gui.sh
+/Tools/Tracy/Tracy.app
+/Tools/Tracy/Tracy.version
+/Tools/Tracy/tracy-profiler
 
 # Build outputs
 /Bin

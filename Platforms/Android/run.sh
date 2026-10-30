@@ -24,6 +24,10 @@ if [ ! -f "$APK" ]; then
     exit 1
 fi
 
+if [ "$MODE" = "--tracy" ]; then
+    TRACY="$("$ROOT/Tools/Tracy/build_gui.sh")" || exit 1
+fi
+
 adb install -r "$APK" || exit 1
 adb shell am force-stop "$PKG"
 adb logcat -c
@@ -52,9 +56,9 @@ if [ "$MODE" = "--tracy" ]; then
         TARGET="127.0.0.1"
     fi
 
-    pkill -f Tools/Tracy/Tracy 2>/dev/null
+    pkill -f "$TRACY" 2>/dev/null
     sleep 0.2
-    nohup "$ROOT/Tools/Tracy/Tracy" -a "$TARGET" < /dev/null > /dev/null 2>&1 &
+    nohup "$TRACY" -a "$TARGET" < /dev/null > /dev/null 2>&1 &
     disown
 
     echo "=== launched; PID=$PID; tracy connects to $TARGET:8086; streaming logcat ==="

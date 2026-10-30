@@ -59,21 +59,28 @@
             "dependsOn": "cmake-configure"
         },
         {
-            "label": "start-tracy",
+            "label": "start-tracy-game",
             "type": "shell",
-            "command": "pkill -f 'Tools/Tracy/Tracy' 2>/dev/null; sleep 0.2; nohup \"${workspaceFolder}/Tools/Tracy/Tracy\" -a 127.0.0.1 </dev/null >/dev/null 2>&1 & disown; exit 0",
-            "presentation": { "reveal": "silent", "panel": "dedicated", "close": true },
+            "command": "\"${workspaceFolder}/.vscode/tracy.sh\" Game",
+            "presentation": { "reveal": "silent", "panel": "dedicated" },
+            "problemMatcher": []
+        },
+        {
+            "label": "start-tracy-editor",
+            "type": "shell",
+            "command": "\"${workspaceFolder}/.vscode/tracy.sh\" Editor",
+            "presentation": { "reveal": "silent", "panel": "dedicated" },
             "problemMatcher": []
         },
         {
             "label": "profile-game",
             "dependsOrder": "sequence",
-            "dependsOn": ["cmake-build-game", "start-tracy"]
+            "dependsOn": ["cmake-build-game", "start-tracy-game"]
         },
         {
             "label": "profile-editor",
             "dependsOrder": "sequence",
-            "dependsOn": ["cmake-build-editor", "start-tracy"]
+            "dependsOn": ["cmake-build-editor", "start-tracy-editor"]
         },
         {
             "label": "cmake-build-editor",
