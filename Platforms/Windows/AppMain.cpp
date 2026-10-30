@@ -7,12 +7,18 @@ extern void InitializeTypesGameLib();
 int main()
 {
 	INITIALIZE_O2;
-	InitializeTypesGameLib();
-	O2LIBS_INITIALIZE_TYPES;
+	{
+		PROFILE_SAMPLE("Register game types");
+		InitializeTypesGameLib();
+		O2LIBS_INITIALIZE_TYPES;
+	}
 
 	auto app = mmake<GameApplication>();
 	app->Initialize();
-	O2LIBS_START;
+	{
+		PROFILE_SAMPLE("Start o2libs");
+		O2LIBS_START;
+	}
 	app->Launch();
 
 	return 0;

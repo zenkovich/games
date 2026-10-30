@@ -16,7 +16,8 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
     OnStart()
     {
         WordFallGame.screens = this;
-        this._game = this._Instantiate(this.screenPrototype);
+        var self = this;
+        this._game = o2.Profile("WordFall: game screen", function() { return self._Instantiate(self.screenPrototype); });
     }
 
     IsEditorOpen() { return this._editor != null && this._editor.IsEnabled(); }

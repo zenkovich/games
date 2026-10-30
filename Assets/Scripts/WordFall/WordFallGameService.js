@@ -563,39 +563,46 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._started = true;
         if (!Array.isArray(this.levels))
             this.levels = [];
-        this._progress.Load(this.progressPath);
-        WordFallLanguages.SetCurrent(this._progress.language);
-        this._Dictionary();
+
+        var self = this;
+        o2.Profile("WordFall: progress", function() {
+            self._progress.Load(self.progressPath);
+            WordFallLanguages.SetCurrent(self._progress.language);
+        });
+        o2.Profile("WordFall: dictionary", function() { self._Dictionary(); });
 
         // ручная кампания в редакторе > data-ассет кампании > процедурная генерация
         this._campaign = [];
         if (this.levels.length == 0 && this.campaignPath)
         {
-            var asset = new o2.AssetRefDataAsset(this.campaignPath);
-            if (asset.IsValid())
-            {
-                var data = JSON.parse(asset.Get().GetJson());
-                if (Array.isArray(data))
-                    this._campaign = data.map(function(level) { return WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(level)); });
-            }
+            o2.Profile("WordFall: campaign", function() {
+                var asset = new o2.AssetRefDataAsset(self.campaignPath);
+                if (asset.IsValid())
+                {
+                    var data = JSON.parse(asset.Get().GetJson());
+                    if (Array.isArray(data))
+                        self._campaign = data.map(function(level) { return WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(level)); });
+                }
+            });
             if (this._campaign.length == 0)
                 print("WordFall: campaign asset " + this.campaignPath + " is missing or empty, using the procedural campaign");
         }
 
-        var self = this;
         var count = this.levels.length > 0 ? this.levels.length : this._campaign.length > 0 ? this._campaign.length : this.campaignLength;
         var listed = this.levels.length > 0 ? this.levels : this._campaign;
         var ids = [];
         for (var i = 0; i < listed.length; i++)
             ids.push(listed[i] && listed[i].id ? listed[i].id : WordFallConfigs.LevelId(i));
-        this._store = new WordFallLevelStore(function(index) {
-            return self.levels.length > 0 ? WordFallConfigs.UpgradeFileLevel(self.levels[index])
-                : self._campaign.length > 0 ? self._campaign[index]
-                : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
-        }, count, ids);
-        this._store.Load(this.editedLevelsPath);
+        o2.Profile("WordFall: level store", function() {
+            self._store = new WordFallLevelStore(function(index) {
+                return self.levels.length > 0 ? WordFallConfigs.UpgradeFileLevel(self.levels[index])
+                    : self._campaign.length > 0 ? self._campaign[index]
+                    : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
+            }, count, ids);
+            self._store.Load(self.editedLevelsPath);
+        });
 
-        this.StartLevel(this._progress.currentLevel);
+        o2.Profile("WordFall: start level", function() { self.StartLevel(self._progress.currentLevel); });
     }
 
     _SaveStore()

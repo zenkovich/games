@@ -13,9 +13,17 @@ GameApplication::GameApplication(RefCounter* refCounter):
 
 void GameApplication::OnStarted()
 {
-	o2Application.SetWindowSize(Vec2I(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT));
+	PROFILE_SAMPLE_FUNC();
 
-	O2LIBS_START;
+	{
+		PROFILE_SAMPLE("Set window size");
+		o2Application.SetWindowSize(Vec2I(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT));
+	}
+
+	{
+		PROFILE_SAMPLE("Start o2libs");
+		O2LIBS_START;
+	}
 
 	// The game is its start scene: the same scene the editor opens
 	o2Scene.Load(o2Assets.GetBuiltAssetsPath() + mScenePath);

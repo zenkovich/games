@@ -31,9 +31,15 @@ WordLevel = class WordLevel
     Start(config, boardConfig, dictionary, seed)
     {
         config = WordFallConfigs.NormalizeLevel(config);
-        var words = WordFallWordAgent.ResolveWords(config, dictionary, boardConfig);
+        var words = o2.Profile("WordLevel: resolve words", function() {
+            return WordFallWordAgent.ResolveWords(config, dictionary, boardConfig);
+        });
         if (config.autoTarget)
-            config.targetScore = WordFallWordAgent.TargetScore(config, words, boardConfig);
+        {
+            config.targetScore = o2.Profile("WordLevel: target score", function() {
+                return WordFallWordAgent.TargetScore(config, words, boardConfig);
+            });
+        }
         this.config = config;
         this.words = words.map(function(word) { return { word: word, found: false }; });
         this.score = 0;
@@ -68,14 +74,17 @@ WordLevel = class WordLevel
             for (var i = 0; i < config.extraRare && rareIndices.length > 0; i++)
                 levelBoard.letters[rareIndices[i % rareIndices.length]].bagCount++;
         }
-        this.board.Init(levelBoard, seed);
+        var self = this;
+        o2.Profile("WordLevel: fill board", function() {
+            self.board.Init(levelBoard, seed);
 
-        // первое слово уровня обязано оказаться на поле — игроку проще начать
-        this.board.Fill(config, this.words.length > 0 ? this.words[0].word : "");
+            // первое слово уровня обязано оказаться на поле — игроку проще начать
+            self.board.Fill(config, self.words.length > 0 ? self.words[0].word : "");
+        });
         this._parcelsSpawned = this.board.CountParcels();
         this._RefreshIceTasks();
         this._RefreshObstacleTasks();
-        this._EnsureTasksAchievable(dictionary);
+        o2.Profile("WordLevel: achievable tasks", function() { self._EnsureTasksAchievable(dictionary); });
     }
 
     GetBoard() { return this.board; }

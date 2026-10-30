@@ -21,8 +21,11 @@ WordDictionary = class WordDictionary
             return new WordDictionary([]);
         }
 
-        var words = JSON.parse(asset.Get().GetJson()).words || "";
-        return new WordDictionary(words.split(" ").filter(function(w) { return w.length > 0; }));
+        var json = asset.Get().GetJson();
+        var words = o2.Profile("WordDictionary: parse words", function() {
+            return (JSON.parse(json).words || "").split(" ").filter(function(w) { return w.length > 0; });
+        });
+        return o2.Profile("WordDictionary: build index", function() { return new WordDictionary(words); });
     }
 
     Load(words)

@@ -38,7 +38,7 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/Bin/Mac",
-            "environment": [],
+            "environment": [{ "name": "O2_TRACY_WAIT", "value": "30" }],
             "externalConsole": false,
             "MIMode": "lldb",
             "setupCommands": [
@@ -58,7 +58,7 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/Bin/Mac",
-            "environment": [],
+            "environment": [{ "name": "O2_TRACY_WAIT", "value": "30" }],
             "externalConsole": false,
             "MIMode": "lldb",
             "setupCommands": [

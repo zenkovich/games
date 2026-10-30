@@ -21,15 +21,21 @@ int main()
 {
 	o2::MemoryAnalyzer::enabledObjectsTracking = false;
 	INITIALIZE_O2;
-	InitializeTypesGameLib();
-	O2LIBS_INITIALIZE_TYPES;
-	InitializeTypeso2Editor();
-	InitializeTypesEditorLib();
+	{
+		PROFILE_SAMPLE("Register game and editor types");
+		InitializeTypesGameLib();
+		O2LIBS_INITIALIZE_TYPES;
+		InitializeTypeso2Editor();
+		InitializeTypesEditorLib();
+	}
 	o2::MemoryAnalyzer::enabledObjectsTracking = true;
 
 	auto app = mmake<Editor::EditorApplication>();
 	app->Initialize();
-	O2LIBS_START;
+	{
+		PROFILE_SAMPLE("Start o2libs");
+		O2LIBS_START;
+	}
 	app->Launch();
 
 	return 0;
