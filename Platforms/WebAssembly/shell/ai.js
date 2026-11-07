@@ -325,7 +325,7 @@
         edgeL.title = 'Drag to resize the panel';
         dlg.appendChild(edgeL);
 
-        var DOCK_MIN = 300;
+        var DOCK_MIN = 380;
         function setVar(name, px) { document.body.style.setProperty(name, Math.round(px) + 'px'); }
 
         // The engine only learns about its canvas from window resizes, and folding
@@ -360,30 +360,43 @@
         restore();
         window.addEventListener('resize', fit);
 
+        // captured: moves keep coming over the canvas, the game frame and outside the portal's drawer
         function drag(el, onMove) {
-            el.addEventListener('mousedown', function (e) {
+            var active = null;
+            function end() {
+                if (active === null) return;
+                try { el.releasePointerCapture(active); } catch (e) {}
+                active = null;
+                document.body.classList.remove('ai-resizing');
+                notifyLayout();
+                try { localStorage.setItem('o2ai_dock', wanted || ''); } catch (e) {}
+            }
+            el.addEventListener('pointerdown', function (e) {
+                if (e.button !== 0 || !e.isPrimary) return;
                 e.preventDefault();
                 e.stopPropagation();
-                if (e.button !== 0) return;
-                var box = dlg.getBoundingClientRect();
-                var start = { x: e.clientX, y: e.clientY, w: box.width, h: box.height };
+                active = e.pointerId;
+                try { el.setPointerCapture(e.pointerId); } catch (err) {}
                 document.body.classList.add('ai-resizing');
-                function move(ev) { onMove(ev, start); }
-                function up() {
-                    document.removeEventListener('mousemove', move);
-                    document.removeEventListener('mouseup', up);
-                    document.body.classList.remove('ai-resizing');
-                    wanted = parseInt(document.body.style.getPropertyValue('--ai-dock'), 10) || 0;
-                    try { localStorage.setItem('o2ai_dock', wanted || ''); } catch (e) {}
-                }
-                document.addEventListener('mousemove', move);
-                document.addEventListener('mouseup', up);
             });
+            el.addEventListener('pointermove', function (e) {
+                if (active !== e.pointerId) return;
+                e.preventDefault();
+                onMove(e);
+            });
+            el.addEventListener('pointerup', end);
+            el.addEventListener('pointercancel', end);
+            el.addEventListener('lostpointercapture', end);
+            window.addEventListener('blur', end);
+            el.addEventListener('dragstart', function (e) { e.preventDefault(); });
         }
 
         // the left edge is the splitter between the work area and the agent
         drag(edgeL, function (ev) {
-            setVar('--ai-dock', Math.max(DOCK_MIN, Math.min(window.innerWidth - 260, window.innerWidth - ev.clientX)));
+            // wanted, not only the variable: the resize this triggers runs fit(), which restores `wanted`
+            wanted = Math.round(Math.max(DOCK_MIN, Math.min(window.innerWidth - 260, window.innerWidth - ev.clientX)));
+            if (parseInt(document.body.style.getPropertyValue('--ai-dock'), 10) === wanted) return;
+            setVar('--ai-dock', wanted);
             notifyLayout();
         });
     })();
@@ -402,6 +415,11 @@
     var devBtn = document.getElementById('ai-dev');
     var gearBtn = document.getElementById('ai-gear');
     var chipEl = document.getElementById('ai-chip');
+    chipEl.onclick = function (e) {
+        if (!chipEl.classList.contains('clickable')) return;
+        e.stopPropagation();
+        if (errorPop) closeErrorPop(); else showErrorPop();
+    };
     var barEl = document.getElementById('ai-bar');
     var actEl = document.getElementById('ai-act');
     var metaEl = document.getElementById('ai-meta');
@@ -542,7 +560,7 @@
     });
 
     var DEFAULT_MODEL = 'claude-opus-5';
-    var FALLBACK_MODELS = ['claude-opus-5', 'claude-sonnet-5', 'claude-opus-4-8', 'claude-opus-4-7', 'claude-haiku-4-5'];
+    var FALLBACK_MODELS = ['claude-opus-5-5', 'claude-opus-5', 'claude-sonnet-5', 'claude-opus-4-8', 'claude-opus-4-7', 'claude-haiku-4-5'];
 
     // settings live in cookies so they survive across tabs and sessions
     // (localStorage is kept as a fallback for values saved earlier)
@@ -1605,33 +1623,180 @@
 
     // An error the user can act on: plain words, and a button when a retry
     // is the obvious next move
+    // opts: head, hint, detail (the raw text, folded), actions [{label, run}], retry
     function addError(message, opts) {
         opts = opts || {};
         clearEmptyState();
-        var d = document.createElement('div');
-        d.className = 'ai-m error';
-        var head = document.createElement('div');
-        head.className = 'errhead';
-        head.textContent = opts.head || 'Something went wrong';
-        d.appendChild(head);
-        var body = document.createElement('div');
-        body.textContent = message;
-        d.appendChild(body);
-        if (opts.retry) {
-            var row = document.createElement('div');
-            row.className = 'errrow';
-            var b = document.createElement('button');
-            b.className = 'tbtn';
-            b.textContent = 'Retry';
-            b.onclick = function () { row.remove(); opts.retry(); };
-            row.appendChild(b);
-            d.appendChild(row);
-        }
+        var info = { head: opts.head || 'Something went wrong', text: message, hint: opts.hint || '', detail: opts.detail || '',
+                     actions: (opts.actions || []).concat(opts.retry ? [{ label: 'Retry', run: opts.retry }] : []) };
+        var d = errorBody(info, false);
+        d.classList.add('ai-m', 'error');
+        info.el = d;
+        lastErrorInfo = info;
         chatEl.appendChild(d);
         scrollDown(true);
-        setPeek('error', (opts.head ? opts.head + ': ' : '') + message);
+        setPeek('error', info.head + ': ' + message);
         return d;
     }
+    var lastErrorInfo = null;
+
+    function errorBody(info, inPop) {
+        var d = document.createElement('div');
+        var head = document.createElement('div');
+        head.className = 'errhead';
+        head.textContent = info.head;
+        d.appendChild(head);
+        var body = document.createElement('div');
+        body.textContent = info.text;
+        d.appendChild(body);
+        if (info.hint) {
+            var hint = document.createElement('div');
+            hint.className = 'errhint';
+            hint.textContent = info.hint;
+            d.appendChild(hint);
+        }
+        if (info.detail && info.detail !== info.text) {
+            var det = document.createElement('details');
+            det.className = 'errdetail';
+            if (inPop) det.open = true;
+            var sum = document.createElement('summary');
+            sum.textContent = 'Details';
+            det.appendChild(sum);
+            var pre = document.createElement('pre');
+            pre.textContent = info.detail;
+            det.appendChild(pre);
+            d.appendChild(det);
+        }
+        var row = document.createElement('div');
+        row.className = 'errrow';
+        info.actions.forEach(function (a, i) {
+            var b = document.createElement('button');
+            b.className = 'tbtn act' + (i === 0 ? ' primary' : '');
+            b.textContent = a.label;
+            b.onclick = function () {
+                closeErrorPop();
+                if (info.el) info.el.querySelectorAll('.errrow .act').forEach(function (x) { x.remove(); });
+                a.run();
+            };
+            row.appendChild(b);
+        });
+        var copy = document.createElement('button');
+        copy.className = 'tbtn quiet';
+        copy.textContent = 'Copy';
+        copy.title = 'Copy the error with its details';
+        copy.onclick = function () {
+            var t = [info.head, info.text, info.hint, info.detail].filter(Boolean).join('\n\n');
+            navigator.clipboard.writeText(t).then(function () {
+                copy.textContent = 'Copied';
+                setTimeout(function () { copy.textContent = 'Copy'; }, 1200);
+            }, function () {});
+        };
+        row.appendChild(copy);
+        if (inPop && info.el && info.el.isConnected) {
+            var show = document.createElement('button');
+            show.className = 'tbtn quiet';
+            show.textContent = 'Show in chat';
+            show.onclick = function () {
+                closeErrorPop();
+                if (phoneOn) setSheet(true);
+                info.el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                info.el.classList.remove('flash'); void info.el.offsetWidth; info.el.classList.add('flash');
+            };
+            row.appendChild(show);
+        }
+        d.appendChild(row);
+        return d;
+    }
+
+    // what a failure means in plain words and what to do about it; raw: what the API or the server said
+    function explainError(raw, code, model) {
+        var s = String(raw || '').trim(), m, prompt = lastPrompt;
+        model = model || modelDd.get() || DEFAULT_MODEL;
+        var other = model === DEFAULT_MODEL ? 'claude-sonnet-5' : DEFAULT_MODEL;
+        var retry = prompt ? { label: 'Retry', run: function () { runAgent(prompt, true); } } : null;
+        var useOther = { label: 'Use ' + other + ' and retry', run: function () {
+            modelDd.set(other);
+            setSetting('o2ai_claude_model', other);
+            if (prompt) runAgent(prompt, true);
+        } };
+        var settings = { label: 'Open settings', run: openSettings };
+        var fresh = { label: 'New chat', run: newChat };
+        function r(head, text, hint, actions) {
+            return { head: head, text: text, hint: hint || '', detail: s, actions: actions.filter(Boolean) };
+        }
+        if ((m = /Claude Code ([\d.]+) does not support this model; version ([\d.]+)/i.exec(s)))
+            return r('This model is newer than the agent on the server',
+                     model + ' needs Claude Code ' + m[2] + ' or newer; this server runs ' + m[1] + '. The turn did not start, nothing was changed.',
+                     'Pick another model in the menu under the message box (' + other + ' works), or ask the portal admin to update the agent.',
+                     [useOther]);
+        if (code === 'model_not_found' || /model_not_found|not_found_error[^]*model|model[^]{0,40}not found|access to (the )?model|invalid model/i.test(s))
+            return r('This model is not available', model + ' is unknown to Anthropic or not open to your key.',
+                     'Choose another model in the menu under the message box.', [useOther, settings]);
+        if (code === 'authentication_failed' || /invalid api key|invalid x-api-key|authentication_error|rejected the (request|subscription token)|\b401\b/i.test(s))
+            return r('Anthropic did not accept your key', 'The key or token in the settings is missing, mistyped or revoked.',
+                     'Open the settings, paste a working API key (sk-ant-…) or a subscription token, and send the message again.', [settings]);
+        if (code === 'billing_error' || /credit balance|billing/i.test(s))
+            return r('Your Anthropic account is out of credit', 'Anthropic refuses requests of this key until the balance is topped up.',
+                     'Top it up at console.anthropic.com → Billing, then retry.', [retry, settings]);
+        if (code === 'oauth_org_not_allowed' || code === 'account_on_hold' || code === 'verification_required')
+            return r('Anthropic refused this account', 'The account behind the key cannot use the API right now (' + code.replace(/_/g, ' ') + ').',
+                     'Sign in at console.anthropic.com to see why, or use another key.', [settings]);
+        if (code === 'rate_limit' || /rate.?limit|\b429\b/i.test(s))
+            return r('Too many requests for this key', 'Anthropic limits how fast one key may send requests.', 'Wait a minute and retry.', [retry]);
+        if (code === 'overloaded' || /overload|\b529\b/i.test(s))
+            return r('Anthropic is overloaded', 'The model is busy on Anthropic\'s side; it usually passes within minutes.', 'Retry in a minute.', [retry]);
+        if (/prompt is too long|context (window|length)|too many tokens|input length/i.test(s))
+            return r('The conversation is too long for the model', 'This chat no longer fits into the model\'s context.',
+                     'Start a new chat and say where to go on from; the files the agent changed are kept.', [fresh]);
+        if (code === 'max_output_tokens')
+            return r('The answer hit the output limit', 'The model was cut off in the middle of its answer.', 'Retry, or ask for the work in smaller steps.', [retry]);
+        if (code === 'server_error' || /internal server error|api_error|\b50[0-4]\b/i.test(s))
+            return r('Anthropic had an internal error', 'The request failed on Anthropic\'s side.', 'Retry in a minute.', [retry]);
+        if (/ECONNRESET|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|fetch failed|socket hang up|connection error/i.test(s))
+            return r('The server could not reach Anthropic', 'The connection to the API dropped or timed out.', 'Retry; if it keeps happening, the server\'s network is down.', [retry]);
+        if (/agent is busy with other sessions/i.test(s))
+            return r('The server is busy', 'Every agent slot of the server is taken by other projects.', 'Send the message again in a minute.', [retry]);
+        if (/could not be started/i.test(s))
+            return r('The agent could not start', 'The server failed to launch the agent for this turn.', 'Retry; the details say what failed.', [retry]);
+        if (/agent process exited with code|agent worker failed|Claude Code process (exited|terminated)|process exited with code/i.test(s))
+            return r('The agent process stopped unexpectedly', 'It ended in the middle of the turn. What it had done by then is kept.',
+                     'Retry, or ask it to continue.', [retry]);
+        if (/error_during_execution|ede_diagnostic/i.test(s))
+            return r('The turn broke off', 'The agent stopped in the middle of its work without an error message. What it had done is kept.',
+                     'Ask it to continue.', [retry]);
+        return { head: 'The turn failed', text: s || 'the turn ended with an error', hint: '', detail: '', actions: retry ? [retry] : [] };
+    }
+
+    // ---------- the error behind the red chip, on a click ----------
+    var errorPop = null;
+    function closeErrorPop() {
+        if (!errorPop) return;
+        errorPop.remove();
+        errorPop = null;
+    }
+    function showErrorPop() {
+        closeErrorPop();
+        var info = lastErrorInfo || (lastError ? explainError(lastError, lastErrorCode) : null) ||
+                   { head: 'The last turn of this chat failed', text: 'Its transcript keeps no message about why.', hint: 'Send the message again, or ask the agent to continue.', detail: '', actions: [] };
+        var pop = errorBody(info, true);
+        pop.className = 'ai-errpop';
+        var x = document.createElement('button');
+        x.className = 'x';
+        x.title = 'Close';
+        x.innerHTML = ICONS_CLOSE;
+        x.onclick = closeErrorPop;
+        pop.insertBefore(x, pop.firstChild);
+        document.body.appendChild(pop);
+        var c = chipEl.getBoundingClientRect(), w = Math.min(420, window.innerWidth - 16);
+        pop.style.width = w + 'px';
+        pop.style.left = Math.max(8, Math.min(c.left, window.innerWidth - w - 8)) + 'px';
+        pop.style.top = (c.bottom + 8) + 'px';
+        errorPop = pop;
+    }
+    document.addEventListener('mousedown', function (e) {
+        if (errorPop && !errorPop.contains(e.target) && e.target !== chipEl) closeErrorPop();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeErrorPop(); });
 
     // a collapsible line: tool call, thinking, or a debug dump
     function addStep(label, detail, opts) {
@@ -1762,6 +1927,10 @@
         chipEl.textContent = text;
         chipEl.className = kind ? kind : '';
         chipEl.id = 'ai-chip';
+        var failed = kind === 'err' && text === 'error';
+        chipEl.classList.toggle('clickable', failed);
+        chipEl.title = failed ? 'Show the error' : '';
+        if (!failed) closeErrorPop();
     }
     function setAction(text) {
         actEl.textContent = text || 'working…';
@@ -2661,7 +2830,8 @@
         typingEl = null;
         steps = {}; bubble = null; bubbleText = ''; thinkStep = null; thinkText = ''; reviewStep = null; reviewText = '';
         permissionBlocks = {}; sentCids = {}; events = [];
-        lastError = null; lastResult = null; lastReply = ''; lastPrompt = ''; pendingReview = false; runTools = 0;
+        lastError = null; lastErrorCode = null; lastErrorInfo = null; lastResult = null; lastReply = ''; lastPrompt = ''; pendingReview = false; runTools = 0;
+        closeErrorPop();
         resetChanges();
     }
 
@@ -2711,9 +2881,21 @@
             main.appendChild(t);
             var sub = document.createElement('div');
             sub.className = 'sub';
-            sub.textContent = [ago(c.updated), c.mine ? '' : (c.by.name || c.by.email || 'somebody else'), st[1],
+            sub.textContent = [ago(c.updated), c.mine ? '' : (c.by.name || c.by.email || 'somebody else'), st[0] === 'error' ? '' : st[1],
                                c.cost ? '$' + c.cost.toFixed(2) : ''].filter(Boolean).join(' · ');
             if (st[0] === 'ask' || st[0] === 'error') sub.classList.add(st[0]);
+            if (st[0] === 'error') {
+                var badge = document.createElement('button');
+                badge.className = 'clbadge err';
+                badge.textContent = st[1];
+                badge.title = 'Open the chat and show its error';
+                badge.onclick = function (e) {
+                    e.stopPropagation();
+                    openChat(c.id).then(function () { if (curChat === c.id) showErrorPop(); });
+                };
+                sub.insertBefore(badge, sub.firstChild);
+                sub.insertBefore(document.createTextNode(' '), badge.nextSibling);
+            }
             main.appendChild(sub);
             row.appendChild(main);
             function act(cls, title, svg, fn) {
@@ -3374,6 +3556,7 @@
                 break;
             case 'started':
                 if (!ev.review) resetChanges();
+                lastError = null; lastErrorCode = null; runModel = ev.model || '';
                 if (replaying) { runStarted = ev.t || Date.now(); runTools = 0; break; }
                 if (!running) { busy(true); setAction(ev.review ? 'reviewing its own run' : 'working…'); }
                 break;
@@ -3443,7 +3626,8 @@
             case 'tool_progress': {
                 var ps = ev.id != null && steps[ev.id];
                 if (!ps) for (var sid in steps)
-                    if (steps[sid].result == null && toolShort(steps[sid].name) === toolShort(ev.name || '')) ps = steps[sid];
+                    if (steps[sid].result == null && steps[sid].ui && toolShort(steps[sid].name) === toolShort(ev.name || '')) ps = steps[sid];
+                if (ps && !ps.ui) ps = null;
                 // the tail the transcript keeps of a log this page has followed whole: the page's own is the better one
                 if (ps && !(ev.replace && !ev.live && ps.log.length > String(ev.text || '').length)) toolProgress(ps, ev);
                 break;
@@ -3505,6 +3689,7 @@
             }
             case 'error':
                 lastError = ev.message;
+                lastErrorCode = ev.code || null;
                 break;
             case 'done':
                 finishRun(ev);
@@ -3563,7 +3748,7 @@
     }
 
     // ---------- a run from start to finish ----------
-    var pendingReview = false, lastError = null, lastResult = null;
+    var pendingReview = false, lastError = null, lastErrorCode = null, lastResult = null, runModel = '';
 
     // A failed turn should read as failed: report it in the user's words,
     // offer the retry, and never chase it with a self-review of nothing
@@ -3578,7 +3763,8 @@
         // what the agent wrote and nobody built here (its own editor builds its own copy): this editor shows the run's outcome
         if (!replaying) buildPulled('the agent\'s run is over');
         closeBubble(); thinkStep = null;
-        for (var sid in steps) if (steps[sid].result == null) steps[sid].ui.settle();      // nothing is still running
+        // (an ask_user step is hidden: it has no row to settle)
+        for (var sid in steps) if (steps[sid].result == null && steps[sid].ui) steps[sid].ui.settle();
         steps = {};
         for (var id in permissionBlocks) { permissionBlocks[id].remove(); delete permissionBlocks[id]; }
 
@@ -3597,13 +3783,8 @@
         if (ev.aborted) {
             addSysLine('stopped — the turn was interrupted at your request', 'warn');
         } else if (failed) {
-            var msg = lastError || (lastResult && (lastResult.errors || []).join('\n')) || 'the turn ended with an error';
-            var overloaded = /529|overload|rate.?limit|429/i.test(msg);
-            var prompt = lastPrompt;
-            addError(msg, {
-                head: overloaded ? 'The model is overloaded' : 'The turn failed',
-                retry: prompt ? function () { runAgent(prompt, true); } : null,
-            });
+            var info = explainError(lastError || (lastResult && (lastResult.errors || []).join('\n')) || '', lastErrorCode, runModel);
+            addError(info.text, { head: info.head, hint: info.hint, detail: info.detail, actions: info.actions });
             setChip('error', 'err');
         }
         var summary = null;
@@ -3612,7 +3793,7 @@
             summary = 'done · ' + Math.round((lastResult.ms || 0) / 1000) + ' s' + c;
             addSysLine(runLine(ev.review ? 'review done' : 'done', lastResult));
         }
-        lastError = null; lastResult = null;
+        lastError = null; lastErrorCode = null; lastResult = null;
         if (replaying) return;
         busy(false);
         if (failed) setChip('error', 'err');
