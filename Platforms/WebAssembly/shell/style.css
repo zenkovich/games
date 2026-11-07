@@ -889,7 +889,37 @@ body.mode-preview #status { display: none; }
     border-left: 3px solid var(--ai-err); color: #6E2422; border-radius: 8px; font-size: 13px; line-height: 1.5;
 }
 .ai-m.error .errhead { font-weight: 650; margin-bottom: 3px; color: var(--ai-err); }
-.ai-m.error .errrow { margin-top: 9px; display: flex; gap: 8px; }
+.ai-m.error .errrow, .ai-errpop .errrow { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-m.error .errhint, .ai-errpop .errhint { margin-top: 5px; color: #4F3533; }
+.ai-m.error .errdetail, .ai-errpop .errdetail { margin-top: 7px; }
+.errdetail summary { cursor: pointer; color: #8A4A47; font-size: 12px; user-select: none; }
+.errdetail pre {
+    margin: 5px 0 0; padding: 7px 9px; max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+    font: 11.5px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #4A2A28;
+    background: rgba(255, 255, 255, .7); border: 1px solid #EBCFCD; border-radius: 6px; user-select: text;
+}
+.ai-m.error button.tbtn.quiet, .ai-errpop button.tbtn.quiet { background: transparent; color: #8A4A47; border: 1px solid #E3C3C1; }
+.ai-m.error button.tbtn.quiet:hover, .ai-errpop button.tbtn.quiet:hover { background: rgba(161, 45, 42, .07); }
+.ai-m.error.flash { animation: ai-err-flash 1.2s ease-out; }
+@keyframes ai-err-flash { 0%, 30% { box-shadow: 0 0 0 3px rgba(200, 106, 106, .55); } 100% { box-shadow: 0 0 0 3px rgba(200, 106, 106, 0); } }
+/* the error of the red chip, under the chip */
+.ai-errpop {
+    position: fixed; z-index: 1000; box-sizing: border-box; padding: 12px 34px 12px 14px;
+    background: #FDF1F1; border: 1px solid #E8B7B5; border-left: 3px solid #A12D2A; border-radius: 9px;
+    box-shadow: 0 12px 32px rgba(40, 10, 10, .22); color: #6E2422;
+    font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-height: calc(100vh - 70px); overflow: auto;
+}
+.ai-errpop .errhead { font-weight: 650; margin-bottom: 3px; color: #A12D2A; }
+.ai-errpop .x { position: absolute; top: 7px; right: 7px; width: 22px; height: 22px; padding: 0; border: none; border-radius: 6px;
+                background: none; color: #8A4A47; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.ai-errpop .x:hover { background: rgba(161, 45, 42, .1); }
+.ai-errpop .x svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.clrow .clbadge {
+    font: inherit; font-size: 10.5px; font-weight: 650; padding: 0 6px; border-radius: 999px; cursor: pointer;
+    border: 1px solid transparent; background: #C86A6A; color: #fff; line-height: 16px;
+}
+.clrow .clbadge:hover { background: #A12D2A; }
 /* markdown: the answer, the self-review, the thinking */
 .ai-m.model { min-width: 0; overflow-wrap: anywhere; box-sizing: border-box; }
 .ai-md > *, .ai-md blockquote > *, .ai-md li > * { white-space: normal; }
@@ -1386,8 +1416,12 @@ body.mode-preview #canvas-wrap { visibility: hidden; pointer-events: none; }
 .ai-edge.left { width: 8px; }
 .ai-edge.left:hover { background: rgba(47, 158, 147, .3); }
 /* while dragging, the iframe must not swallow the pointer */
-body.ai-resizing { user-select: none; }
+body.ai-resizing { user-select: none; cursor: ew-resize; }
 body.ai-resizing #preview-frame { pointer-events: none; }
+/* the fold's slide would trail the cursor and resize the canvas mid-animation every frame */
+body.ai-resizing #canvas-wrap, body.ai-resizing #preview, body.ai-resizing .tb-agent { transition: none; }
+body.ai-resizing .ai-edge.left { background: rgba(47, 158, 147, .45); }
+.ai-edge.left { touch-action: none; }
 
 
 /* ---------- the agent's segment of the bar ----------
@@ -1412,6 +1446,8 @@ body.ai-resizing #preview-frame { pointer-events: none; }
 .tb-agent #ai-chip { white-space: nowrap; }
 .tb-agent #ai-chip.busy { background: #F2C14E; color: #4A3708; }
 .tb-agent #ai-chip.err { background: #C86A6A; color: #fff; }
+.tb-agent #ai-chip.clickable { cursor: pointer; }
+.tb-agent #ai-chip.clickable:hover { background: #A12D2A; box-shadow: 0 0 0 2px rgba(255, 255, 255, .25); }
 body.ai-hidden .tb-agent { width: 46px; padding-left: 6px; }
 body.ai-hidden .tb-agent > :not(#ai-toggle) { display: none; }
 body.ai-hidden #canvas-wrap, body.ai-hidden #preview { right: 0; }
