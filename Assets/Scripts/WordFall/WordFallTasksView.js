@@ -2,9 +2,9 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха целей уровня: сверху — панель слов (ряд плашек на слово; найденное — оранжевое,
 // набираемый префикс — в синей рамке; не влезающие слова сводятся в последний ряд «ещё N»),
-// под ней — полоса прочих задач: плашка + счётчик, закрытая — с галочкой, за ними гнездо со
-// звездой и галочка, которая загорается, когда закрыто всё. Синк по ревизии сервиса.
-// Координаты раскладки — локальные, от левого верхнего угла панели / полосы, y вниз
+// под ней — плашки прочих задач сеткой в два столбца: чекбокс (закрытая — с галочкой), иконка
+// или плашка с символом, подпись с прогрессом; последняя плашка — цель по очкам. Синк по ревизии сервиса.
+// Координаты раскладки — локальные, от левого верхнего угла панели / блока плашек, y вниз
 
 WordFallTasksView = class WordFallTasksView extends o2.Component
 {
@@ -13,29 +13,29 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
     constructor()
     {
         super();
-        this.wordTile = 70;        // плашка буквы слова
-        this.wordTileAspect = 1;   // её высота к ширине
-        this.wordPitchX = 74.5;
-        this.wordPitchY = 68.5;
-        this.wordOriginX = 4;
-        this.wordOriginY = 4;
-        this.wordsWidth = 518;     // ширина ряда слов внутри панели
-        this.itemIcon = 77;        // плашка задачи в полосе
-        this.itemCount = 86;       // место под счётчик
-        this.itemGap = 20;         // промежутки полосы
-        this.itemFirst = 20;       // отступ первой плашки
-        this.slotSize = [80, 80];  // гнездо со звездой и галочка «всё закрыто» — за задачами
-        this.checkSize = [80, 80];
-        this.stripWidth = 744;
-        this.stripHeight = 135;
-        this.countRaise = 0;       // подъём счётчика: o2 центрирует высоту заглавной, вёрстка — строку
+        this.wordTile = 81;          // плашка буквы слова
+        this.wordTileAspect = 0.95;  // её высота к ширине
+        this.wordPitchX = 83;
+        this.wordPitchY = 77;
+        this.wordOriginX = 5;
+        this.wordOriginY = 5;
+        this.wordsWidth = 576;       // ширина ряда слов внутри панели
+        this.objectivesSize = [832, 184]; // блок плашек
+        this.plaqueSize = [410, 88];
+        this.plaqueGap = [12, 8];
+        // прямоугольники внутри плашки высоты plaqueSize[1]: [x, y, w, h], y вниз
+        this.plaqueCheckbox = [14, 14, 56, 57];
+        this.plaqueCheck = [12, 10, 62, 55];
+        this.plaqueIcon = [97, 8, 70, 70];
+        this.plaqueTile = [99, 8, 66, 66];
+        this.plaqueLabel = [179, 9, 223, 69];
 
         this._lastRevision = -1;
         this._words = [];
         this._items = [];
     }
 
-    // Картинка-иконка задачи (буквенные задачи рисуются плашкой с символом)
+    // Картинка задачи; буквенные задачи рисуются плашкой с символом (пустая строка)
     static IconFor(task)
     {
         switch (task.type)
@@ -45,12 +45,13 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             case "crates": return "WordFall/Sprites/ui_crate.png";
             case "deliver": return "WordFall/Sprites/ui_envelope.png";
             case "melt": return "WordFall/Sprites/ui_snowball.png";
-            case "anyWords": return "WordFall/SpritesNew/layer_rainbow_star.png";
+            case "anyWords": return "Generated/UI/Screen_Resources/Sprites/icon_search_small.png";
+            case "score": return "Generated/UI/Screen_Resources/Sprites/icon_coin.png";
         }
         return "";
     }
 
-    // Символ на плашке задачи и счётчик рядом
+    // Символ на плашке задачи
     static SymbolFor(task)
     {
         switch (task.type)
@@ -62,13 +63,50 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
         return "";
     }
 
-    static CountFor(task)
+    // Подпись плашки: что сделать и сколько уже сделано
+    static CaptionFor(task)
     {
-        if (task.type == "clearIce" || task.type == "crates")
-            return "×" + (task.remaining || 0);
-        if (task.type == "wordScore")
-            return task.done ? "1/1" : "0/1";
-        return task.progress + "/" + task.count;
+        var count = task.progress + "/" + task.count;
+        switch (task.type)
+        {
+            case "letter": return "Собрать " + count;
+            case "length": return "Слова из " + task.length + " букв: " + count;
+            case "anyWords": return "Найти слова: " + count;
+            case "wordScore": return "Слово на " + task.score + "+ очков";
+            case "powerup": return ({ bomb: "Бомба", rocket: "Ракета", fireworks: "Салют" }[task.kind] || "Бонус") + ": " + count;
+            case "clearIce": return task.done ? "Весь лёд" : "Лёд: ещё " + (task.remaining || 0);
+            case "crates": return task.done ? "Все ящики" : "Ящики: ещё " + (task.remaining || 0);
+            case "deliver": return "Конверты: " + count;
+            case "melt": return "Снежки: " + count;
+            case "score": return "Набрать " + task.score + " очков";
+        }
+        return task.type;
+    }
+
+    // Плашки уровня: задачи и последней — обязательная цель по очкам
+    static Objectives(tasks, score, target)
+    {
+        var list = tasks.slice();
+        list.push({ type: "score", score: target, progress: Math.min(score, target), count: target, done: score >= target });
+        return list;
+    }
+
+    // Сетка плашек: два столбца, строки по центру блока; нечётная последняя — по центру ряда;
+    // плашки, которые не влезают по высоте, ужимаются целиком (k — их масштаб)
+    static GridLayout(count, size, plaque, gap)
+    {
+        var rows = Math.ceil(count/2);
+        var h = rows > 0 ? Math.min(plaque[1], (size[1] - (rows - 1)*gap[1])/rows) : plaque[1];
+        var top = (size[1] - (rows*h + Math.max(0, rows - 1)*gap[1]))*0.5;
+        var cells = [];
+        for (var i = 0; i < count; i++)
+        {
+            var row = Math.floor(i/2), col = i % 2;
+            var alone = count % 2 == 1 && i == count - 1;
+            cells.push({ x: alone ? (size[0] - plaque[0])*0.5 : col*(plaque[0] + gap[0]), y: top + row*(h + gap[1]),
+                         w: plaque[0], h: h, k: h/plaque[1] });
+        }
+        return cells;
     }
 
     OnStart()
@@ -97,22 +135,25 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             this._words.push(row);
         }
 
-        var others = this._actor.GetChild("Others");
-        this._check = others.GetChild("AllDone");
-        this._slot = others.GetChild("Slot");
+        var objectives = this._actor.GetChild("Objectives");
         this._items = [];
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; objectives.GetChild("Item" + i); i++)
         {
-            var item = others.GetChild("Item" + i);
+            var item = objectives.GetChild("Item" + i);
             var icon = item.GetChild("Icon");
+            var caption = item.GetChild("Label");
             this._items.push({
                 widget: item,
+                base: item.GetChild("Base"),
+                checkbox: item.GetChild("Checkbox"),
+                check: item.GetChild("Check"),
                 icon: icon,
                 tile: icon.GetLayer("back"),
                 image: icon.GetLayer("image"),
                 symbol: icon.GetLayer("letter").drawable,
-                count: item.GetChild("Count"),
-                done: item.GetChild("Done"),
+                points: icon.GetLayer("points").drawable,
+                label: caption,
+                labelText: caption.GetLayer("text").drawable,
                 imagePath: ""
             });
         }
@@ -190,75 +231,71 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
         return states;
     }
 
-    // Полоса как в вёрстке: плашка, счётчик, ..., гнездо со звездой, галочка — подряд с равными
-    // промежутками; задачи, которые не влезают, ужимаются целиком: плашка, счётчик и его текст
-    _SyncTasks(tasks, allDone)
+    _PlaceIn(widget, box, cell)
     {
-        var count = Math.min(tasks.length, this._items.length);
-        var room = this.stripWidth - 2*this.itemFirst - this.slotSize[0] - this.checkSize[0] - 2*this.itemGap;
-        var natural = this.itemIcon + this.itemCount + 2*this.itemGap;
-        var k = count > 0 ? Math.min(1, room/(count*natural)) : 1;
-        var icon = this.itemIcon*k, countWidth = this.itemCount*k, gap = this.itemGap*k;
-        var pitch = natural*k;
-        var top = (this.stripHeight - icon)*0.5;
+        var k = cell.k;
+        this._SetRect(widget, box[0]*k, box[1]*k, box[2]*k, box[3]*k);
+    }
+
+    _SyncObjectives(objectives)
+    {
+        var count = Math.min(objectives.length, this._items.length);
+        var cells = WordFallTasksView.GridLayout(count, this.objectivesSize, this.plaqueSize, this.plaqueGap);
         for (var i = 0; i < this._items.length; i++)
         {
             var item = this._items[i];
-            var task = i < count ? tasks[i] : null;
+            var task = i < count ? objectives[i] : null;
             item.widget.SetEnabled(!!task);
             if (!task)
                 continue;
 
-            var x = this.itemFirst + i*pitch;
-            this._SetRect(item.widget, x, 0, pitch, this.stripHeight);
-            this._SetRect(item.icon, 0, top, icon, icon);
+            var cell = cells[i];
+            this._SetRect(item.widget, cell.x, cell.y, cell.w, cell.h);
+            this._SetRect(item.base, 0, 0, cell.w, cell.h);
+            this._PlaceIn(item.checkbox, this.plaqueCheckbox, cell);
+            this._PlaceIn(item.check, this.plaqueCheck, cell);
+            item.check.SetEnabled(!!task.done);
+
             var path = WordFallTasksView.IconFor(task);
+            this._PlaceIn(item.icon, path ? this.plaqueIcon : this.plaqueTile, cell);
             item.tile.SetEnabled(!path);
             item.image.SetEnabled(!!path);
             if (path && item.imagePath != path)
             {
+                // загрузка картинки сбрасывает размер спрайта к её собственному — прямоугольник слоя возвращаем
                 var drawable = item.image.drawable;
                 var rect = drawable.rect;
                 drawable.imageName = path;
                 drawable.rect = rect;
                 item.imagePath = path;
             }
-            item.symbol.text = path ? "" : WordFallTasksView.SymbolFor(task);
             if (item.symbolHeight === undefined)
+            {
                 item.symbolHeight = item.symbol.height;
-            item.symbol.height = Math.round(item.symbolHeight*k*(item.symbol.text.length > 2 ? 0.55 : 1));
+                item.labelHeight = item.labelText.height;
+            }
+            var symbol = path ? "" : WordFallTasksView.SymbolFor(task);
+            item.symbol.text = symbol;
+            item.symbol.height = Math.round(item.symbolHeight*cell.k*(symbol.length > 2 ? 0.5 : symbol.length > 1 ? 0.75 : 1));
+            var value = task.type == "letter" && task.letter ? this._svc.GetLetterValue(task.letter) : 0;
+            item.points.text = value > 0 ? "" + value : "";
 
-            item.count.SetEnabled(!task.done);
-            item.count.SetText(WordFallTasksView.CountFor(task));
-            var countText = item.count.GetLayer("text").drawable;
-            if (item.countHeight === undefined)
-                item.countHeight = countText.height;
-            countText.height = Math.round(item.countHeight*k);
-            this._SetRect(item.count, icon + gap, -this.countRaise, countWidth, this.stripHeight);
-            item.done.SetEnabled(task.done);
-            var doneW = this.checkSize[0]*0.8*k, doneH = this.checkSize[1]*0.8*k;
-            this._SetRect(item.done, icon + gap, (this.stripHeight - doneH)*0.5, doneW, doneH);
+            var label = this.plaqueLabel;
+            var left = label[0]*cell.k;
+            this._SetRect(item.label, left, label[1]*cell.k, cell.w - left - (this.plaqueSize[0] - label[0] - label[2]), label[3]*cell.k);
+            item.labelText.height = Math.round(item.labelHeight*cell.k);
+            item.label.SetText(WordFallTasksView.CaptionFor(task));
         }
-
-        var x = this.itemFirst + count*pitch;
-        this._SetRect(this._slot, x, (this.stripHeight - this.slotSize[1])*0.5, this.slotSize[0], this.slotSize[1]);
-        x += this.slotSize[0] + this.itemGap;
-        this._SetRect(this._check, x, (this.stripHeight - this.checkSize[1])*0.5, this.checkSize[0], this.checkSize[1]);
-        this._check.SetEnabled(true);
-        this._check.SetTransparency(allDone ? 1 : 0.35);
     }
 
     Sync()
     {
         var svc = this._svc;
-        var words = svc.GetWords();
-        var tasks = svc.GetTasks();
-        var allDone = words.every(function(w) { return w.found; }) && tasks.every(function(t) { return t.done; });
-        this._SyncWords(words, svc.GetCurrentWord());
-        this._SyncTasks(tasks, allDone);
+        this._SyncWords(svc.GetWords(), svc.GetCurrentWord());
+        this._SyncObjectives(WordFallTasksView.Objectives(svc.GetTasks(), svc.GetScore(), svc.GetTargetScore()));
     }
 
-    // Для тестов: что видно в панели слов — [{word, found, active}] и подпись «ещё N»
+    // Для тестов: что видно в панели слов — [{word, found}] и подпись «ещё N»
     GetShownWords()
     {
         var result = [];
@@ -273,6 +310,21 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             result.push({ word: word, found: tiles[0].found.IsEnabled() });
         }
         return { words: result, more: this._more.IsEnabled() ? this._more.GetText() : "" };
+    }
+
+    // Для тестов: видимые плашки — [{text, symbol, image, done}]
+    GetShownObjectives()
+    {
+        var result = [];
+        for (var i = 0; i < this._items.length; i++)
+        {
+            var item = this._items[i];
+            if (!item.widget.IsEnabled())
+                continue;
+            result.push({ text: item.label.GetText(), symbol: item.tile.IsEnabled() ? item.symbol.text : "",
+                          image: item.image.IsEnabled() ? item.imagePath : "", done: item.check.IsEnabled() });
+        }
+        return result;
     }
 
     Update(dt)

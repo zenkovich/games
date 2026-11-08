@@ -209,22 +209,30 @@ Rules that hold there:
   saves the campaign or a level to a file and loads any of them back, and takes the field (shape,
   crates, chains, ice, stones, bonuses) from a Gardenscapes / Homescapes level XML
   (`Core/WordFallMatch3Import.js`; natively from `match3ImportPath` next to the executable).
-- The main screen (768x1673) is the HTML layout `Tools/WordFall/CssScreen/game.html` moved into o2; the
-  reference picture is `concept.png` at the repo root (`Assets/Generated/concept_new.png` is outdated).
-  `Tools/WordFall/build_svg_sprites.py` turns every element of `game.css` into an SVG in `WordFall/Svg`
-  (outer shadows, border, inset bands and rings that follow the corners, shines, the icon glyphs; the
-  shadow margins of each image go to `Tools/WordFall/svg_sprites.json`), `Tools/WordFall/restyle_main_screen.py`
-  lays the prototypes out on the page's rem coordinates × 768/471 (`main_screen_layout.py`) with
-  `o2::VectorSprite` layers and the page's fonts (`concept_font.ttf`, Roboto Bold/Medium/Regular,
-  `bar_text.fntstyle`); `TEXT_RAISE` compensates o2 centring the cap height of A where the page centres a
-  line box. Tile colours are the model's `tint` (cream, peach, peach, orange), doubled tiles are yellow.
-  `WordFallMainScreenUI.ConceptScreenFollowsTheHtmlLayout` applies `Sources/GameUITests/Data/wordfall_concept_mock.json`
-  (`WordFallGameService.DebugApplyMock`) and saves `Work/ScreenShots/40_concept_screen.png`.
-  The generator puts `"scalableMesh": true` and `"rasterized": true` into every `.svg.meta`: the assets builder
-  bakes one mesh for any scale (`<file>.svg.mesh` in BuiltAssets), so nothing tessellates at the start, at a zoom
-  or during play, and the sprites are drawn as quads from rasters in the vector rasters atlas (jobs rasterize them
-  for each pixel scale). `WordFallPerfUI.VectorScreenCost` prints startup / idle / move / zoom costs and fails on
-  any tessellation or a screen drawn by triangles. The level editor
+- The main screen (868x1813, the fitted camera of `WordFall.scn`) follows the layout of the "Wordfall main"
+  pipeline: `Assets/Generated/UI/Screen.proto` (its imageToUi node) with raster sprites and Roboto fonts in
+  `Generated/UI/Screen_Resources`. The sprites are packed into the o2 atlas `Screen_Resources/ScreenUI.atlas`
+  (every image meta has its `atlasId`). `Tools/WordFall/apply_screen_layout.py` moves the layout onto
+  `GameScreen.proto` (ids and prototype links kept) and the Tile, WordSlot, Booster and FxFlyingLetter
+  prototypes, fits the camera and adds `atlasId` to new sprites — rerun it after the pipeline rewrites
+  Screen.proto. The game stacks the sections tighter than the layout (`compact` in the script: `WORDS_SCALE`,
+  `BUTTONS_SCALE`, `GAPS`): on top the words panel (the level's words, a bit smaller than in the layout) and the
+  moves box filling the rest of the row; under them the objectives — plaques in two columns (checkbox with the
+  green check, icon or letter tile, caption with progress), the last one is the score goal, more than four shrink
+  into three rows (`WordFallTasksView`); then the progress row; then the word tray with ✓/✕, always on screen
+  (`WordFallWordPanelView`); the board panel right over the smaller boosters. The board panel has the cells drawn in
+  it, holes of the field shape are covered by `Hole_c_r`; its sprite `WordFall/ScreenUI/board_panel.png` is cut
+  by the script from the layout's one so the bottom frame is as thin as the others. The background is flat
+  (`PAPER`, the reference image's colour). A refused word's message is a plaque over the progress bar, an aimed
+  booster's prompt — over the tray field. Tile colours are the model's `tint` (cream, gold, gold, orange), doubled
+  tiles are yellow. `WordFallMainScreenUI.ScreenFollowsThePipelineLayout` checks the sections against the rects of
+  Screen.proto (sizes and horizontal places), their order and gaps, the even board frame and the flat background with
+  `Sources/GameUITests/Data/wordfall_layout_mock.json` (`WordFallGameService.DebugApplyMock`) and saves
+  `Work/ScreenShots/40_layout_screen.png`. The previous screen (the HTML layout `Tools/WordFall/CssScreen`,
+  `build_svg_sprites.py`, `restyle_main_screen.py`) is history: rerunning `restyle_main_screen.py` overwrites
+  the current screen. Of its SVGs (`"scalableMesh"`/`"rasterized"` metas, drawn from the vector rasters atlas,
+  `WordFallPerfUI.VectorScreenCost` fails on any tessellation) only the ✓/✕ buttons and the charge badges are
+  left. The level editor (768x1673, centred in the camera)
   still uses the composer sprites in `WordFall/SpritesNew`. `LevelEditorScreen.proto` and the Cheats panel of
   `GameScreen.proto` are scaffolded by `Tools/WordFall/build_screens.py`. After that the prototypes are the
   source of truth — rerunning a script discards editor tweaks.

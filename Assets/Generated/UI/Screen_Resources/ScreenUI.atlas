@@ -1,0 +1,594 @@
+{
+    "mPages": [
+        {
+            "mSize": {
+                "x": 2048,
+                "y": 1024
+            },
+            "mImagesRects": [
+                {
+                    "Key": "a8c23a046e207023afe5a4c3cce9e729",
+                    "Value": {
+                        "left": 2,
+                        "bottom": 2,
+                        "right": 847,
+                        "top": 936
+                    }
+                },
+                {
+                    "Key": "1cc60f0cd03b9b1229b9bbf777218f7b",
+                    "Value": {
+                        "left": 1792,
+                        "bottom": 940,
+                        "right": 1858,
+                        "top": 1006
+                    }
+                },
+                {
+                    "Key": "a3627b0c3728813ec656331e54bdafe5",
+                    "Value": {
+                        "left": 524,
+                        "bottom": 940,
+                        "right": 1255,
+                        "top": 1010
+                    }
+                },
+                {
+                    "Key": "d81cc7130e8d4c272a3bf6f9882d3f64",
+                    "Value": {
+                        "left": 851,
+                        "bottom": 800,
+                        "right": 964,
+                        "top": 910
+                    }
+                },
+                {
+                    "Key": "22a7a524bc7d93e588104734be79ae27",
+                    "Value": {
+                        "left": 2,
+                        "bottom": 940,
+                        "right": 54,
+                        "top": 1018
+                    }
+                },
+                {
+                    "Key": "4c09282ba207c6a9b90c263abed7f3ee",
+                    "Value": {
+                        "left": 58,
+                        "bottom": 940,
+                        "right": 110,
+                        "top": 1017
+                    }
+                },
+                {
+                    "Key": "16096f2b1de7f2db1461eb19cb55ca37",
+                    "Value": {
+                        "left": 1439,
+                        "bottom": 2,
+                        "right": 1574,
+                        "top": 145
+                    }
+                },
+                {
+                    "Key": "b70a1d3dca24c9b3d6a2acee64d8ef38",
+                    "Value": {
+                        "left": 1650,
+                        "bottom": 940,
+                        "right": 1716,
+                        "top": 1006
+                    }
+                },
+                {
+                    "Key": "624b4749bcb9b1cf1515148360d0811f",
+                    "Value": {
+                        "left": 851,
+                        "bottom": 2,
+                        "right": 1435,
+                        "top": 315
+                    }
+                },
+                {
+                    "Key": "2ecca7568a81c16331c6c253e4f45fe0",
+                    "Value": {
+                        "left": 368,
+                        "bottom": 940,
+                        "right": 443,
+                        "top": 1013
+                    }
+                },
+                {
+                    "Key": "82fc0e584039c95db8d52070a390ecd3",
+                    "Value": {
+                        "left": 851,
+                        "bottom": 319,
+                        "right": 1100,
+                        "top": 535
+                    }
+                },
+                {
+                    "Key": "889f5d6c16d29f1ebec7c465afc4956b",
+                    "Value": {
+                        "left": 988,
+                        "bottom": 539,
+                        "right": 1099,
+                        "top": 650
+                    }
+                },
+                {
+                    "Key": "33f67178a2f59a8933c4c7479a2ee80a",
+                    "Value": {
+                        "left": 447,
+                        "bottom": 940,
+                        "right": 520,
+                        "top": 1012
+                    }
+                },
+                {
+                    "Key": "1b35c18020be2280233fdfdd11731b6f",
+                    "Value": {
+                        "left": 284,
+                        "bottom": 940,
+                        "right": 364,
+                        "top": 1017
+                    }
+                },
+                {
+                    "Key": "25c4138409a7010f384b29c14495ba66",
+                    "Value": {
+                        "left": 1075,
+                        "bottom": 800,
+                        "right": 1485,
+                        "top": 888
+                    }
+                },
+                {
+                    "Key": "6d2dfda1b5085c1f6b8fd4324c1b74e8",
+                    "Value": {
+                        "left": 968,
+                        "bottom": 800,
+                        "right": 1071,
+                        "top": 900
+                    }
+                },
+                {
+                    "Key": "f0a214a389a55bd900b51cbd29d2a876",
+                    "Value": {
+                        "left": 966,
+                        "bottom": 685,
+                        "right": 1078,
+                        "top": 795
+                    }
+                },
+                {
+                    "Key": "3c627da899582adc9f8f1082a18556d2",
+                    "Value": {
+                        "left": 1259,
+                        "bottom": 940,
+                        "right": 1329,
+                        "top": 1010
+                    }
+                },
+                {
+                    "Key": "c8d9acaeac85daa9f6844f94a7e66edb",
+                    "Value": {
+                        "left": 2001,
+                        "bottom": 940,
+                        "right": 2009,
+                        "top": 948
+                    }
+                },
+                {
+                    "Key": "6bfd66b4182a207883d3f9e51ac85692",
+                    "Value": {
+                        "left": 114,
+                        "bottom": 940,
+                        "right": 195,
+                        "top": 1017
+                    }
+                },
+                {
+                    "Key": "cc8113bf2e7a147c19e1d0bae85fbe98",
+                    "Value": {
+                        "left": 1720,
+                        "bottom": 940,
+                        "right": 1788,
+                        "top": 1006
+                    }
+                },
+                {
+                    "Key": "50ef3ec15d42dc85b4a21708f53c55ac",
+                    "Value": {
+                        "left": 199,
+                        "bottom": 940,
+                        "right": 280,
+                        "top": 1017
+                    }
+                },
+                {
+                    "Key": "08cd07c73e3d1ada20e4c89cfb8a13a0",
+                    "Value": {
+                        "left": 1104,
+                        "bottom": 319,
+                        "right": 1236,
+                        "top": 460
+                    }
+                },
+                {
+                    "Key": "22c121ca1c718c2b8874a02db4b6caf7",
+                    "Value": {
+                        "left": 1941,
+                        "bottom": 940,
+                        "right": 1997,
+                        "top": 997
+                    }
+                },
+                {
+                    "Key": "9ae408d776ac3a6774f2385bb2e76d21",
+                    "Value": {
+                        "left": 1489,
+                        "bottom": 800,
+                        "right": 1551,
+                        "top": 855
+                    }
+                },
+                {
+                    "Key": "0208bcde4d8c2a56040c3b27f7f1bd70",
+                    "Value": {
+                        "left": 1862,
+                        "bottom": 940,
+                        "right": 1937,
+                        "top": 1003
+                    }
+                },
+                {
+                    "Key": "65c5b5e4b63b5b7252ad1d9b8c9fabc5",
+                    "Value": {
+                        "left": 1333,
+                        "bottom": 940,
+                        "right": 1646,
+                        "top": 1009
+                    }
+                },
+                {
+                    "Key": "25bfa1e539464543de55f4545537c6dd",
+                    "Value": {
+                        "left": 851,
+                        "bottom": 539,
+                        "right": 984,
+                        "top": 681
+                    }
+                },
+                {
+                    "Key": "1e72c9f06970d9858690b45a0785e479",
+                    "Value": {
+                        "left": 851,
+                        "bottom": 685,
+                        "right": 962,
+                        "top": 796
+                    }
+                }
+            ]
+        }
+    ],
+    "mImages": [
+        {
+            "id": "1cc60f0cd03b9b1229b9bbf777218f7b",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "1b35c18020be2280233fdfdd11731b6f",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "50ef3ec15d42dc85b4a21708f53c55ac",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "6bfd66b4182a207883d3f9e51ac85692",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "22c121ca1c718c2b8874a02db4b6caf7",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "a3627b0c3728813ec656331e54bdafe5",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "65c5b5e4b63b5b7252ad1d9b8c9fabc5",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "b70a1d3dca24c9b3d6a2acee64d8ef38",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "624b4749bcb9b1cf1515148360d0811f",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "6d2dfda1b5085c1f6b8fd4324c1b74e8",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "82fc0e584039c95db8d52070a390ecd3",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "d81cc7130e8d4c272a3bf6f9882d3f64",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "33f67178a2f59a8933c4c7479a2ee80a",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "f0a214a389a55bd900b51cbd29d2a876",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "1e72c9f06970d9858690b45a0785e479",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "25c4138409a7010f384b29c14495ba66",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "22a7a524bc7d93e588104734be79ae27",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "4c09282ba207c6a9b90c263abed7f3ee",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "889f5d6c16d29f1ebec7c465afc4956b",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "08cd07c73e3d1ada20e4c89cfb8a13a0",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "0208bcde4d8c2a56040c3b27f7f1bd70",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "16096f2b1de7f2db1461eb19cb55ca37",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "2ecca7568a81c16331c6c253e4f45fe0",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "9ae408d776ac3a6774f2385bb2e76d21",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "3c627da899582adc9f8f1082a18556d2",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "25bfa1e539464543de55f4545537c6dd",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "cc8113bf2e7a147c19e1d0bae85fbe98",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "c8d9acaeac85daa9f6844f94a7e66edb",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 13,
+                "mMinute": 56,
+                "mSecond": 19
+            }
+        },
+        {
+            "id": "a8c23a046e207023afe5a4c3cce9e729",
+            "time": {
+                "mYear": 2026,
+                "mMonth": 11,
+                "mDay": 8,
+                "mHour": 18,
+                "mMinute": 51,
+                "mSecond": 2
+            }
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "moves": 35,
+    "score": 1200,
+    "target": 2500,
+    "rows": ["WORDHUK", "TSE.RCV", "GAMEPLL", "YKI.KVA", "F.NNYQR", "STAR.CC", "PLAYTIO", "ERE.AXP"],
+    "values": ["6212416", "1211122", "2141611", "2211421", "1111221", "1111112", "6122111", "1211162"],
+    "styles": ["cccppco", "cpccccp", "cppcocc", "ppccpyc", "pccppcc", "ppppcpc", "occpppc", "cccccop"],
+    "words": [
+        {"word": "PUZZLE", "values": "133311", "states": "nnffnn"},
+        {"word": "BRAIN", "values": "31111", "states": "nnaan"},
+        {"word": "LOGIC", "values": "11212", "states": "nnaaa"},
+        {"word": "CONNECT", "values": "3111111", "states": "nnnffff"}
+    ],
+    "tasks": [
+        {"taskType": "Letter", "letter": "L", "count": 5, "progress": 5, "done": true},
+        {"taskType": "Powerup", "powerupKind": "bomb", "count": 2, "progress": 0},
+        {"taskType": "AnyWords", "count": 3, "progress": 0}
+    ]
+}

@@ -49,6 +49,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         this._shadow = this._actor.GetChild("Caption/Shadow");
         this._tap = this._actor.GetChild("Caption/Tap");
         this._hand = this._actor.GetChild("Hand");
+        this._backdrop = this._actor.GetChild("../Backdrop"); // фон во весь экран: по нему — размер затемнения
 
         this._Hide();
     }
@@ -133,7 +134,8 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
     // шагах сверху лежит прозрачный кусок во весь экран, чтобы вырез не пропускал клики
     _ShowDim(holes, blockAll)
     {
-        var W = 800, H = 1760; // с запасом шире экрана 768×1673
+        var screen = this._backdrop ? this._backdrop.GetLayout().GetWorldRect() : { left: -434, right: 434, bottom: -906.5, top: 906.5 };
+        var W = screen.right - screen.left + 64, H = screen.top - screen.bottom + 64; // с запасом шире экрана
         var xs = [-W/2, W/2], ys = [-H/2, H/2];
         for (var i = 0; i < holes.length; i++)
         {

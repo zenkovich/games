@@ -2,6 +2,7 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха игрового поля: плитки (буквы, лёд, пауэрапы, выделение), клики,
 // анимация падения, партикловые вспышки. Данные — в сервисе WordFallGame.service.
+// Клетки нарисованы в подложке поля; дыры формы уровня закрыты накладками Hole_c_r.
 // Координаты локальные: центр секции Board = (0,0)
 
 WordFallBoardView = class WordFallBoardView extends o2.Component
@@ -17,10 +18,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this.cellSize = 96;     // шаг сетки — источник раскладки плиток
         this.cellSizeX = 0;     // шаг по горизонтали, если отличается (0 — как cellSize)
         this.tileSize = 88;     // размер плитки в ячейке
-        this.boardCenterY = -121; // центр секции Board в экранных координатах
+        this.boardCenterX = 0;  // центр секции Board в экранных координатах
+        this.boardCenterY = -121;
         this.tileAspect = 1;    // высота плитки к ширине (у спрайта с тенью — больше 1)
-        this.showFrame = true;  // рамка формы поля из кусочков
-        this.showCellBacks = true; // подложки живых клеток
         this.tintSprites = [];  // картинки плашек по цвету плитки (tint); пусто — плашка прототипа
         this.doubledSprite = ""; // плашка удвоенной буквы
 
@@ -86,7 +86,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                     bonusPlate: btn.GetLayer("bonusPlate"),
                     bonusGlow: glowLayer,
                     bonusGlowDraw: glowLayer ? glowLayer.drawable : null,
-                    cellBack: this._actor.GetChild("CellBack_" + c + "_" + r),
+                    hole: this._actor.GetChild("Hole_" + c + "_" + r),
                     crate: btn.GetLayer("crate"),
                     crateHit: btn.GetLayer("crateHit"),
                     chain: btn.GetLayer("chain"),
@@ -126,7 +126,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     TileWorldPos(c, r)
     {
         var local = this.TileLocalPos(c, r);
-        return new Vec2(local.x, local.y + this.boardCenterY);
+        return new Vec2(local.x + this.boardCenterX, local.y + this.boardCenterY);
     }
 
     OnTileClick(c, r)
@@ -219,84 +219,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         this._hintQueue = cells.slice();
         this._hintTimer = 0;
-    }
-
-    // Рамка формы поля из кусочков: рёбра вдоль границ с дырами/краем, внешние углы там, где
-    // две соседние стороны снаружи, внутренние — где обе стороны внутри, а диагональ снаружи.
-    // Рим лежит снаружи клетки (18 px) с заходом внутрь на 6 px; у внутреннего угла угловая
-    // точка поля — внутренний угол рима, центр куска смещён в сторону дыры на 8.8 px
-    LayoutFrame()
-    {
-        var svc = this._svc;
-        var cols = this._columns, rows = this._rows;
-        var self = this;
-        var inside = function(c, r) {
-            return c >= 0 && c < cols && r >= 0 && r < rows && !svc.GetTile(c, r).hole;
-        };
-        var kinds = ["edge_top", "edge_right", "edge_bottom", "edge_left", "corner_tl", "corner_tr", "corner_br", "corner_bl",
-                     "inner_tl", "inner_tr", "inner_br", "inner_bl"];
-        var used = {};
-        for (var i = 0; i < kinds.length; i++)
-            used[kinds[i]] = this.showFrame ? 0 : 24;
-        if (!this.showFrame)
-            inside = function() { return false; };
-        var sizes = { edge_top: [100, 22], edge_bottom: [100, 22], edge_left: [22, 100], edge_right: [22, 100] }; // с нахлёстом, чтобы швы не читались
-        var place = function(kind, x, y) {
-            var index = used[kind]++;
-            var piece = self._actor.GetChild("Frame_" + kind + "_" + index);
-            if (!piece)
-                return;
-            var size = sizes[kind] || (kind.indexOf("inner") == 0 ? [28, 28] : [22, 22]);
-            var layout = piece.GetLayout();
-            layout.SetOffsetMin(new Vec2(x - size[0]*0.5, y - size[1]*0.5));
-            layout.SetOffsetMax(new Vec2(x + size[0]*0.5, y + size[1]*0.5));
-            piece.SetEnabled(true);
-        };
-        var half = this.cellSize*0.5, off = 5, k = 8.0;
-        for (var c = 0; c < cols; c++)
-        {
-            for (var r = 0; r < rows; r++)
-            {
-                if (!inside(c, r))
-                    continue;
-                var p = this.TileLocalPos(c, r);
-                var x0 = p.x - half, x1 = p.x + half, y0 = p.y - half, y1 = p.y + half; // y вверх
-                var N = inside(c, r + 1), S = inside(c, r - 1), E = inside(c + 1, r), W = inside(c - 1, r);
-                if (!N) place("edge_top", p.x, y1 + off);
-                if (!S) place("edge_bottom", p.x, y0 - off);
-                if (!E) place("edge_right", x1 + off, p.y);
-                if (!W) place("edge_left", x0 - off, p.y);
-                if (!N && !W) place("corner_tl", x0 - off, y1 + off);
-                if (!N && !E) place("corner_tr", x1 + off, y1 + off);
-                if (!S && !E) place("corner_br", x1 + off, y0 - off);
-                if (!S && !W) place("corner_bl", x0 - off, y0 - off);
-                if (N && E && !inside(c + 1, r + 1)) place("inner_tr", x1 + k, y1 + k);
-                if (N && W && !inside(c - 1, r + 1)) place("inner_tl", x0 - k, y1 + k);
-                if (S && E && !inside(c + 1, r - 1)) place("inner_br", x1 + k, y0 - k);
-                if (S && W && !inside(c - 1, r - 1)) place("inner_bl", x0 - k, y0 - k);
-            }
-        }
-        // лишние куски пула — выключить
-        for (var i = 0; i < kinds.length; i++)
-        {
-            for (var n = used[kinds[i]]; n < 24; n++)
-            {
-                var piece = this._actor.GetChild("Frame_" + kinds[i] + "_" + n);
-                if (piece)
-                    piece.SetEnabled(false);
-            }
-        }
-    }
-
-    // Ключ формы поля (дыры) — рамка перекладывается, когда форма сменилась
-    _ShapeKey()
-    {
-        var key = "";
-        for (var c = 0; c < this._columns; c++)
-            for (var r = 0; r < this._rows; r++)
-                if (this._svc.GetTile(c, r).hole)
-                    key += c + ":" + r + ";";
-        return key;
     }
 
     // Буква и номинал, которые клетка показывает сейчас (до синка после хода)
@@ -393,11 +315,11 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         var isBonus = tile.powerup != "";
         var isObstacle = tile.crate > 0 || tile.snow || tile.parcel;
 
-        // дыры и пустые клетки под ящиком/цепью не рисуются вовсе; подложка формы поля — только у живых клеток
+        // дыры и пустые клетки под ящиком/цепью не рисуются вовсе; клетку дыры закрывает накладка
         view.visible = !tile.hole && !tile.empty;
         view.btn.SetEnabled(view.visible);
-        if (view.cellBack)
-            view.cellBack.SetEnabled(!tile.hole && this.showCellBacks);
+        if (view.hole)
+            view.hole.SetEnabled(tile.hole);
         if (!view.visible)
             return;
 
@@ -638,15 +560,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         if (!this._svc)
             return;
-
-        // новый уровень: рамка по новой форме поля
-        var levelIndex = this._svc.GetLevelIndex();
-        if (levelIndex != this._frameLevel || this._frameShape != this._ShapeKey())
-        {
-            this._frameLevel = levelIndex;
-            this._frameShape = this._ShapeKey();
-            this.LayoutFrame();
-        }
 
         var revision = this._svc.GetRevision();
         if (revision != this._lastRevision)

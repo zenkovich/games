@@ -116,7 +116,7 @@ TEST_F(WordFallPerfUI, VectorScreenCost)
 
 	auto camera = Camera();
 	ASSERT_TRUE(camera);
-	Vec2F fitted(768, 1673);
+	Vec2F fitted = kScreenSize;
 	Frames zoom;
 	const float steps[] = { 0.9f, 0.75f, 0.6f, 0.5f, 0.4f, 0.33f, 0.5f, 0.75f, 1.0f, 1.3f, 1.0f };
 	for (float k : steps)

@@ -96,6 +96,7 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
             doubler: "Удвоитель: кликните плитку"
         };
         this._modeLabel.SetText(this._aimMode ? texts[this._aimMode] : "");
+        this._modeLabel.SetEnabled(this._aimMode != null); // плашка подсказки закрывает поле лотка, пока идёт прицел
     }
 
     Sync()

@@ -424,7 +424,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     DebugAddCharges(charges) { this._Debug(function(level) { level.DebugAddCharges(charges); }); }
     DebugLoseLevel() { this._Debug(function(level) { level.DebugLose(); }); }
 
-    // Экран макета (концепта): поле строками сверху вниз, номиналы, цвета плашек c/p/o/y — кремовая,
+    // Экран макета: поле строками сверху вниз («.» — пустая клетка), номиналы, цвета плашек c/p/o/y — кремовая,
     // персиковая, оранжевая, жёлтая (удвоенная); слова с состояниями букв n/f/a — обычная, найдена,
     // в наборе; прочие задачи, ходы и счёт
     DebugApplyMock(mock)
@@ -437,7 +437,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
             {
                 for (var c = 0; c < rows[r].length; c++)
                 {
-                    var tile = new WordTile(rows[r].charAt(c));
+                    var letter = rows[r].charAt(c);
+                    var tile = new WordTile(letter == "." ? "" : letter);
                     tile.value = parseInt((mock.values || [])[r] ? mock.values[r].charAt(c) : "1") || 1;
                     var style = (mock.styles || [])[r] ? mock.styles[r].charAt(c) : "c";
                     tile.tint = tints[style] || 0;

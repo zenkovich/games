@@ -1,8 +1,9 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха панели слова: слоты-плитки набираемого слова в лотке, перелёт буквы
-// с поля по безье, кнопки ПРИНЯТЬ и сброс, всплывающее «+N».
-// Слоты — в локальных координатах WordBar (центр = (0,0)), флаеры — в Screen
+// с поля по безье, кнопки ПРИНЯТЬ и сброс, всплывающее «+N». Лоток всегда на экране — между
+// полосой прогресса и полем.
+// Слоты — в локальных координатах лотка (центр = (0,0)), флаеры — в Screen
 // (экранные координаты)
 
 WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
@@ -18,8 +19,6 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this.slotGap = 6;
         this.trayCenterX = 0;       // центр зоны плашек (локально в лотке)
         this.trayWidth = 470;       // ширина зоны плашек в лотке
-        this.trayWorldX = -96;      // центр лотка в экранных координатах — для флаеров
-        this.barWorldY = 331;
         this.tileSize = 88;         // стартовый размер летящей буквы
 
         this.slotSlideSpeed = 14; // скорость плавного сдвига слотов, 1/с
@@ -76,8 +75,16 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         }
 
         this._gainLabel = this._actor.GetChild("Tray/GainLabel");
+        this._tray = this._actor.GetChild("Tray");
         this._actor.GetChild("AcceptBtn/Btn").onClick = function() { self.OnAccept(); };
         this._actor.GetChild("ClearBtn/Btn").onClick = function() { self.OnClear(); };
+    }
+
+    // Экранный центр лотка: от него отсчитываются слоты
+    _TrayCenter()
+    {
+        var r = this._tray.GetLayout().GetWorldRect();
+        return new Vec2((r.left + r.right)*0.5, (r.bottom + r.top)*0.5);
     }
 
     _SlotPos(index, count)
@@ -152,7 +159,7 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this._gainLabel.SetText(text);
     }
 
-    // Короткое сообщение под лотком (дубль слова, нет в словаре)
+    // Короткое сообщение на плашке поверх полосы прогресса (дубль слова, нет в словаре)
     _ShowMessage(text)
     {
         if (!this._message)
@@ -179,13 +186,14 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         var slots = [];
         var selected = svc.GetSelection();
         var count = selected.length;
+        var centre = this._TrayCenter();
         for (var i = 0; i < count; i++)
         {
             var tile = svc.GetTile(selected[i].c, selected[i].r);
             var pos = this._SlotPos(i, count);
             slots.push({ letter: tile.joker ? "?" : tile.letter,
                          value: tile.joker ? 0 : tile.value,
-                         x: this.trayWorldX + pos.x, y: this.barWorldY });
+                         x: centre.x + pos.x, y: centre.y + pos.y });
         }
 
         var result = svc.AcceptWord();
@@ -286,6 +294,7 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             return;
 
         var count = this._svc.GetSelection().length;
+        var centre = this._TrayCenter();
         var alive = [];
         for (var i = 0; i < this._flights.length; i++)
         {
@@ -300,7 +309,7 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             }
 
             var toLocal = this._SlotPos(f.slot, count);
-            var to = new Vec2(this.trayWorldX + toLocal.x, this.barWorldY);
+            var to = new Vec2(centre.x + toLocal.x, centre.y + toLocal.y);
             var t = Math.min(f.t, 1);
             var e = t*t*(3 - 2*t); // smoothstep
 

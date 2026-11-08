@@ -107,25 +107,29 @@ TEST_F(WordFallFeaturesUI, BoardBackingFollowsTheFieldShape)
 	AppTestDriver::PumpFrames(4);
 	auto board = Screen()->GetChild("Board");
 	auto& model = mService->GetLevel().GetBoard();
-	int holes = 0, tilesInHoles = 0, backs = 0;
+	int holes = 0, tilesInHoles = 0, covers = 0, coveredHoles = 0;
 	for (int c = 0; c < model.GetColumns(); c++)
 	{
 		for (int r = 0; r < model.GetRows(); r++)
 		{
-			auto back = board->GetChild(String::Format("CellBack_%i_%i", c, r));
-			ASSERT_TRUE(back);
-			backs += back->IsEnabled() ? 1 : 0;
+			auto cover = DynamicCast<Widget>(board->GetChild(String::Format("Hole_%i_%i", c, r)));
+			ASSERT_TRUE(cover);
+			covers += cover->IsEnabled() ? 1 : 0;
 			if (model.IsHole(Vec2I(c, r)))
 			{
 				holes++;
-				tilesInHoles += board->GetChild(String::Format("Tile_%i_%i", c, r))->IsEnabled() ? 1 : 0;
+				coveredHoles += cover->IsEnabled() ? 1 : 0;
+				auto tile = DynamicCast<Widget>(board->GetChild(String::Format("Tile_%i_%i", c, r)));
+				tilesInHoles += tile->IsEnabled() ? 1 : 0;
+				EXPECT_TRUE(cover->layout->GetWorldRect().IsInside(TilePosition(c, r))) << c << "," << r;
 			}
 		}
 	}
 	EXPECT_GT(holes, 0);
 	EXPECT_EQ(tilesInHoles, 0) << "в дырах плиток нет";
-	EXPECT_EQ(backs, 0) << "по концепту плашки стоят прямо на фоне, без подложек клеток";
-	EXPECT_FALSE(board->GetChild("Panel")) << "единой квадратной подложки больше нет";
+	EXPECT_EQ(coveredHoles, holes) << "нарисованную в подложке клетку дыры закрывает накладка";
+	EXPECT_EQ(covers, holes) << "у живых клеток накладок нет";
+	EXPECT_TRUE(board->GetChild("Panel")) << "клетки поля нарисованы в его подложке";
 	DismissTutorial();
 	Shot("feature_board_shape");
 }
@@ -381,6 +385,8 @@ TEST_F(WordFallFeaturesUI, DuplicateWordShowsMessage)
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetMovesLeft(), moves) << "дубль не тратит ход";
 	EXPECT_TRUE(message->IsEnabled()) << "сообщение о дубле";
+	RectF bar = DynamicCast<Widget>(Screen()->GetChild("Hud/ScorePanel/Bar"))->layout->GetWorldRect();
+	EXPECT_TRUE(DynamicCast<Widget>(message)->layout->GetWorldRect().IsInside(bar.Center())) << "плашкой поверх полосы прогресса";
 	Shot("feature_duplicate");
 }
 

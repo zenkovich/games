@@ -21,12 +21,12 @@
                     "y": 0.5
                 },
                 "offsetMin": {
-                    "x": -49.73,
-                    "y": -49.73
+                    "x": -55.5,
+                    "y": -55.5
                 },
                 "offsetMax": {
-                    "x": 49.73,
-                    "y": 49.73
+                    "x": 55.5,
+                    "y": 55.5
                 }
             },
             "InternalWidgets": [],
@@ -36,25 +36,15 @@
                     "Value": {
                         "name": "back",
                         "mDrawable": {
-                            "Type": "o2::VectorSprite",
+                            "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "777c7e6d782b94ea20616544237a27d8",
-                                    "path": "WordFall/Svg/tile_board_cream.svg"
+                                    "id": "1e72c9f06970d9858690b45a0785e479",
+                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
                                 }
                             }
                         },
-                        "mUID": 16242162826660439330,
-                        "layout": {
-                            "mOffsetMin": {
-                                "x": 0.0,
-                                "y": -4.89
-                            },
-                            "mOffsetMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            }
-                        }
+                        "mUID": 16242162826660439330
                     }
                 },
                 {
@@ -124,12 +114,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -52.3,
-                                "y": -52.3
+                                "x": -58.37,
+                                "y": -58.37
                             },
                             "mOffsetMax": {
-                                "x": 52.3,
-                                "y": 52.3
+                                "x": 58.37,
+                                "y": 58.37
                             }
                         },
                         "name": "crate",
@@ -160,12 +150,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -52.3,
-                                "y": -52.3
+                                "x": -58.37,
+                                "y": -58.37
                             },
                             "mOffsetMax": {
-                                "x": 52.3,
-                                "y": 52.3
+                                "x": 58.37,
+                                "y": 58.37
                             }
                         },
                         "name": "crateHit",
@@ -196,12 +186,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -51.1,
-                                "y": -48.9
+                                "x": -57.03,
+                                "y": -54.57
                             },
                             "mOffsetMax": {
-                                "x": 51.1,
-                                "y": 53.4
+                                "x": 57.03,
+                                "y": 59.6
                             }
                         },
                         "name": "snow",
@@ -232,12 +222,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -47.7,
-                                "y": -47.7
+                                "x": -53.23,
+                                "y": -53.23
                             },
                             "mOffsetMax": {
-                                "x": 47.7,
-                                "y": 47.7
+                                "x": 53.23,
+                                "y": 53.23
                             }
                         },
                         "name": "parcel",
@@ -260,20 +250,12 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 0.0
+                                "x": 0.0541,
+                                "y": 0.1351
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "mOffsetMin": {
-                                "x": 1.63,
-                                "y": 2.53
-                            },
-                            "mOffsetMax": {
-                                "x": 97.83,
-                                "y": 98.73
+                                "x": 0.9369,
+                                "y": 0.9009
                             }
                         },
                         "name": "letter",
@@ -282,13 +264,13 @@
                             "Value": {
                                 "mText": "",
                                 "mColor": {
-                                    "r": 42,
-                                    "g": 10,
-                                    "b": 0,
+                                    "r": 53,
+                                    "g": 26,
+                                    "b": 14,
                                     "a": 255
                                 },
-                                "mFontAssetId": "c3a6818c839afb05ff3e8594194189d7",
-                                "mHeight": 56,
+                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                "mHeight": 63,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
@@ -304,20 +286,12 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 0.0
+                                "x": 0.7387,
+                                "y": 0.0721
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "mOffsetMin": {
-                                "x": 24.46,
-                                "y": 8.15
-                            },
-                            "mOffsetMax": {
-                                "x": 83.16,
-                                "y": 27.72
+                                "x": 0.9459,
+                                "y": 0.3063
                             }
                         },
                         "name": "points",
@@ -326,17 +300,17 @@
                             "Value": {
                                 "mText": "",
                                 "mColor": {
-                                    "r": 42,
-                                    "g": 10,
-                                    "b": 0,
+                                    "r": 53,
+                                    "g": 26,
+                                    "b": 14,
                                     "a": 255
                                 },
-                                "mFontAssetId": "6f6ce35e1c3925e8125db85ac9179fa8",
-                                "mHeight": 15,
+                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                "mHeight": 19,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
-                                "mHorAlign": "Right"
+                                "mHorAlign": "Middle"
                             }
                         },
                         "mUID": 8138034840528835754,
@@ -356,12 +330,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -54.5,
-                                "y": -54.5
+                                "x": -60.82,
+                                "y": -60.82
                             },
                             "mOffsetMax": {
-                                "x": 54.5,
-                                "y": 54.5
+                                "x": 60.82,
+                                "y": 60.82
                             }
                         },
                         "name": "chain",
@@ -392,12 +366,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -85.2,
-                                "y": -85.2
+                                "x": -95.09,
+                                "y": -95.09
                             },
                             "mOffsetMax": {
-                                "x": 85.2,
-                                "y": 85.2
+                                "x": 95.09,
+                                "y": 95.09
                             }
                         },
                         "name": "bonusGlow",
@@ -428,12 +402,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -48.9,
-                                "y": -48.9
+                                "x": -54.57,
+                                "y": -54.57
                             },
                             "mOffsetMax": {
-                                "x": 48.9,
-                                "y": 48.9
+                                "x": 54.57,
+                                "y": 54.57
                             }
                         },
                         "name": "bonusPlate",
@@ -464,12 +438,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -40.9,
-                                "y": -40.9
+                                "x": -45.65,
+                                "y": -45.65
                             },
                             "mOffsetMax": {
-                                "x": 40.9,
-                                "y": 40.9
+                                "x": 45.65,
+                                "y": 45.65
                             }
                         },
                         "name": "bomb",
@@ -500,12 +474,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -40.9,
-                                "y": -40.9
+                                "x": -45.65,
+                                "y": -45.65
                             },
                             "mOffsetMax": {
-                                "x": 40.9,
-                                "y": 40.9
+                                "x": 45.65,
+                                "y": 45.65
                             }
                         },
                         "name": "rocket",
@@ -536,12 +510,12 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -40.9,
-                                "y": -40.9
+                                "x": -45.65,
+                                "y": -45.65
                             },
                             "mOffsetMax": {
-                                "x": 40.9,
-                                "y": 40.9
+                                "x": 45.65,
+                                "y": 45.65
                             }
                         },
                         "name": "fireworks",
@@ -564,11 +538,11 @@
                     "Value": {
                         "name": "pressed",
                         "mDrawable": {
-                            "Type": "o2::VectorSprite",
+                            "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "777c7e6d782b94ea20616544237a27d8",
-                                    "path": "WordFall/Svg/tile_board_cream.svg"
+                                    "id": "1e72c9f06970d9858690b45a0785e479",
+                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
                                 },
                                 "mColor": {
                                     "r": 24,
@@ -580,17 +554,7 @@
                         },
                         "mUID": 14724012899663205962,
                         "mTransparency": 0.0,
-                        "mDepth": 16.0,
-                        "layout": {
-                            "mOffsetMin": {
-                                "x": 0.0,
-                                "y": -4.89
-                            },
-                            "mOffsetMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            }
-                        }
+                        "mDepth": 16.0
                     }
                 }
             ],

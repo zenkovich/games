@@ -1,0 +1,28 @@
+{
+    "mEffects": [
+        {
+            "Type": "o2::FontColorEffect",
+            "Value": {
+                "color": {
+                    "r": 255,
+                    "g": 244,
+                    "b": 214,
+                    "a": 255
+                }
+            }
+        },
+        {
+            "Type": "o2::FontStrokeEffect",
+            "Value": {
+                "radius": 2.0,
+                "alphaThreshold": 100,
+                "color": {
+                    "r": 112,
+                    "g": 80,
+                    "b": 53,
+                    "a": 255
+                }
+            }
+        }
+    ]
+}

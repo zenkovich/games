@@ -3,8 +3,8 @@
 
 #include "WordFallUITestSupport.h"
 
-// Главный экран по концепту: слова уровня — рядами плашек в отдельной панели (лишние — «ещё N»),
-// прочие задачи — иконками в полосе, цвет плашек под буквами случайный и едет с плиткой
+// Главный экран по вёрстке пайплайна: слова уровня — рядами плашек в отдельной панели (лишние — «ещё N»),
+// прочие задачи — плашками с галочками, лоток слова всегда на экране, цвет плашек под буквами случайный и едет с плиткой
 class WordFallMainScreenUI: public WordFallUI
 {
 protected:
@@ -19,6 +19,7 @@ protected:
 	}
 
 	String Shown() { return Eval("JSON.stringify(WordFallViews.tasks.GetShownWords())"); }
+	String Objectives() { return Eval("JSON.stringify(WordFallViews.tasks.GetShownObjectives())"); }
 };
 
 TEST_F(WordFallMainScreenUI, WordsPanelListsEveryWordAndFoldsTheRest)
@@ -71,29 +72,133 @@ TEST_F(WordFallMainScreenUI, FoundWordTurnsOrangeAndTypedPrefixLightsUp)
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "32_word_found.png"));
 }
 
-TEST_F(WordFallMainScreenUI, OtherTasksShowIconsCountsAndTheFinalCheck)
+TEST_F(WordFallMainScreenUI, ObjectivesArePlaquesWithChecksAndTheScoreGoal)
 {
 	o2Scripts.Eval("(function() { var c = WordFallGame.service.GetLevelConfig(0); c.words = ['КОТ']; c.wordsAuto = 0;"
 				   " c.tasks = [{taskType: 'Letter', letter: 'О', count: 10}, {taskType: 'AnyWords', count: 2}, {taskType: 'Powerup', powerupKind: 'bomb', count: 1}];"
 				   " c.targetScore = 10; WordFallGame.service.SetLevelConfig(0, c); WordFallGame.service.StartLevel(0); })()");
 	AppTestDriver::PumpFrames(3);
-	auto others = o2Scene.FindActor("WordFall")->GetChild("Screen/Tasks/Others");
-	auto letterTile = DynamicCast<Widget>(others->GetChild("Item0/Icon"));
-	ASSERT_TRUE(letterTile);
-	EXPECT_EQ(String(letterTile->GetLayerDrawable<Text>("letter")->GetText()), String("О"));
-	EXPECT_EQ(String(DynamicCast<Label>(others->GetChild("Item0/Count"))->GetText()), String("0/10"));
-	EXPECT_TRUE(letterTile->GetLayer("back")->IsEnabled());
-	EXPECT_TRUE(DynamicCast<Widget>(others->GetChild("Item2/Icon"))->GetLayer("image")->IsEnabled()) << "бонус — иконкой";
-	EXPECT_FALSE(others->GetChild("Item3")->IsEnabled());
-	auto check = DynamicCast<Widget>(others->GetChild("AllDone"));
-	EXPECT_LT(check->GetTransparency(), 0.5f) << "не всё закрыто — галочка бледная";
-	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "33_tasks_strip.png"));
+	EXPECT_EQ(Objectives(), String("[{\"text\":\"Собрать 0/10\",\"symbol\":\"О\",\"image\":\"\",\"done\":false},"
+								   "{\"text\":\"Найти слова: 0/2\",\"symbol\":\"\",\"image\":\"Generated/UI/Screen_Resources/Sprites/icon_search_small.png\",\"done\":false},"
+								   "{\"text\":\"Бомба: 0/1\",\"symbol\":\"\",\"image\":\"WordFall/Sprites/powerup_bomb.png\",\"done\":false},"
+								   "{\"text\":\"Набрать 10 очков\",\"symbol\":\"\",\"image\":\"Generated/UI/Screen_Resources/Sprites/icon_coin.png\",\"done\":false}]"))
+		<< "три задачи и последней — цель по очкам";
+	auto objectives = o2Scene.FindActor("WordFall")->GetChild("Screen/Tasks/Objectives");
+	EXPECT_FALSE(objectives->GetChild("Item4")->IsEnabled());
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "33_objectives.png"));
 
 	mService->DebugCompleteTasks();
 	AppTestDriver::PumpFrames(3);
-	EXPECT_TRUE(others->GetChild("Item0/Done")->IsEnabled());
-	EXPECT_FALSE(others->GetChild("Item0/Count")->IsEnabled());
-	EXPECT_FLOAT_EQ(check->GetTransparency(), 1.0f);
+	EXPECT_TRUE(objectives->GetChild("Item0/Check")->IsEnabled()) << "закрытая задача — с галочкой";
+	EXPECT_FALSE(objectives->GetChild("Item3/Check")->IsEnabled()) << "очков ещё нет";
+
+	mService->DebugAddScore(10);
+	AppTestDriver::PumpFrames(3);
+	EXPECT_TRUE(objectives->GetChild("Item3/Check")->IsEnabled());
+}
+
+// Пять задач и цель по очкам — три ряда: плашки ужимаются и остаются в блоке, не налезая друг на друга
+TEST_F(WordFallMainScreenUI, ManyTasksShrinkThePlaquesToFit)
+{
+	o2Scripts.Eval("(function() { var c = WordFallGame.service.GetLevelConfig(0); c.words = ['КОТ']; c.wordsAuto = 0;"
+				   " c.tasks = [{taskType: 'Letter', letter: 'О', count: 3}, {taskType: 'AnyWords', count: 2}, {taskType: 'Length', length: 4, count: 2},"
+				   " {taskType: 'WordScore', scoreThreshold: 15}, {taskType: 'Melt', count: 2}];"
+				   " c.targetScore = 10; WordFallGame.service.SetLevelConfig(0, c); WordFallGame.service.StartLevel(0); })()");
+	AppTestDriver::PumpFrames(3);
+	auto objectives = DynamicCast<Widget>(o2Scene.FindActor("WordFall")->GetChild("Screen/Tasks/Objectives"));
+	RectF block = objectives->layout->GetWorldRect();
+	Vector<RectF> plaques;
+	for (int i = 0; i < 6; i++)
+	{
+		auto item = DynamicCast<Widget>(objectives->GetChild(String::Format("Item%i", i)));
+		ASSERT_TRUE(item->IsEnabled()) << i;
+		RectF rect = item->layout->GetWorldRect();
+		EXPECT_GE(rect.left, block.left - 0.5f) << i;
+		EXPECT_LE(rect.right, block.right + 0.5f) << i;
+		EXPECT_GE(rect.bottom, block.bottom - 0.5f) << i;
+		EXPECT_LE(rect.top, block.top + 0.5f) << i;
+		for (auto& other : plaques)
+			EXPECT_FALSE(rect.left < other.right - 0.5f && other.left < rect.right - 0.5f &&
+						 rect.bottom < other.top - 0.5f && other.bottom < rect.top - 0.5f) << i;
+		plaques.Add(rect);
+	}
+	EXPECT_LT(plaques[0].Height(), 88.0f);
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "35_objectives_many.png"));
+}
+
+// Лоток слова всегда на экране: свой ряд между полосой прогресса и полем, выбранные буквы долетают в него
+TEST_F(WordFallMainScreenUI, TrayStaysOnScreenBetweenProgressAndBoard)
+{
+	StartWithWords("[\"КОТ\"]");
+	auto root = o2Scene.FindActor("WordFall");
+	auto widget = [&](const char* path) { return DynamicCast<Widget>(root->GetChild(path)); };
+	auto visible = [](const Ref<Widget>& w) { return w->IsEnabledInHierarchy() && w->GetResTransparency() > 0.99f; };
+	auto progress = widget("Screen/Hud/ScorePanel");
+	auto tray = widget("Screen/WordBar/Tray");
+	auto accept = widget("Screen/WordBar/AcceptBtn");
+	auto clear = widget("Screen/WordBar/ClearBtn");
+	auto expectTrayShown = [&](const char* when) {
+		EXPECT_TRUE(visible(tray)) << when;
+		EXPECT_TRUE(visible(accept)) << when;
+		EXPECT_TRUE(visible(clear)) << when;
+		EXPECT_TRUE(visible(progress)) << when;
+	};
+	expectTrayShown("без выбора");
+
+	RectF row = widget("Screen/WordBar")->layout->GetWorldRect();
+	RectF progressRect = progress->layout->GetWorldRect();
+	RectF board = widget("Screen/Board/Panel")->layout->GetWorldRect();
+	EXPECT_LE(row.top, progressRect.bottom) << "лоток — под полосой прогресса";
+	EXPECT_GE(row.bottom, board.top) << "и над полем";
+	EXPECT_LE(accept->layout->GetWorldRect().right, row.right + 0.5f);
+	EXPECT_LE(tray->layout->GetWorldRect().right, accept->layout->GetWorldRect().left);
+
+	PlantWord("КОТ");
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	AppTestDriver::Wait(0.5f);
+	expectTrayShown("с выбором");
+	auto slot = widget("Screen/WordBar/Tray/Slot1");
+	EXPECT_TRUE(slot->IsEnabled());
+	EXPECT_TRUE(tray->layout->GetWorldRect().IsInside(slot->layout->GetWorldRect().Center())) << "буквы долетели в лоток";
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "36_tray_on_screen.png"));
+
+	Click(ClearPosition());
+	AppTestDriver::Wait(0.3f);
+	expectTrayShown("после сброса");
+	EXPECT_FALSE(slot->IsEnabled());
+
+	ClickTile(1, 0);
+	ClickTile(2, 0);
+	ClickTile(3, 0);
+	AppTestDriver::Wait(0.5f);
+	Click(AcceptPosition());
+	AppTestDriver::Wait(0.3f);
+	expectTrayShown("после слова");
+	EXPECT_TRUE(mService->IsWordUsed("КОТ"));
+}
+
+// Подсказка прицела бустера — плашкой поверх поля лотка, только пока идёт прицел
+TEST_F(WordFallMainScreenUI, AimPromptCoversTheTrayField)
+{
+	StartWithWords("[\"КОТ\"]");
+	auto root = o2Scene.FindActor("WordFall");
+	auto mode = DynamicCast<Widget>(root->GetChild("Screen/Boosters/ModeLabel"));
+	auto tray = DynamicCast<Widget>(root->GetChild("Screen/WordBar/Tray"));
+	EXPECT_FALSE(mode->IsEnabledInHierarchy());
+
+	Click(BoosterPosition(0)); // молоток — режим прицела
+	AppTestDriver::PumpFrames(2);
+	EXPECT_TRUE(mode->IsEnabledInHierarchy());
+	RectF field = tray->layout->GetWorldRect(), prompt = mode->layout->GetWorldRect();
+	EXPECT_NEAR(prompt.left, field.left, 1.0f);
+	EXPECT_NEAR(prompt.right, field.right, 1.0f);
+	EXPECT_NEAR(prompt.Center().y, field.Center().y, 1.0f);
+	EXPECT_GT(mode->GetDrawingDepth(), DynamicCast<Widget>(root->GetChild("Screen/WordBar/Tray/Slot0"))->GetDrawingDepth());
+
+	Click(BoosterPosition(0)); // повторный клик — отмена прицела
+	AppTestDriver::PumpFrames(2);
+	EXPECT_FALSE(mode->IsEnabledInHierarchy());
 }
 
 TEST_F(WordFallMainScreenUI, TileColoursAreRandomAndTravelWithTheTiles)
@@ -141,12 +246,79 @@ TEST_F(WordFallMainScreenUI, TileColoursAreRandomAndTravelWithTheTiles)
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "34_tints_after_fall.png"));
 }
 
-// Экран в состоянии концепта (мок поля, слов, задач и счёта) лежит по координатам HTML-вёрстки
-// Tools/WordFall/CssScreen/game.html: rem страницы 471x1026 × 768/471 (раскладка прилипает к пикселям — допуск 2);
-// снимок — для сравнения с concept.png
-TEST_F(WordFallMainScreenUI, ConceptScreenFollowsTheHtmlLayout)
+// Мировые прямоугольники узлов вёрстки пайплайна (Generated/UI/Screen.proto) по пути имён: центр экрана — (0, 0), y вверх
+class PipelineLayout
 {
-	String mock = o2FileSystem.ReadFile("../../Sources/GameUITests/Data/wordfall_concept_mock.json");
+public:
+	explicit PipelineLayout(const String& path)
+	{
+		if (mDocument.LoadFromFile(path))
+			Walk(mDocument["mActor"], RectF(), "");
+	}
+
+	bool IsLoaded() const { return mRects.Count() > 0; }
+	RectF Get(const String& path) const { RectF rect; mRects.TryGetValue(path, rect); return rect; }
+
+private:
+	DataDocument     mDocument;
+	Map<String, RectF> mRects;
+
+	static float Field(const DataValue& value, const char* name)
+	{
+		auto member = value.FindMember(name);
+		return member ? (float)*member : 0.0f;
+	}
+
+	static Vec2F Point(const DataValue& transform, const char* name)
+	{
+		auto member = transform.FindMember(name);
+		return member ? Vec2F(Field(*member, "x"), Field(*member, "y")) : Vec2F();
+	}
+
+	void Walk(const DataValue& node, const RectF& parent, const String& path)
+	{
+		auto data = node.FindMember("Data");
+		if (!data)
+			data = node.FindMember("Value");
+
+		Vec2F anchorMin, anchorMax, offsetMin, offsetMax;
+		if (auto transform = data->FindMember("Transform"))
+		{
+			anchorMin = Point(*transform, "anchorMin");
+			anchorMax = Point(*transform, "anchorMax");
+			offsetMin = Point(*transform, "offsetMin");
+			offsetMax = Point(*transform, "offsetMax");
+		}
+		Vec2F size(parent.right - parent.left, parent.top - parent.bottom);
+		RectF rect;
+		rect.left = parent.left + anchorMin.x*size.x + offsetMin.x;
+		rect.bottom = parent.bottom + anchorMin.y*size.y + offsetMin.y;
+		rect.right = parent.left + anchorMax.x*size.x + offsetMax.x;
+		rect.top = parent.bottom + anchorMax.y*size.y + offsetMax.y;
+		mRects.Add(path, rect);
+
+		if (auto children = data->FindMember("Children"))
+		{
+			for (int i = 0; i < children->GetElementsCount(); i++)
+			{
+				auto& item = children->GetElement(i);
+				auto itemData = item.FindMember("Data");
+				if (!itemData)
+					itemData = item.FindMember("Value");
+				String name = (String)(*itemData)["mName"];
+				Walk(item, rect, path.IsEmpty() ? name : path + "/" + name);
+			}
+		}
+	}
+};
+
+// Экран в состоянии макета (мок поля, слов, задач и счёта) — вёрстка пайплайна «Wordfall main» (Generated/UI/Screen.proto),
+// уплотнённая по вертикали: блок слов чуть меньше, свой ряд у лотка, поле над уменьшенными бустерами; снимок — для сравнения с превью
+TEST_F(WordFallMainScreenUI, ScreenFollowsThePipelineLayout)
+{
+	PipelineLayout layout("../../Assets/Generated/UI/Screen.proto");
+	ASSERT_TRUE(layout.IsLoaded());
+	String mock = o2FileSystem.ReadFile("../../Sources/GameUITests/Data/wordfall_layout_mock.json");
 	ASSERT_FALSE(mock.IsEmpty());
 	o2Scripts.Eval("WordFallGame.service.DebugApplyMock(" + mock + ")");
 	o2Scripts.Eval("WordFallViews.hud.scorePrefix = 'Progress: '");
@@ -156,38 +328,139 @@ TEST_F(WordFallMainScreenUI, ConceptScreenFollowsTheHtmlLayout)
 	o2Scripts.Eval("WordFallViews.hud.SnapScore()");
 	AppTestDriver::PumpFrames(2);
 
-	const float s = 768.0f/471.0f;
-	auto expectRect = [&](const String& path, float x, float y, float w, float h) {
+	auto rectOf = [&](const String& path) {
 		auto widget = DynamicCast<Widget>(root->GetChild(path));
-		ASSERT_TRUE(widget) << path.Data();
-		RectF rect = widget->layout->GetWorldRect();
-		EXPECT_NEAR(rect.left, x*s - 384.0f, 2.0f) << path.Data();
-		EXPECT_NEAR(rect.top, 836.5f - y*s, 2.0f) << path.Data();
-		EXPECT_NEAR(rect.Width(), w*s, 2.0f) << path.Data();
-		EXPECT_NEAR(rect.Height(), h*s, 2.0f) << path.Data();
+		EXPECT_TRUE(widget) << path.Data();
+		return widget ? widget->layout->GetWorldRect() : RectF();
 	};
-	expectRect("Screen/Tasks/Words", 8, 8, 328, 174);
-	expectRect("Screen/Tasks/Words/W1_2", 104, 54, 44, 40);
-	expectRect("Screen/Hud/MovesBox", 341, 4, 122, 126);
-	expectRect("Screen/Tasks/Others", 8, 189, 455, 81);
-	expectRect("Screen/Tasks/Others/Item0/Icon", 21, 201.5f, 56, 56);
-	expectRect("Screen/Tasks/Others/Slot", 195, 202.5f, 56, 54);
-	expectRect("Screen/Tasks/Others/AllDone", 265, 201.5f, 52, 56);
-	expectRect("Screen/Hud/ScorePanel/Star", 6, 270, 58, 58);
-	expectRect("Screen/WordBar/Tray", 7, 334, 338, 59);
-	expectRect("Screen/WordBar/AcceptBtn", 352, 335.5f, 52, 56);
-	expectRect("Screen/WordBar/ClearBtn", 411, 335.5f, 52, 56);
-	expectRect("Screen/Board/Tile_0_7", 8, 404, 61, 61);
-	expectRect("Screen/Board/Tile_6_0", 401.94f, 866, 61, 61);
-	expectRect("Screen/Boosters/Booster0", 11, 940, 72, 72);
-	expectRect("Screen/Boosters/Booster1", 388, 940, 72, 72);
+	// раздел сдвинут по вертикали целиком: по горизонтали и по размерам его узлы — как в вёрстке
+	auto expectShifted = [&](const String& path, const String& layoutPath, float shift) {
+		RectF rect = rectOf(path), expected = layout.Get(layoutPath);
+		EXPECT_NEAR(rect.left, expected.left, 1.5f) << path.Data() << " ~ " << layoutPath.Data();
+		EXPECT_NEAR(rect.right, expected.right, 1.5f) << path.Data() << " ~ " << layoutPath.Data();
+		EXPECT_NEAR(rect.top, expected.top + shift, 1.5f) << path.Data() << " ~ " << layoutPath.Data();
+		EXPECT_NEAR(rect.bottom, expected.bottom + shift, 1.5f) << path.Data() << " ~ " << layoutPath.Data();
+	};
+	auto shiftOf = [&](const String& path, const String& layoutPath) { return rectOf(path).top - layout.Get(layoutPath).top; };
 
-	auto words = root->GetChild("Screen/Tasks/Words");
-	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W0_1"))->GetLayer("found")->IsEnabled()) << "найденная буква — оранжевая";
-	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W1_2"))->GetLayer("active")->IsEnabled()) << "набираемая — в синей рамке";
-	EXPECT_TRUE(DynamicCast<Widget>(words->GetChild("W0_0"))->GetLayer("back")->IsEnabled());
-	EXPECT_EQ(String(DynamicCast<Label>(root->GetChild("Screen/Tasks/Others/Item0/Count"))->GetText()), String("1/10"));
-	// в концепте галочка полосы яркая, хотя задача не закрыта — для снимка так же
-	DynamicCast<Widget>(root->GetChild("Screen/Tasks/Others/AllDone"))->SetTransparency(1.0f);
-	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "40_concept_screen.png"));
+	expectShifted("Screen", "", 0.0f);
+	float shift = shiftOf("Screen/Tasks/Objectives", "objectives");
+	expectShifted("Screen/Tasks/Objectives", "objectives", shift);
+	expectShifted("Screen/Tasks/Objectives/Item0", "objectives/collect", shift);
+	expectShifted("Screen/Tasks/Objectives/Item0/Checkbox", "objectives/collect/checkbox", shift);
+	expectShifted("Screen/Tasks/Objectives/Item0/Check", "objectives/collect/check", shift);
+	expectShifted("Screen/Tasks/Objectives/Item1", "objectives/bonus", shift);
+	expectShifted("Screen/Tasks/Objectives/Item1/Icon", "objectives/bonus/icon", shift);
+	expectShifted("Screen/Tasks/Objectives/Item2", "objectives/find", shift);
+	expectShifted("Screen/Tasks/Objectives/Item3", "objectives/score", shift);
+	shift = shiftOf("Screen/Hud/ScorePanel/Star", "star");
+	expectShifted("Screen/Hud/ScorePanel/Star", "star", shift);
+	expectShifted("Screen/Hud/ScorePanel/Bar", "progress/track", shift);
+	shift = shiftOf("Screen/Board/Tile_0_7", "letters/r0c0");
+	expectShifted("Screen/Board/Tile_0_7", "letters/r0c0", shift);
+	expectShifted("Screen/Board/Tile_6_0", "letters/r7c6", shift);
+	expectShifted("Screen/Board/Tile_3_4", "letters/r3c3", shift);
+
+	// блок слов чуть меньше вёрстки, в тех же пропорциях; плашка ходов справа забирает освободившуюся ширину
+	RectF words = rectOf("Screen/Tasks/Words"), layoutWords = layout.Get("word_board");
+	float k = words.Height()/layoutWords.Height();
+	EXPECT_GT(k, 0.85f);
+	EXPECT_LT(k, 0.97f);
+	EXPECT_NEAR(words.left, layoutWords.left, 1.5f);
+	EXPECT_NEAR(words.Width(), layoutWords.Width()*k, 1.5f);
+	auto expectScaled = [&](const String& path, const String& layoutPath) {
+		RectF rect = rectOf(path), expected = layout.Get(layoutPath);
+		EXPECT_NEAR(rect.left - words.left, (expected.left - layoutWords.left)*k, 1.5f) << path.Data();
+		EXPECT_NEAR(words.top - rect.top, (layoutWords.top - expected.top)*k, 1.5f) << path.Data();
+		EXPECT_NEAR(rect.Width(), expected.Width()*k, 1.5f) << path.Data();
+		EXPECT_NEAR(rect.Height(), expected.Height()*k, 1.5f) << path.Data();
+	};
+	expectScaled("Screen/Tasks/Words/W0_0", "words/puzzle/p");
+	expectScaled("Screen/Tasks/Words/W1_2", "words/brain/a");
+	expectScaled("Screen/Tasks/Words/W3_6", "words/connect/t");
+	RectF moves = rectOf("Screen/Hud/MovesBox"), layoutMoves = layout.Get("moves");
+	EXPECT_NEAR(moves.right, layoutMoves.right, 1.5f);
+	EXPECT_NEAR(moves.left - words.right, layoutMoves.left - layoutWords.right, 1.5f);
+	EXPECT_NEAR(rectOf("Screen/Hud/MovesBox/Value").Center().x, moves.Center().x, 1.5f);
+
+	// разделы сверху вниз с короткими зазорами, лоток — своим рядом между прогрессом и полем
+	RectF screen = rectOf("Screen");
+	RectF boosters = rectOf("Screen/Boosters/Booster0");
+	for (int i = 1; i < 5; i++)
+		boosters = boosters.Expand(rectOf(String::Format("Screen/Boosters/Booster%i", i)));
+	struct Section { const char* name; RectF rect; };
+	Section sections[] = { { "слова", words }, { "задачи", rectOf("Screen/Tasks/Objectives") },
+						   { "прогресс", rectOf("Screen/Hud/ScorePanel") }, { "лоток", rectOf("Screen/WordBar") },
+						   { "поле", rectOf("Screen/Board/Panel") }, { "бустеры", boosters } };
+	EXPECT_LE(screen.top - words.top, 16.0f);
+	for (int i = 1; i < 6; i++)
+	{
+		float gap = sections[i - 1].rect.bottom - sections[i].rect.top;
+		EXPECT_GE(gap, 4.0f) << sections[i - 1].name << " / " << sections[i].name;
+		EXPECT_LE(gap, 14.0f) << sections[i - 1].name << " / " << sections[i].name;
+	}
+	EXPECT_GE(boosters.bottom - screen.bottom, 8.0f);
+	EXPECT_LE(boosters.bottom - screen.bottom, 40.0f);
+
+	// рамка поля снизу — как с остальных сторон
+	RectF panel = rectOf("Screen/Board/Panel");
+	RectF topLeft = rectOf("Screen/Board/Tile_0_7"), bottomRight = rectOf("Screen/Board/Tile_6_0");
+	float frameTop = panel.top - topLeft.top, frameBottom = bottomRight.bottom - panel.bottom;
+	float frameLeft = topLeft.left - panel.left, frameRight = panel.right - bottomRight.right;
+	EXPECT_NEAR(frameBottom, frameTop, 1.5f);
+	EXPECT_NEAR(frameBottom, frameLeft, 3.0f);
+	EXPECT_NEAR(frameBottom, frameRight, 3.0f);
+
+	// бустеры меньше кнопок вёрстки, на тех же местах по горизонтали
+	const char* buttons[][2] = { { "Booster0", "toolbar/search" }, { "Booster4", "toolbar/search_plus" },
+								 { "Booster2", "toolbar/hint_blue" }, { "Booster3", "toolbar/hint_gold" },
+								 { "Booster1", "toolbar/shuffle" } };
+	for (auto& button : buttons)
+	{
+		RectF rect = rectOf(String("Screen/Boosters/") + button[0]), expected = layout.Get(button[1]);
+		EXPECT_NEAR(rect.Center().x, expected.Center().x, 1.5f) << button[0];
+		EXPECT_LT(rect.Width(), expected.Width()*0.9f) << button[0];
+		EXPECT_GT(rect.Width(), expected.Width()*0.7f) << button[0];
+		EXPECT_NEAR(rect.Height()/rect.Width(), expected.Height()/expected.Width(), 0.01f) << button[0];
+	}
+
+	auto wordTiles = root->GetChild("Screen/Tasks/Words");
+	EXPECT_TRUE(DynamicCast<Widget>(wordTiles->GetChild("W0_2"))->GetLayer("found")->IsEnabled()) << "найденная буква — оранжевая";
+	EXPECT_TRUE(DynamicCast<Widget>(wordTiles->GetChild("W1_2"))->GetLayer("active")->IsEnabled()) << "набираемая — в синей рамке";
+	EXPECT_TRUE(DynamicCast<Widget>(wordTiles->GetChild("W0_0"))->GetLayer("back")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Screen/Board/Tile_3_6")->IsEnabled()) << "пустая клетка макета — видно гнездо подложки";
+	EXPECT_TRUE(root->GetChild("Screen/Tasks/Objectives/Item0/Check")->IsEnabled());
+	for (int i = 0; i < 4; i++)
+	{
+		auto label = DynamicCast<Widget>(root->GetChild(String::Format("Screen/Tasks/Objectives/Item%i/Label", i)));
+		EXPECT_LE(label->GetLayerDrawable<Text>("text")->GetRealSize().x, label->layout->GetWorldRect().Width() + 1.0f)
+			<< "подпись задачи " << i << " переносится по словам и не вылезает за плашку";
+	}
+
+	// фон одноцветный, как на референсе: поля экрана по краям и над/под разделами — одного цвета
+	Ref<Bitmap> frame = AppTestDriver::TakeScreenshot();
+	ASSERT_TRUE(frame);
+	Vec2I size = frame->GetSize();
+	float scale = Math::Min(size.x/kScreenSize.x, size.y/kScreenSize.y);
+	auto pixel = [&](const Vec2F& world) {
+		int x = Math::Clamp((int)(size.x*0.5f + world.x*scale), 0, size.x - 1);
+		int y = Math::Clamp((int)(size.y*0.5f + world.y*scale), 0, size.y - 1);
+		const UInt8* p = &frame->GetData()[(y*size.x + x)*4];
+		return Color4(p[0], p[1], p[2], p[3]);
+	};
+	const Color4 paper(240, 214, 179, 255);
+	Vector<Vec2F> points = { Vec2F(0, screen.top - 6), Vec2F(0, screen.bottom + 10) };
+	for (float y = -850; y <= 850; y += 100)
+	{
+		points.Add(Vec2F(screen.left + 5, y));
+		points.Add(Vec2F(screen.right - 5, y));
+	}
+	for (auto& point : points)
+	{
+		Color4 color = pixel(point);
+		EXPECT_NEAR(color.r, paper.r, 4) << point.x << ", " << point.y;
+		EXPECT_NEAR(color.g, paper.g, 4) << point.x << ", " << point.y;
+		EXPECT_NEAR(color.b, paper.b, 4) << point.x << ", " << point.y;
+	}
+	EXPECT_TRUE(frame->Save(kScreenshotsDir + "40_layout_screen.png", Bitmap::ImageType::Png));
 }

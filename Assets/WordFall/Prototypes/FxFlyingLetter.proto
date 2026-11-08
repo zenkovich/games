@@ -21,12 +21,12 @@
                     "y": 0.5
                 },
                 "offsetMin": {
-                    "x": -195.87,
-                    "y": -112.61
+                    "x": -196.0,
+                    "y": -116.0
                 },
                 "offsetMax": {
-                    "x": -124.13,
-                    "y": -47.39
+                    "x": -124.0,
+                    "y": -44.0
                 },
                 "pivot": {
                     "x": 0.5,
@@ -448,25 +448,15 @@
                     "Value": {
                         "name": "back",
                         "mDrawable": {
-                            "Type": "o2::VectorSprite",
+                            "Type": "o2::Sprite",
                             "Value": {
                                 "mImageAsset": {
-                                    "id": "5134ebf4d5dd53869f61826f2860c340",
-                                    "path": "WordFall/Svg/tile_small_cream.svg"
+                                    "id": "1e72c9f06970d9858690b45a0785e479",
+                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
                                 }
                             }
                         },
-                        "mUID": 2954054670433910063,
-                        "layout": {
-                            "mOffsetMin": {
-                                "x": 0.0,
-                                "y": -4.89
-                            },
-                            "mOffsetMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            }
-                        }
+                        "mUID": 2954054670433910063
                     }
                 },
                 {
@@ -474,20 +464,12 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 0.0
+                                "x": 0.0541,
+                                "y": 0.1351
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "mOffsetMin": {
-                                "x": 1.63,
-                                "y": 5.33
-                            },
-                            "mOffsetMax": {
-                                "x": 70.11,
-                                "y": 67.29
+                                "x": 0.9369,
+                                "y": 0.9009
                             }
                         },
                         "name": "letter",
@@ -496,12 +478,12 @@
                             "Value": {
                                 "mText": "",
                                 "mColor": {
-                                    "r": 42,
-                                    "g": 10,
-                                    "b": 0,
+                                    "r": 53,
+                                    "g": 26,
+                                    "b": 14,
                                     "a": 255
                                 },
-                                "mFontAssetId": "c3a6818c839afb05ff3e8594194189d7",
+                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
                                 "mHeight": 41,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
@@ -518,20 +500,12 @@
                     "Value": {
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 0.0
+                                "x": 0.7387,
+                                "y": 0.0721
                             },
                             "mAnchorMax": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "mOffsetMin": {
-                                "x": 25.27,
-                                "y": 6.52
-                            },
-                            "mOffsetMax": {
-                                "x": 61.96,
-                                "y": 18.75
+                                "x": 0.9459,
+                                "y": 0.3063
                             }
                         },
                         "name": "points",
@@ -540,17 +514,17 @@
                             "Value": {
                                 "mText": "",
                                 "mColor": {
-                                    "r": 42,
-                                    "g": 10,
-                                    "b": 0,
+                                    "r": 53,
+                                    "g": 26,
+                                    "b": 14,
                                     "a": 255
                                 },
-                                "mFontAssetId": "6f6ce35e1c3925e8125db85ac9179fa8",
-                                "mHeight": 10,
+                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                "mHeight": 12,
                                 "mSymbolsDistCoef": 1.0,
                                 "mLinesDistanceCoef": 1.0,
                                 "mVerAlign": "Middle",
-                                "mHorAlign": "Right"
+                                "mHorAlign": "Middle"
                             }
                         },
                         "mUID": 1678625339643581482,

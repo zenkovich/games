@@ -233,7 +233,7 @@ namespace
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
 	const String kTestLevelsPath = "wordfall_test_levels.json"; // правки редактора уровней в тестах — не в файле игрока
 
-	const Vec2F kScreenSize(768, 1673); // логический экран игры, fitted-камера сцены WordFall.scn
+	const Vec2F kScreenSize(868, 1813); // логический экран игры (вёрстка Generated/UI/Screen.proto), fitted-камера сцены WordFall.scn
 
 	// Центр плитки в экранных координатах — как его считает вьюха поля
 	Vec2F TilePosition(int column, int row)

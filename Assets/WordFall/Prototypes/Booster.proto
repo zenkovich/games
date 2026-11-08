@@ -21,12 +21,12 @@
                     "y": 0.5
                 },
                 "offsetMin": {
-                    "x": -60.0,
-                    "y": -57.0
+                    "x": -55.35,
+                    "y": -58.63
                 },
                 "offsetMax": {
-                    "x": 60.0,
-                    "y": 57.0
+                    "x": 55.35,
+                    "y": 58.63
                 }
             },
             "Children": [
@@ -60,23 +60,40 @@
                                 "Value": {
                                     "name": "icon",
                                     "mDrawable": {
-                                        "Type": "o2::VectorSprite",
+                                        "Type": "o2::Sprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "cedc77266c5c0b8b9123256f83d20766",
-                                                "path": "WordFall/Svg/booster_magnifier.svg"
+                                                "id": "16096f2b1de7f2db1461eb19cb55ca37",
+                                                "path": "Generated/UI/Screen_Resources/Sprites/button_blue.png"
                                             }
                                         }
                                     },
-                                    "mUID": 13879726056123998788,
+                                    "mUID": 13879726056123998788
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "glyph",
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "2ecca7568a81c16331c6c253e4f45fe0",
+                                                "path": "Generated/UI/Screen_Resources/Sprites/icon_search.png"
+                                            }
+                                        }
+                                    },
+                                    "mUID": 6505574914532780359,
+                                    "mDepth": 0.5,
                                     "layout": {
-                                        "mOffsetMin": {
-                                            "x": 0.0,
-                                            "y": -6.52
+                                        "mAnchorMin": {
+                                            "x": 0.2222,
+                                            "y": 0.2797
                                         },
-                                        "mOffsetMax": {
-                                            "x": 0.0,
-                                            "y": 0.0
+                                        "mAnchorMax": {
+                                            "x": 0.7778,
+                                            "y": 0.7902
                                         }
                                     }
                                 }
@@ -86,11 +103,11 @@
                                 "Value": {
                                     "name": "pressed",
                                     "mDrawable": {
-                                        "Type": "o2::VectorSprite",
+                                        "Type": "o2::Sprite",
                                         "Value": {
                                             "mImageAsset": {
-                                                "id": "cedc77266c5c0b8b9123256f83d20766",
-                                                "path": "WordFall/Svg/booster_magnifier.svg"
+                                                "id": "16096f2b1de7f2db1461eb19cb55ca37",
+                                                "path": "Generated/UI/Screen_Resources/Sprites/button_blue.png"
                                             },
                                             "mColor": {
                                                 "r": 24,
@@ -102,17 +119,7 @@
                                     },
                                     "mUID": 7607720896464213418,
                                     "mTransparency": 0.0,
-                                    "mDepth": 1.0,
-                                    "layout": {
-                                        "mOffsetMin": {
-                                            "x": 0.0,
-                                            "y": -6.52
-                                        },
-                                        "mOffsetMax": {
-                                            "x": 0.0,
-                                            "y": 0.0
-                                        }
-                                    }
+                                    "mDepth": 1.0
                                 }
                             }
                         ],

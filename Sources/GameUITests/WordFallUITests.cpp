@@ -21,7 +21,7 @@ TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
 	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/Bar"));
 	EXPECT_TRUE(root->GetChild("Screen/Tasks/Words/W0_0"));
-	EXPECT_TRUE(root->GetChild("Screen/Tasks/Others/Item0"));
+	EXPECT_TRUE(root->GetChild("Screen/Tasks/Objectives/Item0"));
 	EXPECT_TRUE(root->GetChild("Screen/WordBar/AcceptBtn"));
 	EXPECT_TRUE(root->GetChild("Screen/WordBar/Tray/Slot0"));
 	EXPECT_TRUE(root->GetChild("Screen/Boosters/Booster4/Btn"));
@@ -281,23 +281,25 @@ TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
 
-	// слова уровня — рядами плашек в своей панели, прочие задачи — иконками в полосе под ней
+	// слова уровня — рядами плашек в своей панели, прочие задачи — плашками под ней, последняя — цель по очкам
 	auto shown = o2Scripts.Eval("JSON.stringify(WordFallViews.tasks.GetShownWords())").ToString();
 	auto firstWord = o2Scripts.Eval("WordFallGame.service.GetWords()[0].word").ToString();
 	EXPECT_FALSE(firstWord.IsEmpty());
 	EXPECT_NE(shown.Find("\"" + firstWord + "\""), -1) << shown.Data();
 	int tasks = o2Scripts.Eval("WordFallGame.service.GetTasks().length").GetValue<int>();
 	ASSERT_GT(tasks, 0);
-	for (int i = 0; i < 5; i++)
-		EXPECT_EQ(root->GetChild(String::Format("Screen/Tasks/Others/Item%i", i))->IsEnabled(), i < tasks) << i;
-	auto count = DynamicCast<Label>(root->GetChild("Screen/Tasks/Others/Item0/Count"));
-	ASSERT_TRUE(count);
-	EXPECT_NE(String(count->GetText()).Find("/"), -1) << "счётчик задачи: прогресс/цель";
+	for (int i = 0; i < 6; i++)
+		EXPECT_EQ(root->GetChild(String::Format("Screen/Tasks/Objectives/Item%i", i))->IsEnabled(), i <= tasks) << i;
+	auto caption = DynamicCast<Label>(root->GetChild("Screen/Tasks/Objectives/Item0/Label"));
+	ASSERT_TRUE(caption);
+	EXPECT_FALSE(String(caption->GetText()).IsEmpty());
+	auto score = DynamicCast<Label>(root->GetChild(String::Format("Screen/Tasks/Objectives/Item%i/Label", tasks)));
+	EXPECT_EQ(String(score->GetText()), String::Format("Набрать %i очков", mService->GetTargetScore()));
 
 	auto levelLabel = DynamicCast<Label>(root->GetChild("Screen/Hud/LevelBox/Value"));
 	ASSERT_TRUE(levelLabel);
 	EXPECT_EQ(levelLabel->GetText(), WString("1"));
-	EXPECT_FALSE(root->GetChild("Screen/Hud/LevelBox")->IsEnabled()) << "в концепте нет плашки уровня";
+	EXPECT_FALSE(root->GetChild("Screen/Hud/LevelBox")->IsEnabled()) << "в вёрстке нет плашки уровня";
 
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "07_tasks_panel.png"));
 }
