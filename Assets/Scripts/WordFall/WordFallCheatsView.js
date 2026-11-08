@@ -1,7 +1,8 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
-// Читы: кнопка в правом верхнем углу открывает экран действий над уровнем, ресурсами,
-// полем, обучением и языком игрока; отсюда же открывается редактор уровней.
+// Читы: долгий тап по невидимой кнопке в правом верхнем углу открывает экран действий над
+// уровнем, ресурсами, полем, обучением и языком игрока; отсюда же открывается редактор уровней.
+// Группы — вкладками сверху (листаются пальцем), действия группы — в прокручиваемом списке.
 // Отладочная кнопка LangToggle на главном экране переключает язык одним тапом — с телефона
 
 WordFallCheatsView = class WordFallCheatsView extends o2.Component
@@ -12,6 +13,7 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
     {
         super();
         this._open = false;
+        this._tab = 0;
     }
 
     OnStart()
@@ -22,9 +24,10 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
         this._panel = this._actor.GetChild("Panel");
         this._toggle = this._actor.GetChild("Toggle");
         this._langToggle = this._actor.GetChild("LangToggle/Btn");
+        this._content = this._panel.GetChild("Content");
 
         var self = this;
-        this._toggle.onClick = function() { self.Toggle(); };
+        this._toggle.onLongPress = function() { self.Toggle(); };
         if (this._langToggle)
             this._langToggle.onClick = function() { self.Close(); self.SwitchLanguage(); };
         this._UpdateLanguageCaption();
@@ -48,8 +51,43 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
             (function(action, button) {
                 if (button)
                     button.onClick = function() { action(); self.Close(); };
-            })(actions[name], this._panel.GetChild(name + "/Btn"));
+            })(actions[name], this._Button(name));
         }
+
+        this._tabs = [];
+        this._pages = [];
+        for (var i = 0; this._panel.GetChild("Tabs/Tab" + i); i++)
+        {
+            (function(index) {
+                var tab = self._panel.GetChild("Tabs/Tab" + index + "/Btn");
+                tab.onClick = function() { self.SelectTab(index); };
+                self._tabs.push(tab);
+                self._pages.push(self._content.GetChild("Page" + index));
+            })(i);
+        }
+        this.SelectTab(0);
+    }
+
+    // Вкладка группы: видна её страница, список с начала, сама вкладка подсвечена
+    SelectTab(index)
+    {
+        this._tab = index;
+        for (var i = 0; i < this._tabs.length; i++)
+        {
+            this._pages[i].SetEnabled(i == index);
+            var active = i == index;
+            this._tabs[i].GetLayer("back").drawable.color = active ? new Color4(238, 132, 38, 255) : new Color4(58, 64, 92, 255);
+        }
+        this._content.ScrollToStart();
+    }
+
+    GetTab() { return this._tab; }
+
+    // Кнопка действия по имени обёртки (страницы групп лежат в прокрутке)
+    _Button(name)
+    {
+        var wrapper = this._panel.FindChild(name);
+        return wrapper ? wrapper.GetChild("Btn") : null;
     }
 
     IsOpen() { return this._open; }
@@ -85,7 +123,7 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
 
         var code = this._svc.GetLanguage();
         var language = WordFallLanguages.Get(code);
-        var button = this._panel.GetChild("LangBtn/Btn");
+        var button = this._Button("LangBtn");
         if (button)
             button.SetCaption("ЯЗЫК: " + (language ? language.name : code).toUpperCase());
         if (this._langToggle)
