@@ -193,7 +193,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
             var pos = this._SlotPos(i, count);
             slots.push({ letter: tile.joker ? "?" : tile.letter,
                          value: tile.joker ? 0 : tile.value,
-                         x: centre.x + pos.x, y: centre.y + pos.y });
+                         x: centre.x + pos.x, y: centre.y + pos.y,
+                         image: this._slots[i].back.drawable.imageName });
         }
 
         var result = svc.AcceptWord();

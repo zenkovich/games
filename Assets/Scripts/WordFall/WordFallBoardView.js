@@ -226,7 +226,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         var view = this._tiles[c][r];
         var value = parseInt(view.points.text);
-        return { letter: view.letter.text, value: isNaN(value) ? 0 : value };
+        return { letter: view.letter.text, value: isNaN(value) ? 0 : value, image: view.back.drawable.imageName };
     }
 
     // Мгновенные анимации результата (молоток)

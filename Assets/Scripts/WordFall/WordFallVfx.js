@@ -32,7 +32,7 @@ WordFallVfx = class WordFallVfx extends o2.Component
         for (var i = 0; find("Firework" + i + "_0"); i++)
             this._fireworkPool.push([find("Firework" + i + "_0"), find("Firework" + i + "_1"), find("Firework" + i + "_2")]);
 
-        var singles = ["Explosion", "Win", "ScoreHit", "BombFlash", "BombRing", "BombCore", "BombDebris", "BombEmbers",
+        var singles = ["Explosion", "Win", "BombFlash", "BombRing", "BombCore", "BombDebris", "BombEmbers",
                        "BombSmoke", "RocketRing", "LaunchFlash", "LaunchRing", "LaunchDust", "LaunchEmbers", "CrateChips",
                        "CrateDust", "SnowPuff", "SnowDrops", "DeliveredRing", "DeliveredSparkle", "WinTiles", "WinSparkle",
                        "FireworkFlash", "FireworkSparks0", "FireworkSparks1", "FireworkSparks2", "FireworkConfetti",
@@ -53,7 +53,6 @@ WordFallVfx = class WordFallVfx extends o2.Component
 
     PlayExplosion(x, y) { this._Play(["Explosion"], x, y); }
     PlayWin() { this._Play(["Win"], 0, 100); }
-    PlayScoreHit(x, y) { this._Play(["ScoreHit"], x, y); }
 
     // Разноцветный салют: тройка эмиттеров из пула
     PlayFirework(x, y)

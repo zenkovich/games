@@ -12,16 +12,30 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 14427686555955459246,
-                                        "rightSupportPosition": 0.17999999225139619,
-                                        "supportsType": "Broken"
+                                        "uid": 11465457895645700123,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.02,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 15563735007258377551,
+                                        "uid": 13828285773190271281,
+                                        "value": 0.0,
+                                        "position": 0.06,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.02,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.13,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 12490693191432583550,
                                         "value": 1.0,
-                                        "position": 0.44999998807907107,
-                                        "leftSupportPosition": -0.44999998807907107,
-                                        "supportsType": "Broken"
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.13,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -29,70 +43,97 @@
                     }
                 },
                 {
-                    "Type": "o2::AnimationTrack<o2::Vec2F>",
+                    "Type": "o2::AnimationTrack<float>",
                     "Value": {
-                        "path": "transform/scale2D",
-                        "timeCurve": {
+                        "path": "transform/scaleX",
+                        "curve": {
                             "Type": "o2::Curve",
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 14897534072861444545,
-                                        "rightSupportPosition": 0.17999999225139619,
-                                        "supportsType": "Broken"
+                                        "uid": 9401890763671345966,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.02,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 12207610332819381855,
-                                        "value": 1.0,
-                                        "position": 0.44999998807907107,
-                                        "leftSupportPosition": -0.44999998807907107,
-                                        "supportsType": "Broken"
+                                        "uid": 5302631111855657491,
+                                        "value": 1.15,
+                                        "position": 0.06,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.02,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.07333333333333335,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8654020982241904925,
+                                        "value": 0.95,
+                                        "position": 0.28,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.07333333333333335,
+                                        "leftSupportValue": 0.12466666666666669,
+                                        "rightSupportPosition": 0.056666666666666664,
+                                        "rightSupportValue": -0.09633333333333333
+                                    },
+                                    {
+                                        "uid": 6327080461106090865,
+                                        "value": 0.5,
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.056666666666666664,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
-                        },
-                        "spline": {
-                            "Type": "o2::Spline",
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 15474170089563943171,
-                                        "value": {
-                                            "x": 1.0,
-                                            "y": 1.0
-                                        },
-                                        "nextSupport": {
-                                            "x": 0.0899999737739563,
-                                            "y": 0.0899999737739563
-                                        }
+                                        "uid": 10693683908906086797,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.02,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 13616090599734059456,
-                                        "position": 0.30333656072616579,
-                                        "value": {
-                                            "x": 1.1799999475479127,
-                                            "y": 1.1799999475479127
-                                        },
-                                        "prevSupport": {
-                                            "x": -0.08838681876659394,
-                                            "y": 0.0915847197175026
-                                        },
-                                        "nextSupport": {
-                                            "x": 0.08838681876659394,
-                                            "y": -0.0915847197175026
-                                        }
+                                        "uid": 12590175072140679600,
+                                        "value": 1.15,
+                                        "position": 0.06,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.02,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.07333333333333335,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 17337021384747444896,
-                                        "position": 1.4040614366531373,
-                                        "value": {
-                                            "x": 0.41999998688697817,
-                                            "y": 0.41999998688697817
-                                        },
-                                        "prevSupport": {
-                                            "x": 0.3799999952316284,
-                                            "y": 0.3799999952316284
-                                        }
+                                        "uid": 5923260492246057797,
+                                        "value": 0.95,
+                                        "position": 0.28,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.07333333333333335,
+                                        "leftSupportValue": 0.12466666666666669,
+                                        "rightSupportPosition": 0.056666666666666664,
+                                        "rightSupportValue": -0.09633333333333333
+                                    },
+                                    {
+                                        "uid": 5256664803655898927,
+                                        "value": 0.5,
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.056666666666666664,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -108,21 +149,40 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 7942950683514938531
+                                        "uid": 8158462497432544553,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.03333333333333333,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 6351531687412247928,
-                                        "value": 10.0,
-                                        "position": 0.17999999225139619,
-                                        "leftSupportValue": -5.0,
-                                        "leftSupportPosition": -0.08999999612569809
+                                        "uid": 12571259914802082722,
+                                        "value": 0.0,
+                                        "position": 0.1,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.03333333333333333,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.060000000000000005,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 3992975432956307435,
-                                        "value": -6.0,
-                                        "position": 0.44999998807907107,
-                                        "leftSupportValue": 8.0,
-                                        "leftSupportPosition": -0.13499999046325684
+                                        "uid": 10579235195159384119,
+                                        "value": -90.0,
+                                        "position": 0.28,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.060000000000000005,
+                                        "leftSupportValue": 54.00000000000001,
+                                        "rightSupportPosition": 0.056666666666666664,
+                                        "rightSupportValue": -51.0
+                                    },
+                                    {
+                                        "uid": 13423331181575463392,
+                                        "value": -630.0,
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.056666666666666664,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -138,20 +198,30 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 15720654221988522437,
-                                        "value": 1.0
-                                    },
-                                    {
-                                        "uid": 10673974674646046182,
+                                        "uid": 6348875232044984342,
                                         "value": 1.0,
-                                        "position": 0.22499999403953553,
-                                        "leftSupportPosition": -0.11249999701976776
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.04666666666666667,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 4264407815079542890,
-                                        "position": 0.35999998450279238,
-                                        "leftSupportValue": 0.5,
-                                        "leftSupportPosition": -0.06749999523162842
+                                        "uid": 7547082045930034571,
+                                        "value": 1.0,
+                                        "position": 0.14,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04666666666666667,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10460231821961825527,
+                                        "value": 0.0,
+                                        "position": 0.32,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.06,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -167,20 +237,30 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 6676299661253353300,
-                                        "value": 1.0
-                                    },
-                                    {
-                                        "uid": 11179367246645675796,
+                                        "uid": 7013408922169523999,
                                         "value": 1.0,
-                                        "position": 0.22499999403953553,
-                                        "leftSupportPosition": -0.11249999701976776
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.04666666666666667,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 21653188641967376,
-                                        "position": 0.35999998450279238,
-                                        "leftSupportValue": 0.5,
-                                        "leftSupportPosition": -0.06749999523162842
+                                        "uid": 8042205613724919125,
+                                        "value": 1.0,
+                                        "position": 0.14,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04666666666666667,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10627544981735463472,
+                                        "value": 0.0,
+                                        "position": 0.32,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.06,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -196,20 +276,30 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 1121022319918034010,
-                                        "value": 1.0
-                                    },
-                                    {
-                                        "uid": 2371233084477660914,
+                                        "uid": 10279122164168956846,
                                         "value": 1.0,
-                                        "position": 0.22499999403953553,
-                                        "leftSupportPosition": -0.11249999701976776
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.04666666666666667,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 12704215786356142805,
-                                        "position": 0.35999998450279238,
-                                        "leftSupportValue": 0.5,
-                                        "leftSupportPosition": -0.06749999523162842
+                                        "uid": 4740244157226965668,
+                                        "value": 1.0,
+                                        "position": 0.14,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04666666666666667,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 6523321994502627234,
+                                        "value": 0.0,
+                                        "position": 0.32,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.06,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -225,31 +315,109 @@
                             "Value": {
                                 "mKeys": [
                                     {
-                                        "uid": 11087632467645538316
+                                        "uid": 7734088173242342789,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 15247376423481153062,
-                                        "position": 0.20249998569488526,
-                                        "leftSupportPosition": -0.10124999284744263
+                                        "uid": 5244823040743637670,
+                                        "value": 0.0,
+                                        "position": 0.12,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.053333333333333344,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 13266680481136454795,
+                                        "uid": 9567885417681861857,
                                         "value": 1.0,
-                                        "position": 0.3149999976158142,
-                                        "leftSupportValue": -0.5,
-                                        "leftSupportPosition": -0.05625000596046448
+                                        "position": 0.28,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.053333333333333344,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.056666666666666664,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 499108734754360659,
+                                        "uid": 8688419345419790201,
                                         "value": 1.0,
-                                        "position": 0.44999998807907107,
-                                        "leftSupportPosition": -0.06749999523162842
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.056666666666666664,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.016666666666666663,
+                                        "rightSupportValue": 0.0
                                     },
                                     {
-                                        "uid": 17155568262787171465,
-                                        "position": 0.5299999713897705,
-                                        "leftSupportValue": 0.5,
-                                        "leftSupportPosition": -0.03999999165534973
+                                        "uid": 13327299961628652425,
+                                        "value": 0.0,
+                                        "position": 0.5,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.016666666666666663,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/glow/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 9486590610369525937,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8310358719483698086,
+                                        "value": 0.0,
+                                        "position": 0.12,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.053333333333333344,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5365559927794714744,
+                                        "value": 0.6,
+                                        "position": 0.28,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.053333333333333344,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.056666666666666664,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8184042408529971504,
+                                        "value": 0.6,
+                                        "position": 0.45,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.056666666666666664,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.016666666666666663,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4877390112219632566,
+                                        "value": 0.0,
+                                        "position": 0.5,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.016666666666666663,
+                                        "leftSupportValue": 0.0
                                     }
                                 ]
                             }
@@ -259,18 +427,33 @@
                 {
                     "Type": "o2::AnimationSubTrack",
                     "Value": {
-                        "path": "child/Sparks/component/o2::ParticlesEmitterComponent"
+                        "path": "child/Sparks/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.06
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Sparks2/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.06
                     }
                 },
                 {
                     "Type": "o2::AnimationSubTrack",
                     "Value": {
                         "path": "child/Burst/component/o2::ParticlesEmitterComponent",
-                        "mSubTrackBeginTime": 0.44999998807907107
+                        "mSubTrackBeginTime": 0.45
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Burst2/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.45
                     }
                 }
             ],
-            "mDuration": 1.4500000476837159
+            "mDuration": 0.9
         }
     }
 }

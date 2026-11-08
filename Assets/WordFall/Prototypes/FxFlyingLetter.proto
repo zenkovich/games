@@ -50,13 +50,13 @@
                         "Id": 14150582040106015952,
                         "Transform": {
                             "position": {
-                                "x": 32.146888732910156,
-                                "y": 31.86962127685547,
+                                "x": 0.0,
+                                "y": 0.0,
                                 "z": 0.0
                             },
                             "size": {
-                                "x": 58.22037124633789,
-                                "y": 58.220375061035156,
+                                "x": 26,
+                                "y": 26,
                                 "z": 0.0
                             },
                             "pivot": {
@@ -69,14 +69,14 @@
                             {
                                 "Type": "o2::ParticlesEmitterComponent",
                                 "Data": {
-                                    "mDuration": 0.6564101576805115,
-                                    "mEndTime": 0.6564101576805115,
+                                    "mDuration": 0.8400000000000001,
+                                    "mEndTime": 0.8400000000000001,
                                     "mParticlesSource": {
                                         "Type": "o2::SingleSpriteParticleSource",
                                         "Value": {
                                             "image": {
-                                                "id": "0105bd0ea11908668b9a8fea8e1841e2",
-                                                "path": "WordFall/Sprites/vfx_spark.png"
+                                                "id": "6885500ebacba5f84ccf686fd587b177",
+                                                "path": "WordFall/Sprites/vfx_star4.png"
                                             }
                                         }
                                     },
@@ -86,74 +86,85 @@
                                     },
                                     "mEffects": [
                                         {
-                                            "Type": "o2::ParticlesColorEffect",
+                                            "Type": "o2::ParticlesGravityEffect",
                                             "Value": {
-                                                "colorGradient": {
+                                                "mGravity": {
+                                                    "x": 0.0,
+                                                    "y": -90.0,
+                                                    "z": 0.0
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesRandomColorEffect",
+                                            "Value": {
+                                                "colorGradientA": {
                                                     "Type": "o2::ColorGradient",
                                                     "Value": {
                                                         "mKeys": [
                                                             {
-                                                                "uid": 8133001915506892564
-                                                            },
-                                                            {
-                                                                "uid": 17868676720295064965,
+                                                                "uid": 10634071174432903088,
                                                                 "color": {
                                                                     "r": 255,
-                                                                    "g": 255,
-                                                                    "b": 255,
-                                                                    "a": 0
-                                                                }
-                                                            },
-                                                            {
-                                                                "uid": 14941290321619816215,
-                                                                "color": {
-                                                                    "r": 239,
-                                                                    "g": 248,
-                                                                    "b": 255,
-                                                                    "a": 252
+                                                                    "g": 120,
+                                                                    "b": 200,
+                                                                    "a": 255
                                                                 },
-                                                                "position": 0.08580858260393143
+                                                                "position": 0.0
                                                             },
                                                             {
-                                                                "uid": 15200054911422851600,
+                                                                "uid": 6602557240305972378,
                                                                 "color": {
-                                                                    "r": 138,
-                                                                    "g": 200,
-                                                                    "b": 254,
-                                                                    "a": 235
+                                                                    "r": 255,
+                                                                    "g": 150,
+                                                                    "b": 210,
+                                                                    "a": 230
                                                                 },
-                                                                "position": 0.44999998807907104
+                                                                "position": 0.7
                                                             },
                                                             {
-                                                                "uid": 4811269803577353261,
+                                                                "uid": 13415493056827210664,
                                                                 "color": {
-                                                                    "r": 234,
-                                                                    "g": 245,
-                                                                    "b": 255,
-                                                                    "a": 250
-                                                                },
-                                                                "position": 0.7392739057540894
-                                                            },
-                                                            {
-                                                                "uid": 4164650823566669741,
-                                                                "color": {
-                                                                    "r": 243,
-                                                                    "g": 249,
-                                                                    "b": 255,
+                                                                    "r": 255,
+                                                                    "g": 150,
+                                                                    "b": 210,
                                                                     "a": 0
                                                                 },
                                                                 "position": 1.0
-                                                            },
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "colorGradientB": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
                                                             {
-                                                                "uid": 5367567213303171400,
-                                                                "position": 1.0
-                                                            },
-                                                            {
-                                                                "uid": 12716253201056187969,
+                                                                "uid": 13238540446004028051,
                                                                 "color": {
-                                                                    "r": 140,
-                                                                    "g": 190,
-                                                                    "b": 255,
+                                                                    "r": 255,
+                                                                    "g": 214,
+                                                                    "b": 70,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 9144418641882075364,
+                                                                "color": {
+                                                                    "r": 255,
+                                                                    "g": 226,
+                                                                    "b": 110,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 6096343213578930386,
+                                                                "color": {
+                                                                    "r": 255,
+                                                                    "g": 226,
+                                                                    "b": 110,
                                                                     "a": 0
                                                                 },
                                                                 "position": 1.0
@@ -164,42 +175,300 @@
                                             }
                                         },
                                         {
+                                            "Type": "o2::ParticlesSizeEffect",
+                                            "Value": {
+                                                "curve": {
+                                                    "Type": "o2::Curve",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 9156640410298898288,
+                                                                "value": 0.4,
+                                                                "position": 0.0,
+                                                                "rightSupportPosition": 0.08000000000000002,
+                                                                "rightSupportValue": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 11636408019290536859,
+                                                                "value": 1.0,
+                                                                "position": 0.2,
+                                                                "leftSupportPosition": -0.08000000000000002,
+                                                                "leftSupportValue": -0.24,
+                                                                "rightSupportPosition": 0.1,
+                                                                "rightSupportValue": -0.16000000000000003
+                                                            },
+                                                            {
+                                                                "uid": 11108883992411912474,
+                                                                "value": 0.6,
+                                                                "position": 0.45,
+                                                                "leftSupportPosition": -0.1,
+                                                                "leftSupportValue": 0.16000000000000003,
+                                                                "rightSupportPosition": 0.09999999999999998,
+                                                                "rightSupportValue": 0.16000000000000003
+                                                            },
+                                                            {
+                                                                "uid": 5320506442604702362,
+                                                                "value": 1.0,
+                                                                "position": 0.7,
+                                                                "leftSupportPosition": -0.09999999999999998,
+                                                                "leftSupportValue": -0.16000000000000003,
+                                                                "rightSupportPosition": 0.12000000000000002,
+                                                                "rightSupportValue": -0.4
+                                                            },
+                                                            {
+                                                                "uid": 6584426847500497617,
+                                                                "value": 0.0,
+                                                                "position": 1.0,
+                                                                "leftSupportPosition": -0.12000000000000002,
+                                                                "leftSupportValue": 0.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "mParticlesNumLimit": 8,
+                                    "mIsParticlesRelative": false,
+                                    "mEmissionDuration": 0.39,
+                                    "mParticlesLifetime": 0.45,
+                                    "mParticlesLifetimeRange": 0.0,
+                                    "mEmitParticlesPerSecond": 14.0,
+                                    "mInitialAngleRange": 360.0,
+                                    "mInitialSize": 0.17,
+                                    "mInitialSizeRange": 0.07,
+                                    "mInitialWidthScale": 1.0,
+                                    "mInitialSpeed": 40.0,
+                                    "mInitialSpeedRangle": 40.0,
+                                    "mInitialMoveDirection": 0.0,
+                                    "mInitialMoveDirectionRange": 360.0,
+                                    "mId": 13317882420296736339,
+                                    "mSize": {
+                                        "x": 26,
+                                        "y": 26,
+                                        "z": 0.0
+                                    },
+                                    "mPivot": {
+                                        "x": 0.5,
+                                        "y": 0.5,
+                                        "z": 0.0
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Type": "o2::Actor",
+                    "Data": {
+                        "mDrawingDepth": 62.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Sparks2",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 10828533291356958924,
+                        "Transform": {
+                            "position": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "size": {
+                                "x": 26,
+                                "y": 26,
+                                "z": 0.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "Components": [
+                            {
+                                "Type": "o2::ParticlesEmitterComponent",
+                                "Data": {
+                                    "mDuration": 0.8400000000000001,
+                                    "mEndTime": 0.8400000000000001,
+                                    "mParticlesSource": {
+                                        "Type": "o2::SingleSpriteParticleSource",
+                                        "Value": {
+                                            "image": {
+                                                "id": "6885500ebacba5f84ccf686fd587b177",
+                                                "path": "WordFall/Sprites/vfx_star4.png"
+                                            }
+                                        }
+                                    },
+                                    "mShape": {
+                                        "Type": "o2::CircleParticlesEmitterShape",
+                                        "Value": {}
+                                    },
+                                    "mEffects": [
+                                        {
                                             "Type": "o2::ParticlesGravityEffect",
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -350.0,
+                                                    "y": -90.0,
                                                     "z": 0.0
                                                 }
                                             }
                                         },
                                         {
-                                            "Type": "o2::ParticlesDampingEffect",
+                                            "Type": "o2::ParticlesRandomColorEffect",
                                             "Value": {
-                                                "mDamping": 1.7999999523162842
+                                                "colorGradientA": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 11104378844908147271,
+                                                                "color": {
+                                                                    "r": 90,
+                                                                    "g": 200,
+                                                                    "b": 255,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 9399453067987530612,
+                                                                "color": {
+                                                                    "r": 120,
+                                                                    "g": 210,
+                                                                    "b": 255,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 7787628352921502329,
+                                                                "color": {
+                                                                    "r": 120,
+                                                                    "g": 210,
+                                                                    "b": 255,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "colorGradientB": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 10011626620450208240,
+                                                                "color": {
+                                                                    "r": 110,
+                                                                    "g": 230,
+                                                                    "b": 120,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 7102034016621631615,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 236,
+                                                                    "b": 150,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 9404264487659737689,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 236,
+                                                                    "b": 150,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesSizeEffect",
+                                            "Value": {
+                                                "curve": {
+                                                    "Type": "o2::Curve",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 8863570544911594919,
+                                                                "value": 0.4,
+                                                                "position": 0.0,
+                                                                "rightSupportPosition": 0.08000000000000002,
+                                                                "rightSupportValue": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 8679824814974126949,
+                                                                "value": 1.0,
+                                                                "position": 0.2,
+                                                                "leftSupportPosition": -0.08000000000000002,
+                                                                "leftSupportValue": -0.24,
+                                                                "rightSupportPosition": 0.1,
+                                                                "rightSupportValue": -0.16000000000000003
+                                                            },
+                                                            {
+                                                                "uid": 8332686413797747458,
+                                                                "value": 0.6,
+                                                                "position": 0.45,
+                                                                "leftSupportPosition": -0.1,
+                                                                "leftSupportValue": 0.16000000000000003,
+                                                                "rightSupportPosition": 0.09999999999999998,
+                                                                "rightSupportValue": 0.16000000000000003
+                                                            },
+                                                            {
+                                                                "uid": 8454774166471966268,
+                                                                "value": 1.0,
+                                                                "position": 0.7,
+                                                                "leftSupportPosition": -0.09999999999999998,
+                                                                "leftSupportValue": -0.16000000000000003,
+                                                                "rightSupportPosition": 0.12000000000000002,
+                                                                "rightSupportValue": -0.4
+                                                            },
+                                                            {
+                                                                "uid": 8439229830131808588,
+                                                                "value": 0.0,
+                                                                "position": 1.0,
+                                                                "leftSupportPosition": -0.12000000000000002,
+                                                                "leftSupportValue": 0.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
                                             }
                                         }
                                     ],
-                                    "mParticlesNumLimit": 150,
+                                    "mParticlesNumLimit": 8,
                                     "mIsParticlesRelative": false,
-                                    "mEmissionDuration": 0.25641027092933655,
-                                    "mParticlesLifetime": 0.3999998867511749,
-                                    "mEmitParticlesPerSecond": 75.21367645263672,
+                                    "mEmissionDuration": 0.39,
+                                    "mParticlesLifetime": 0.45,
+                                    "mParticlesLifetimeRange": 0.0,
+                                    "mEmitParticlesPerSecond": 14.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.5128205418586731,
-                                    "mInitialSizeRange": 1.1709401607513428,
-                                    "mInitialSpeed": 80.0,
+                                    "mInitialSize": 0.17,
+                                    "mInitialSizeRange": 0.07,
+                                    "mInitialWidthScale": 1.0,
+                                    "mInitialSpeed": 40.0,
                                     "mInitialSpeedRangle": 40.0,
+                                    "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
-                                    "mId": 13317882420296736339,
-                                    "mPosition": {
-                                        "x": -159.85311889648438,
-                                        "y": -80.13038635253906,
-                                        "z": 0.0
-                                    },
+                                    "mId": 10761946745808986862,
                                     "mSize": {
-                                        "x": 58.22037124633789,
-                                        "y": 58.220375061035156,
+                                        "x": 26,
+                                        "y": 26,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -227,13 +496,13 @@
                         "Id": 5851081775302686385,
                         "Transform": {
                             "position": {
-                                "x": 33.92604064941406,
-                                "y": 30.611820220947266,
+                                "x": 0.0,
+                                "y": 0.0,
                                 "z": 0.0
                             },
                             "size": {
-                                "x": 10.0,
-                                "y": 10.0,
+                                "x": 20,
+                                "y": 20,
                                 "z": 0.0
                             },
                             "pivot": {
@@ -246,14 +515,14 @@
                             {
                                 "Type": "o2::ParticlesEmitterComponent",
                                 "Data": {
-                                    "mDuration": 0.44999998807907104,
-                                    "mEndTime": 0.44999998807907104,
+                                    "mDuration": 0.44999999999999996,
+                                    "mEndTime": 0.44999999999999996,
                                     "mParticlesSource": {
                                         "Type": "o2::SingleSpriteParticleSource",
                                         "Value": {
                                             "image": {
-                                                "id": "0105bd0ea11908668b9a8fea8e1841e2",
-                                                "path": "WordFall/Sprites/vfx_spark.png"
+                                                "id": "6885500ebacba5f84ccf686fd587b177",
+                                                "path": "WordFall/Sprites/vfx_star4.png"
                                             }
                                         }
                                     },
@@ -263,48 +532,91 @@
                                     },
                                     "mEffects": [
                                         {
-                                            "Type": "o2::ParticlesColorEffect",
+                                            "Type": "o2::ParticlesGravityEffect",
                                             "Value": {
-                                                "colorGradient": {
+                                                "mGravity": {
+                                                    "x": 0.0,
+                                                    "y": -320.0,
+                                                    "z": 0.0
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesDampingEffect",
+                                            "Value": {
+                                                "mDamping": 2.6
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesRandomColorEffect",
+                                            "Value": {
+                                                "colorGradientA": {
                                                     "Type": "o2::ColorGradient",
                                                     "Value": {
                                                         "mKeys": [
                                                             {
-                                                                "uid": 1890176491604768994
-                                                            },
-                                                            {
-                                                                "uid": 7169547128894157485
-                                                            },
-                                                            {
-                                                                "uid": 9548306787178971661,
+                                                                "uid": 12912659987634845472,
                                                                 "color": {
-                                                                    "r": 170,
-                                                                    "g": 215,
-                                                                    "b": 255,
-                                                                    "a": 235
+                                                                    "r": 255,
+                                                                    "g": 120,
+                                                                    "b": 200,
+                                                                    "a": 255
                                                                 },
-                                                                "position": 0.44999998807907104
+                                                                "position": 0.0
                                                             },
                                                             {
-                                                                "uid": 18362545136361598761,
+                                                                "uid": 12459386622327870113,
                                                                 "color": {
-                                                                    "r": 249,
-                                                                    "g": 252,
-                                                                    "b": 255,
+                                                                    "r": 255,
+                                                                    "g": 150,
+                                                                    "b": 210,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 8998571410638524049,
+                                                                "color": {
+                                                                    "r": 255,
+                                                                    "g": 150,
+                                                                    "b": 210,
                                                                     "a": 0
                                                                 },
-                                                                "position": 0.9636963605880737
-                                                            },
-                                                            {
-                                                                "uid": 12556182921550524075,
                                                                 "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "colorGradientB": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 7225182704806461054,
+                                                                "color": {
+                                                                    "r": 255,
+                                                                    "g": 214,
+                                                                    "b": 70,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
                                                             },
                                                             {
-                                                                "uid": 10838375440349192787,
+                                                                "uid": 12159857464833635681,
                                                                 "color": {
-                                                                    "r": 140,
-                                                                    "g": 190,
-                                                                    "b": 255,
+                                                                    "r": 255,
+                                                                    "g": 226,
+                                                                    "b": 110,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 7962511789873199481,
+                                                                "color": {
+                                                                    "r": 255,
+                                                                    "g": 226,
+                                                                    "b": 110,
                                                                     "a": 0
                                                                 },
                                                                 "position": 1.0
@@ -315,11 +627,127 @@
                                             }
                                         },
                                         {
+                                            "Type": "o2::ParticlesSizeEffect",
+                                            "Value": {
+                                                "curve": {
+                                                    "Type": "o2::Curve",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 5059997575904538687,
+                                                                "value": 1.0,
+                                                                "position": 0.0,
+                                                                "rightSupportPosition": 0.24,
+                                                                "rightSupportValue": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 12111923690020974368,
+                                                                "value": 0.8,
+                                                                "position": 0.6,
+                                                                "leftSupportPosition": -0.24,
+                                                                "leftSupportValue": 0.07999999999999999,
+                                                                "rightSupportPosition": 0.16000000000000003,
+                                                                "rightSupportValue": -0.32000000000000006
+                                                            },
+                                                            {
+                                                                "uid": 12677608463750389662,
+                                                                "value": 0.0,
+                                                                "position": 1.0,
+                                                                "leftSupportPosition": -0.16000000000000003,
+                                                                "leftSupportValue": 0.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "mParticlesNumLimit": 4,
+                                    "mIsParticlesRelative": false,
+                                    "mEmissionDuration": 0.1,
+                                    "mParticlesLifetime": 0.35,
+                                    "mParticlesLifetimeRange": 0.0,
+                                    "mEmitParticlesPerSecond": 50.0,
+                                    "mInitialAngleRange": 360.0,
+                                    "mInitialSize": 0.24,
+                                    "mInitialSizeRange": 0.08,
+                                    "mInitialWidthScale": 1.0,
+                                    "mInitialSpeed": 280.0,
+                                    "mInitialSpeedRangle": 140.0,
+                                    "mInitialMoveDirection": 0.0,
+                                    "mInitialMoveDirectionRange": 360.0,
+                                    "mId": 11555472389683638968,
+                                    "mSize": {
+                                        "x": 20,
+                                        "y": 20,
+                                        "z": 0.0
+                                    },
+                                    "mPivot": {
+                                        "x": 0.5,
+                                        "y": 0.5,
+                                        "z": 0.0
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Type": "o2::Actor",
+                    "Data": {
+                        "mDrawingDepth": 62.5,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Burst2",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 7227638585206803150,
+                        "Transform": {
+                            "position": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "size": {
+                                "x": 20,
+                                "y": 20,
+                                "z": 0.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "Components": [
+                            {
+                                "Type": "o2::ParticlesEmitterComponent",
+                                "Data": {
+                                    "mDuration": 0.44999999999999996,
+                                    "mEndTime": 0.44999999999999996,
+                                    "mParticlesSource": {
+                                        "Type": "o2::SingleSpriteParticleSource",
+                                        "Value": {
+                                            "image": {
+                                                "id": "6885500ebacba5f84ccf686fd587b177",
+                                                "path": "WordFall/Sprites/vfx_star4.png"
+                                            }
+                                        }
+                                    },
+                                    "mShape": {
+                                        "Type": "o2::CircleParticlesEmitterShape",
+                                        "Value": {}
+                                    },
+                                    "mEffects": [
+                                        {
                                             "Type": "o2::ParticlesGravityEffect",
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -300.0,
+                                                    "y": -320.0,
                                                     "z": 0.0
                                                 }
                                             }
@@ -327,29 +755,142 @@
                                         {
                                             "Type": "o2::ParticlesDampingEffect",
                                             "Value": {
-                                                "mDamping": 2.4000000953674316
+                                                "mDamping": 2.6
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesRandomColorEffect",
+                                            "Value": {
+                                                "colorGradientA": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 11942749279644195198,
+                                                                "color": {
+                                                                    "r": 90,
+                                                                    "g": 200,
+                                                                    "b": 255,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 9878830848241238753,
+                                                                "color": {
+                                                                    "r": 120,
+                                                                    "g": 210,
+                                                                    "b": 255,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 9791266802796826811,
+                                                                "color": {
+                                                                    "r": 120,
+                                                                    "g": 210,
+                                                                    "b": 255,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "colorGradientB": {
+                                                    "Type": "o2::ColorGradient",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 6177550282219518401,
+                                                                "color": {
+                                                                    "r": 110,
+                                                                    "g": 230,
+                                                                    "b": 120,
+                                                                    "a": 255
+                                                                },
+                                                                "position": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 9558468958257236690,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 236,
+                                                                    "b": 150,
+                                                                    "a": 230
+                                                                },
+                                                                "position": 0.7
+                                                            },
+                                                            {
+                                                                "uid": 9073474791745352183,
+                                                                "color": {
+                                                                    "r": 140,
+                                                                    "g": 236,
+                                                                    "b": 150,
+                                                                    "a": 0
+                                                                },
+                                                                "position": 1.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::ParticlesSizeEffect",
+                                            "Value": {
+                                                "curve": {
+                                                    "Type": "o2::Curve",
+                                                    "Value": {
+                                                        "mKeys": [
+                                                            {
+                                                                "uid": 12224596379463911968,
+                                                                "value": 1.0,
+                                                                "position": 0.0,
+                                                                "rightSupportPosition": 0.24,
+                                                                "rightSupportValue": 0.0
+                                                            },
+                                                            {
+                                                                "uid": 11498735770955618566,
+                                                                "value": 0.8,
+                                                                "position": 0.6,
+                                                                "leftSupportPosition": -0.24,
+                                                                "leftSupportValue": 0.07999999999999999,
+                                                                "rightSupportPosition": 0.16000000000000003,
+                                                                "rightSupportValue": -0.32000000000000006
+                                                            },
+                                                            {
+                                                                "uid": 11593818302384371900,
+                                                                "value": 0.0,
+                                                                "position": 1.0,
+                                                                "leftSupportPosition": -0.16000000000000003,
+                                                                "leftSupportValue": 0.0
+                                                            }
+                                                        ]
+                                                    }
+                                                }
                                             }
                                         }
                                     ],
-                                    "mParticlesNumLimit": 38,
+                                    "mParticlesNumLimit": 4,
                                     "mIsParticlesRelative": false,
-                                    "mParticlesLifetime": 0.3499999940395355,
-                                    "mEmitParticlesPerSecond": 180.0,
+                                    "mEmissionDuration": 0.1,
+                                    "mParticlesLifetime": 0.35,
+                                    "mParticlesLifetimeRange": 0.0,
+                                    "mEmitParticlesPerSecond": 50.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.3499999940395355,
-                                    "mInitialSizeRange": 0.15000000596046448,
-                                    "mInitialSpeed": 260.0,
-                                    "mInitialSpeedRangle": 324.6153869628906,
+                                    "mInitialSize": 0.24,
+                                    "mInitialSizeRange": 0.08,
+                                    "mInitialWidthScale": 1.0,
+                                    "mInitialSpeed": 280.0,
+                                    "mInitialSpeedRangle": 140.0,
+                                    "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
-                                    "mId": 11555472389683638968,
-                                    "mPosition": {
-                                        "x": -158.07395935058594,
-                                        "y": -81.38818359375,
-                                        "z": 0.0
-                                    },
+                                    "mId": 12255633346768181570,
                                     "mSize": {
-                                        "x": 10.0,
-                                        "y": 10.0,
+                                        "x": 20,
+                                        "y": 20,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -394,7 +935,7 @@
                                         "uid": 14922554471554868286,
                                         "nextSupport": {
                                             "x": 85.0,
-                                            "y": 60.0
+                                            "y": -60.0
                                         }
                                     },
                                     {
@@ -402,16 +943,16 @@
                                         "position": 246.80902099609375,
                                         "value": {
                                             "x": 170.0,
-                                            "y": 120.0
+                                            "y": -120.0
                                         },
                                         "valueRange": 48.06303024291992,
                                         "prevSupport": {
                                             "x": -103.60504150390625,
-                                            "y": -9.539082527160645
+                                            "y": 9.539082527160645
                                         },
                                         "nextSupport": {
                                             "x": 103.60504150390625,
-                                            "y": 9.539082527160645
+                                            "y": -9.539082527160645
                                         }
                                     },
                                     {
@@ -423,7 +964,7 @@
                                         },
                                         "prevSupport": {
                                             "x": -115.0,
-                                            "y": 60.0
+                                            "y": -60.0
                                         }
                                     }
                                 ]
@@ -443,6 +984,48 @@
             ],
             "InternalWidgets": [],
             "Layers": [
+                {
+                    "Type": "o2::WidgetLayer",
+                    "Value": {
+                        "name": "glow",
+                        "mDrawable": {
+                            "Type": "o2::Sprite",
+                            "Value": {
+                                "mImageAsset": {
+                                    "id": "006eeda86fc418c044e7d345f716b5d8",
+                                    "path": "WordFall/Sprites/vfx_glow.png"
+                                },
+                                "mColor": {
+                                    "r": 255,
+                                    "g": 255,
+                                    "b": 255,
+                                    "a": 150
+                                }
+                            }
+                        },
+                        "mUID": 13569118656894432535,
+                        "mDepth": -1.0,
+                        "mTransparency": 0.0,
+                        "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mOffsetMin": {
+                                "x": -60.0,
+                                "y": -60.0
+                            },
+                            "mOffsetMax": {
+                                "x": 60.0,
+                                "y": 60.0
+                            }
+                        }
+                    }
+                },
                 {
                     "Type": "o2::WidgetLayer",
                     "Value": {
@@ -535,28 +1118,36 @@
                     "Type": "o2::WidgetLayer",
                     "Value": {
                         "layout": {
+                            "mAnchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "mAnchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
                             "mOffsetMin": {
-                                "x": -14.0,
-                                "y": -14.0
+                                "x": -32.0,
+                                "y": -32.0
                             },
                             "mOffsetMax": {
-                                "x": 14.0,
-                                "y": 14.0
+                                "x": 32.0,
+                                "y": 32.0
                             }
                         },
                         "name": "star",
                         "mDrawable": {
                             "Type": "o2::Sprite",
                             "Value": {
+                                "mImageAsset": {
+                                    "id": "6d2dfda1b5085c1f6b8fd4324c1b74e8",
+                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png"
+                                },
                                 "mColor": {
                                     "r": 255,
                                     "g": 255,
                                     "b": 255,
-                                    "a": 0
-                                },
-                                "mImageAsset": {
-                                    "id": "92b41457fc656cc13c9f63dcab3f2b21",
-                                    "path": "WordFall/Sprites/ui_fx_star.png"
+                                    "a": 255
                                 }
                             }
                         },

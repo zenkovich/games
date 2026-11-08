@@ -1,7 +1,8 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
-// Секвенсор хореографии хода: буквы из лотка летят в прогресс-бар с искрами
-// на прилёте, «+N» всплывает у бара, отложенный обвал поля; эффекты пауэрапов
+// Секвенсор хореографии хода: буквы из лотка радужными звёздами летят в звезду у
+// прогресс-бара (она пружинит и светится на каждый прилёт), бар растёт, «+N» всплывает
+// над заливкой, отложенный обвал поля; эффекты пауэрапов
 // (вспышка бомбы, лучи ракеты, звёзды). Все координаты экранные (секция Fx
 // растянута на весь Screen)
 
@@ -14,7 +15,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
     {
         super();
         this.letterStagger = 0.12; // задержка между стартами букв — удары по бару читаются раздельно
-        this.letterFlight = 0.45;   // длительность клипа полёта в прототипе FxFlyingLetter
+        this.letterFlight = 0.45;   // время прилёта в клипе полёта прототипа FxFlyingLetter
         this.letterSpeed = 900;     // px/с — буква с поля летит дольше буквы из лотка
         this.letterMinFlight = 0.4;
         this.letterMaxFlight = 0.95;
@@ -44,11 +45,12 @@ WordFallFxView = class WordFallFxView extends o2.Component
         this._total = this._actor.GetChild("FxTotal");
 
         this._letters = [];
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; this._actor.GetChild("FxLetter" + i); i++)
         {
             var letter = this._actor.GetChild("FxLetter" + i);
             this._letters.push({
                 widget: letter,
+                back: letter.GetLayer("back").drawable,
                 letter: letter.GetLayer("letter").drawable,
                 points: letter.GetLayer("points").drawable
             });
@@ -87,9 +89,9 @@ WordFallFxView = class WordFallFxView extends o2.Component
     }
 
     // Полная последовательность принятого слова: буквы из лотка друг за другом
-    // летят в прогресс-бар, каждая вспыхивает на прилёте; после последней —
-    // искры, набегание счёта и всплывающий «+N».
-    // slots: [{letter, value, x, y}] — буквы и экранные позиции слотов лотка
+    // летят в звезду у бара, каждая доталкивает заливку; после последней —
+    // вспышка у кончика заливки, точный счёт и всплывающий «+N».
+    // slots: [{letter, value, x, y, image}] — буквы, экранные позиции и плашки слотов лотка
     PlayAccept(slots, result)
     {
         var self = this;
@@ -117,7 +119,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
                 self._FlyLetter(slot.letter, slot.value, slot.x, slot.y, idx*self.letterStagger, true, function() {
                     self._wordShare = Math.max(self._wordShare, share);
                     self._PushScore();
-                });
+                }, slot);
             })(i);
         }
 
@@ -130,26 +132,31 @@ WordFallFxView = class WordFallFxView extends o2.Component
                 board.ApplyPendingCollapse();
         });
 
-        // финал: искры, точный счёт и всплывающий «+N» у бара — после последнего прилёта
+        // финал: тёплая вспышка у кончика заливки, удар по бару, точный счёт и «+N» — после последнего прилёта
         var finishAt = Math.max(this._lastArrive, collapseAt);
         var total = this._total;
         this._Fx(finishAt, 0.01, function(k) {}, function() {
             var tip = hud ? hud.BarTip() : { x: 0, y: 598 };
-            if (self._vfx)
-                self._vfx.PlayScoreHit(tip.x, tip.y);
-            self.Flash(tip.x, tip.y, 30, 120, 0, 0.3);
+            self.Flash(tip.x, tip.y, 50, 170, 0, 0.34, { r: 255, g: 236, b: 170 });
             if (hud)
+            {
+                hud.Punch(0.064);
                 hud.AnimateScoreTo(self._scoreFinal);
+            }
         });
-        this._Fx(finishAt, 0.7, function(k) {
+        this._Fx(finishAt, 0.9, function(k) {
             var tip = hud ? hud.BarTip() : { x: 0, y: 598 };
             total.SetText("+" + result.gain);
             total.SetEnabled(true);
-            self._SetRect(total, tip.x, tip.y - 52 + 22*k, 60);
-            total.SetTransparency(k < 0.6 ? 1 : 1 - (k - 0.6)/0.4);
+            // «+N» выскакивает над кончиком заливки и всплывает
+            var pop = k < 0.15 ? 1.35 - 0.35*k/0.15 : 1;
+            self._SetRect(total, tip.x, tip.y + 40 + 36*k, 120);
+            total.GetTransform().SetScale2D(new Vec2(pop, pop));
+            total.SetTransparency(k < 0.65 ? 1 : 1 - (k - 0.65)/0.35);
         }, function() {
             total.SetEnabled(false);
             total.SetTransparency(1);
+            total.GetTransform().SetScale2D(new Vec2(1, 1));
             self._busy = false;
         });
     }
@@ -179,10 +186,11 @@ WordFallFxView = class WordFallFxView extends o2.Component
         return null;
     }
 
-    // Полёт одной буквы из точки в кончик заливки бара; onArrive — начисление доли.
+    // Полёт одной буквы из точки в центр звезды у бара; onArrive — начисление доли.
     // Длительность считается по дистанции, клип полёта растягивается под неё скоростью —
-    // буква с дальнего края поля не «телепортируется» за то же время, что буква из лотка
-    _FlyLetter(letter, value, fromX, fromY, start, fromWord, onArrive)
+    // буква с дальнего края поля не «телепортируется» за то же время, что буква из лотка.
+    // look.image — плашка слота или клетки: буква взлетает того же цвета
+    _FlyLetter(letter, value, fromX, fromY, start, fromWord, onArrive, look)
     {
         var self = this;
         var hud = WordFallViews.hud;
@@ -190,31 +198,37 @@ WordFallFxView = class WordFallFxView extends o2.Component
         if (!view)
             return this.letterMinFlight;
 
-        var tipOf = function() { return hud ? hud.BarTip() : { x: 0, y: 598 }; };
-        var aim = tipOf();
+        var aim = hud ? hud.StarCenter() : { x: -370, y: 346 };
         var dx = aim.x - fromX, dy = aim.y - fromY;
         var flight = Math.max(this.letterMinFlight,
                               Math.min(this.letterMaxFlight, Math.sqrt(dx*dx + dy*dy)/this.letterSpeed));
         view.letter.text = letter;
         view.points.text = value > 0 ? ("" + value) : "";
+        if (look && look.image && view.back.imageName != look.image)
+        {
+            var rect = view.back.rect;
+            view.back.imageName = look.image;
+            view.back.rect = rect;
+        }
         // буква слова стартует в зелёной подсветке лотка, буква от бонуса — в тёплой
         var from = fromWord ? { r: 56, g: 142, b: 60 } : { r: 224, g: 140, b: 40 };
         view.letter.color = new Color4(from.r, from.g, from.b, 255);
 
-        var tip = tipOf();
-        this._PlaceAtStart(view, fromX, fromY, tip.x, tip.y);
+        // буква слова стоит на месте слота сразу (слоты лотка уже погасли),
+        // буква от бонуса появляется к старту — до взрыва в клетке ещё плитка поля
+        this._PlaceAtStart(view, fromX, fromY, aim.x, aim.y, fromWord);
 
-        this._Fx(start, 0.01, function(k) {}, function() { self._StartFlight(view, self.letterFlight/flight); });
-        this._Fx(start, flight, function(k) {
-            var tip = tipOf();
-            self._Aim(view, fromX, fromY, tip.x, tip.y);
+        this._Fx(start, 0.01, function(k) {}, function() {
+            view.widget.SetEnabled(true);
+            self._StartFlight(view, self.letterFlight/flight);
         });
         this._Fx(start, flight*0.5, function(k) {
             view.letter.color = new Color4(from.r + (74 - from.r)*k, from.g + (48 - from.g)*k, from.b + (34 - from.b)*k, 255);
         });
         this._Fx(start + flight, 0.01, function(k) {}, function() {
-            var tip = tipOf();
-            self.Flash(tip.x, tip.y, 18, 64, 0, 0.22);
+            self.Flash(aim.x, aim.y, 24, 90, 0, 0.22, { r: 255, g: 250, b: 236 });
+            if (hud)
+                hud.PunchStar();
             if (onArrive)
                 onArrive();
         });
@@ -243,13 +257,13 @@ WordFallFxView = class WordFallFxView extends o2.Component
                 self._FlyLetter(info.letter, info.value, pos.x, pos.y, at + idx*0.05, false, function() {
                     self._bonusShare += info.value;
                     self._PushScore();
-                });
+                }, info);
             })(cells[i], i);
         }
     }
 
-    // Ставит плашку на старт траектории (видимой, ещё без полёта)
-    _PlaceAtStart(view, fromX, fromY, toX, toY)
+    // Ставит плашку на старт траектории (без полёта); visible — показать сразу
+    _PlaceAtStart(view, fromX, fromY, toX, toY, visible)
     {
         var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
         if (!trajectory)
@@ -271,15 +285,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
         trajectory.ResetRandomOffset(); // новое смещение в коридоре сплайна
         trajectory.SetPosition(0);
 
-        view.widget.SetEnabled(true);
-    }
-
-    // Перенацеливает траекторию на лету (смещение в коридоре не трогается)
-    _Aim(view, fromX, fromY, toX, toY)
-    {
-        var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
-        if (trajectory)
-            trajectory.SetPoints(fromX, fromY, toX, toY);
+        view.widget.SetEnabled(visible);
     }
 
     // Заводит анимацию полёта (траектория уже нацелена); speed растягивает клип под дистанцию
@@ -497,13 +503,24 @@ WordFallFxView = class WordFallFxView extends o2.Component
         });
     }
 
-    Flash(x, y, fromSize, toSize, delay, dur)
+    // color — тёплое свечение полёта букв (мягкий спрайт vfx_glow), без него — вспышка бонусов
+    Flash(x, y, fromSize, toSize, delay, dur, color)
     {
         var self = this;
         var flash = this._flashes[this._flashNext % this._flashes.length];
         this._flashNext++;
+        var look = color ? "glow" : "flash";
 
         this._Fx(delay, dur, function(k) {
+            if (flash.look !== look)
+            {
+                var drawable = flash.img.drawable;
+                var rect = drawable.rect;
+                drawable.imageName = color ? "WordFall/Sprites/vfx_glow.png" : "WordFall/Sprites/ui_fx_flash.png";
+                drawable.rect = rect;
+                flash.look = look;
+            }
+            flash.img.drawable.color = color ? new Color4(color.r, color.g, color.b, 255) : new Color4(255, 255, 255, 255);
             flash.widget.SetEnabled(true);
             flash.img.transparency = 1 - k;
             self._SetRect(flash.widget, x, y, fromSize + (toSize - fromSize)*k);
@@ -556,6 +573,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
         this._total.SetEnabled(false);
         this._total.SetTransparency(1);
+        this._total.GetTransform().SetScale2D(new Vec2(1, 1));
 
         for (var i = 0; i < this._letters.length; i++)
             this._letters[i].widget.SetEnabled(false);
@@ -581,7 +599,10 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
         var hud = WordFallViews.hud;
         if (hud)
+        {
             hud.SnapScore();
+            hud.StopPunch();
+        }
 
         this._busy = false;
     }
