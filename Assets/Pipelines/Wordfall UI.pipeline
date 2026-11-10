@@ -1,0 +1,676 @@
+{
+    "schemaVersion": 1,
+    "id": "d375e9d1-d131-49d3-95f2-61272b45284f",
+    "name": "Wordfall UI",
+    "nodes": [
+        {
+            "id": "72f723e7-dbc1-41ea-9cd8-d20786aaee61",
+            "type": "sourceImage",
+            "position": {
+                "x": 480,
+                "y": 320
+            },
+            "size": {
+                "width": 260,
+                "height": 440
+            },
+            "config": {
+                "uploadId": "019f0665-2b0e-4b6a-879a-e072788c2eae.png",
+                "name": "AI-генерация картинки (42).png"
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "f8d57353-d301-4b6a-8537-f08ae1e19b25",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "9aaadcf0-45ea-49ac-9ff3-df1014e77426",
+            "type": "sourceImage",
+            "position": {
+                "x": 420,
+                "y": -20
+            },
+            "config": {
+                "uploadId": "5d339a4b-c58f-4e0c-a2a7-0deeddc4a221.png",
+                "name": "AI-генерация картинки (43).png"
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "5cf61009-8307-473c-91cc-e447ebfd3643",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "6c66f9d5-d3cd-40f3-807f-e19f5a867b9f",
+            "type": "sourceText",
+            "position": {
+                "x": 860,
+                "y": -360
+            },
+            "size": {
+                "width": 320,
+                "height": 280
+            },
+            "config": {
+                "text": "Mobile game UI/UX design, pre-level start screen, pop-up modal window for a premium casual word puzzle game. Juicy 3D, warm and rich art style.\n\nBackground: A rich, warm, magical library with dark wooden bookshelves, glowing golden sunlight, and soft depth of field (blurred). Maintain the deep, inviting atmosphere of a premium game, do NOT overexpose the background.\n\nTop HUD: Full HUD visible above the window. A round player avatar on the left. Horizontal, pill-shaped panels made of light beige parchment with thin brown borders for: Gold coins with a green \"+\", Hearts, and Stars. A glossy blue gear icon on the far right.\n\nThe Pop-up Window: A simple, elegant light-wooden frame with a warm beige parchment interior (matching the flat Scrabble-like board game). No dark ornate carvings.\nTop of the window: a glowing 3D text \"LEVEL 45\" on a small wooden banner.\n\nCenter: A 2x2 grid of 4 distinct objective slots. Each slot is a small parchment panel containing a tiny 3D icon (like a wooden letter tile, a star, a book, or a magic wand) and a bright green checkmark.\n\nBelow the objectives: 3 square booster slots with warm wooden tiles and colorful 3D icons (bomb, magnet, shuffle).\n\nBottom Button: A massive, highly glossy, translucent AMBER-colored \"PLAY\" button at the bottom of the window.\n\nA cute, volumetric 3D mascot owl is peeking from the top right edge of the window.\n\nHigh contrast, vibrant but soft colors, light wood, rich background, clean layout, 8k --ar 9:16 --no washed out colors, overexposed background, dark ornate wood, missing UI elements",
+                "sourceName": ""
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "a17fbb89-2fe3-4c9e-ae6e-ab0949142894",
+                    "name": "out",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "id": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "type": "nanoBananaGen",
+            "position": {
+                "x": 860,
+                "y": -40
+            },
+            "size": {
+                "width": 320,
+                "height": 700
+            },
+            "config": {
+                "model": "gemini-3.1-flash-image",
+                "extraPrompt": "",
+                "customInputs": [
+                    {
+                        "id": "8cf0ec5d-d57c-4a4a-a0d4-41ffc30b044a",
+                        "name": "",
+                        "type": "image"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "id": "0db6369b-1c68-41e3-a13b-07651c53b3da",
+                    "name": "prompt",
+                    "type": "text"
+                },
+                {
+                    "id": "2d14b796-cb12-4dbf-b652-9c6a06930901",
+                    "name": "reference",
+                    "type": "image"
+                },
+                {
+                    "id": "8cf0ec5d-d57c-4a4a-a0d4-41ffc30b044a",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "3c0444f8-1963-4832-a2e6-a664ac12c698",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "37243569-3c45-464a-80e4-94994b51d9c3",
+            "type": "sourceText",
+            "position": {
+                "x": 1280,
+                "y": -360
+            },
+            "size": {
+                "width": 320,
+                "height": 260
+            },
+            "config": {
+                "text": "Mobile game UI/UX design, level failed screen, pop-up modal window for a premium casual word puzzle game. Juicy 3D, warm and rich art style.\n\nBackground: A blurred, slightly dimmed magical library with dark wooden bookshelves to create a dramatic mood.\n\nThe Main Pop-up Window: A large, thick panel with a light-wooden frame and a rich purple/blue gradient interior (matching the reference).\nTop: Bold 3D text \"CONTINUE?\" centered. A glossy red circular \"X\" close button in the top right corner.\n\nCenter Panel: Below the title, an inset beige parchment panel with metallic studs in the corners. Inside this panel is a glossy blue ribbon banner featuring a large golden text \"+5\". Below the banner, the text \"Add 5 moves and continue!\".\n\nAction Buttons: Exactly TWO large horizontal glossy buttons side-by-side at the bottom of the pop-up.\n\nLeft button: Bright green, with a gold coin icon and the text \"900\".\n\nRight button: Amber-orange, with a blue video play icon and the text \"PLAY FOR AD\".\n\nBottom Banner: At the very bottom of the screen, a horizontal promo banner for the \"Season Pass\" featuring a golden ticket, small 3D chests, and a green \"Activate\" button.\n\nHigh contrast, vibrant colors, light wood, purple and blue accents, rich background, clean layout, 8k --ar 9:16 --no three stacked buttons, washed out colors, overexposed background, dark ornate wood, realistic animals",
+                "sourceName": ""
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "291dcca3-255f-480f-a65c-7f636e43a18f",
+                    "name": "out",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "id": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "type": "nanoBananaGen",
+            "position": {
+                "x": 1280,
+                "y": -40
+            },
+            "size": {
+                "width": 320,
+                "height": 700
+            },
+            "config": {
+                "model": "gemini-3.1-flash-image",
+                "extraPrompt": "",
+                "customInputs": [
+                    {
+                        "id": "a1c617f3-cc06-400b-a66a-28f73f21ef3b",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "f10294da-f583-4f46-8e26-44f8c306817c",
+                        "name": "",
+                        "type": "image"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "id": "88e22658-8b90-4df8-bc16-38a1bf0067ab",
+                    "name": "prompt",
+                    "type": "text"
+                },
+                {
+                    "id": "cacd538e-4af7-4623-9198-9d7ef1c79d91",
+                    "name": "reference",
+                    "type": "image"
+                },
+                {
+                    "id": "a1c617f3-cc06-400b-a66a-28f73f21ef3b",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "f10294da-f583-4f46-8e26-44f8c306817c",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "f540228b-26ac-4224-858c-e6d1cd290501",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "b6b5425f-4d47-4790-b7e0-bd1c99fbf6c5",
+            "type": "sourceImage",
+            "position": {
+                "x": 460,
+                "y": 840
+            },
+            "config": {
+                "uploadId": "b193768c-53fe-405a-a77b-f25986948fd1.png",
+                "name": "AI-генерация картинки (49).png"
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "a8356e50-f9a9-4bfc-aadd-74859bf0ea6b",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "14bd586c-4ee4-49ca-befd-ac34bb651480",
+            "type": "sourceImage",
+            "position": {
+                "x": 460,
+                "y": 1200
+            },
+            "config": {
+                "uploadId": "bd1d9ddc-ea4a-4827-bc98-9dfe5fc753bd.png",
+                "name": "AI-генерация картинки (48).png"
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "32755f3e-9c47-42e1-bc1f-a496db7add58",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "3e80e8c1-9e51-49b1-92e2-76f8c4f0e45d",
+            "type": "sourceText",
+            "position": {
+                "x": 1740,
+                "y": -360
+            },
+            "size": {
+                "width": 320,
+                "height": 260
+            },
+            "config": {
+                "text": "Mobile game UI/UX design, level victory screen, pop-up modal window. Premium casual game, Royal Match art style.\n\nTop HUD (Above the window): Round player avatar on the left. Horizontal pill-shaped panels with visible text numbers inside: Gold coins with \"13,010\" and a green plus button, Hearts with \"5\", Stars with \"120\". A blue gear icon on the right.\n\nThe Pop-up Window: A massive, thick, chunky light-wood frame with highly rounded corners. Interior: light beige parchment texture. Top: thick wooden banner \"LEVEL 45\". Glossy red \"X\" button.\n\nCenter Area:\nBackground: Radiant golden sunburst rays and subtle confetti.\nTop text: Thick, 3D golden text \"VICTORY!\".\nDecor: Three small 3D wooden letter tiles with the letters \"A\", \"O\", and \"E\" placed neatly in the corners of the parchment (top left, bottom left, top right). They must be perfectly aligned and NOT floating randomly.\nHero Element: A large, clean number \"63\". It is designed as a clean game UI font with a golden gradient and dark outline, but it has a subtle 3D bevel and inner shadow so it matches the 3D style of the UI, while remaining perfectly readable.\nBase: The number rests on a large, plush crimson velvet cushion. Next to it is a neat, tall stack of polished gold coins.\n\nAction Buttons: Two large, thick, glossy 3D buttons side-by-side. 1. Left: Emerald green \"CONTINUE\". 2. Right: Amber-orange with a video icon, text \"315 COINS\", and an integrated orange \"x2\" badge.\n\nCharacters: A cute, volumetric 3D toy-like owl mascot (wearing small aviator goggles) is peeking over the top right edge.\n\nBottom: Integrated horizontal banner for \"Season Pass\".\n\nCinematic lighting, strong visual hierarchy, clean UI layout, 8k --ar 9:16 --no empty UI panels, floating letters, completely flat numbers, heavy plastic numbers",
+                "sourceName": ""
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "de8453d1-6812-494c-b898-5d81214ca658",
+                    "name": "out",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "id": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "type": "nanoBananaGen",
+            "position": {
+                "x": 1740,
+                "y": -40
+            },
+            "size": {
+                "width": 320,
+                "height": 700
+            },
+            "config": {
+                "model": "gemini-3.1-flash-image",
+                "extraPrompt": "",
+                "customInputs": [
+                    {
+                        "id": "5baa55b9-53b3-4b90-89db-00dac8fd7831",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "a59156d1-f693-4339-a4b2-cb4530458804",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "7f98f14b-f944-493d-9f6d-80e58a766ceb",
+                        "name": "",
+                        "type": "image"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "id": "e55ce24e-0215-46c9-8a1d-14466e8c7368",
+                    "name": "prompt",
+                    "type": "text"
+                },
+                {
+                    "id": "133767f1-81f3-4dc4-939d-b2435c3d53fe",
+                    "name": "reference",
+                    "type": "image"
+                },
+                {
+                    "id": "5baa55b9-53b3-4b90-89db-00dac8fd7831",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "a59156d1-f693-4339-a4b2-cb4530458804",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "7f98f14b-f944-493d-9f6d-80e58a766ceb",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ef131ef3-16b3-4ad8-a9b7-74d1815e52bb",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "063ddbe3-77fd-43e2-8bac-6b8c68049b09",
+            "type": "sourceText",
+            "position": {
+                "x": 1280,
+                "y": 680
+            },
+            "size": {
+                "width": 320,
+                "height": 240
+            },
+            "config": {
+                "text": "Mobile game UI/UX design, level failed screen, pop-up modal window for a premium casual word puzzle game. Juicy 3D, warm and rich art style.\n\nBackground: A blurred, slightly dimmed magical library with dark wooden bookshelves to create a dramatic mood.\n\nThe Main Pop-up Window: A large, thick panel with a light-wooden frame and a rich purple/blue gradient interior.\nTop: Bold 3D text \"CONTINUE?\" centered. A glossy red circular \"X\" close button in the top right corner.\n\nCenter Panel: Below the title, an inset beige parchment panel with metallic studs in the corners.\nInside this panel, a horizontal layout: on the left is a glossy blue ribbon banner featuring a large golden text \"+5\". On the right, next to the ribbon, there is a horizontal row of 3 empty square UI slots (wooden frames with a parchment background) designed for showing boosters. Below this row, the text \"Add 5 moves and continue!\".\n\nAction Buttons: Exactly TWO large horizontal glossy buttons side-by-side at the bottom of the pop-up.\n\nLeft button: Bright green, with a gold coin icon and the text \"900\".\n\nRight button: Amber-orange, with a blue video play icon and the text \"PLAY FOR AD\".\n\nBottom Banner: At the very bottom of the screen, a horizontal promo banner for the \"Season Pass\" featuring a golden ticket and small 3D chests.\n\nHigh contrast, vibrant colors, light wood, purple and blue accents, rich background, clean layout, 8k --ar 9:16 --no three stacked buttons, washed out colors, overexposed background, dark ornate wood, realistic animals",
+                "sourceName": ""
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "a2a43ebd-5ead-4148-ad99-76b71d52f7eb",
+                    "name": "out",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "id": "a2dc3399-6c07-47c1-8e47-b430cdc7b07a",
+            "type": "nanoBananaGen",
+            "position": {
+                "x": 1280,
+                "y": 960
+            },
+            "size": {
+                "width": 320,
+                "height": 820
+            },
+            "config": {
+                "model": "gemini-3.1-flash-image",
+                "extraPrompt": ""
+            },
+            "inputs": [
+                {
+                    "id": "abc53326-5715-43af-9553-d22682b4a1c5",
+                    "name": "prompt",
+                    "type": "text"
+                },
+                {
+                    "id": "5490d9da-303a-45ce-9808-c4f174210c85",
+                    "name": "reference",
+                    "type": "image"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "05b37421-5ccf-4628-9882-a0285fa0289f",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "805f7331-f606-4b53-8fe9-d35e3c013cfb",
+            "type": "sourceImage",
+            "position": {
+                "x": 1740,
+                "y": 700
+            },
+            "size": {
+                "width": 320,
+                "height": 680
+            },
+            "config": {
+                "uploadId": "4df5b46f-4308-45e1-b4ca-afd78ffbf996.png",
+                "name": "AI-генерация картинки (69).png"
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "aa4075ab-297a-4ce0-a0d9-bd0db10ffacd",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        },
+        {
+            "id": "eaf7762c-a363-4502-bfed-c2f328026e8f",
+            "type": "sourceText",
+            "position": {
+                "x": 2140,
+                "y": -340
+            },
+            "size": {
+                "width": 320,
+                "height": 240
+            },
+            "config": {
+                "text": "Mobile game UI/UX design, shop screen for a premium casual word puzzle game. Royal Match art style, rich 3D render.\n\nBackground: A rich, warm, heavily blurred magical library with golden bokeh.\n\nTop HUD: Round player avatar, gold coin counter, gem counter, blue gear icon.\n\nLayout:\nTop Section (Special Offers): A large horizontal wooden banner featuring a special deal: a pile of massive gold coins, shiny blue gems, and a glowing amber booster. On the right, a bright green glossy button \"899 RUB\".\nBottom Section (Standard Packs): A grid of 3 smaller parchment cards. Each card has a thick wooden frame and shows a pile of gold coins (1000, 2000, 5000). Below each card is a green glossy button with a price tag.\n\nTheme Elements: Thick light-wood borders, beige parchment textures, magical sparkling dust. A cute 3D owl mascot is peeking from the top right corner, holding a gold coin.\n\nCinematic lighting, premium UI, clean layout, 8k --ar 9:16 --no flat vector style, empty panels, messy piles of coins, dark shadows",
+                "sourceName": ""
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "ee1af3fe-4155-4dee-bec2-bfad43d4c89b",
+                    "name": "out",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "id": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "type": "nanoBananaGen",
+            "position": {
+                "x": 2160,
+                "y": -20
+            },
+            "size": {
+                "width": 320,
+                "height": 680
+            },
+            "config": {
+                "model": "gemini-3.1-flash-image",
+                "extraPrompt": "",
+                "customInputs": [
+                    {
+                        "id": "03be1811-4de8-443e-94c6-d6e86581bbec",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "ac7598c7-4d79-43e8-b4b9-1e7dcbbe9c06",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "a104ead5-db97-46b8-a876-98eacf9fdb08",
+                        "name": "",
+                        "type": "image"
+                    },
+                    {
+                        "id": "24eda6f9-421c-4c2b-ba1d-b12d50a61a11",
+                        "name": "",
+                        "type": "image"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "id": "1b09c398-2908-4efa-8684-0ad0617b8568",
+                    "name": "prompt",
+                    "type": "text"
+                },
+                {
+                    "id": "4ae64c21-1de6-484a-a9ec-a665e381c8cd",
+                    "name": "reference",
+                    "type": "image"
+                },
+                {
+                    "id": "03be1811-4de8-443e-94c6-d6e86581bbec",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "ac7598c7-4d79-43e8-b4b9-1e7dcbbe9c06",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "a104ead5-db97-46b8-a876-98eacf9fdb08",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                },
+                {
+                    "id": "24eda6f9-421c-4c2b-ba1d-b12d50a61a11",
+                    "name": "",
+                    "type": "image",
+                    "custom": true
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "a9d8490a-0c7d-43f2-a0e6-4bb155124644",
+                    "name": "out",
+                    "type": "image"
+                }
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "id": "13217972-bcec-4117-b22f-a8d5387d8fb8",
+            "fromNodeId": "6c66f9d5-d3cd-40f3-807f-e19f5a867b9f",
+            "fromPortId": "a17fbb89-2fe3-4c9e-ae6e-ab0949142894",
+            "toNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "toPortId": "0db6369b-1c68-41e3-a13b-07651c53b3da"
+        },
+        {
+            "id": "75e68ee8-1fe7-4707-9151-ac8cf3baa9dd",
+            "fromNodeId": "9aaadcf0-45ea-49ac-9ff3-df1014e77426",
+            "fromPortId": "5cf61009-8307-473c-91cc-e447ebfd3643",
+            "toNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "toPortId": "8cf0ec5d-d57c-4a4a-a0d4-41ffc30b044a"
+        },
+        {
+            "id": "dce287ce-d65e-491d-b707-986851f6b2e8",
+            "fromNodeId": "72f723e7-dbc1-41ea-9cd8-d20786aaee61",
+            "fromPortId": "f8d57353-d301-4b6a-8537-f08ae1e19b25",
+            "toNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "toPortId": "2d14b796-cb12-4dbf-b652-9c6a06930901"
+        },
+        {
+            "id": "f1f06f22-0442-4d7f-83ec-7a63840d6242",
+            "fromNodeId": "9aaadcf0-45ea-49ac-9ff3-df1014e77426",
+            "fromPortId": "5cf61009-8307-473c-91cc-e447ebfd3643",
+            "toNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "toPortId": "cacd538e-4af7-4623-9198-9d7ef1c79d91"
+        },
+        {
+            "id": "7f1a7d68-1ee1-48d0-9f27-18769128d585",
+            "fromNodeId": "72f723e7-dbc1-41ea-9cd8-d20786aaee61",
+            "fromPortId": "f8d57353-d301-4b6a-8537-f08ae1e19b25",
+            "toNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "toPortId": "a1c617f3-cc06-400b-a66a-28f73f21ef3b"
+        },
+        {
+            "id": "29a9a894-450c-4bb5-8379-24ec6ac29df7",
+            "fromNodeId": "37243569-3c45-464a-80e4-94994b51d9c3",
+            "fromPortId": "291dcca3-255f-480f-a65c-7f636e43a18f",
+            "toNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "toPortId": "88e22658-8b90-4df8-bc16-38a1bf0067ab"
+        },
+        {
+            "id": "4c171b25-537b-44e7-a4e1-032b79701f20",
+            "fromNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "fromPortId": "3c0444f8-1963-4832-a2e6-a664ac12c698",
+            "toNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "toPortId": "f10294da-f583-4f46-8e26-44f8c306817c"
+        },
+        {
+            "id": "080198f5-d34b-4179-a205-777051b05406",
+            "fromNodeId": "9aaadcf0-45ea-49ac-9ff3-df1014e77426",
+            "fromPortId": "5cf61009-8307-473c-91cc-e447ebfd3643",
+            "toNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "toPortId": "133767f1-81f3-4dc4-939d-b2435c3d53fe"
+        },
+        {
+            "id": "e58d85de-d175-4f83-812d-46e849a1bb1d",
+            "fromNodeId": "72f723e7-dbc1-41ea-9cd8-d20786aaee61",
+            "fromPortId": "f8d57353-d301-4b6a-8537-f08ae1e19b25",
+            "toNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "toPortId": "5baa55b9-53b3-4b90-89db-00dac8fd7831"
+        },
+        {
+            "id": "4eb9089a-2be6-498d-9852-0f15813b5933",
+            "fromNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "fromPortId": "3c0444f8-1963-4832-a2e6-a664ac12c698",
+            "toNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "toPortId": "a59156d1-f693-4339-a4b2-cb4530458804"
+        },
+        {
+            "id": "1637ae26-5b57-4e9a-b9e3-677644e308f8",
+            "fromNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "fromPortId": "f540228b-26ac-4224-858c-e6d1cd290501",
+            "toNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "toPortId": "7f98f14b-f944-493d-9f6d-80e58a766ceb"
+        },
+        {
+            "id": "d8496be4-cec4-4b30-85d8-31a86169f77d",
+            "fromNodeId": "3e80e8c1-9e51-49b1-92e2-76f8c4f0e45d",
+            "fromPortId": "de8453d1-6812-494c-b898-5d81214ca658",
+            "toNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "toPortId": "e55ce24e-0215-46c9-8a1d-14466e8c7368"
+        },
+        {
+            "id": "e3c7a60b-6606-4145-a125-31bab81d9f8b",
+            "fromNodeId": "063ddbe3-77fd-43e2-8bac-6b8c68049b09",
+            "fromPortId": "a2a43ebd-5ead-4148-ad99-76b71d52f7eb",
+            "toNodeId": "a2dc3399-6c07-47c1-8e47-b430cdc7b07a",
+            "toPortId": "abc53326-5715-43af-9553-d22682b4a1c5"
+        },
+        {
+            "id": "e266956c-ed7b-4fcf-b165-f3e49f6fff09",
+            "fromNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "fromPortId": "f540228b-26ac-4224-858c-e6d1cd290501",
+            "toNodeId": "a2dc3399-6c07-47c1-8e47-b430cdc7b07a",
+            "toPortId": "5490d9da-303a-45ce-9808-c4f174210c85"
+        },
+        {
+            "id": "6605f792-d284-4f30-8c5e-2e101532a276",
+            "fromNodeId": "9aaadcf0-45ea-49ac-9ff3-df1014e77426",
+            "fromPortId": "5cf61009-8307-473c-91cc-e447ebfd3643",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "4ae64c21-1de6-484a-a9ec-a665e381c8cd"
+        },
+        {
+            "id": "dddc0758-8cdc-4953-b65a-117bf08bbc89",
+            "fromNodeId": "72f723e7-dbc1-41ea-9cd8-d20786aaee61",
+            "fromPortId": "f8d57353-d301-4b6a-8537-f08ae1e19b25",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "03be1811-4de8-443e-94c6-d6e86581bbec"
+        },
+        {
+            "id": "8eb02195-d5d3-4b38-aa50-ca92b32aa4d4",
+            "fromNodeId": "ac6024a7-f1fd-4fe2-bec3-af5056aecb6a",
+            "fromPortId": "3c0444f8-1963-4832-a2e6-a664ac12c698",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "ac7598c7-4d79-43e8-b4b9-1e7dcbbe9c06"
+        },
+        {
+            "id": "d97f87ca-5fd1-48e8-919d-f404b036c522",
+            "fromNodeId": "111c4b36-afe6-4913-ac6d-47f932bb9035",
+            "fromPortId": "f540228b-26ac-4224-858c-e6d1cd290501",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "a104ead5-db97-46b8-a876-98eacf9fdb08"
+        },
+        {
+            "id": "2ea0a38b-b225-40dd-877f-5de1f9f8a837",
+            "fromNodeId": "496c2707-f803-40a1-97a2-1a5a1de39355",
+            "fromPortId": "ef131ef3-16b3-4ad8-a9b7-74d1815e52bb",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "24eda6f9-421c-4c2b-ba1d-b12d50a61a11"
+        },
+        {
+            "id": "eaeb4757-0f83-404a-a516-312099bc6d20",
+            "fromNodeId": "eaf7762c-a363-4502-bfed-c2f328026e8f",
+            "fromPortId": "ee1af3fe-4155-4dee-bec2-bfad43d4c89b",
+            "toNodeId": "4afc4634-73ed-4811-8413-3b1f9cb8ce91",
+            "toPortId": "1b09c398-2908-4efa-8684-0ad0617b8568"
+        }
+    ],
+    "camera": {
+        "x": -585.58,
+        "y": 165.95,
+        "scale": 1.795664
+    },
+    "annotations": []
+}

@@ -1,8 +1,13 @@
 {
     "mWindowSize": {
-        "x": 1500,
-        "y": 829
+        "x": 2056,
+        "y": 1227
     },
+    "mWindowPosition": {
+        "x": 0,
+        "y": 31
+    },
+    "mMaximized": false,
     "mLayout": {
         "mainDock": {
             "anchors": {
@@ -16,14 +21,14 @@
                     "anchors": {
                         "left": 0.0,
                         "bottom": 0.0,
-                        "right": 0.7129772305488586,
+                        "right": 0.6808753609657288,
                         "top": 1.0
                     },
                     "childs": [
                         {
                             "anchors": {
                                 "left": 0.0,
-                                "bottom": 0.3652697801589966,
+                                "bottom": 0.42379382252693179,
                                 "right": 1.0,
                                 "top": 1.0
                             },
@@ -36,11 +41,11 @@
                                         "top": 1.0
                                     },
                                     "windows": [
-                                        "scene window",
                                         "animation state graph window",
+                                        "scene window",
                                         "pipeline window"
                                     ],
-                                    "active": "pipeline window"
+                                    "active": "scene window"
                                 },
                                 {
                                     "anchors": {
@@ -60,20 +65,20 @@
                                 "left": 0.0,
                                 "bottom": 0.0,
                                 "right": 1.0,
-                                "top": 0.3652697801589966
+                                "top": 0.42379382252693179
                             },
                             "windows": [
-                                "animation window",
                                 "log window",
+                                "animation window",
                                 "assets window"
                             ],
-                            "active": "animation window"
+                            "active": "assets window"
                         }
                     ]
                 },
                 {
                     "anchors": {
-                        "left": 0.7129772305488586,
+                        "left": 0.6808753609657288,
                         "bottom": 0.0,
                         "right": 1.0,
                         "top": 1.0
@@ -88,5 +93,6 @@
         }
     },
     "mLastLoadedScene": "WordFall.scn",
-    "mLastPipelineAsset": "Unnamed"
+    "mLastPipelineAsset": "Pipelines/Wordfall main.pipeline",
+    "mAssetsView": "grid"
 }

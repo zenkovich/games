@@ -1,11 +1,16 @@
 {
-    "physics": {},
     "physics3D": {
         "gravity": {
             "x": 0.0,
             "y": 0.0,
-            "z": -9.81
+            "z": -9.8100004196167
         },
         "scale": 100.0
+    },
+    "assetsLine": {
+        "enabled": true,
+        "serverUrl": "https://assetsline.app",
+        "projectId": "5d43fbce-1339-4e61-bb70-aa68092e514c",
+        "projectName": "WordFall"
     }
 }
