@@ -4,6 +4,8 @@
 #include "WordFallUITestSupport.h"
 
 #include "o2/Scene/Components/FlightTrajectoryComponent.h"
+#include "o2/Integration.h"
+#include "o2/Render/Sprite.h"
 #include "o2/Utils/System/Time/Time.h"
 
 #include <functional>
@@ -24,6 +26,29 @@ protected:
 
 		auto emitter = actor->GetComponent<ParticlesEmitterComponent>();
 		return emitter ? emitter->GetParticlesCount() : -1;
+	}
+
+	// Больше всего живых частиц среди эмиттеров пула варианта S_<name>_<i>
+	int PoolParticles(const char* name) const
+	{
+		int most = 0;
+		for (int i = 0; i < 10; i++)
+			most = Math::Max(most, ParticlesOf(String::Format("S_%s_%i", name, i)));
+		return most;
+	}
+
+	// Вспышка эффекта картинкой: включённый FxFlash с этой картинкой
+	bool FlashShows(const char* image) const
+	{
+		auto fx = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx");
+		for (int i = 0; i < 10; i++)
+		{
+			auto flash = DynamicCast<Widget>(fx->GetChild(String::Format("FxFlash%i", i)));
+			auto sprite = flash ? DynamicCast<Sprite>(flash->GetLayer("img")->GetDrawable()) : nullptr;
+			if (flash && flash->IsEnabled() && sprite && sprite->GetImageName() == image)
+				return true;
+		}
+		return false;
 	}
 
 	Ref<Button> Tile(int column, int row) const
@@ -50,6 +75,13 @@ protected:
 			clipDir = dir + "/" + name + "/";
 			o2FileSystem.FolderCreate(clipDir, true);
 		}
+
+		// кадр клипа — ровно 1/60 секунды игры, сколько бы ни снимался скриншот
+		struct FrameStep
+		{
+			FrameStep(bool on) { Integration::forcedFrameDeltaTime = on ? 1.0f/60.0f : 0.0f; }
+			~FrameStep() { Integration::forcedFrameDeltaTime = 0.0f; }
+		} frameStep(!clipDir.IsEmpty());
 
 		float elapsed = 0.0f;
 		int frames = 0;
@@ -90,6 +122,47 @@ protected:
 		Click(AcceptPosition()); // ПРИНЯТЬ
 	}
 };
+
+// Варианты эффектов бонусов на выбор: у каждого стиля бомбы, ракеты и фейерверка играют свои эмиттеры.
+// Поле и цели одни и те же (уровень перезапускается с тем же сидом); с WORDFALL_CLIPS_DIR пишется клип каждого
+TEST_F(WordFallVfxShowcase, EveryBonusStylePlaysItsParticles)
+{
+	struct Kind { const char* kind; const char* property; float seconds; const char* pools[6]; };
+	const Kind kinds[3] = {
+		{ "bomb", "bombStyle", 2.4f, { "", "B1_Chips", "B2_Stars", "B3_Confetti", "B4_Sparks", "B5_Puffs" } },
+		{ "rocket", "rocketStyle", 2.6f, { "", "R1_Trail", "R2_Trail", "R3_Trail", "R4_Trail", "R5_Trail" } },
+		{ "fireworks", "fireworksStyle", 3.4f, { "", "F1_Burst", "F2_Burst", "F3_Willow", "F4_Confetti", "F5_RingA" } } };
+
+	// WORDFALL_FX_STYLES="2" или "2,4" — только эти варианты (переснять один эффект, не все)
+	auto only = ::getenv("WORDFALL_FX_STYLES");
+	for (auto& kind : kinds)
+	{
+		for (int style = 0; style <= 5; style++)
+		{
+			if (only && !String(only).Contains(String::Format("%i", style)))
+				continue;
+			mService->StartLevel(0);
+			AppTestDriver::Wait(0.6f);
+			o2Scripts.Eval(String::Format("WordFallViews.fx.%s = %i", kind.property, style));
+			if (String(kind.kind) == "rocket")
+				mService->DebugSetStone(6, 7); // цель в дальнем углу: полёт через всё поле
+			TriggerBonusWithWord(kind.kind);
+
+			String pool = kind.pools[style];
+			int particles = 0;
+			CaptureClip(String::Format("%s_s%i", kind.kind, style), kind.seconds, [&]()
+			{
+				for (int i = 0; !pool.IsEmpty() && i < 10; i++)
+					particles = Math::Max(particles, ParticlesOf(String::Format("S_%s_%i", pool.Data(), i)));
+			});
+			if (!pool.IsEmpty())
+				EXPECT_GT(particles, 0) << kind.kind << " " << style << ": " << pool.Data();
+
+			AppTestDriver::Wait(1.2f);
+		}
+		o2Scripts.Eval(String::Format("WordFallViews.fx.%s = 0", kind.property));
+	}
+}
 
 // Бонус на поле: золотая оправа с аурой, плитка «дышит» масштабом, сверху идут искры
 TEST_F(WordFallVfxShowcase, BonusesIdleGlowPulseAndSparkle)
@@ -132,88 +205,105 @@ TEST_F(WordFallVfxShowcase, BonusesIdleGlowPulseAndSparkle)
 	EXPECT_GT(sparkles[2], 0) << "фейерверк не искрит";
 }
 
-// Взрыв бомбы: разгорание фитиля, вспышка, ударная волна, осколки, дым и тряска поля
-TEST_F(WordFallVfxShowcase, BombBlastShakesBoardAndThrowsDebris)
+// Радужная бомба: заряд раздувает её и перед хлопком сжимает, хлопает звездой полосы очков, два кольца
+// радужных звёзд с блёстками, поле трясёт, соседние плитки за зоной взрыва отталкивает волной
+TEST_F(WordFallVfxShowcase, RainbowBombPopsIntoStarsAndPushesNeighbours)
 {
-	auto cornerTile = Tile(6, 7); // дальний угол: обвал его не двигает, тряска — да
-	ASSERT_TRUE(cornerTile);
-	float restX = cornerTile->layout->GetWorldRect().Center().x;
-	float chargeWidth = 0.0f;
+	auto corner = Tile(6, 7);  // дальний угол: волна до него не доходит, тряска — да
+	auto neighbour = Tile(3, 2); // за зоной 3×3 вокруг (1,1), в соседнем столбце: не падает, волну ловит
+	ASSERT_TRUE(corner && neighbour);
+	Vec2F cornerRest = corner->layout->GetWorldRect().Center(), neighbourRest = neighbour->layout->GetWorldRect().Center();
 
 	TriggerBonusWithWord("bomb");
 
-	int debris = 0, smoke = 0, ring = 0, flash = 0;
-	float maxShift = 0.0f;
-	CaptureClip("bomb", 2.6f, [&]()
+	float maxWidth = 0.0f, lastWidth = 0.0f, maxShift = 0.0f, push = 0.0f;
+	int stars = 0, slowStars = 0, twinkles = 0;
+	bool starPop = false;
+	CaptureClip("bomb", 2.4f, [&]()
 	{
-		debris = Math::Max(debris, ParticlesOf("BombDebris"));
-		smoke = Math::Max(smoke, ParticlesOf("BombSmoke"));
-		ring = Math::Max(ring, ParticlesOf("BombRing"));
-		flash = Math::Max(flash, ParticlesOf("BombFlash"));
-		maxShift = Math::Max(maxShift, Math::Abs(cornerTile->layout->GetWorldRect().Center().x - restX));
+		auto bomb = Tile(1, 1);
+		if (bomb && bomb->IsEnabled())
+		{
+			lastWidth = bomb->layout->GetWorldRect().Width();
+			maxWidth = Math::Max(maxWidth, lastWidth);
+		}
+		stars = Math::Max(stars, PoolParticles("B2_Stars"));
+		slowStars = Math::Max(slowStars, PoolParticles("B2_Stars2"));
+		twinkles = Math::Max(twinkles, PoolParticles("B2_Twinkle"));
+		starPop = starPop || FlashShows("Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png");
 
-		if (auto bombTile = Tile(1, 1))
-			chargeWidth = Math::Max(chargeWidth, bombTile->layout->GetWorldRect().Width());
+		Vec2F shake = corner->layout->GetWorldRect().Center() - cornerRest;
+		maxShift = Math::Max(maxShift, shake.Length());
+		push = Math::Max(push, (neighbour->layout->GetWorldRect().Center() - neighbourRest - shake).Length());
 	});
 
-	EXPECT_GT(chargeWidth, 96.0f) << "фитиль не раздувает бомбу перед взрывом";
-	EXPECT_GT(debris, 0) << "нет осколков";
-	EXPECT_GT(smoke, 0) << "нет дыма";
-	EXPECT_GT(ring, 0) << "нет ударной волны";
-	EXPECT_GT(flash, 0) << "нет вспышки";
-	EXPECT_GT(maxShift, 1.0f) << "поле не трясёт на взрыве";
+	EXPECT_GT(maxWidth, 100.0f) << "заряд не раздувает бомбу";
+	EXPECT_LT(lastWidth, maxWidth - 3.0f) << "перед хлопком бомба не сжимается";
+	EXPECT_TRUE(starPop) << "нет хлопка радужной звездой";
+	EXPECT_GT(stars, 0) << "нет разлёта звёзд";
+	EXPECT_GT(slowStars, 0) << "нет медленного кольца звёзд";
+	EXPECT_GT(twinkles, 0) << "нет блёсток";
+	EXPECT_GT(maxShift, 1.0f) << "поле не трясёт";
+	EXPECT_GT(push, 3.0f) << "соседние плитки не отталкивает волной";
 
 	AppTestDriver::Wait(2.0f);
 }
 
-// Ракета: хлопок старта, шлейф в полёте, кольцо и салют на попадании
-TEST_F(WordFallVfxShowcase, RocketLaunchTrailAndImpactRing)
+// Радужная ракета: корпус остаётся ракетой с пламенем, на старте хлопок звёзд, за ней по всему пути тянется
+// шлейф радужных звёзд, в цели — радужный хлопок; свои искры и салют прототипа молчат
+TEST_F(WordFallVfxShowcase, RainbowRocketKeepsItsBodyAndTrailsStars)
 {
+	mService->DebugSetStone(6, 7); // цель в дальнем углу: полёт через всё поле
 	TriggerBonusWithWord("rocket");
 
-	auto rocket = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0");
+	auto rocket = DynamicCast<Widget>(o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0"));
 	ASSERT_TRUE(rocket);
-	auto trail = rocket->GetChild("Sparks")->GetComponent<ParticlesEmitterComponent>();
-	auto smoke = rocket->GetChild("Smoke")->GetComponent<ParticlesEmitterComponent>();
-	auto glitter = rocket->GetChild("Glitter")->GetComponent<ParticlesEmitterComponent>();
-	ASSERT_TRUE(trail && smoke && glitter);
+	auto ownSparks = rocket->GetChild("Sparks")->GetComponent<ParticlesEmitterComponent>();
+	ASSERT_TRUE(ownSparks);
 
-	int launchDust = 0, launchFlash = 0, launchEmbers = 0, trailSparks = 0, ring = 0, smokePuffs = 0, saluteGlitter = 0;
-	bool flew = false, turned = false;
-	float trailMinY = FLT_MAX, trailMaxY = -FLT_MAX; // шлейф ложится вдоль всего пути, не кучкой на старте
-	CaptureClip("rocket", 3.4f, [&]()
+	int launch = 0, trailStars = 0, hit = 0, ownParticles = 0;
+	bool flew = false, turned = false, starBody = false, flameOff = false;
+	float trailMinY = FLT_MAX, trailMaxY = -FLT_MAX;
+	CaptureClip("rocket", 2.6f, [&]()
 	{
-		launchDust = Math::Max(launchDust, ParticlesOf("LaunchDust"));
-		launchFlash = Math::Max(launchFlash, ParticlesOf("LaunchFlash"));
-		launchEmbers = Math::Max(launchEmbers, ParticlesOf("LaunchEmbers"));
-		trailSparks = Math::Max(trailSparks, trail->GetParticlesCount());
-		smokePuffs = Math::Max(smokePuffs, smoke->GetParticlesCount());
-		saluteGlitter = Math::Max(saluteGlitter, glitter->GetParticlesCount());
-		turned = turned || (rocket->IsEnabled() && Math::Abs(rocket->transform->GetAngleDegrees()) > 5.0f);
-
-		for (auto& particle : trail->GetParticles())
+		launch = Math::Max(launch, PoolParticles("R2_Launch"));
+		hit = Math::Max(hit, PoolParticles("R2_Hit"));
+		ownParticles = Math::Max(ownParticles, ownSparks->GetParticlesCount());
+		for (int i = 0; i < 10; i++)
 		{
-			if (!particle.alive)
+			auto actor = Vfx()->GetChild(String::Format("S_R2_Trail_%i", i));
+			auto trail = actor ? actor->GetComponent<ParticlesEmitterComponent>() : nullptr;
+			if (!trail)
 				continue;
-
-			trailMinY = Math::Min(trailMinY, particle.position.y);
-			trailMaxY = Math::Max(trailMaxY, particle.position.y);
+			trailStars = Math::Max(trailStars, trail->GetParticlesCount());
+			for (auto& particle : trail->GetParticles())
+			{
+				if (!particle.alive)
+					continue;
+				trailMinY = Math::Min(trailMinY, particle.position.y);
+				trailMaxY = Math::Max(trailMaxY, particle.position.y);
+			}
 		}
 
-		ring = Math::Max(ring, ParticlesOf("RocketRing"));
-		flew = flew || rocket->IsEnabled();
+		if (rocket->IsEnabled())
+		{
+			flew = true;
+			turned = turned || Math::Abs(rocket->transform->GetAngleDegrees()) > 5.0f;
+			auto body = DynamicCast<Sprite>(rocket->GetLayer("img")->GetDrawable());
+			starBody = starBody || (body && body->GetImageName().Contains("rainbow_star"));
+			flameOff = flameOff || !rocket->GetLayer("flame")->IsEnabled();
+		}
 	});
 
-	EXPECT_GT(launchDust, 0) << "нет пыли на старте";
-	EXPECT_GT(launchFlash, 0) << "нет вспышки зажигания";
-	EXPECT_GT(launchEmbers, 0) << "нет углей на старте";
 	EXPECT_TRUE(flew) << "ракета не взлетела";
-	EXPECT_GT(trailSparks, 0) << "нет шлейфа";
-	EXPECT_GT(smokePuffs, 0) << "нет дымного следа";
-	EXPECT_GT(saluteGlitter, 0) << "нет глиттера салюта";
+	EXPECT_FALSE(starBody) << "корпус — ракета, а не звезда";
+	EXPECT_FALSE(flameOff) << "пламя ракеты на месте";
 	EXPECT_TRUE(turned) << "ракета не разворачивается по курсу";
+	EXPECT_GT(launch, 0) << "нет хлопка звёзд на старте";
+	EXPECT_GT(trailStars, 0) << "нет шлейфа радужных звёзд";
 	EXPECT_GT(trailMaxY - trailMinY, 200.0f) << "шлейф не тянется за ракетой";
-	EXPECT_GT(ring, 0) << "кольцо попадания не сыграло";
+	EXPECT_GT(hit, 0) << "нет радужного хлопка в цели";
+	EXPECT_EQ(ownParticles, 0) << "свои искры прототипа не должны играть";
 
 	AppTestDriver::Wait(2.0f);
 }
@@ -221,6 +311,7 @@ TEST_F(WordFallVfxShowcase, RocketLaunchTrailAndImpactRing)
 // Ракета прилетает ровно в центр целевой клетки — и корпус, и салют из её детей
 TEST_F(WordFallVfxShowcase, RocketArrivesAtTargetTileCenter)
 {
+	o2Scripts.Eval("WordFallViews.fx.rocketStyle = 0"); // исходная ракета: полёт клипом прототипа
 	Map<Pair<int, int>, Vec2F> centers;
 	for (int c = 0; c < 7; c++)
 		for (int r = 0; r < 8; r++)
@@ -288,9 +379,81 @@ TEST_F(WordFallVfxShowcase, RocketArrivesAtTargetTileCenter)
 	EXPECT_GE(flight.Last().first, 0.4f) << "полёт короче минимального"; // длительность считается по дистанции
 }
 
+// Ракета летит «вертолётиком»: взлетает почти вертикально и растёт к камере, в середине дуги быстрее, чем
+// на старте и перед целью, садится в центр клетки и сплющивается на ударе
+TEST_F(WordFallVfxShowcase, RainbowRocketFliesLikeAPropeller)
+{
+	mService->DebugSetStone(6, 7); // цель в дальнем углу
+	Vec2F target = TilePosition(6, 7);
+	TriggerBonusWithWord("rocket");
+
+	auto rocket = DynamicCast<Widget>(o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0"));
+	ASSERT_TRUE(rocket);
+
+	struct Sample { float time; Vec2F at; Vec2F scale; };
+	Vector<Sample> samples;
+	float time = 0.0f;
+	bool hidden = false;
+	CaptureClip("rocket_propeller", 2.4f, [&]()
+	{
+		// центр — в координатах траектории (TileWorldPos), куда её ставит FlightTrajectoryComponent
+		if (rocket->IsEnabled() && !hidden)
+			samples.Add({ time, (rocket->layout->GetOffsetMin() + rocket->layout->GetOffsetMax())*0.5f, rocket->transform->GetScale2D() });
+		else if (!samples.IsEmpty())
+			hidden = true;
+		if (!samples.IsEmpty())
+			time += Math::Clamp(o2Time.GetDeltaTime(), 0.001f, 0.05f);
+	});
+	ASSERT_GT(samples.Count(), 20);
+
+	const Sample& start = samples[0];
+	float maxScale = 0.0f;
+	const Sample* lifted = nullptr;
+	for (auto& sample : samples)
+	{
+		maxScale = Math::Max(maxScale, sample.scale.x);
+		if (!lifted && sample.time >= 0.22f)
+			lifted = &sample;
+	}
+	ASSERT_TRUE(lifted);
+	EXPECT_GT(maxScale, 1.3f) << "на взлёте ракета не растёт к камере";
+	EXPECT_GT(lifted->at.y - start.at.y, 40.0f) << "ракета не взлетает вверх";
+	EXPECT_LT(Math::Abs(lifted->at.x - start.at.x), 10.0f) << "взлёт не вертикальный";
+
+	// скорость на дуге: старт, середина и последние кадры перед целью
+	float flightStart = 0.36f, flightEnd = samples.Last().time;
+	auto speedAt = [&](float from, float to)
+	{
+		const Sample* a = nullptr;
+		const Sample* b = nullptr;
+		for (auto& sample : samples)
+		{
+			if (!a && sample.time >= from)
+				a = &sample;
+			if (sample.time <= to)
+				b = &sample;
+		}
+		return a && b && b->time > a->time ? (b->at - a->at).Length()/(b->time - a->time) : 0.0f;
+	};
+	float span = flightEnd - flightStart;
+	float early = speedAt(flightStart, flightStart + span*0.15f);
+	float middle = speedAt(flightStart + span*0.4f, flightStart + span*0.6f);
+	float late = speedAt(flightEnd - span*0.15f, flightEnd);
+	EXPECT_GT(middle, early*1.4f) << "нет разгона на дуге";
+	EXPECT_GT(middle, late*1.4f) << "нет торможения перед целью";
+
+	const Sample& landed = samples.Last();
+	EXPECT_LT((landed.at - target).Length(), 6.0f) << "ракета садится мимо клетки";
+	EXPECT_GT(landed.scale.x, landed.scale.y + 0.2f) << "на ударе ракета не сплющивается";
+
+	AppTestDriver::Wait(1.5f);
+}
+
 // Повторный запуск ракеты начинается с чистого листа: ни шлейфа, ни салюта прошлого полёта
+// (исходный облик ракеты — у него свои эмиттеры в прототипе)
 TEST_F(WordFallVfxShowcase, SecondLaunchStartsWithoutStaleParticles)
 {
+	o2Scripts.Eval("WordFallViews.fx.rocketStyle = 0");
 	TriggerBonusWithWord("rocket");
 	AppTestDriver::Wait(3.0f); // полёт, салют с конфетти, ракета выключена
 
@@ -328,6 +491,7 @@ TEST_F(WordFallVfxShowcase, SecondLaunchStartsWithoutStaleParticles)
 // Скорость ракеты не зависит от дистанции, а близкую цель она облетает по дуге
 TEST_F(WordFallVfxShowcase, RocketKeepsSpeedAndArcsAroundCloseTargets)
 {
+	o2Scripts.Eval("WordFallViews.fx.rocketStyle = 0"); // исходная ракета: ровная скорость и облёт близких целей
 	// цель у самого бонуса: лёд рядом — задача уровня, ракета летит именно в него
 	mService->DebugSetTile(2, 6, "Щ");
 	AppTestDriver::PumpFrames(2);
@@ -435,19 +599,24 @@ TEST_F(WordFallVfxShowcase, LongWordGivesFireworksAndItLaunchesSalvo)
 	AppTestDriver::Wait(2.0f);
 }
 
-// Фейерверк: залп ракет по нескольким целям, каждая со своим салютом
-TEST_F(WordFallVfxShowcase, FireworksSalvoLaunchesSeveralRockets)
+// Радужный фейерверк: звезда-хлопок и шар радужных звёзд, затем плотный залп ракет с радужными шлейфами
+// и хлопками в целях
+TEST_F(WordFallVfxShowcase, RainbowFireworksBurstAndSalvo)
 {
 	TriggerBonusWithWord("fireworks");
 
 	auto fx = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx");
 	ASSERT_TRUE(fx);
 
-	int maxFlying = 0, ring = 0, glitter = 0, streaks = 0;
-	CaptureClip("fireworks", 3.6f, [&]()
+	int maxFlying = 0, burst = 0, inner = 0, trails = 0, hits = 0;
+	bool starPop = false;
+	CaptureClip("fireworks", 3.2f, [&]()
 	{
-		glitter = Math::Max(glitter, ParticlesOf("FireworkGlitter"));
-		streaks = Math::Max(streaks, ParticlesOf("FireworkSparks0"));
+		burst = Math::Max(burst, PoolParticles("F2_Burst"));
+		inner = Math::Max(inner, PoolParticles("F2_Inner"));
+		trails = Math::Max(trails, PoolParticles("R2_Trail"));
+		hits = Math::Max(hits, PoolParticles("R2_Hit"));
+		starPop = starPop || FlashShows("Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png");
 		int flying = 0;
 		for (int i = 0; i < 10; i++)
 		{
@@ -456,16 +625,17 @@ TEST_F(WordFallVfxShowcase, FireworksSalvoLaunchesSeveralRockets)
 				flying++;
 		}
 		maxFlying = Math::Max(maxFlying, flying);
-		ring = Math::Max(ring, ParticlesOf("RocketRing"));
 	});
 
 	auto& move = mService->GetLastMoveResult();
 	ASSERT_EQ(move.powerupsUsed.Count(), 1);
 	EXPECT_GT(move.powerupsUsed[0].targets.Count(), 1) << "фейерверк бьёт по нескольким клеткам";
-	EXPECT_GT(maxFlying, 1) << "залп идёт по одной ракете";
-	EXPECT_GT(ring, 0) << "нет колец попаданий";
-	EXPECT_GT(streaks, 0) << "нет центрального взрыва фейерверка";
-	EXPECT_GT(glitter, 0) << "нет глиттера";
+	EXPECT_TRUE(starPop) << "нет хлопка радужной звездой";
+	EXPECT_GT(burst, 0) << "нет шара звёзд";
+	EXPECT_GT(inner, 0) << "нет медленных звёзд внутри";
+	EXPECT_GT(maxFlying, 3) << "залп недостаточно плотный";
+	EXPECT_GT(trails, 0) << "у ракет залпа нет радужных шлейфов";
+	EXPECT_GT(hits, 0) << "нет хлопков в целях";
 
 	AppTestDriver::Wait(2.0f);
 }

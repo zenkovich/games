@@ -9,8 +9,11 @@ and prototype links kept), and so are the Tile, WordSlot, Booster and FxFlyingLe
 
 The game stacks the sections tighter than the layout (compact): the words block a bit smaller, short gaps,
 a permanent row of the word tray between the progress and the board, the board right over smaller boosters.
-The board panel gets a bottom frame as thin as its other sides (WordFall/ScreenUI/board_panel.png, cut from
-the layout sprite), the background is flat, of the reference's colour.
+The board backing is rendered from the layout's board panel as quarters of a cell for every set of
+neighbours of the quarter's corner (WordFall/ScreenUI/board_*.png): every cell has its backing Back_c_r of
+four of them, which the game picks by the level's shape, so holes aren't drawn and an even rim with rounded
+corners follows the cells. The background is flat, of the
+reference's colour.
 
 The sprites of Screen_Resources/Sprites are packed into the atlas Screen_Resources/ScreenUI.atlas: every
 image meta gets its atlasId. The scene camera fits the layout size.
@@ -32,11 +35,19 @@ RES = "Generated/UI/Screen_Resources/"
 SPRITES = RES + "Sprites/"
 ATLAS = RES + "ScreenUI.atlas"
 DERIVED = "WordFall/ScreenUI/"
-BOARD_PANEL = DERIVED + "board_panel.png"
+BOARD_PIECE = DERIVED + "board_%s_%s.png"  # a quarter of a board cell: tl/tr/bl/br, its neighbours (back_kind)
+QUARTERS = {"tl": (-1, 1), "tr": (1, 1), "bl": (-1, -1), "br": (1, -1)}  # the corner of the cell, y up
+BOARD_RIM = 9            # the board's rim around the tiles, the same on every side
+BOARD_INNER_RADIUS = 24  # rounding of its inner corners
+BOARD_OUTER_RADIUS = 24  # rounding of its outer corners
+BOARD_SHADOW = 0.25      # the inner shadow of the rim on the board: its strength at the rim
+BOARD_SHADOW_WIDTH = 14  # how far it falls inwards
+BOARD_SHADOW_OFFSET = 3  # the light from above: the shadow is this much deeper under the upper rim
+BLEED = 2               # the pieces overlap: drawn at a fraction of a pixel, sprite edges would leave seams
+BOARD_RING = 1          # a transparent ring around a piece: the filtering never reaches the atlas around it
 
 WHITE = {"r": 255, "g": 255, "b": 255, "a": 255}  # a text without its colour: the font style paints it
 PAPER = {"r": 240, "g": 214, "b": 179, "a": 255}  # the flat background of the reference image
-RIDGE = {"r": 150, "g": 106, "b": 72, "a": 255}  # the board panel between its cells
 
 # board tile colours (the model's tint 0..3) and the doubled tile
 TINTS = ["icon_tile_cream", "icon_tile_gold", "icon_tile_gold", "icon_tile_orange"]
@@ -55,6 +66,7 @@ TRAY_BUTTON = 92
 GAPS = {"objectives": 12, "progress": 8, "tray": 8, "board": 10, "toolbar": 10}  # above each section
 
 random.seed("wordfall-screen-layout")
+BOARD_RNG = random.Random("wordfall-board-backs")  # ids of the board pieces don't shift the ids of the rest
 
 
 def new_id():
@@ -248,21 +260,218 @@ def make_board_panel(L):
         a = (i + 1) / (blend + 1)
         row = Image.blend(under.crop((0, i, w, i + 1)), bottom.crop((0, i, w, i + 1)), a)
         out.paste(row, (0, h - cut - edge + i))
-    path = ASSETS / BOARD_PANEL
-    path.parent.mkdir(parents=True, exist_ok=True)
-    folder_meta = Path(str(path.parent) + ".meta")
-    if not folder_meta.exists():
-        folder_meta.write_text(json.dumps({"Type": "o2::DefaultAssetMeta<o2::FolderAsset>",
-                                           "Value": {"mId": "%032x" % random.getrandbits(128)}}, indent=4) + "\n")
-    out.save(path)
-    meta_path = Path(str(path) + ".meta")
-    if not meta_path.exists():
-        border = meta(SPRITES + "panel_board_large.png").get("sliceBorder")
-        value = {"mId": "%032x" % random.getrandbits(128)}
-        if border:
-            value.update({"sliceBorder": dict(border), "defaultMode": "Sliced"})
-        meta_path.write_text(json.dumps({"Type": "o2::ImageAsset::Meta", "Value": value}, indent=4) + "\n")
-    return out.size
+    return out
+
+
+class BoardGrid:
+    """the board cells in the panel image (x right, y down), centred on the layout's tiles: a cell is its tile
+    and half the gaps to the neighbours. The panel's sockets sit a little off the tiles: the art is taken
+    shifted so that a socket comes under its tile"""
+
+    def __init__(self, L, panel):
+        self.w, self.h = panel.size
+        self.cols, self.rows = 7, 8
+        self.px = round(L.rect("letters/r0c1")[0] - L.rect("letters/r0c0")[0])
+        self.py = round(L.rect("letters/r0c0")[1] - L.rect("letters/r1c0")[1])
+        board = L.rect("board")
+        first = L.rect("letters/r0c0")
+        self.ts = round(width(first))
+        self.gx, self.gy = (self.px - self.ts) // 2, (self.py - self.ts) // 2  # tile inside its cell
+        x0, y0 = round(first[0] - board[0]) - self.gx, round(board[3] - first[3]) - self.gy
+        self.xb = [x0 + c * self.px for c in range(self.cols + 1)]
+        self.yb = [y0 + r * self.py for r in range(self.rows + 1)]
+        self.hx, self.hy = self.px // 2, self.py // 2  # the left and top quarters of a cell
+        self.margin = BOARD_RIM + BOARD_INNER_RADIUS  # around a cell: its rim and the rounding of inner corners
+
+        gray = panel.convert("L").tobytes()
+        col_light = [sum(gray[y * self.w + x] for y in range(self.h)) / self.h for x in range(self.w)]
+        row_light = [sum(gray[y * self.w:(y + 1) * self.w]) / self.w for y in range(self.h)]
+
+        def ridge(light, guess):
+            """the middle of the light run around the brightest line near the guess (the ridge has a highlight
+            at one side, so the run, not the peak)"""
+            lo, hi = max(0, round(guess) - 8), min(len(light), round(guess) + 9)
+            peak = max(range(lo, hi), key=lambda i: light[i])
+            level = (max(light[lo:hi]) + min(light[lo:hi])) / 2
+            a, b = peak, peak
+            while a > lo and light[a - 1] >= level:
+                a -= 1
+            while b < hi - 1 and light[b + 1] >= level:
+                b += 1
+            return (a + b + 1) / 2
+
+        # the ridges between the sockets against the middles of the gaps between the tiles
+        dx = [ridge(col_light, self.xb[k]) - self.xb[k] for k in range(1, self.cols)]
+        dy = [ridge(row_light, self.yb[k]) - self.yb[k] for k in range(1, self.rows)]
+        self.shift = (round(sorted(dx)[len(dx) // 2]), round(sorted(dy)[len(dy) // 2]))
+
+    def piece_box(self, q, c, r):
+        """image box of the piece of the quarter q of the cell (c, r): the quarter with the margin on its outer
+        sides, the overlap towards the cell centre and a transparent ring"""
+        sx, sy = QUARTERS[q]
+        a, b = self.margin + BOARD_RING, BLEED + BOARD_RING
+        x0, x1 = (self.xb[c] - a, self.xb[c] + self.hx + b) if sx < 0 else (self.xb[c] + self.hx - b, self.xb[c + 1] + a)
+        y0, y1 = (self.yb[r] - a, self.yb[r] + self.hy + b) if sy > 0 else (self.yb[r] + self.hy - b, self.yb[r + 1] + a)
+        return x0, y0, x1, y1
+
+
+def back_kind(inside, c, r, sx, sy):
+    """the piece of a cell's quarter: which neighbours of its corner (y up) are in the field - the side one
+    (h), the upper or lower one (v), the diagonal one (d); o - none"""
+    flags = ("h" if inside(c + sx, r) else "") + ("v" if inside(c, r + sy) else "") + ("d" if inside(c + sx, r + sy) else "")
+    return flags or "o"
+
+
+def edt(target):
+    """distance (in grid steps) from every node of a grid to the nearest True node: exact, column then row pass"""
+    import numpy as np
+    h, w = target.shape
+    g = np.where(target, 0.0, 1e6).astype(np.float32)
+    for i in range(1, h):
+        g[i] = np.minimum(g[i], g[i - 1] + 1)
+    for i in range(h - 2, -1, -1):
+        g[i] = np.minimum(g[i], g[i + 1] + 1)
+    xs = np.arange(w, dtype=np.float32)
+    dx2 = (xs[:, None] - xs[None, :]) ** 2
+    out = np.empty((h, w), dtype=np.float32)
+    for i in range(0, h, 16):
+        rows = g[i:i + 16] ** 2
+        out[i:i + 16] = np.sqrt(np.min(dx2[None, :, :] + rows[:, None, :], axis=2))
+    return out
+
+
+def make_board_pieces(grid, panel):
+    """the quarters of a board cell (BOARD_PIECE) for every set of neighbours of its corner. The field's body is
+    its tiles with the gaps between neighbours in the field bridged; the field is the body grown by BOARD_RIM
+    with the inner corners rounded by BOARD_INNER_RADIUS (a closing) and the outer ones by BOARD_OUTER_RADIUS
+    (an opening), on a grid of half pixels. A pixel takes the panel's rim (cut across its left side, ending in
+    the colour of its ridges) by its depth in the field, the cells keep the panel's sockets and ridges, and the
+    rim casts an inner shadow on them, as if lit from above. A pixel belongs to the cell whose cell box holds
+    it, out of the cells - to the one with the nearest tile; a piece paints its quarter and BLEED around it,
+    and its transparent pixels get the colour of the nearest painted one (sprites are filtered at a fraction of
+    a pixel and must not bring black or the atlas' white into the edges)"""
+    import numpy as np
+    from PIL import Image
+    g = grid
+    art = np.asarray(panel.convert("RGBA"), dtype=np.float64)
+    R, Ri, Ro = BOARD_RIM, BOARD_INNER_RADIUS, BOARD_OUTER_RADIUS
+    mid_c, mid_r = g.cols // 2, g.rows // 2
+    step, sub = 0.5, 2  # the grid: two nodes a pixel each way
+    reach = Ri + Ro + 4  # the grid reaches this far around a piece: the morphology looks no farther
+
+    across = g.yb[mid_r] + g.hy + g.shift[1]
+    ridge_x = [g.xb[c] + g.shift[0] + k for c in range(1, g.cols) for k in (-1, 0, 1)]
+    ridge = np.median(art[g.yb[mid_r] + 20 + g.shift[1]:g.yb[mid_r + 1] - 20 + g.shift[1], ridge_x, :3].reshape(-1, 3), axis=0)
+    rim = art[across, :7, :3].copy()  # the outline and the bevel, outside in; deeper - the ridge between the sockets
+    for i in range(3, len(rim)):
+        t = (i - 2) / (len(rim) - 3)
+        rim[i] = rim[i] * (1 - t) + ridge * t
+    edge = 1.0 - art[across, 0, 3] / 255.0  # where the outer edge lies in the first pixel
+    rim_depth = np.arange(len(rim)) + 0.5 - edge
+
+    def rim_colour(d):
+        return np.stack([np.interp(d, rim_depth, rim[:, k]) for k in range(3)], axis=-1)
+
+    def rect_distance(px, py, rect):
+        ddx = np.maximum(np.maximum(rect[0] - px, px - rect[2]), 0.0)
+        ddy = np.maximum(np.maximum(rect[1] - py, py - rect[3]), 0.0)
+        return np.hypot(ddx, ddy)
+
+    written = []
+    for q, (sx, sy) in QUARTERS.items():
+        X = (mid_c, mid_r)
+        h_cell, v_cell, d_cell = (mid_c + sx, mid_r), (mid_c, mid_r - sy), (mid_c + sx, mid_r - sy)  # image rows go down
+        x0, y0, x1, y1 = g.piece_box(q, *X)
+        # grid nodes: the centres of the half pixels of the piece and of the reach around it
+        gx = x0 - reach + (np.arange((x1 - x0 + 2 * reach) * sub) + 0.5) * step
+        gy = y0 - reach + (np.arange((y1 - y0 + 2 * reach) * sub) + 0.5) * step
+        nx, ny = np.meshgrid(gx, gy)
+        inner = (slice(reach * sub, reach * sub + (y1 - y0) * sub), slice(reach * sub, reach * sub + (x1 - x0) * sub))
+        px, py = np.meshgrid(np.arange(x0, x1) + 0.5, np.arange(y0, y1) + 0.5)
+        for flags in ("hvd", "hv", "hd", "h", "vd", "v", "d", "o"):
+            cells = [X] + [cell for cell, f in ((h_cell, "h"), (v_cell, "v"), (d_cell, "d")) if f in flags]
+            tile = {(c, r): (g.xb[c] + g.gx, g.yb[r] + g.gy, g.xb[c] + g.gx + g.ts, g.yb[r] + g.gy + g.ts) for c, r in cells}
+            boxes = [(g.xb[c], g.yb[r], g.xb[c + 1], g.yb[r + 1]) for c, r in cells]
+            # the body: the tiles, the gaps between neighbours bridged, the cross of the gaps when all four are in
+            body = list(tile.values())
+            for (c, r), t in tile.items():
+                right, below = tile.get((c + 1, r)), tile.get((c, r + 1))
+                if right:
+                    body.append((t[2], t[1], right[0], t[3]))
+                if below:
+                    body.append((t[0], t[3], t[2], below[1]))
+                if right and below and (c + 1, r + 1) in tile:
+                    body.append((t[2], t[3], right[0], below[1]))
+
+            # the field: the body grown by R + Ri and shrunk by Ri (inner corners), shrunk by Ro and grown back
+            near = np.min(np.stack([rect_distance(nx, ny, t) for t in body]), axis=0)
+            grown = near <= R + Ri
+            closed = edt(~grown) * step >= Ri
+            core = edt(~closed) * step >= Ro
+            field = edt(core) * step <= Ro
+            depth_grid = np.where(field, edt(~field) * step - step / 2, -(edt(field) * step - step / 2))
+            shade_grid = np.roll(depth_grid, BOARD_SHADOW_OFFSET * sub, axis=0)  # the depth a little higher up
+
+            def per_pixel(a):
+                a = a[inner]
+                return a.reshape(y1 - y0, sub, x1 - x0, sub)
+
+            depth_sub = per_pixel(depth_grid)
+            depth = depth_sub.mean(axis=(1, 3))
+            alpha = np.clip(depth_sub / step + 0.5, 0.0, 1.0).mean(axis=(1, 3))
+            shade_depth = per_pixel(shade_grid).mean(axis=(1, 3))
+
+            # the owner of a pixel: the cell whose box holds it, out of the cells - the one with the nearest tile
+            in_box = np.stack([(px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3]) for b in boxes])
+            to_tile = np.stack([rect_distance(px, py, t) for t in tile.values()])
+            owner = np.where(in_box.any(axis=0), in_box.argmax(axis=0), to_tile.argmin(axis=0))
+            mine = (owner == 0) & ((px < g.xb[mid_c] + g.hx) == (sx < 0)) & ((py < g.yb[mid_r] + g.hy) == (sy > 0))
+            painted = mine.copy()
+            for _ in range(BLEED):
+                grow = painted.copy()
+                grow[1:, :] |= painted[:-1, :]
+                grow[:-1, :] |= painted[1:, :]
+                grow[:, 1:] |= painted[:, :-1]
+                grow[:, :-1] |= painted[:, 1:]
+                painted = grow
+
+            colour = rim_colour(np.clip(depth, 0, None))
+            cell_px = in_box.any(axis=0)
+            ax = np.clip((px - 0.5 + g.shift[0]).astype(int), 0, g.w - 1)
+            ay = np.clip((py - 0.5 + g.shift[1]).astype(int), 0, g.h - 1)
+            base = art[ay, ax, :3]
+            blend = np.clip((len(rim) - depth) / 2.0, 0.0, 1.0)[..., None]
+            colour = np.where(cell_px[..., None], base * (1 - blend) + colour * blend, colour)
+            # the inner shadow: from the inner edge of the rim inwards, deeper at the top
+            fall = np.clip((shade_depth - len(rim) + 1) / BOARD_SHADOW_WIDTH, 0.0, 1.0)
+            shadow = BOARD_SHADOW * (1.0 - fall) ** 2 * np.clip(depth - len(rim) + 2, 0.0, 1.0)
+            colour = colour * (1.0 - shadow[..., None])
+            alpha = np.where(cell_px, 1.0, alpha) * painted
+
+            # transparent pixels take the colour of the painted ones next to them
+            solid = alpha > 0
+            for _ in range(6):
+                if solid.all():
+                    break
+                acc, cnt = np.zeros_like(colour), np.zeros(solid.shape)
+                for oy, ox in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    shifted = np.roll(np.roll(solid, oy, axis=0), ox, axis=1)
+                    acc += np.roll(np.roll(colour, oy, axis=0), ox, axis=1) * shifted[..., None]
+                    cnt += shifted
+                fill = ~solid & (cnt > 0)
+                colour[fill] = acc[fill] / cnt[fill][:, None]
+                solid = solid | fill
+
+            rgba = np.concatenate([colour, alpha[..., None] * 255.0], axis=-1)
+            piece = Image.fromarray(np.clip(np.round(rgba), 0, 255).astype(np.uint8), "RGBA")
+            path = BOARD_PIECE % (q, flags)
+            piece.save(ASSETS / path)
+            meta_path = Path(str(ASSETS / path) + ".meta")
+            if not meta_path.exists():
+                meta_path.write_text(json.dumps({"Type": "o2::ImageAsset::Meta",
+                                                 "Value": {"mId": "%032x" % BOARD_RNG.getrandbits(128)}}, indent=4) + "\n")
+            written.append(path)
+    return written
 
 
 # ---------------------------------------------------------------- placement (o2: y up, offsets from anchors)
@@ -733,46 +942,59 @@ def restyle_word_bar(L, word_bar, screen_rect, slot_layers):
     inst["doubledSprite"] = SPRITES + DOUBLED + ".png"
 
 
-def restyle_board(L, board, screen_rect, tile_layers):
+def back_layer(grid, q, kind, uid):
+    """a quarter of a cell's backing: the piece in its corner of the widget, at the piece's own size"""
+    sx, sy = QUARTERS[q]
+    x0, y0, x1, y1 = grid.piece_box(q, 0, 0)
+    w, h = float(x1 - x0), float(y1 - y0)
+    ax, ay = (0.0 if sx < 0 else 1.0), (1.0 if sy > 0 else 0.0)
+    layout = {"mAnchorMin": {"x": ax, "y": ay}, "mAnchorMax": {"x": ax, "y": ay},
+              "mOffsetMin": {"x": 0.0 if sx < 0 else -w, "y": -h if sy > 0 else 0.0},
+              "mOffsetMax": {"x": w if sx < 0 else 0.0, "y": 0.0 if sy > 0 else h}}
+    return {"Type": "o2::WidgetLayer",
+            "Value": {"layout": layout, "name": q, "mDrawable": sprite(BOARD_PIECE % (q, kind)), "mUID": uid}}
+
+
+def restyle_board(L, board, screen_rect, tile_layers, grid):
     tiles = union(L.rect("letters/r0c0"), L.rect("letters/r7c6"))
     place(data(board), tiles, screen_rect)
     size = width(L.rect("letters/r0c0"))
     pitch_x = L.rect("letters/r0c1")[0] - L.rect("letters/r0c0")[0]
     pitch_y = L.rect("letters/r0c0")[1] - L.rect("letters/r1c0")[1]
     cx, cy = centre(tiles)
+    left, top = L.rect("board")[0], L.rect("board")[3]  # the panel image's corner: the pieces stay where they were in it
+    whole = lambda c, r: 0 <= c < grid.cols and 0 <= r < grid.rows
 
     children = []
-    panel = None
     for ch in data(board)["Children"]:
         name = name_of(ch)
-        if name.startswith("Frame_"):
-            continue  # the shape frame of the old screen: the panel has the cells drawn in it
-        if name == "Panel":
-            panel = ch
-            continue
-        if name.startswith("CellBack_") or name.startswith("Hole_"):
-            # a hole of the field shape covers its drawn cell with the panel's colour
+        if name.startswith("Frame_") or name == "Panel":
+            continue  # the shape frame of the old screen and the panel with all the cells: the backs replace them
+        if name.startswith("CellBack_") or name.startswith("Hole_") or name.startswith("Back_"):
+            # the backing of a cell with the rim on its outer sides; the game hides it in a hole and picks
+            # the quarters by the shape, the prototype shows the whole field
             c, r = (int(v) for v in name.split("_")[1:])
             d = data(ch)
-            d["mName"] = "Hole_%d_%d" % (c, r)
-            d["mDrawingDepth"] = 2.0
-            d["mEnabled"] = False
-            x = (c - 3) * pitch_x
-            y = (r - 3.5) * pitch_y
-            centred(d, pitch_x - 4, pitch_y - 3, x, y)
-            set_sprite(layer(ch, "image"), "white", keep_color=False)
-            layer(ch, "image")["mDrawable"]["Value"]["mColor"] = dict(RIDGE)
+            ch["Type"] = "o2::Widget"
+            d["mName"] = "Back_%d_%d" % (c, r)
+            d["mDrawingDepth"] = 1.0
+            d.pop("mEnabled", None)
+            row = grid.rows - 1 - r
+            a = grid.margin + BOARD_RING
+            x0, x1 = left + grid.xb[c] - a, left + grid.xb[c + 1] + a
+            y0, y1 = top - grid.yb[row + 1] - a, top - grid.yb[row] + a
+            centred(d, x1 - x0, y1 - y0, (x0 + x1) / 2 - cx, (y0 + y1) / 2 - cy)
+            uids = {lay["Value"]["name"]: lay["Value"]["mUID"] for lay in d.get("Layers") or []}
+            if "image" in uids and "tl" not in uids:
+                uids["tl"] = uids.pop("image")
+            d["Layers"] = [back_layer(grid, q, back_kind(whole, c, r, *QUARTERS[q]), uids.get(q) or BOARD_RNG.getrandbits(63) | 1)
+                           for q in QUARTERS]
         elif name.startswith("Tile_"):
             follow_proto_layers(ch, tile_layers)
             c, r = (int(v) for v in name.split("_")[1:])
             centred(data(ch), size, size, (c - 3) * pitch_x, (r - 3.5) * pitch_y)
         children.append(ch)
-    if panel is None:
-        panel = image("Panel", BOARD_PANEL, 1)
-    place(data(panel), L.rect("board"), tiles)
-    data(panel)["mDrawingDepth"] = 1.0
-    set_sprite(layer(panel, "image"), BOARD_PANEL, keep_color=False)
-    data(board)["Children"] = [panel] + children
+    data(board)["Children"] = children
 
     inst = script_instance(board)
     inst["cellSize"] = rnd(pitch_y)
@@ -860,7 +1082,7 @@ def pack_atlas():
         mpath = Path(str(png) + ".meta")
         doc = json.loads(mpath.read_text())
         old = doc["Value"]
-        wanted = old["mId"] in used or str(png.relative_to(ASSETS)) in used
+        wanted = old["mId"] in used or str(png.relative_to(ASSETS)) in used or png.name.startswith("board_")
         value = {"mId": old["mId"]}
         if wanted:
             value["atlasId"] = atlas_id
@@ -906,7 +1128,9 @@ def main():
     L = Layout()
     screen_rect = L.screen()
     margin = compact(L)
-    panel_size = make_board_panel(L)
+    panel = make_board_panel(L)
+    grid = BoardGrid(L, panel)
+    pieces = make_board_pieces(grid, panel)
 
     def load(name):
         path = PROTOS / f"{name}.proto"
@@ -939,7 +1163,7 @@ def main():
     restyle_hud(L, child(screen, "Hud"), screen_rect)
     build_tasks(L, child(screen, "Tasks"), screen_rect)
     restyle_word_bar(L, child(screen, "WordBar"), screen_rect, slot_layers)
-    restyle_board(L, child(screen, "Board"), screen_rect, tile_layers)
+    restyle_board(L, child(screen, "Board"), screen_rect, tile_layers, grid)
     restyle_boosters(L, child(screen, "Boosters"), screen_rect, booster_layers)
     restyle_cheats(L, child(screen, "Cheats"), screen_rect)
     for i in range(4):
@@ -954,7 +1178,8 @@ def main():
     fit_scene_camera(screen_rect)
     images = pack_atlas()
     print("applied", LAYOUT.relative_to(ROOT), "to", path.relative_to(ROOT), "and the Tile/WordSlot/FxFlyingLetter/Booster prototypes;",
-          images, "images in", ATLAS, "; board panel %dx%d, bottom margin %.1f" % (panel_size[0], panel_size[1], margin))
+          images, "images in", ATLAS, "; %d board pieces, cells %dx%d, sockets shifted by %s, bottom margin %.1f"
+          % (len(pieces), grid.px, grid.py, grid.shift, margin))
 
 
 if __name__ == "__main__":

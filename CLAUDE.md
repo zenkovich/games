@@ -200,6 +200,25 @@ Rules that hold there:
   copied, deleted and moved without losing edits); the edits file `wordfall_levels.json` next to the
   executable (`WordFallGameService.editedLevelsPath`) is `{"version": 2, "order": [...], "levels": {id: ...}}`,
   the old `{"levels": {"<index>": ...}}` still loads. Tests point `editedLevelsPath` at their own file.
+- Bonus effects have variants: `WordFallFxView.bombStyle` / `rocketStyle` / `fireworksStyle` (0 — the original
+  effects, 1..5 — alternatives in the board's materials). Their particle emitters are `S_<name>_<i>` pools under
+  `Vfx` of `GameScreen.proto`, built by `Tools/WordFall/build_fx_variants.py` from specs (rerun after editing a spec;
+  it rebuilds only the `S_` emitters); `WordFallVfx.PlayStyle` / `StartTrail` play them, a rocket's look
+  (`WordFallFxView.RocketLook`) sets its body, trail, launch and hit. The default is 2 (rainbow) for all three. A rocket
+  of any look but 0 flies without the prototype's clip (its `AnimationComponent` is switched off: a stopped state still
+  writes scale and trajectory position every frame) like a propeller — `WordFallFxView._PropellerFlight`: lift with
+  growth, a hover turning to the arc, the arc with ease-in-out, shrinking onto the cell, a squash on the hit
+  (`WordFallFxView.propeller`); the position always goes through `FlightTrajectoryComponent`, which rewrites the
+  widget's offsets every frame. `WordFallVfxShowcase.EveryBonusStylePlaysItsParticles`
+  checks every variant and, with `WORDFALL_CLIPS_DIR`, records each at 60 fps of game time
+  (`Integration::forcedFrameDeltaTime`).
+- Freezes are looked for frame by frame, never in an average: `WordFallFrameProfile.Freezes` (GameUITests, run with
+  `WORDFALL_PROFILE=1`, or `=js` for the script methods too) plays the game — hint and accept, bonuses, shuffle, level
+  start — and prints every frame over 16.7 ms with its heaviest zones. A dictionary scan (~23k words, tens of ms in
+  QuickJS) never runs whole in a click frame: the hint is searched ahead by `WordFallGameService._PrepareHint`
+  (`WordSearch.Step`, `hintWordsPerFrame` words per frame, restarted on every revision), word-score checks use
+  `WordBoard.AnyWordWorth` (stops at the first word). A new `Sources/GameTests/Scripts/*.test.js` reaches ctest only
+  after `GameTests` is relinked (or touched).
 - The in-game level editor (cheats → «Открыть редактор», prototype `LevelEditorScreen.proto`, view
   `WordFallLevelEditorView.js`, model `Core/WordFallLevelDraft.js`, undo/redo `Core/WordFallEditHistory.js`):
   the level list with a scroll bar, new / copy / delete / move / rename, cells (left click places, right
@@ -220,9 +239,14 @@ Rules that hold there:
   moves box filling the rest of the row; under them the objectives — plaques in two columns (checkbox with the
   green check, icon or letter tile, caption with progress), the last one is the score goal, more than four shrink
   into three rows (`WordFallTasksView`); then the progress row; then the word tray with ✓/✕, always on screen
-  (`WordFallWordPanelView`); the board panel right over the smaller boosters. The board panel has the cells drawn in
-  it, holes of the field shape are covered by `Hole_c_r`; its sprite `WordFall/ScreenUI/board_panel.png` is cut
-  by the script from the layout's one so the bottom frame is as thin as the others. The background is flat
+  (`WordFallWordPanelView`); the board panel right over the smaller boosters. The board backing follows the level's shape: the
+  field is its tiles grown by an even rim (`BOARD_RIM`, corners rounded by `BOARD_INNER_RADIUS` /
+  `BOARD_OUTER_RADIUS`, an inner shadow `BOARD_SHADOW*` lit from above), and the
+  script renders it from the layout's board panel (its sockets and ridges, the rim of its side) as quarters of a
+  cell `WordFall/ScreenUI/board_<tl|tr|bl|br>_<h?v?d?|o>.png`, named by which neighbours of the quarter's corner
+  are in the field (side, upper/lower, diagonal). Every cell has `Back_c_r` of four of them,
+  `WordFallBoardView.BackKind` picks them, holes aren't drawn. The pieces overlap (`BLEED`) and their transparent
+  pixels carry the colour of the painted ones: no seams when sprites are filtered. The background is flat
   (`PAPER`, the reference image's colour). A refused word's message is a plaque over the progress bar, an aimed
   booster's prompt — over the tray field. Tile colours are the model's `tint` (cream, gold, gold, orange), doubled
   tiles are yellow. `WordFallMainScreenUI.ScreenFollowsThePipelineLayout` checks the sections against the rects of

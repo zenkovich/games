@@ -32,7 +32,7 @@ WordDictionary = class WordDictionary
     {
         this._words = [];
         this._byLength = {};
-        this._set = new Set();
+        this._set = new Map(); // слово -> индекс первого вхождения
 
         var total = 0;
         for (var i = 0; i < words.length; i++)
@@ -41,6 +41,7 @@ WordDictionary = class WordDictionary
         // коды букв всех слов одним буфером: десятки тысяч мелких массивов нагружали бы сборщик мусора
         this._codes = new Uint8Array(total);
         this._offsets = new Int32Array(words.length + 1);
+        this._masks = { lo: new Int32Array(words.length), hi: new Int32Array(words.length) };
         var indicesByLength = {};
         var offset = 0;
         for (var i = 0; i < words.length; i++)
@@ -48,12 +49,20 @@ WordDictionary = class WordDictionary
             var word = words[i];
             this._offsets[i] = offset;
             for (var li = 0; li < word.length; li++)
-                this._codes[offset++] = WordDictionary.LetterCode(word[li]);
+            {
+                var code = WordDictionary.LetterCode(word[li]);
+                this._codes[offset++] = code;
+                if (code < 32)
+                    this._masks.lo[i] |= 1 << code;
+                else
+                    this._masks.hi[i] |= 1 << (code - 32);
+            }
 
             this._words.push(word);
             (this._byLength[word.length] = this._byLength[word.length] || []).push(word);
             (indicesByLength[word.length] = indicesByLength[word.length] || []).push(i);
-            this._set.add(word);
+            if (!this._set.has(word))
+                this._set.set(word, i);
         }
         this._offsets[words.length] = offset;
 
@@ -76,6 +85,16 @@ WordDictionary = class WordDictionary
 
     // Индексы слов (опц. точной длины) для перебора по кодам
     GetIndices(length) { return length > 0 ? (this._indicesByLength[length] || new Int32Array(0)) : this._allIndices; }
+
+    // Какие буквы есть в слове index: бит кода в lo[index] (коды 0..31) или hi[index] (32..63)
+    GetLetterMasks() { return this._masks; }
+
+    // Индекс слова в словаре, -1 — нет такого
+    IndexOf(word)
+    {
+        var index = this._set.get(word);
+        return index === undefined ? -1 : index;
+    }
 
     // Число различимых кодов букв
     static get LetterCodesCount() { return 64; }

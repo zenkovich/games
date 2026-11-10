@@ -30,6 +30,11 @@ WordFallFxView = class WordFallFxView extends o2.Component
         this.bonusPause = 0.3;     // общая пауза между этапами бонусов и перед обвалом
         this.bombCharge = 0.28;    // разгорание фитиля перед взрывом бомбы
         this.bombShake = 13;       // амплитуда тряски поля на взрыве, px
+        // варианты эффектов бонусов: 0 — исходные, 1..5 — альтернативы (Tools/WordFall/build_fx_variants.py);
+        // в игре — радужный (2)
+        this.bombStyle = 2;
+        this.rocketStyle = 2;
+        this.fireworksStyle = 2;
 
         this._anims = [];        // { delay, dur, apply(k), done, t }
         this._flashNext = 0;
@@ -65,7 +70,12 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
         this._rockets = [];
         for (var i = 0; i < 10; i++)
-            this._rockets.push({ widget: this._actor.GetChild("FxRocket" + i), busy: false });
+        {
+            var rocket = this._actor.GetChild("FxRocket" + i);
+            var img = rocket.GetLayer("img");
+            this._rockets.push({ widget: rocket, busy: false, img: img, flame: rocket.GetLayer("flame"),
+                                 image: img.drawable.imageName, trails: [] });
+        }
 
         var beamH = this._actor.GetChild("FxBeamH");
         var beamV = this._actor.GetChild("FxBeamV");
@@ -326,10 +336,18 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
             if (pu.kind == "bomb")
             {
+                var bombStyle = this.bombStyle;
+                var bombCharge = WordFallFxView.BombCharge(bombStyle, this.bombCharge);
                 (function(pu, pos, at) {
                     // фитиль: бомба раздувается и разгорается перед взрывом
-                    self._Fx(at, self.bombCharge, function(k) {
-                        board.SetBonusCharge(pu.c, pu.r, k*k);
+                    if (bombStyle == 4)
+                        self._Fx(at, 0.01, function(k) {}, function() { board.Shake(2.5, bombCharge); });
+                    self._Fx(at, bombCharge, function(k) {
+                        // качание мультяшной бомбы — частые пульсы поверх раздувания;
+                        // радужная набирает заряд и на последних кадрах сжимается перед хлопком
+                        var swing = bombStyle == 5 ? 0.45*Math.abs(Math.sin(k*Math.PI*4))*k : 0;
+                        var charge = bombStyle == 2 ? (k < 0.8 ? Math.pow(k/0.8, 2) : 1 - 0.6*(k - 0.8)/0.2) : k*k;
+                        board.SetBonusCharge(pu.c, pu.r, Math.min(1, charge + swing));
                     });
 
                     // буквы из зоны 3×3 улетают в бар в момент взрыва
@@ -338,15 +356,20 @@ WordFallFxView = class WordFallFxView extends o2.Component
                     for (var d = 0; d < destroyed.length; d++)
                         if (Math.abs(destroyed[d].c - pu.c) <= 1 && Math.abs(destroyed[d].r - pu.r) <= 1 && !(destroyed[d].c == pu.c && destroyed[d].r == pu.r))
                             area.push(destroyed[d]);
-                    self._FlyFromCells(area, at + self.bombCharge);
+                    self._FlyFromCells(area, at + bombCharge);
 
-                    self._Fx(at + self.bombCharge, 0.01, function(k) {}, function() {
+                    self._Fx(at + bombCharge, 0.01, function(k) {}, function() {
                         // взрыв: вспышка, ударная волна, осколки и дым; зона 3×3 пустеет сразу
                         board.SetBonusCharge(pu.c, pu.r, 0);
                         board.HideTileVisual(pu.c, pu.r);
                         for (var d = 0; d < area.length; d++)
                             board.HideTileVisual(area[d].c, area[d].r);
 
+                        if (bombStyle > 0)
+                        {
+                            self._BombBlast(bombStyle, pos, board);
+                            return;
+                        }
                         self.Flash(pos.x, pos.y, 60, 260, 0, 0.45);
                         board.Shake(self.bombShake, 0.42);
                         if (self._vfx)
@@ -354,7 +377,7 @@ WordFallFxView = class WordFallFxView extends o2.Component
                     });
                 })(pu, pos, time);
 
-                time += this.bombCharge + 0.25;
+                time += bombCharge + 0.25;
             }
             else if (pu.kind == "rocket" || pu.kind == "fireworks")
             {
@@ -365,9 +388,15 @@ WordFallFxView = class WordFallFxView extends o2.Component
                     });
                     if (pu.kind == "fireworks")
                     {
+                        var fireworksStyle = self.fireworksStyle;
                         self._Fx(at + self.rocketCharge, 0.01, function(k) {}, function() {
                             board.SetBonusCharge(pu.c, pu.r, 0);
                             board.HideTileVisual(pu.c, pu.r);
+                            if (fireworksStyle > 0)
+                            {
+                                self._FireworksBurst(fireworksStyle, pos, board);
+                                return;
+                            }
                             self.Flash(pos.x, pos.y, 30, 130, 0, 0.3);
                             board.Shake(6, 0.28);
                             if (self._vfx)
@@ -378,19 +407,22 @@ WordFallFxView = class WordFallFxView extends o2.Component
 
                 time += this.rocketCharge + (pu.kind == "fireworks" ? 0.12 : 0);
 
+                var look = pu.kind == "rocket" ? this.rocketStyle : WordFallFxView.SalvoLook(this.fireworksStyle);
                 var targets = pu.targets || [];
                 var lastArrive = time;
                 var destroyedByRockets = result.destroyed || [];
+                var stagger = pu.kind == "fireworks" && this.fireworksStyle == 2 ? 0.09 : this.rocketStagger;
                 for (var t = 0; t < targets.length; t++)
                 {
                     var target = board.TileWorldPos(targets[t].c, targets[t].r);
-                    var launchAt = time + t*this.rocketStagger;
-                    this._LaunchRocket(pu, targets[t], pos, target, launchAt);
-                    lastArrive = Math.max(lastArrive, launchAt + this.RocketFlightPlan(pos, target).duration);
+                    var launchAt = time + t*stagger;
+                    var flight = this.RocketFlightPlan(pos, target, look).duration;
+                    this._LaunchRocket(pu, targets[t], pos, target, launchAt, look);
+                    lastArrive = Math.max(lastArrive, launchAt + flight);
                     // сгоревшая буква улетает в бар в момент попадания
                     for (var d = 0; d < destroyedByRockets.length; d++)
                         if (destroyedByRockets[d].c == targets[t].c && destroyedByRockets[d].r == targets[t].r)
-                            this._FlyFromCells([targets[t]], launchAt + this.RocketFlightPlan(pos, target).duration);
+                            this._FlyFromCells([targets[t]], launchAt + flight);
                 }
                 time = lastArrive + 0.1;
             }
@@ -399,13 +431,25 @@ WordFallFxView = class WordFallFxView extends o2.Component
         return time;
     }
 
-    // Полёт ракеты бонуса: траектория и салют на прилёте живут в прототипе FxRocket.
-    // На взлёте плитка бонуса гаснет — летит тот же спрайт, без визуального разрыва
-    // Длительность полёта по дистанции: скорость постоянна, близкие цели получают крюк
-    RocketFlightPlan(from, to)
+    // Полёт ракеты-варианта «вертолётиком»: длительности взлёта и зависания, высота взлёта, рост к камере
+    static get propeller() { return { lift: 0.24, hover: 0.12, height: 64, scale: 1.4, minFly: 0.36 }; }
+
+    static EaseBack(k) { return 1 + 2.7*Math.pow(k - 1, 3) + 1.7*Math.pow(k - 1, 2); }
+    static EaseInOut(k) { return k < 0.5 ? 2*k*k : 1 - 2*(1 - k)*(1 - k); }
+
+    // Длительность полёта по дистанции: у исходной ракеты скорость постоянна и близкие цели получают крюк
+    RocketFlightPlan(from, to, look)
     {
+        var spec = WordFallFxView.RocketLook(look || 0);
         var dx = to.x - from.x, dy = to.y - from.y;
         var dist = Math.sqrt(dx*dx + dy*dy);
+        if (spec)
+        {
+            var p = WordFallFxView.propeller;
+            var speed = this.rocketSpeed*(spec.speed || 1);
+            var fly = Math.max(p.minFly/(spec.speed || 1), Math.min(this.rocketMaxFlight, (dist + p.height)/speed));
+            return { duration: p.lift + p.hover + fly, fly: fly, detour: 0, over: null };
+        }
         var detour = dist < 320 ? this.rocketDetour*(1 - dist/320) : 0;
         var path = dist + detour;
         var duration = Math.max(this.rocketMinFlight, Math.min(this.rocketMaxFlight, path/this.rocketSpeed));
@@ -417,7 +461,9 @@ WordFallFxView = class WordFallFxView extends o2.Component
         return { duration: duration, detour: detour, over: over };
     }
 
-    _LaunchRocket(bonus, targetCell, from, to, delay)
+    // Полёт ракеты бонуса: траектория и салют на прилёте живут в прототипе FxRocket.
+    // На взлёте плитка бонуса гаснет — летит тот же спрайт, без визуального разрыва
+    _LaunchRocket(bonus, targetCell, from, to, delay, look)
     {
         var view = null;
         for (var i = 0; i < this._rockets.length; i++)
@@ -434,7 +480,8 @@ WordFallFxView = class WordFallFxView extends o2.Component
         view.busy = true;
         var self = this;
         var board = WordFallViews.board;
-        var plan = this.RocketFlightPlan(from, to);
+        var spec = WordFallFxView.RocketLook(look || 0);
+        var plan = this.RocketFlightPlan(from, to, look);
 
         this._Fx(delay, 0.01, function(k) {}, function() {
             var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
@@ -448,10 +495,31 @@ WordFallFxView = class WordFallFxView extends o2.Component
                 board.HideTileVisual(bonus.c, bonus.r);
             }
 
-            if (self._vfx)
+            self._DressRocket(view, spec);
+            if (self._vfx && !spec)
                 self._vfx.PlayRocketLaunch(from.x, from.y); // зажигание, пыль и угли
+            if (self._vfx && spec)
+            {
+                self.Flash(from.x, from.y, 30, 110, 0, 0.25, { r: 255, g: 226, b: 160 });
+                (spec.launch || []).forEach(function(name) { self._vfx.PlayStyle(name, from.x, from.y); });
+                view.trails = (spec.trail || []).map(function(name) { return self._vfx.StartTrail(name, from.x, from.y); });
+            }
 
             anim.Stop("flight");
+            // вариант летит без клипа (его микшер каждый кадр пишет масштаб): ведёт _PropellerFlight
+            anim.SetEnabled(!spec);
+            if (spec)
+            {
+                trajectory.SetPoints(from.x, from.y, from.x, from.y);
+                trajectory.SetPosition(0);
+                var tr = view.widget.GetTransform();
+                tr.SetScale2D(new Vec2(1, 1));
+                tr.SetAngleDegrees(0);
+                view.img.transparency = 1;
+                view.aimed = false;
+                view.widget.SetEnabled(true);
+                return;
+            }
             // близкую цель ракета сперва проскакивает: целимся за неё, на середине пути
             // финиш переставляется на клетку — выходит облёт вместо топтания на месте
             var aim = plan.over || to;
@@ -469,6 +537,9 @@ WordFallFxView = class WordFallFxView extends o2.Component
             anim.RewindAndPlay("flight");
         });
 
+        if (spec)
+            this._PropellerFlight(view, from, to, plan, delay);
+
         if (plan.over)
         {
             this._Fx(delay + plan.duration*0.45, 0.01, function(k) {}, function() {
@@ -478,18 +549,38 @@ WordFallFxView = class WordFallFxView extends o2.Component
             });
         }
 
+        // шлейф варианта идёт за корпусом ракеты весь полёт
+        if (spec && spec.trail)
+        {
+            this._Fx(delay, plan.duration, function(k) {
+                var rect = view.widget.GetLayout().GetWorldRect();
+                for (var i = 0; i < view.trails.length; i++)
+                    self._vfx.MoveTrail(view.trails[i], (rect.left + rect.right)*0.5, (rect.bottom + rect.top)*0.5);
+            }, function() {
+                for (var i = 0; i < view.trails.length; i++)
+                    self._vfx.StopTrail(view.trails[i]);
+                view.trails = [];
+            });
+        }
+
         // попадание: клетка гаснет сразу, кольцо и вспышка (салют выпускают суб-треки)
         this._Fx(delay + plan.duration, 0.01, function(k) {}, function() {
             if (board)
                 board.HideTileVisual(targetCell.c, targetCell.r);
+            if (spec)
+            {
+                view.widget.GetTransform().SetScale2D(new Vec2(1.28, 0.76));
+                self._RocketHit(spec, to, board);
+                return;
+            }
             self.Flash(to.x, to.y, 16, 70, 0, 0.22);
             board.Shake(3, 0.2);
             if (self._vfx)
                 self._vfx.PlayRocketImpact(to.x, to.y);
         });
 
-        // спрятать ракету, когда доиграло самое долгое в салюте — конфетти (0.1 + 1.0 с)
-        this._Fx(delay + plan.duration + 1.15, 0.01, function(k) {}, function() {
+        // спрятать ракету, когда доиграло самое долгое в салюте — конфетти (0.1 + 1.0 с); вариант гаснет сразу
+        this._Fx(delay + plan.duration + (spec ? 0.08 : 1.15), 0.01, function(k) {}, function() {
             var anim = view.widget.GetComponent("o2::AnimationComponent");
             if (anim)
             {
@@ -503,27 +594,269 @@ WordFallFxView = class WordFallFxView extends o2.Component
         });
     }
 
-    // color — тёплое свечение полёта букв (мягкий спрайт vfx_glow), без него — вспышка бонусов
-    Flash(x, y, fromSize, toSize, delay, dur, color)
+    static get starImage() { return "Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png"; }
+    static get ringImage() { return "WordFall/Sprites/vfx_ring.png"; }
+    static get boomImage() { return "WordFall/Sprites/vfx_boom.png"; }
+
+    // Разгорание бомбы по варианту: волна копит заряд дольше, мультяшная бомба раскачивается
+    static BombCharge(style, base)
+    {
+        return [base, 0.3, 0.36, 0.26, 0.45, 0.42][style] || base;
+    }
+
+    // Взрыв бомбы по варианту: 1 — тёплый взрыв, 2 — радужная звезда, 3 — хлопушка, 4 — ударная волна, 5 — мультяшный бум
+    _BombBlast(style, pos, board)
+    {
+        var self = this;
+        var play = function(names) { if (self._vfx) names.forEach(function(n) { self._vfx.PlayStyle(n, pos.x, pos.y); }); };
+        switch (style)
+        {
+            case 1:
+                this.Flash(pos.x, pos.y, 60, 240, 0, 0.35, { r: 255, g: 168, b: 80 });
+                board.Shake(10, 0.4);
+                play(["B1_Fire", "B1_Chips", "B1_Embers", "B1_Smoke", "BombRing"]);
+                break;
+            case 2:
+                // хлопок: белая вспышка, звезда с перелётом, два кольца звёзд (быстрые дальше, медленные ближе),
+                // блёстки; соседние плашки отталкивает волной
+                this.Flash(pos.x, pos.y, 80, 300, 0, 0.22, { r: 255, g: 252, b: 240 });
+                this.Flash(pos.x, pos.y, 60, 260, 0, 0.55, null, { image: WordFallFxView.starImage, hold: 0.35, ease: "back" });
+                board.Shake(8, 0.26);
+                board.Ripple(pos.x, pos.y, 320, 12, 1300);
+                play(["B2_Stars", "B2_Stars2", "B2_Twinkle"]);
+                break;
+            case 3:
+                this.Flash(pos.x, pos.y, 50, 200, 0, 0.3, { r: 255, g: 245, b: 220 });
+                board.Shake(5, 0.3);
+                board.Ripple(pos.x, pos.y, 270, 10, 1400);
+                play(["B3_Confetti", "B3_Confetti2", "B3_Dust"]);
+                break;
+            case 4:
+                this.Flash(pos.x, pos.y, 60, 260, 0, 0.3, { r: 255, g: 230, b: 170 });
+                this.Flash(pos.x, pos.y, 60, 560, 0, 0.55, null, { image: WordFallFxView.ringImage, ease: true });
+                this.Flash(pos.x, pos.y, 40, 380, 0.08, 0.45, null, { image: WordFallFxView.ringImage, ease: true });
+                board.Shake(16, 0.5);
+                board.Ripple(pos.x, pos.y, 540, 18, 1100);
+                play(["B4_Sparks", "B4_Dust"]);
+                break;
+            case 5:
+                this.Flash(pos.x, pos.y, 60, 340, 0, 0.42, null, { image: WordFallFxView.boomImage, hold: 0.55, ease: true });
+                board.Shake(9, 0.35);
+                board.Ripple(pos.x, pos.y, 230, 8, 1200);
+                play(["B5_Puffs", "B5_Stars"]);
+                break;
+        }
+    }
+
+    // Разрыв фейерверка на своей клетке по варианту: 1 — золотая хризантема, 2 — радужный, 3 — звёздный дождь,
+    // 4 — конфетти, 5 — кольца
+    _FireworksBurst(style, pos, board)
+    {
+        var self = this;
+        var play = function(names, delay) {
+            if (!self._vfx)
+                return;
+            self._Fx(delay || 0, 0.01, function(k) {}, function() {
+                names.forEach(function(n) { self._vfx.PlayStyle(n, pos.x, pos.y); });
+            });
+        };
+        board.Shake(5, 0.28);
+        switch (style)
+        {
+            case 1:
+                this.Flash(pos.x, pos.y, 40, 300, 0, 0.4, { r: 255, g: 190, b: 100 });
+                play(["F1_Burst", "F1_Glitter"]);
+                break;
+            case 2:
+                // большая звезда с перелётом, радужный шар звёзд, внутри медленные звёзды и блёстки
+                this.Flash(pos.x, pos.y, 80, 320, 0, 0.24, { r: 255, g: 252, b: 240 });
+                this.Flash(pos.x, pos.y, 60, 330, 0, 0.6, null, { image: WordFallFxView.starImage, hold: 0.35, ease: "back" });
+                board.Shake(7, 0.3);
+                board.Ripple(pos.x, pos.y, 400, 12, 1200);
+                play(["F2_Burst", "F2_Inner", "B2_Twinkle"]);
+                break;
+            case 3:
+                this.Flash(pos.x, pos.y, 40, 230, 0, 0.4, { r: 255, g: 214, b: 130 });
+                play(["F3_Willow"]);
+                play(["F3_Crackle"], 0.35);
+                break;
+            case 4:
+                this.Flash(pos.x, pos.y, 40, 200, 0, 0.3, { r: 255, g: 245, b: 220 });
+                play(["F4_Confetti", "F4_Confetti2"]);
+                break;
+            case 5:
+                this.Flash(pos.x, pos.y, 40, 220, 0, 0.3, { r: 255, g: 240, b: 200 });
+                this.Flash(pos.x, pos.y, 40, 380, 0, 0.42, null, { image: WordFallFxView.ringImage, ease: true });
+                this.Flash(pos.x, pos.y, 40, 560, 0.14, 0.48, null, { image: WordFallFxView.ringImage, ease: true });
+                play(["F5_RingA"]);
+                play(["F5_RingB"], 0.14);
+                break;
+        }
+    }
+
+    // Облик ракет залпа фейерверка по его варианту
+    static SalvoLook(fireworksStyle)
+    {
+        return [0, 1, 2, 6, 3, 7][fireworksStyle] || 0;
+    }
+
+    // Облик ракеты: корпус, шлейф, старт, попадание, скорость; 0 — исходная ракета прототипа (null).
+    // 1 — золотая комета, 2 — радужная звезда, 3 — хлопушка, 4 — реактивная, 5 — мультяшная,
+    // 6 — падающая звезда, 7 — пунктир из блёсток
+    static RocketLook(look)
+    {
+        switch (look)
+        {
+            case 1: return { trail: ["R1_Trail", "R1_TrailStar"], hit: ["R1_Hit"], glow: { r: 255, g: 200, b: 110 }, size: 140 };
+            case 2: return { trail: ["R2_Trail"], launch: ["R2_Launch"], hit: ["R2_Hit"], image: WordFallFxView.starImage, size: 130, hold: 0.3, ease: "back", ripple: 8 };
+            case 3: return { trail: ["R3_Trail"], hit: ["R3_Hit"], glow: { r: 255, g: 240, b: 210 }, size: 110 };
+            case 4: return { trail: ["R4_Trail"], launch: ["R4_Launch"], hit: ["R4_Hit"], glow: { r: 255, g: 252, b: 240 }, size: 150, speed: 1.6, ripple: true };
+            case 5: return { trail: ["R5_Trail"], hit: ["R5_Hit"], image: WordFallFxView.boomImage, size: 150, hold: 0.5 };
+            case 6: return { trail: ["R6_Trail"], hit: ["R6_Hit"], glow: { r: 255, g: 210, b: 120 }, size: 100 };
+            case 7: return { trail: ["R7_Trail"], hit: ["R7_Hit"], glow: { r: 255, g: 245, b: 220 }, size: 100 };
+        }
+        return null;
+    }
+
+    // Позицию каждый кадр пишет траектория: до дуги её концы сведены в точку (угол она не трогает),
+    // а позиция не опускается к нулю — там она перебрасывает случайное смещение дуги
+    _PropellerFlight(view, from, to, plan, delay)
+    {
+        var P = WordFallFxView.propeller;
+        var lift = { x: from.x, y: from.y + P.height };
+        this._Fx(delay, plan.duration, function(k) {
+            var t = k*plan.duration;
+            var tr = view.widget.GetTransform();
+            var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
+            if (!trajectory)
+                return;
+            if (view.flame)
+                view.flame.transparency = 0.6 + 0.4*Math.abs(Math.sin(t*46));
+
+            if (t < P.lift)
+            {
+                // взлёт: подъём с замедлением, рост с перелётом, затухающее покачивание
+                var u = t/P.lift;
+                var rise = 1 - Math.pow(1 - u, 3);
+                var size = 1 + (P.scale - 1)*WordFallFxView.EaseBack(u);
+                trajectory.SetPoints(from.x, from.y + P.height*rise, from.x, from.y + P.height*rise);
+                trajectory.SetPosition(0);
+                tr.SetScale2D(new Vec2(size, size));
+                tr.SetAngleDegrees(Math.sin(t*38)*7*(1 - u));
+                return;
+            }
+
+            if (!view.aimed)
+            {
+                // начало дуги: её касательная — куда развернуться в зависании
+                trajectory.SetPoints(lift.x, lift.y, to.x, to.y);
+                trajectory.ResetRandomOffset();
+                trajectory.SetPosition(0.02);
+                var a = tr.GetAngleDegrees();
+                view.startAngle = ((a + 540) % 360) - 180;
+                view.aimed = true;
+            }
+
+            if (t < P.lift + P.hover)
+            {
+                var u = (t - P.lift)/P.hover;
+                var bob = lift.y + Math.sin(u*Math.PI)*4;
+                trajectory.SetPoints(lift.x, bob, lift.x, bob);
+                trajectory.SetPosition(0.02);
+                tr.SetScale2D(new Vec2(P.scale, P.scale));
+                tr.SetAngleDegrees(view.startAngle*WordFallFxView.EaseInOut(u));
+                return;
+            }
+
+            // дуга: разгон и торможение; ближе к клетке ракета «опускается» к полю
+            var u = Math.min(1, (t - P.lift - P.hover)/plan.fly);
+            trajectory.SetPoints(lift.x, lift.y, to.x, to.y);
+            trajectory.SetPosition(Math.max(0.002, WordFallFxView.EaseInOut(u)));
+            var size = u < 0.65 ? P.scale : P.scale + (1 - P.scale)*(u - 0.65)/0.35;
+            tr.SetScale2D(new Vec2(size, size));
+        }, function() {
+            view.aimed = false;
+            var trajectory = view.widget.GetComponent("o2::FlightTrajectoryComponent");
+            if (trajectory)
+            {
+                trajectory.SetPoints(lift.x, lift.y, to.x, to.y);
+                trajectory.SetPosition(1);
+            }
+        });
+    }
+
+    // Ракета прототипа со своим шлейфом и салютом — только в исходном облике; у вариантов их место занимают эмиттеры Vfx
+    _DressRocket(view, spec)
+    {
+        // их эмиттеры ведут суб-треки клипа полёта и выключенный актор не останавливает: молчат по лимиту частиц
+        var own = !spec;
+        var children = ["Smoke", "Sparks", "BurstFlash", "BurstPink", "BurstYellow", "BurstBlue", "Confetti", "Glitter"];
+        view.limits = view.limits || {};
+        for (var i = 0; i < children.length; i++)
+        {
+            var child = view.widget.GetChild(children[i]);
+            var emitter = child ? child.GetComponent("o2::ParticlesEmitterComponent") : null;
+            if (!child || !emitter)
+                continue;
+            if (view.limits[children[i]] === undefined)
+                view.limits[children[i]] = emitter.GetMaxParticles();
+            emitter.SetMaxParticles(own ? view.limits[children[i]] : 0);
+            child.SetEnabled(own);
+        }
+
+        var image = spec && spec.body ? spec.body : view.image;
+        var drawable = view.img.drawable;
+        if (drawable.imageName != image)
+        {
+            var rect = drawable.rect;
+            drawable.imageName = image;
+            drawable.rect = rect;
+        }
+        if (view.flame)
+            view.flame.SetEnabled(!(spec && spec.body));
+    }
+
+    _RocketHit(spec, to, board)
+    {
+        var self = this;
+        if (spec.image)
+            this.Flash(to.x, to.y, 30, spec.size, 0, 0.36, null, { image: spec.image, hold: spec.hold || 0.3, ease: spec.ease || true });
+        else
+            this.Flash(to.x, to.y, 20, spec.size, 0, 0.26, spec.glow);
+        board.Shake(3, 0.2);
+        if (spec.ripple)
+            board.Ripple(to.x, to.y, 240, spec.ripple === true ? 12 : spec.ripple, 1500);
+        if (this._vfx)
+            (spec.hit || []).forEach(function(n) { self._vfx.PlayStyle(n, to.x, to.y); });
+    }
+
+    // color — тёплое свечение полёта букв (мягкий спрайт vfx_glow), без него — вспышка бонусов.
+    // opts.image — вспышка картинкой (звезда, кольцо волны, «бум»), opts.hold — доля времени до затухания,
+    // opts.ease — быстрый разлёт с замедлением, "back" — с перелётом
+    Flash(x, y, fromSize, toSize, delay, dur, color, opts)
     {
         var self = this;
         var flash = this._flashes[this._flashNext % this._flashes.length];
         this._flashNext++;
-        var look = color ? "glow" : "flash";
+        var image = opts && opts.image ? opts.image : color ? "WordFall/Sprites/vfx_glow.png" : "WordFall/Sprites/ui_fx_flash.png";
+        var hold = opts && opts.hold ? opts.hold : 0;
+        var ease = opts && opts.ease;
 
         this._Fx(delay, dur, function(k) {
-            if (flash.look !== look)
+            if (flash.look !== image)
             {
                 var drawable = flash.img.drawable;
                 var rect = drawable.rect;
-                drawable.imageName = color ? "WordFall/Sprites/vfx_glow.png" : "WordFall/Sprites/ui_fx_flash.png";
+                drawable.imageName = image;
                 drawable.rect = rect;
-                flash.look = look;
+                flash.look = image;
             }
             flash.img.drawable.color = color ? new Color4(color.r, color.g, color.b, 255) : new Color4(255, 255, 255, 255);
             flash.widget.SetEnabled(true);
-            flash.img.transparency = 1 - k;
-            self._SetRect(flash.widget, x, y, fromSize + (toSize - fromSize)*k);
+            flash.img.transparency = k < hold ? 1 : 1 - (k - hold)/(1 - hold);
+            // "back" — перелёт за конечный размер и возврат: хлопок, а не надувание
+            var grow = ease == "back" ? 1 + 2.7*Math.pow(k - 1, 3) + 1.7*Math.pow(k - 1, 2) : ease ? 1 - (1 - k)*(1 - k)*(1 - k) : k;
+            self._SetRect(flash.widget, x, y, fromSize + (toSize - fromSize)*grow);
         }, function() {
             flash.widget.SetEnabled(false);
             flash.img.transparency = 1;

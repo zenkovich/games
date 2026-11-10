@@ -47,9 +47,9 @@ protected:
 
 	void OpenEditor()
 	{
-		auto screen = Game()->GetChild("Screen");
-		Tap(screen->GetChild("Cheats/Toggle"));
-		Tap(screen->GetChild("Cheats/Panel/EditorBtn/Btn"));
+		OpenCheats();
+		SelectCheatsTab(5);
+		Tap(Game()->GetChild("Screen/Cheats/Panel/Content/Page5/EditorBtn/Btn"));
 		AppTestDriver::PumpFrames(5);
 	}
 

@@ -21,6 +21,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.match3ImportPath = "match3_level.xml";   // уровень «три в ряд» для импорта в нативной сборке
         this.fallSpeedCells = 9.5;                   // скорость падения, клеток/с
         this.fallCascadeDelay = 0.05;                // пауза стартов плиток колонки
+        this.hintWordsPerFrame = 1500;               // слов словаря за кадр в поиске подсказки наперёд
 
         this._started = false;
         this._dictionary = null;
@@ -32,6 +33,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._revision = 0;
         this._lastMove = new WordMoveResult();
         this._motion = new WordBoardMotion();
+        this._hintSearch = null;
+        this._hintRevision = -1;
 
         WordFallGame.service = this;
     }
@@ -45,6 +48,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     Update(dt)
     {
         this._motion.Update(dt);
+        this._PrepareHint();
     }
 
     // --- уровень и прогресс ---
@@ -408,7 +412,13 @@ WordFallGameService = class WordFallGameService extends o2.Component
     }
 
     UseShuffle() { this._EnsureStarted(); return this._Mutation(this._level.UseShuffle(this._dictionary)); }
-    UseHint() { this._EnsureStarted(); return this._Mutation(this._level.UseHint(this._dictionary)); }
+    UseHint()
+    {
+        this._EnsureStarted();
+        var search = this._HintSearch();
+        search.Step(Infinity);
+        return this._Mutation(this._level.UseHint(this._dictionary, search.Result()));
+    }
     UseJoker(column, row) { this._EnsureStarted(); return this._Mutation(this._level.UseJoker({ c: column, r: row })); }
     UseDoubler(column, row) { this._EnsureStarted(); return this._Mutation(this._level.UseDoubler({ c: column, r: row })); }
 
@@ -610,6 +620,30 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         if (!this._store.Save(this.editedLevelsPath))
             print("WordFall: failed to save edited levels to " + this.editedLevelsPath);
+    }
+
+    // Перебор словаря для подсказки занимает десятки миллисекунд — он идёт наперёд, частями по кадрам, и нажатие
+    // берёт готовое слово. Поиск привязан к ревизии: любое изменение уровня начинает его заново, а шагает он со
+    // следующего кадра — кадр хода и так самый тяжёлый
+    _PrepareHint()
+    {
+        if (!this._started || this._level.GetState() != "playing" || this._level.GetBoosterCharges(WordLevel.Hint) <= 0)
+            return;
+
+        var fresh = this._hintRevision != this._revision;
+        var search = this._HintSearch();
+        if (!fresh && !search.IsDone())
+            search.Step(this.hintWordsPerFrame);
+    }
+
+    _HintSearch()
+    {
+        if (!this._hintSearch || this._hintRevision != this._revision)
+        {
+            this._hintSearch = this._level.BeginHintSearch(this._dictionary);
+            this._hintRevision = this._revision;
+        }
+        return this._hintSearch;
     }
 
     _Mutation(ok)

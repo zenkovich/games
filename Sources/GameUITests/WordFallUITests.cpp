@@ -375,24 +375,35 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 	EXPECT_EQ(move.powerupsUsed[0].kind, String("rocket"));
 	ASSERT_EQ(move.powerupsUsed[0].targets.Count(), 1);
 
-	// ракета в полёте (после паузы этапа): виджет включён и едет по траектории
-	AppTestDriver::Wait(0.65f);
+	// ракета в полёте (после паузы этапа, взлёта и зависания): виджет включён и едет по траектории
 	auto rocket = root->GetChild("Screen/Fx/FxRocket0");
 	ASSERT_TRUE(rocket);
-	EXPECT_TRUE(rocket->IsEnabled());
 	auto trajectory = rocket->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
-	EXPECT_GT(trajectory->position, 0.0f);
+	for (float waited = 0.0f; waited < 1.5f && !(rocket->IsEnabled() && trajectory->position > 0.1f); waited += 0.05f)
+		AppTestDriver::Wait(0.05f);
+	EXPECT_TRUE(rocket->IsEnabled());
+	EXPECT_GT(trajectory->position, 0.1f);
+	EXPECT_LT(trajectory->position, 1.0f);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11_rocket_flight.png"));
 
-	// прилёт: салют выпущен; серия кадров — искры разлетаются, тормозят и опадают
-	auto burst = rocket->GetChild("BurstPink");
-	ASSERT_TRUE(burst);
-	auto burstEmitter = burst->GetComponent<ParticlesEmitterComponent>();
-	ASSERT_TRUE(burstEmitter);
-	for (float waited = 0.0f; waited < 1.5f && burstEmitter->GetParticlesCount() == 0; waited += 0.05f)
+	// прилёт: радужный хлопок в цели; серия кадров — звёзды разлетаются, тормозят и опадают
+	auto vfx = root->GetChild("Vfx");
+	ASSERT_TRUE(vfx);
+	auto hitStars = [&]()
+	{
+		int count = 0;
+		for (int i = 0; i < 8; i++)
+		{
+			auto actor = vfx->GetChild(String::Format("S_R2_Hit_%i", i));
+			if (auto emitter = actor ? actor->GetComponent<ParticlesEmitterComponent>() : nullptr)
+				count += emitter->GetParticlesCount();
+		}
+		return count;
+	};
+	for (float waited = 0.0f; waited < 1.5f && hitStars() == 0; waited += 0.05f)
 		AppTestDriver::Wait(0.05f);
-	EXPECT_GT(burstEmitter->GetParticlesCount(), 0);
+	EXPECT_GT(hitStars(), 0) << "радужный хлопок в цели";
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11b_rocket_burst.png"));
 	AppTestDriver::Wait(0.12f);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "11c_burst_fall.png"));
@@ -468,9 +479,9 @@ TEST_F(WordFallUI, SceneReloadedFromAssetRespondsToClicks)
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 2);
 }
 
-// Буквы нацелены в якорь-слой кончика заливки бара (не в угол), а бар получает очки по
-// буквам: пока летит последняя, показанный счёт уже сдвинулся, но ещё не полный
-TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
+// Буквы летят в центр звезды у бара, а бар получает очки по буквам: пока летит последняя,
+// показанный счёт уже сдвинулся, но ещё не полный
+TEST_F(WordFallUI, FlyingLettersAimAtBarStarAndFillItGradually)
 {
 	PlantKot();
 	ClickTile(1, 0);
@@ -483,52 +494,46 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	auto root = o2Scene.FindActor("WordFall");
 	ASSERT_TRUE(root);
 	auto bar = DynamicCast<Widget>(root->GetChild("Screen/Hud/ScorePanel/Bar"));
-	ASSERT_TRUE(bar);
+	auto star = DynamicCast<Widget>(root->GetChild("Screen/Hud/ScorePanel/Star"));
+	ASSERT_TRUE(bar && star);
 	auto tip = bar->FindLayer("tip");
 	ASSERT_TRUE(tip);
 
-	// буква ведётся на текущий кончик заливки каждый кадр: цель на оси бара, не в углу
-	RectF barRect = bar->layout->GetWorldRect();
+	Vec2F aim = star->layout->GetWorldRect().Center();
 	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
 	ASSERT_TRUE(flyer);
 	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
-	float minFill = o2Scripts.Eval("WordFallViews.hud.barMinFill").GetValue<float>();
-	float target = (float)mService->GetTargetScore();
-	auto fillX = [&](float score) { return barRect.left + barRect.Width()*(minFill + (1.0f - minFill)*score/target) - 12.0f; };
-	Vec2F tipNow = tip->GetRect().Center();
-	EXPECT_NEAR(trajectory->finishPoint.y, barRect.Center().y, 2.0f) << "the aim sits on the bar axis, not at a corner";
-	EXPECT_NEAR(trajectory->finishPoint.x, Math::Max(tipNow.x, barRect.left + 12.0f), 2.0f) << "the aim is the current fill tip";
+	EXPECT_NEAR(trajectory->finishPoint.x, aim.x, 2.0f) << "the aim is the bar star center";
+	EXPECT_NEAR(trajectory->finishPoint.y, aim.y, 2.0f) << "the aim is the bar star center";
 
 	auto label = DynamicCast<Label>(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
 	ASSERT_TRUE(label);
 	EXPECT_EQ(ShownScore(label), 0);
 
-	// первые буквы прилетели, последняя ещё летит: счёт и заливка растут по долям,
-	// каждая буква сдвигает бар (выше минимума заливка линейна по очкам)
+	// первые буквы прилетели, последняя ещё летит: счёт и заливка растут по долям
 	auto progress = DynamicCast<HorizontalProgress>(bar);
 	ASSERT_TRUE(progress);
 	AppTestDriver::Wait(0.6f);
 	int shown = ShownScore(label);
 	EXPECT_GT(shown, 0);
 	EXPECT_LT(shown, 12);
-	// буква физически приземлилась на кончик, каким он был в момент её прилёта: бар был
-	// пуст — это начало бара; после удара заливка уходит вперёд уже без неё
+
+	// буква приземлилась в звезду, и видимая звезда буквы садится туда же: финальный скейл
+	// сжимает плашку вокруг центра, а не к углу (пивот по центру)
 	auto flyerWidget = DynamicCast<Widget>(flyer);
 	ASSERT_TRUE(flyerWidget);
 	Vec2F landed = flyerWidget->layout->GetWorldRect().Center();
-	EXPECT_NEAR(landed.x, barRect.left + 12.0f, 3.0f);
-	EXPECT_NEAR(landed.y, barRect.Center().y, 3.0f);
-	EXPECT_GT(tip->GetRect().Center().x, landed.x + 5.0f) << "the fill has moved on past the landing point";
-
-	// и видимая звезда садится туда же: финальный скейл сжимает плашку вокруг центра,
-	// а не к углу (пивот по центру)
+	EXPECT_NEAR(landed.x, aim.x, 3.0f);
+	EXPECT_NEAR(landed.y, aim.y, 3.0f);
 	auto starDrawable = flyerWidget->GetLayer("star")->GetDrawable();
 	ASSERT_TRUE(starDrawable);
 	Basis starBasis = starDrawable->GetBasis();
 	Vec2F starCenter = starBasis.origin + starBasis.xv*0.5f + starBasis.yv*0.5f;
-	EXPECT_NEAR(starCenter.x, trajectory->finishPoint.x, 4.0f);
-	EXPECT_NEAR(starCenter.y, trajectory->finishPoint.y, 4.0f);
+	EXPECT_NEAR(starCenter.x, aim.x, 4.0f);
+	EXPECT_NEAR(starCenter.y, aim.y, 4.0f);
+
+	float minFill = o2Scripts.Eval("WordFallViews.hud.barMinFill").GetValue<float>();
 	float finalFill = minFill + (1.0f - minFill)*12.0f/mService->GetTargetScore();
 	EXPECT_GT(progress->GetValue(), minFill + 0.001f);
 	EXPECT_LT(progress->GetValue(), finalFill - 0.001f);
@@ -538,7 +543,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	EXPECT_NEAR(progress->GetValue(), finalFill, 0.001f);
 	AppTestDriver::Wait(1.5f); // хореография и падение доигрываются
 
-	// бар заполнен: следующее слово целится в кончик текущей заливки (12 очков)
+	// заливка ушла вперёд, а следующее слово всё равно летит в звезду
 	PlantWord("ТОК");
 	ClickTile(1, 0);
 	ClickTile(2, 0);
@@ -546,9 +551,10 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarTipAndFillItGradually)
 	Click(AcceptPosition());
 	AppTestDriver::PumpFrames(3);
 
-	Vec2F tipCenter = tip->GetRect().Center();
-	EXPECT_NEAR(tipCenter.x, fillX(12.0f) + 2.0f, 3.0f);
-	EXPECT_NEAR(trajectory->finishPoint.x, tipCenter.x, 3.0f) << "the aim is the current fill tip";
+	RectF barRect = bar->layout->GetWorldRect();
+	EXPECT_NEAR(tip->GetRect().Center().x, barRect.left + barRect.Width()*finalFill - 10.0f, 3.0f);
+	EXPECT_NEAR(trajectory->finishPoint.x, aim.x, 2.0f) << "the aim stays at the star, not at the fill tip";
+	EXPECT_NEAR(trajectory->finishPoint.y, aim.y, 2.0f);
 	AppTestDriver::Wait(2.5f);
 }
 

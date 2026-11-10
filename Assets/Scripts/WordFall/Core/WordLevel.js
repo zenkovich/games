@@ -187,12 +187,36 @@ WordLevel = class WordLevel
         return ok;
     }
 
-    // Подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких слов
-    UseHint(dictionary)
+    // Подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких слов; prepared — результат
+    // поиска BeginHintSearch по текущему полю, если он уже сделан
+    UseHint(dictionary, prepared)
     {
         if (this.state != "playing" || this._charges[WordLevel.Hint] <= 0)
             return false;
 
+        var found = prepared !== undefined ? prepared : this.FindHint(dictionary);
+        if (!found)
+            return false;
+
+        this.board.ClearSelection();
+        for (var i = 0; i < found.cells.length; i++)
+            this.board.ToggleSelect(found.cells[i]);
+
+        this._charges[WordLevel.Hint]--;
+        return true;
+    }
+
+    // Слово подсказки {word, cells} или null, поле не меняется
+    FindHint(dictionary)
+    {
+        var search = this.BeginHintSearch(dictionary);
+        search.Step(Infinity);
+        return search.Result();
+    }
+
+    // Поиск слова подсказки по частям словаря (WordSearch)
+    BeginHintSearch(dictionary)
+    {
         var taskWord = this.NextWord(), letterWanted = "";
         var lengthWanted = 0, powerupLength = 0, scoreWanted = 0;
         var wanted = this.words.filter(function(word) { return !word.found; }).map(function(word) { return word.word; });
@@ -211,8 +235,16 @@ WordLevel = class WordLevel
             }
         }
 
+        // во сколько раз вес слова длины length может превзойти его value — по множителям оценщика ниже
+        var bound = new Float64Array(WordSearch.maxBoundLength + 1);
+        for (var length = 0; length < bound.length; length++)
+        {
+            bound[length] = (lengthWanted == length ? 2.2 : 1)*(powerupLength == length ? 1.8 : 1)*(scoreWanted > 0 ? 2.0 : 1)*
+                (letterWanted ? 1 + 0.5*length : 1)*(length <= 3 ? 0.8 : length == 7 ? 0.5 : length >= 8 ? 0.3 : 1);
+        }
+
         var self = this;
-        var found = this.board.FindBestWordBy(dictionary, function(candidate, value) {
+        return this.board.BeginWordSearch(dictionary, function(candidate, value) {
             if (self.IsWordUsed(candidate))
                 return 0;
             if (taskWord && candidate == taskWord)
@@ -243,16 +275,7 @@ WordLevel = class WordLevel
             else if (length >= 8)
                 weight *= 0.3;
             return weight;
-        });
-        if (!found)
-            return false;
-
-        this.board.ClearSelection();
-        for (var i = 0; i < found.cells.length; i++)
-            this.board.ToggleSelect(found.cells[i]);
-
-        this._charges[WordLevel.Hint]--;
-        return true;
+        }, { bound: bound, special: (taskWord ? [taskWord] : []).concat(wanted) });
     }
 
     UseJoker(cell)
@@ -468,9 +491,6 @@ WordLevel = class WordLevel
         if (nextWord && !board.CanAssembleWord(nextWord))
             board.PlantMissingLetters(nextWord, repaired);
 
-        // полный перебор словаря дорогой — лучшее слово считаем не более одного раза
-        var best = undefined;
-
         for (var i = 0; i < this.tasks.length; i++)
         {
             var task = this.tasks[i];
@@ -491,13 +511,8 @@ WordLevel = class WordLevel
                 if (!achievable)
                     board.PlantMissingLetters(board.RandomDictWord(dictionary, length), repaired);
             }
-            else if (type == "WordScore")
-            {
-                if (best === undefined)
-                    best = board.FindBestWord(dictionary, 0);
-                if (!best || Math.ceil(best.value) < config.scoreThreshold)
-                    board.PlantMissingLetters(board.ExpensiveDictWord(dictionary), repaired);
-            }
+            else if (type == "WordScore" && !board.AnyWordWorth(dictionary, config.scoreThreshold))
+                board.PlantMissingLetters(board.ExpensiveDictWord(dictionary), repaired);
         }
         return repaired;
     }

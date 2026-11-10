@@ -46,7 +46,7 @@ WordFallTasksView = class WordFallTasksView extends o2.Component
             case "deliver": return "WordFall/Sprites/ui_envelope.png";
             case "melt": return "WordFall/Sprites/ui_snowball.png";
             case "anyWords": return "Generated/UI/Screen_Resources/Sprites/icon_search_small.png";
-            case "score": return "Generated/UI/Screen_Resources/Sprites/icon_coin.png";
+            case "score": return "Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png";
         }
         return "";
     }

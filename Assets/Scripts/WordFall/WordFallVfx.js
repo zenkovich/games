@@ -13,6 +13,15 @@ WordFallVfx = class WordFallVfx extends o2.Component
         this._fireworkPool = [];
         this._nextBurn = 0;
         this._nextFirework = 0;
+        this._pools = {}; // эмиттеры вариантов эффектов S_<имя>_<i>: { entries, next }
+    }
+
+    // Вращение частиц эмиттеров вариантов, градусов в секунду в обе стороны (в прототипе оно не хранится)
+    static get styleSpins()
+    {
+        return { B1_Chips: 900, B2_Stars: 360, B2_Stars2: 240, R2_Launch: 360, F2_Inner: 240, B3_Confetti: 720, B3_Confetti2: 720, B5_Stars: 500, R1_TrailStar: 400,
+                 R1_Hit: 500, R2_Trail: 300, R2_Hit: 400, R3_Trail: 720, R3_Hit: 720, R4_Hit: 900, R6_Trail: 400,
+                 F2_Burst: 300, F4_Confetti: 720, F4_Confetti2: 720 };
     }
 
     OnStart()
@@ -40,6 +49,72 @@ WordFallVfx = class WordFallVfx extends o2.Component
                        "BonusSpawn2"];
         for (var i = 0; i < singles.length; i++)
             this._emitters[singles[i]] = find(singles[i]);
+
+        var spins = WordFallVfx.styleSpins;
+        var children = this._actor.GetChildren();
+        for (var i = 0; i < children.length; i++)
+        {
+            var parts = /^S_(.+)_(\d+)$/.exec(children[i].GetName());
+            var entry = parts ? find(children[i].GetName()) : null;
+            if (!entry)
+                continue;
+            if (!this._pools[parts[1]])
+                this._pools[parts[1]] = { entries: [], next: 0 };
+            this._pools[parts[1]].entries.push(entry);
+            if (spins[parts[1]])
+            {
+                entry.emitter.SetInitialAngleSpeed(0);
+                entry.emitter.SetInitialAngleSpeedRange(spins[parts[1]]*2);
+            }
+        }
+    }
+
+    HasStyleEffect(name) { return !!this._pools[name]; }
+
+    // Эффект варианта: следующий эмиттер пула проигрывается в точке
+    PlayStyle(name, x, y)
+    {
+        var pool = this._pools[name];
+        if (!pool)
+        {
+            this._PlayAt(this._emitters[name], x, y); // общие эмиттеры (кольца) тоже годятся
+            return;
+        }
+        this._PlayAt(pool.entries[pool.next], x, y);
+        pool.next = (pool.next + 1) % pool.entries.length;
+    }
+
+    // Шлейф ракеты: эмиттер пула идёт за ней весь полёт, StopTrail гасит выпуск, частицы дотлевают сами
+    StartTrail(name, x, y)
+    {
+        var pool = this._pools[name];
+        if (!pool)
+            return null;
+        for (var i = 0; i < pool.entries.length; i++)
+        {
+            var entry = pool.entries[(pool.next + i) % pool.entries.length];
+            if (entry.trailBusy)
+                continue;
+            pool.next = (pool.next + i + 1) % pool.entries.length;
+            entry.trailBusy = true;
+            this._PlayAt(entry, x, y);
+            return entry;
+        }
+        return null;
+    }
+
+    MoveTrail(entry, x, y)
+    {
+        if (entry)
+            entry.actor.GetTransform().SetPosition2D(new Vec2(x, y));
+    }
+
+    StopTrail(entry)
+    {
+        if (!entry)
+            return;
+        entry.emitter.Stop();
+        entry.trailBusy = false;
     }
 
     PlayBurn(x, y)

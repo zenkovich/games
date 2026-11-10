@@ -82,6 +82,74 @@ protected:
 		Click(widget->layout->GetWorldRect().Center());
 	}
 
+	// Подложка поля по его форме: фон живой клетки включён, дыры — нет, у каждой четверти фона кусок
+	// по соседям её угла (как WordFallBoardView.BackKind). Возвращает дыры
+	Vector<Vec2I> ExpectBackingFollowsShape()
+	{
+		auto board = Screen()->GetChild("Board");
+		auto& model = mService->GetLevel().GetBoard();
+		auto inside = [&](int c, int r) {
+			return c >= 0 && c < model.GetColumns() && r >= 0 && r < model.GetRows() && !model.IsHole(Vec2I(c, r));
+		};
+		struct Quarter { const char* name; int dx, dy; };
+		const Quarter quarters[4] = { { "tl", -1, 1 }, { "tr", 1, 1 }, { "bl", -1, -1 }, { "br", 1, -1 } };
+		Vector<Vec2I> holes;
+		for (int c = 0; c < model.GetColumns(); c++)
+		{
+			for (int r = 0; r < model.GetRows(); r++)
+			{
+				auto back = DynamicCast<Widget>(board->GetChild(String::Format("Back_%i_%i", c, r)));
+				EXPECT_TRUE(back) << c << "," << r;
+				if (!back)
+					continue;
+				EXPECT_EQ(back->IsEnabled(), inside(c, r)) << c << "," << r;
+				if (!inside(c, r))
+				{
+					holes.Add(Vec2I(c, r));
+					EXPECT_FALSE(board->GetChild(String::Format("Tile_%i_%i", c, r))->IsEnabled()) << "в дыре плитки нет";
+					continue;
+				}
+				for (auto& q : quarters)
+				{
+					String kind = String(inside(c + q.dx, r) ? "h" : "") + (inside(c, r + q.dy) ? "v" : "") + (inside(c + q.dx, r + q.dy) ? "d" : "");
+					if (kind.IsEmpty())
+						kind = "o";
+					auto piece = DynamicCast<Sprite>(back->GetLayer(q.name)->GetDrawable());
+					EXPECT_TRUE(piece && piece->GetImageName() == String::Format("WordFall/ScreenUI/board_%s_%s.png", q.name, kind.Data()))
+						<< c << "," << r << " " << q.name << ": " << (piece ? piece->GetImageName().Data() : "-") << ", ждали " << kind.Data();
+				}
+			}
+		}
+		return holes;
+	}
+
+	// В дыре — фон экрана; рамка вокруг неё той же толщины, что у левого края поля
+	void ExpectEvenRimAroundHoles(const Ref<Bitmap>& frame, const Vector<Vec2I>& holes)
+	{
+		auto& model = mService->GetLevel().GetBoard();
+		int row = 0;
+		while (row < model.GetRows() && model.IsHole(Vec2I(0, row)))
+			row++;
+		float outer = FrameWidth(frame, TileRect(0, row), Vec2F(-1, 0));
+		EXPECT_GT(outer, 5.0f);
+		const Vec2I sides[4] = { Vec2I(-1, 0), Vec2I(1, 0), Vec2I(0, -1), Vec2I(0, 1) };
+		int rims = 0;
+		for (auto& hole : holes)
+		{
+			EXPECT_TRUE(IsPaper(ScreenPixel(frame, TilePosition(hole.x, hole.y)))) << "дыра " << hole.x << "," << hole.y;
+			for (auto& side : sides)
+			{
+				Vec2I next = hole + side;
+				if (next.x < 0 || next.x >= model.GetColumns() || next.y < 0 || next.y >= model.GetRows() || model.IsHole(next))
+					continue;
+				float width = FrameWidth(frame, TileRect(next.x, next.y), Vec2F((float)-side.x, (float)-side.y));
+				EXPECT_NEAR(width, outer, 1.5f) << "рамка у дыры " << hole.x << "," << hole.y << " со стороны " << next.x << "," << next.y;
+				rims++;
+			}
+		}
+		EXPECT_GT(rims, 0);
+	}
+
 	// Сценарии со свободной игрой: обучение помечается показанным до старта уровня
 	void SkipTutorials()
 	{
@@ -101,37 +169,66 @@ protected:
 	}
 };
 
+// Подложка повторяет форму поля: дыры не рисуются, рамка обходит края дыр
 TEST_F(WordFallFeaturesUI, BoardBackingFollowsTheFieldShape)
 {
-	mService->StartLevel(0); // первый уровень кампании — с дырами
-	AppTestDriver::PumpFrames(4);
+	SkipTutorials();
+	mService->StartLevel(0); // первый уровень кампании — с дырами зубцами сверху и снизу
+	AppTestDriver::Wait(0.8f);
 	auto board = Screen()->GetChild("Board");
-	auto& model = mService->GetLevel().GetBoard();
-	int holes = 0, tilesInHoles = 0, covers = 0, coveredHoles = 0;
-	for (int c = 0; c < model.GetColumns(); c++)
+	EXPECT_FALSE(board->GetChild("Panel")) << "прямоугольной подложки со всеми клетками нет";
+	Vector<Vec2I> holes = ExpectBackingFollowsShape();
+	ASSERT_FALSE(holes.IsEmpty());
+
+	Ref<Bitmap> frame = AppTestDriver::TakeScreenshot();
+	ASSERT_TRUE(frame);
+	ExpectEvenRimAroundHoles(frame, holes);
+	EXPECT_TRUE(frame->Save(kScreenshotsDir + "41_board_shape.png", Bitmap::ImageType::Png));
+}
+
+// Форма с дырой внутри поля, дырой-уголком, столбиком в клетку и касанием клеток углами
+TEST_F(WordFallFeaturesUI, BoardBackingFramesInnerHoles)
+{
+	SkipTutorials();
+	o2Scripts.Eval("(function() { var svc = WordFallGame.service; var config = svc.GetLevelConfig(1);"
+				   " config.holeCells = [[3, 4], [1, 2], [1, 1], [2, 1], [0, 3], [0, 5], [5, 6], [6, 5], [6, 0]]"
+				   ".map(function(p) { return { c: p[0], r: p[1] }; });"
+				   " svc.SetLevelConfig(1, config); })()");
+	mService->StartLevel(1);
+	AppTestDriver::Wait(0.8f);
+	Vector<Vec2I> holes = ExpectBackingFollowsShape();
+	EXPECT_EQ(holes.Count(), 9);
+	Ref<Bitmap> frame = AppTestDriver::TakeScreenshot();
+	ASSERT_TRUE(frame);
+	ExpectEvenRimAroundHoles(frame, holes);
+	EXPECT_TRUE(frame->Save(kScreenshotsDir + "42_board_inner_holes.png", Bitmap::ImageType::Png));
+}
+
+// Ящик стоит посередине своей картинки — на плитке он по центру клетки, а не выше
+TEST_F(WordFallFeaturesUI, CrateArtIsCentredInItsSprite)
+{
+	for (const char* name : { "ui_crate", "ui_crate_cracked" })
 	{
-		for (int r = 0; r < model.GetRows(); r++)
+		Bitmap bitmap;
+		ASSERT_TRUE(bitmap.Load(String::Format("../../Assets/WordFall/Sprites/%s.png", name))) << name;
+		ASSERT_EQ(bitmap.GetFormat(), PixelFormat::R8G8B8A8) << name;
+		Vec2I size = bitmap.GetSize();
+		int left = size.x, right = -1, top = size.y, bottom = -1;
+		for (int y = 0; y < size.y; y++)
 		{
-			auto cover = DynamicCast<Widget>(board->GetChild(String::Format("Hole_%i_%i", c, r)));
-			ASSERT_TRUE(cover);
-			covers += cover->IsEnabled() ? 1 : 0;
-			if (model.IsHole(Vec2I(c, r)))
+			for (int x = 0; x < size.x; x++)
 			{
-				holes++;
-				coveredHoles += cover->IsEnabled() ? 1 : 0;
-				auto tile = DynamicCast<Widget>(board->GetChild(String::Format("Tile_%i_%i", c, r)));
-				tilesInHoles += tile->IsEnabled() ? 1 : 0;
-				EXPECT_TRUE(cover->layout->GetWorldRect().IsInside(TilePosition(c, r))) << c << "," << r;
+				if (bitmap.GetData()[(y*size.x + x)*4 + 3] <= 128)
+					continue;
+				left = Math::Min(left, x);
+				right = Math::Max(right, x);
+				top = Math::Min(top, y);
+				bottom = Math::Max(bottom, y);
 			}
 		}
+		EXPECT_LE(Math::Abs(left - (size.x - 1 - right)), 1) << name << ": поля слева и справа";
+		EXPECT_LE(Math::Abs(top - (size.y - 1 - bottom)), 1) << name << ": поля сверху и снизу";
 	}
-	EXPECT_GT(holes, 0);
-	EXPECT_EQ(tilesInHoles, 0) << "в дырах плиток нет";
-	EXPECT_EQ(coveredHoles, holes) << "нарисованную в подложке клетку дыры закрывает накладка";
-	EXPECT_EQ(covers, holes) << "у живых клеток накладок нет";
-	EXPECT_TRUE(board->GetChild("Panel")) << "клетки поля нарисованы в его подложке";
-	DismissTutorial();
-	Shot("feature_board_shape");
 }
 
 TEST_F(WordFallFeaturesUI, TutorialGuidesFirstWordAndRemembersItself)
@@ -402,6 +499,10 @@ TEST_F(WordFallFeaturesUI, CheatsPanelOpensAndActs)
 
 	Tap(toggle);
 	AppTestDriver::PumpFrames(3);
+	EXPECT_FALSE(panel->IsEnabled()) << "короткий тап по невидимой кнопке ничего не открывает";
+	AppTestDriver::Wait(0.5f); // иначе следующее нажатие o2 засчитает двойным кликом
+
+	OpenCheats();
 	EXPECT_TRUE(panel->IsEnabled());
 	Shot("feature_cheats");
 
@@ -410,8 +511,16 @@ TEST_F(WordFallFeaturesUI, CheatsPanelOpensAndActs)
 	ASSERT_TRUE(card);
 	EXPECT_GT(card->layout->GetWorldRect().Height(), 900.0f);
 
+	SelectCheatsTab(5);
+	EXPECT_TRUE(panel->GetChild("Content/Page5")->IsEnabled());
+	EXPECT_FALSE(panel->GetChild("Content/Page0")->IsEnabled());
+
+	SelectCheatsTab(1);
+	EXPECT_TRUE(panel->GetChild("Content/Page1")->IsEnabled());
+	EXPECT_FALSE(panel->GetChild("Content/Page5")->IsEnabled());
+
 	int moves = mService->GetMovesLeft();
-	Tap(panel->GetChild("MovesBtn/Btn")); // +5 ходов
+	Tap(panel->GetChild("Content/Page1/MovesBtn/Btn")); // +5 ходов
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetMovesLeft(), moves + 5);
 	EXPECT_FALSE(panel->IsEnabled()) << "после действия панель закрывается";
@@ -459,22 +568,29 @@ TEST_F(WordFallFeaturesUI, BonusLettersFlyIntoTheBar)
 	ClickTile(1, 0); ClickTile(2, 0); ClickTile(3, 0);
 	Click(AcceptPosition());
 
+	// буквы от бомбы появляются в момент взрыва, когда буквы слова уже долетели, —
+	// считаются все плашки пула, побывавшие в полёте
 	auto fx = Screen()->GetChild("Fx");
-	int maxFlying = 0;
-	for (int i = 0; i < 80; i++)
+	bool flew[24] = {};
+	bool shot = false;
+	for (int i = 0; i < 150; i++)
 	{
-		AppTestDriver::PumpFrames(1);
-		int flying = 0;
+		AppTestDriver::Wait(0.02f);
 		for (int k = 0; k < 24; k++)
 		{
 			auto letter = fx->GetChild(String::Format("FxLetter%i", k));
 			if (letter && letter->IsEnabled())
-				flying++;
+				flew[k] = true;
 		}
-		maxFlying = Math::Max(maxFlying, flying);
-		if (i == 30)
+		if (flew[3] && !shot)
+		{
 			Shot("feature_bonus_letters");
+			shot = true;
+		}
 	}
-	EXPECT_GT(maxFlying, 3) << "кроме трёх букв слова летят буквы, выбитые бомбой";
+	int flown = 0;
+	for (bool f : flew)
+		flown += f ? 1 : 0;
+	EXPECT_GT(flown, 3) << "кроме трёх букв слова летят буквы, выбитые бомбой";
 	AppTestDriver::Wait(2.0f);
 }

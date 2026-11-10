@@ -117,6 +117,33 @@ include("Scripts/WordFall/WordFallGameService.js");
         o2.FileSystem.FileDelete(progressPath);
     });
 
+    // Подсказка ищется наперёд, по части словаря за кадр; нажатие берёт найденное, изменение поля начинает поиск заново
+    test("HintIsPreparedAheadAndFollowsTheBoard", function()
+    {
+        var service = MakeService({ campaignPath: "", hintWordsPerFrame: 4000 });
+        service.StartLevel(3);
+
+        service.Update(0.016);
+        var search = service._hintSearch;
+        assert(search);
+        service.Update(0.016);
+        expect(!search.IsDone(), "за кадр — только часть словаря");
+        for (var i = 0; i < 20 && !search.IsDone(); i++)
+            service.Update(0.016);
+        expect(search.IsDone());
+        var prepared = search.Result();
+        assert(prepared);
+        expectEq(prepared.word, service.GetLevel().FindHint(service._dictionary).word);
+
+        service.DebugSetTile(0, 0, "Ъ");
+        service.Update(0.016);
+        expect(service._hintSearch != search, "поле изменилось — поиск заново");
+
+        var direct = service.GetLevel().FindHint(service._dictionary);
+        expect(service.UseHint());
+        expectEq(service.GetCurrentWord(), direct.word, "недосчитанный поиск дорабатывает нажатие");
+    });
+
     test("BoostersAndCheatsChangeTheLevel", function()
     {
         var service = MakeService({ campaignPath: "" });

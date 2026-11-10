@@ -81,8 +81,8 @@ TEST_F(WordFallMainScreenUI, ObjectivesArePlaquesWithChecksAndTheScoreGoal)
 	EXPECT_EQ(Objectives(), String("[{\"text\":\"Собрать 0/10\",\"symbol\":\"О\",\"image\":\"\",\"done\":false},"
 								   "{\"text\":\"Найти слова: 0/2\",\"symbol\":\"\",\"image\":\"Generated/UI/Screen_Resources/Sprites/icon_search_small.png\",\"done\":false},"
 								   "{\"text\":\"Бомба: 0/1\",\"symbol\":\"\",\"image\":\"WordFall/Sprites/powerup_bomb.png\",\"done\":false},"
-								   "{\"text\":\"Набрать 10 очков\",\"symbol\":\"\",\"image\":\"Generated/UI/Screen_Resources/Sprites/icon_coin.png\",\"done\":false}]"))
-		<< "три задачи и последней — цель по очкам";
+								   "{\"text\":\"Набрать 10 очков\",\"symbol\":\"\",\"image\":\"Generated/UI/Screen_Resources/Sprites/icon_rainbow_star.png\",\"done\":false}]"))
+		<< "три задачи и последней — цель по очкам, с радужной звездой, как у полосы прогресса";
 	auto objectives = o2Scene.FindActor("WordFall")->GetChild("Screen/Tasks/Objectives");
 	EXPECT_FALSE(objectives->GetChild("Item4")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "33_objectives.png"));
@@ -147,7 +147,7 @@ TEST_F(WordFallMainScreenUI, TrayStaysOnScreenBetweenProgressAndBoard)
 
 	RectF row = widget("Screen/WordBar")->layout->GetWorldRect();
 	RectF progressRect = progress->layout->GetWorldRect();
-	RectF board = widget("Screen/Board/Panel")->layout->GetWorldRect();
+	RectF board = BoardFrameRect(AppTestDriver::TakeScreenshot());
 	EXPECT_LE(row.top, progressRect.bottom) << "лоток — под полосой прогресса";
 	EXPECT_GE(row.bottom, board.top) << "и над полем";
 	EXPECT_LE(accept->layout->GetWorldRect().right, row.right + 0.5f);
@@ -384,6 +384,8 @@ TEST_F(WordFallMainScreenUI, ScreenFollowsThePipelineLayout)
 	EXPECT_NEAR(rectOf("Screen/Hud/MovesBox/Value").Center().x, moves.Center().x, 1.5f);
 
 	// разделы сверху вниз с короткими зазорами, лоток — своим рядом между прогрессом и полем
+	Ref<Bitmap> shot = AppTestDriver::TakeScreenshot();
+	ASSERT_TRUE(shot);
 	RectF screen = rectOf("Screen");
 	RectF boosters = rectOf("Screen/Boosters/Booster0");
 	for (int i = 1; i < 5; i++)
@@ -391,7 +393,7 @@ TEST_F(WordFallMainScreenUI, ScreenFollowsThePipelineLayout)
 	struct Section { const char* name; RectF rect; };
 	Section sections[] = { { "слова", words }, { "задачи", rectOf("Screen/Tasks/Objectives") },
 						   { "прогресс", rectOf("Screen/Hud/ScorePanel") }, { "лоток", rectOf("Screen/WordBar") },
-						   { "поле", rectOf("Screen/Board/Panel") }, { "бустеры", boosters } };
+						   { "поле", BoardFrameRect(shot) }, { "бустеры", boosters } };
 	EXPECT_LE(screen.top - words.top, 16.0f);
 	for (int i = 1; i < 6; i++)
 	{
@@ -402,14 +404,13 @@ TEST_F(WordFallMainScreenUI, ScreenFollowsThePipelineLayout)
 	EXPECT_GE(boosters.bottom - screen.bottom, 8.0f);
 	EXPECT_LE(boosters.bottom - screen.bottom, 40.0f);
 
-	// рамка поля снизу — как с остальных сторон
-	RectF panel = rectOf("Screen/Board/Panel");
+	// рамка поля одной толщины со всех сторон
 	RectF topLeft = rectOf("Screen/Board/Tile_0_7"), bottomRight = rectOf("Screen/Board/Tile_6_0");
-	float frameTop = panel.top - topLeft.top, frameBottom = bottomRight.bottom - panel.bottom;
-	float frameLeft = topLeft.left - panel.left, frameRight = panel.right - bottomRight.right;
+	float frameTop = FrameWidth(shot, topLeft, Vec2F(0, 1)), frameLeft = FrameWidth(shot, topLeft, Vec2F(-1, 0));
+	float frameBottom = FrameWidth(shot, bottomRight, Vec2F(0, -1)), frameRight = FrameWidth(shot, bottomRight, Vec2F(1, 0));
 	EXPECT_NEAR(frameBottom, frameTop, 1.5f);
-	EXPECT_NEAR(frameBottom, frameLeft, 3.0f);
-	EXPECT_NEAR(frameBottom, frameRight, 3.0f);
+	EXPECT_NEAR(frameBottom, frameLeft, 1.5f);
+	EXPECT_NEAR(frameBottom, frameRight, 1.5f);
 
 	// бустеры меньше кнопок вёрстки, на тех же местах по горизонтали
 	const char* buttons[][2] = { { "Booster0", "toolbar/search" }, { "Booster4", "toolbar/search_plus" },
@@ -440,14 +441,7 @@ TEST_F(WordFallMainScreenUI, ScreenFollowsThePipelineLayout)
 	// фон одноцветный, как на референсе: поля экрана по краям и над/под разделами — одного цвета
 	Ref<Bitmap> frame = AppTestDriver::TakeScreenshot();
 	ASSERT_TRUE(frame);
-	Vec2I size = frame->GetSize();
-	float scale = Math::Min(size.x/kScreenSize.x, size.y/kScreenSize.y);
-	auto pixel = [&](const Vec2F& world) {
-		int x = Math::Clamp((int)(size.x*0.5f + world.x*scale), 0, size.x - 1);
-		int y = Math::Clamp((int)(size.y*0.5f + world.y*scale), 0, size.y - 1);
-		const UInt8* p = &frame->GetData()[(y*size.x + x)*4];
-		return Color4(p[0], p[1], p[2], p[3]);
-	};
+	auto pixel = [&](const Vec2F& world) { return ScreenPixel(frame, world); };
 	const Color4 paper(240, 214, 179, 255);
 	Vector<Vec2F> points = { Vec2F(0, screen.top - 6), Vec2F(0, screen.bottom + 10) };
 	for (float y = -850; y <= 850; y += 100)

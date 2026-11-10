@@ -514,11 +514,15 @@ WordBoard = class WordBoard
     // Самое дорогое собираемое слово (опц. точной длины): {word, cells, value} без кластера
     FindBestWord(dictionary, requiredLength)
     {
+        var bound = new Float64Array(WordSearch.maxBoundLength + 1);
+        for (var length = 0; length < bound.length; length++)
+            bound[length] = requiredLength > 0 && length != requiredLength ? 0 : 1;
+
         var found = this.FindBestWordBy(dictionary, function(word, value) {
             if (requiredLength > 0 && word.length != requiredLength)
                 return 0;
             return value;
-        });
+        }, { bound: bound });
         if (!found)
             return null;
 
@@ -532,85 +536,35 @@ WordBoard = class WordBoard
         return found;
     }
 
-    // Лучшее собираемое слово по оценщику scorer(word, value) -> вес (<= 0 — не подходит).
-    // Жадный подбор: каждая буква берёт самую дорогую свободную плитку с этой буквой,
-    // недостача добирается джокерами в порядке поля
-    FindBestWordBy(dictionary, scorer)
+    // Есть ли собираемое слово, которое по очкам (value с округлением вверх) не меньше minValue
+    AnyWordWorth(dictionary, minValue)
     {
-        var pool = [];
-        for (var c = 0; c < this.config.columns; c++)
-        {
-            for (var r = 0; r < this.config.rows; r++)
-            {
-                var tile = this.grid[c][r];
-                if (WordBoard.IsTileUsable(tile))
-                    pool.push({ cell: { c: c, r: r }, code: WordDictionary.LetterCode(tile.letter), value: this._TileValue(tile), joker: tile.joker });
-            }
-        }
-        pool.sort(function(a, b) { return b.value - a.value; });
+        var search = this.BeginWordSearch(dictionary, function(word, value) { return Math.ceil(value) >= minValue ? 1 : 0; }, { stopAt: 1 });
+        search.Step(Infinity);
+        return search.Result() != null;
+    }
 
-        var codesCount = WordDictionary.LetterCodesCount;
-        var byLetter = [];
-        for (var i = 0; i < codesCount; i++)
-            byLetter.push([]);
-        var jokers = [];
-        for (var p = 0; p < pool.length; p++)
-        {
-            if (pool[p].joker)
-                jokers.push(p);
-            else
-                byLetter[pool[p].code].push(p);
-        }
+    // Лучшее собираемое слово по оценщику scorer(word, value) -> вес (<= 0 — не подходит); при равных весах —
+    // первое по словарю. Жадный подбор: каждая буква берёт самую дорогую свободную плитку с этой буквой,
+    // недостача добирается джокерами в порядке поля. Опции — у WordSearch
+    FindBestWordBy(dictionary, scorer, options)
+    {
+        var search = this.BeginWordSearch(dictionary, scorer, options);
+        search.Step(Infinity);
+        return search.Result();
+    }
 
-        var counts = new Int32Array(codesCount);
-        for (var i = 0; i < codesCount; i++)
-            counts[i] = byLetter[i].length;
+    // Тот же поиск по частям словаря (WordSearch.Step) — по снимку поля на момент начала
+    BeginWordSearch(dictionary, scorer, options)
+    {
+        return new WordSearch(this, dictionary, scorer, options);
+    }
 
-        var cursor = new Int32Array(codesCount);
-        var words = dictionary.GetAllWords();
-        var codes = dictionary.GetCodes();
-        var offsets = dictionary.GetOffsets();
-        var bestIndex = -1;
-        var bestValue = -1;
-
-        for (var w = 0; w < words.length; w++)
-        {
-            var start = offsets[w], end = offsets[w + 1];
-            if (WordBoard._LacksLetters(codes, start, end, counts, cursor, jokers.length))
-                continue;
-
-            var sum = 0;
-            for (var i = start; i < end; i++)
-            {
-                var code = codes[i];
-                if (cursor[code] < counts[code])
-                    sum += pool[byLetter[code][cursor[code]]].value;
-                cursor[code]++;
-            }
-            for (var i = start; i < end; i++)
-                cursor[codes[i]] = 0;
-
-            var value = scorer(words[w], Math.fround(sum*WordBoard.LengthMultiplier(end - start)));
-            if (value > 0 && value > bestValue)
-            {
-                bestValue = value;
-                bestIndex = w;
-            }
-        }
-
-        if (bestIndex < 0)
-            return null;
-
-        var cells = [];
-        var nextJoker = 0;
-        for (var i = offsets[bestIndex]; i < offsets[bestIndex + 1]; i++)
-        {
-            var code = codes[i];
-            var index = cursor[code] < counts[code] ? byLetter[code][cursor[code]] : jokers[nextJoker++];
-            cursor[code]++;
-            cells.push({ c: pool[index].cell.c, r: pool[index].cell.r });
-        }
-        return { word: words[bestIndex], cells: cells };
+    static _BitsCount(bits)
+    {
+        bits = bits - ((bits >>> 1) & 0x55555555);
+        bits = (bits & 0x33333333) + ((bits >>> 2) & 0x33333333);
+        return (((bits + (bits >>> 4)) & 0x0F0F0F0F)*0x01010101) >>> 24;
     }
 
     // Собираемо ли слово из букв поля (джокеры добирают дефицит)
@@ -1301,6 +1255,175 @@ WordBoard = class WordBoard
 
             this.grid[cell.c][cell.r] = this._MakeTile(word[i]);
             this.seededCells.push(cell);
+        }
+    }
+};
+
+// Поиск лучшего слова поля по словарю (см. WordBoard.FindBestWordBy). options.bound[длина] — во сколько раз вес
+// может превзойти value: слова, которые даже так не обгонят лучшее, не оцениваются; options.special — слова, которым
+// оценщик даёт вес сверх границы, они оцениваются первыми; options.stopAt — перебор заканчивается на таком весе
+WordSearch = class WordSearch
+{
+    // Длина слова, до которой задаются границы оценщика (более длинные слова оцениваются всегда)
+    static get maxBoundLength() { return 16; }
+
+    constructor(board, dictionary, scorer, options)
+    {
+        var pool = [];
+        for (var c = 0; c < board.config.columns; c++)
+        {
+            for (var r = 0; r < board.config.rows; r++)
+            {
+                var tile = board.grid[c][r];
+                if (WordBoard.IsTileUsable(tile))
+                    pool.push({ cell: { c: c, r: r }, code: WordDictionary.LetterCode(tile.letter), value: board._TileValue(tile), joker: tile.joker });
+            }
+        }
+        pool.sort(function(a, b) { return b.value - a.value; });
+
+        var codesCount = WordDictionary.LetterCodesCount;
+        var byLetter = [];
+        for (var i = 0; i < codesCount; i++)
+            byLetter.push([]);
+        var jokers = [];
+        for (var p = 0; p < pool.length; p++)
+        {
+            if (pool[p].joker)
+                jokers.push(p);
+            else
+                byLetter[pool[p].code].push(p);
+        }
+
+        // номиналы плиток буквы подряд от дорогих: values[first[code] + k] — k-я плитка буквы
+        this._counts = new Int32Array(codesCount);
+        this._first = new Int32Array(codesCount);
+        this._values = new Float64Array(pool.length);
+        this._presentLo = 0;
+        this._presentHi = 0;
+        for (var code = 0, at = 0; code < codesCount; code++)
+        {
+            var tiles = byLetter[code];
+            this._counts[code] = tiles.length;
+            this._first[code] = at;
+            for (var k = 0; k < tiles.length; k++)
+                this._values[at++] = pool[tiles[k]].value;
+            if (tiles.length > 0)
+            {
+                if (code < 32)
+                    this._presentLo |= 1 << code;
+                else
+                    this._presentHi |= 1 << (code - 32);
+            }
+        }
+
+        this._pool = pool;
+        this._byLetter = byLetter;
+        this._jokers = jokers;
+        this._dictionary = dictionary;
+        this._scorer = scorer;
+        this._bound = options && options.bound ? options.bound : null;
+        this._stopAt = options && options.stopAt !== undefined ? options.stopAt : Infinity;
+        this._cursor = new Int32Array(codesCount);
+        this._next = 0;
+        this._bestIndex = -1;
+        this._bestValue = -1;
+
+        var special = options && options.special ? options.special : [];
+        for (var i = 0; i < special.length && !this.IsDone(); i++)
+        {
+            var index = dictionary.IndexOf(special[i]);
+            var value = index >= 0 ? this._Value(index) : -1;
+            if (value >= 0)
+                this._Consider(index, value);
+        }
+    }
+
+    IsDone() { return this._next >= this._dictionary.GetWordsCount() || this._bestValue >= this._stopAt; }
+
+    // Проверяет следующие count слов словаря; true — перебор закончен
+    Step(count)
+    {
+        var dictionary = this._dictionary;
+        var offsets = dictionary.GetOffsets();
+        var total = dictionary.GetWordsCount();
+        var end = Math.min(total, this._next + count);
+        var bound = this._bound, maxLength = WordSearch.maxBoundLength;
+
+        for (var w = this._next; w < end && this._bestValue < this._stopAt; w++)
+        {
+            var value = this._Value(w);
+            if (value < 0)
+                continue;
+
+            // запас на округление: лишний раз оценить дешевле, чем пропустить лучшее
+            var length = offsets[w + 1] - offsets[w];
+            if (bound && this._bestIndex >= 0 && length <= maxLength && value*bound[length]*1.000001 < this._bestValue)
+                continue;
+
+            this._Consider(w, value);
+        }
+        this._next = this._bestValue >= this._stopAt ? total : end;
+        return this.IsDone();
+    }
+
+    // {word, cells} лучшего слова или null; перебор должен быть закончен
+    Result()
+    {
+        if (this._bestIndex < 0)
+            return null;
+
+        var codes = this._dictionary.GetCodes(), offsets = this._dictionary.GetOffsets();
+        var cursor = new Int32Array(WordDictionary.LetterCodesCount);
+        var cells = [];
+        var nextJoker = 0;
+        for (var i = offsets[this._bestIndex]; i < offsets[this._bestIndex + 1]; i++)
+        {
+            var code = codes[i];
+            var index = cursor[code] < this._counts[code] ? this._byLetter[code][cursor[code]] : this._jokers[nextJoker++];
+            cursor[code]++;
+            cells.push({ c: this._pool[index].cell.c, r: this._pool[index].cell.r });
+        }
+        return { word: this._dictionary.GetAllWords()[this._bestIndex], cells: cells };
+    }
+
+    // value слова w или -1, если букв поля не хватает
+    _Value(w)
+    {
+        var masks = this._dictionary.GetLetterMasks();
+        var jokers = this._jokers.length;
+        var missingLo = masks.lo[w] & ~this._presentLo, missingHi = masks.hi[w] & ~this._presentHi;
+        if ((missingLo | missingHi) != 0 && (jokers == 0 || WordBoard._BitsCount(missingLo) + WordBoard._BitsCount(missingHi) > jokers))
+            return -1;
+
+        var codes = this._dictionary.GetCodes(), offsets = this._dictionary.GetOffsets();
+        var counts = this._counts, first = this._first, values = this._values, cursor = this._cursor;
+        var start = offsets[w], end = offsets[w + 1];
+        var sum = 0, deficit = 0, i = start;
+        for (; i < end; i++)
+        {
+            var code = codes[i], k = cursor[code];
+            if (k < counts[code])
+                sum += values[first[code] + k];
+            else if (++deficit > jokers)
+                break;
+            cursor[code] = k + 1;
+        }
+        for (var j = start; j < i; j++)
+            cursor[codes[j]] = 0;
+        if (deficit > jokers)
+            return -1;
+
+        var length = end - start;
+        return Math.fround(sum*(length > 3 ? 1 + 0.25*(length - 3) : 1));
+    }
+
+    _Consider(w, value)
+    {
+        var weight = this._scorer(this._dictionary.GetAllWords()[w], value);
+        if (weight > 0 && (weight > this._bestValue || (weight == this._bestValue && w < this._bestIndex)))
+        {
+            this._bestValue = weight;
+            this._bestIndex = w;
         }
     }
 };

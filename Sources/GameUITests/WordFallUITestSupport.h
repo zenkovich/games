@@ -136,6 +136,7 @@ public:
 	void DebugCompleteTasks() { Call("DebugCompleteTasks"); }
 	void DebugAddScore(int score) { Call("DebugAddScore", { ScriptValue(score) }); }
 	void DebugAddMoves(int moves) { Call("DebugAddMoves", { ScriptValue(moves) }); }
+	void DebugAddCharges(int charges) { Call("DebugAddCharges", { ScriptValue(charges) }); }
 	void DebugLoseLevel() { Call("DebugLoseLevel"); }
 	int GetLevelConfigMoves(int index) const { return Call("GetLevelConfig", { ScriptValue(index) }).GetProperty("moves").GetValue<int>(); }
 
@@ -275,6 +276,84 @@ namespace
 	{
 		Click(TilePosition(column, row));
 		AppTestDriver::PumpFrames(2);
+	}
+
+	// Цвет пикселя скриншота под мировой точкой экрана игры
+	Color4 ScreenPixel(const Ref<Bitmap>& frame, const Vec2F& worldPos)
+	{
+		Vec2I size = frame->GetSize();
+		float scale = Math::Min(size.x/kScreenSize.x, size.y/kScreenSize.y);
+		int x = Math::Clamp((int)(size.x*0.5f + worldPos.x*scale), 0, size.x - 1);
+		int y = Math::Clamp((int)(size.y*0.5f + worldPos.y*scale), 0, size.y - 1);
+		const UInt8* p = &frame->GetData()[(y*size.x + x)*4];
+		return Color4(p[0], p[1], p[2], p[3]);
+	}
+
+	bool IsPaper(const Color4& color)
+	{
+		return Math::Abs(color.r - 240) <= 6 && Math::Abs(color.g - 214) <= 6 && Math::Abs(color.b - 179) <= 6;
+	}
+
+	// Толщина рамки поля за краем плитки по направлению dir (мировые пиксели): до первого пикселя фона экрана
+	float FrameWidth(const Ref<Bitmap>& frame, const RectF& tile, const Vec2F& dir)
+	{
+		Vec2F from = tile.Center() + Vec2F(dir.x*tile.Width(), dir.y*tile.Height())*0.5f;
+		for (float t = 0.0f; t < 40.0f; t += 0.25f)
+		{
+			if (IsPaper(ScreenPixel(frame, from + dir*t)))
+				return t;
+		}
+		return 40.0f;
+	}
+
+	RectF TileRect(int column, int row)
+	{
+		auto tile = o2Scene.FindActor("WordFall")->GetChild(String::Format("Screen/Board/Tile_%i_%i", column, row));
+		return DynamicCast<Widget>(tile)->layout->GetWorldRect();
+	}
+
+	// Видимый прямоугольник поля без дыр по краям: угловые плитки и рамка за ними
+	RectF BoardFrameRect(const Ref<Bitmap>& frame)
+	{
+		RectF topLeft = TileRect(0, 7), bottomRight = TileRect(6, 0);
+		return RectF(topLeft.left - FrameWidth(frame, topLeft, Vec2F(-1, 0)), topLeft.top + FrameWidth(frame, topLeft, Vec2F(0, 1)),
+					 bottomRight.right + FrameWidth(frame, bottomRight, Vec2F(1, 0)), bottomRight.bottom - FrameWidth(frame, bottomRight, Vec2F(0, -1)));
+	}
+
+	void LongPress(const Vec2F& worldPos, float seconds = 1.0f)
+	{
+		AppTestDriver::PressCursor(ToWindow(worldPos));
+		AppTestDriver::Wait(seconds);
+		AppTestDriver::ReleaseCursor();
+	}
+
+	// Читы открывает долгое нажатие на невидимую кнопку в правом верхнем углу
+	void OpenCheats()
+	{
+		LongPress(WidgetCenter("Screen/Cheats/Toggle"));
+		AppTestDriver::PumpFrames(3);
+	}
+
+	// Тап по вкладке читов; вкладку за краем полосы сначала пролистывает палец
+	void SelectCheatsTab(int index)
+	{
+		auto root = o2Scene.FindActor("WordFall");
+		auto strip = root ? DynamicCast<Widget>(root->GetChild("Screen/Cheats/Panel/Tabs")) : nullptr;
+		auto tab = strip ? DynamicCast<Widget>(strip->GetChild(String::Format("Tab%i/Btn", index))) : nullptr;
+		ASSERT_TRUE(tab) << "cheats tab " << index;
+
+		RectF view = strip->layout->GetWorldRect();
+		for (int i = 0; i < 4 && !view.IsInside(tab->layout->GetWorldRect().Center()); i++)
+		{
+			float dir = tab->layout->GetWorldRect().Center().x > view.Center().x ? 1.0f : -1.0f;
+			Vec2F from(view.Center().x + dir*view.Width()*0.4f, view.Center().y);
+			Vec2F to(view.Center().x - dir*view.Width()*0.4f, view.Center().y);
+			AppTestDriver::Drag(ToWindow(from), ToWindow(to));
+			AppTestDriver::Wait(0.6f);
+		}
+		EXPECT_TRUE(view.IsInside(tab->layout->GetWorldRect().Center())) << "cheats tab " << index << " is reachable";
+		Click(tab->layout->GetWorldRect().Center());
+		AppTestDriver::PumpFrames(3);
 	}
 
 	// Число перед "/" в подписи счёта «Очки: N / M»

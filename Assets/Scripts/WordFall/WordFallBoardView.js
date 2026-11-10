@@ -2,7 +2,8 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха игрового поля: плитки (буквы, лёд, пауэрапы, выделение), клики,
 // анимация падения, партикловые вспышки. Данные — в сервисе WordFallGame.service.
-// Клетки нарисованы в подложке поля; дыры формы уровня закрыты накладками Hole_c_r.
+// Подложка повторяет форму уровня: у живой клетки фон Back_c_r из четырёх четвертей с рамкой
+// на внешних сторонах, дыры не рисуются.
 // Координаты локальные: центр секции Board = (0,0)
 
 WordFallBoardView = class WordFallBoardView extends o2.Component
@@ -52,6 +53,10 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this._shakeTime = 0;
         this._shakeDuration = 1;
         this._shakeStrength = 0;
+        this._backs = null;
+        this._backShape = null; // форма поля, по которой разложена подложка
+        this._kicks = [];       // толчки плиток: { c, r, dx, dy, dur, t }
+        this._kickOffsets = {}; // "c,r" -> смещение от толчков в этом кадре
     }
 
     OnStart()
@@ -86,7 +91,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                     bonusPlate: btn.GetLayer("bonusPlate"),
                     bonusGlow: glowLayer,
                     bonusGlowDraw: glowLayer ? glowLayer.drawable : null,
-                    hole: this._actor.GetChild("Hole_" + c + "_" + r),
                     crate: btn.GetLayer("crate"),
                     crateHit: btn.GetLayer("crateHit"),
                     chain: btn.GetLayer("chain"),
@@ -101,8 +105,77 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             }
         }
 
+        this._backs = [];
+        for (var c = 0; c < this._columns; c++)
+        {
+            this._backs[c] = [];
+            for (var r = 0; r < this._rows; r++)
+            {
+                var back = this._actor.GetChild("Back_" + c + "_" + r);
+                this._backs[c][r] = back ? { widget: back, quarters: WordFallBoardView.backQuarters.map(function(q) { return back.GetLayer(q.name); }) } : null;
+            }
+        }
+
         this._LayoutTiles();
         this.SyncBoard();
+    }
+
+    // Четверти фона клетки: угол и сторона его соседей (y вверх)
+    static get backQuarters()
+    {
+        return [{ name: "tl", dx: -1, dy: 1 }, { name: "tr", dx: 1, dy: 1 }, { name: "bl", dx: -1, dy: -1 }, { name: "br", dx: 1, dy: -1 }];
+    }
+
+    // Кусок четверти — по тому, какие соседи её угла есть на поле: боковой (h), верхний или нижний (v),
+    // диагональный (d); o — ни одного
+    static BackKind(inside, c, r, dx, dy)
+    {
+        var kind = (inside(c + dx, r) ? "h" : "") + (inside(c, r + dy) ? "v" : "") + (inside(c + dx, r + dy) ? "d" : "");
+        return kind || "o";
+    }
+
+    // Подложка по форме поля перекладывается, только когда форма сменилась
+    _SyncBacking()
+    {
+        if (!this._backs)
+            return;
+        var holes = [];
+        for (var c = 0; c < this._columns; c++)
+            for (var r = 0; r < this._rows; r++)
+                holes.push(this._svc.GetTile(c, r).hole ? 1 : 0);
+        var shape = holes.join("");
+        if (shape == this._backShape)
+            return;
+        this._backShape = shape;
+
+        var self = this;
+        var inside = function(c, r) {
+            return c >= 0 && c < self._columns && r >= 0 && r < self._rows && !holes[c*self._rows + r];
+        };
+        var quarters = WordFallBoardView.backQuarters;
+        for (var c = 0; c < this._columns; c++)
+        {
+            for (var r = 0; r < this._rows; r++)
+            {
+                var back = this._backs[c][r];
+                if (!back)
+                    continue;
+                back.widget.SetEnabled(inside(c, r));
+                if (!inside(c, r))
+                    continue;
+                for (var i = 0; i < quarters.length; i++)
+                {
+                    var q = quarters[i];
+                    var piece = back.quarters[i].drawable;
+                    var image = "WordFall/ScreenUI/board_" + q.name + "_" + WordFallBoardView.BackKind(inside, c, r, q.dx, q.dy) + ".png";
+                    if (piece.imageName == image)
+                        continue;
+                    var rect = piece.rect;
+                    piece.imageName = image;
+                    piece.rect = rect;
+                }
+            }
+        }
     }
 
     // Раскладывает сетку плиток по полям cellSize/tileSize — параметры редактируются
@@ -214,6 +287,67 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             this._LayoutTiles();
     }
 
+    // Толчок плитки: отскок на (dx, dy) и обратно затухающей пружиной через delay секунд
+    Kick(c, r, dx, dy, duration, delay)
+    {
+        this._kicks.push({ c: c, r: r, dx: dx, dy: dy, dur: duration, t: -(delay || 0) });
+    }
+
+    // Рябь от точки: плитки вокруг отталкиваются по очереди — ближние раньше и сильнее
+    Ripple(x, y, radius, amplitude, speed)
+    {
+        for (var c = 0; c < this._columns; c++)
+        {
+            for (var r = 0; r < this._rows; r++)
+            {
+                var p = this.TileWorldPos(c, r);
+                var dx = p.x - x, dy = p.y - y;
+                var d = Math.sqrt(dx*dx + dy*dy);
+                if (d < 1 || d > radius)
+                    continue;
+                var amp = amplitude*(1 - d/radius);
+                this.Kick(c, r, dx/d*amp, dy/d*amp, 0.5, d/speed);
+            }
+        }
+    }
+
+    _UpdateKicks(dt)
+    {
+        if (this._kicks.length == 0)
+            return;
+
+        var touched = this._kickOffsets;
+        var offsets = {};
+        var alive = [];
+        for (var i = 0; i < this._kicks.length; i++)
+        {
+            var kick = this._kicks[i];
+            kick.t += dt;
+            var key = kick.c + "," + kick.r;
+            touched[key] = touched[key] || { x: 0, y: 0 };
+            if (kick.t >= kick.dur)
+                continue;
+            alive.push(kick);
+            if (kick.t < 0)
+                continue;
+            var u = kick.t/kick.dur;
+            var k = Math.sin(u*Math.PI*2.2)*Math.pow(1 - u, 1.5);
+            var o = offsets[key] || (offsets[key] = { x: 0, y: 0 });
+            o.x += kick.dx*k;
+            o.y += kick.dy*k;
+        }
+        this._kicks = alive;
+        this._kickOffsets = offsets;
+
+        for (var key in touched)
+        {
+            var parts = key.split(",");
+            var c = parseInt(parts[0]), r = parseInt(parts[1]);
+            var offset = this._collapsing ? this._svc.GetTileFallOffset(c, r)*this.cellSize : 0;
+            this._SetTileRect(c, r, offset);
+        }
+    }
+
     // Подсказка: выбирает клетки по одной, буквы штатно улетают в лоток
     SelectAnimated(cells)
     {
@@ -315,11 +449,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         var isBonus = tile.powerup != "";
         var isObstacle = tile.crate > 0 || tile.snow || tile.parcel;
 
-        // дыры и пустые клетки под ящиком/цепью не рисуются вовсе; клетку дыры закрывает накладка
+        // дыры и пустые клетки под ящиком/цепью не рисуются вовсе
         view.visible = !tile.hole && !tile.empty;
         view.btn.SetEnabled(view.visible);
-        if (view.hole)
-            view.hole.SetEnabled(tile.hole);
         if (!view.visible)
             return;
 
@@ -403,6 +535,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                 this.SyncTile(c, r);
         }
 
+        this._SyncBacking();
         this._SyncBonuses();
     }
 
@@ -526,8 +659,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         var pos = this.TileLocalPos(c, r);
         var half = this.tileSize*0.5*(scale || 1);
         var halfY = half*this.tileAspect;
-        var x = pos.x + this._shakeOffset.x;
-        var y = pos.y + extraY + this._shakeOffset.y;
+        var kick = this._kickOffsets[c + "," + r];
+        var x = pos.x + this._shakeOffset.x + (kick ? kick.x : 0);
+        var y = pos.y + extraY + this._shakeOffset.y + (kick ? kick.y : 0);
         var layout = this._tiles[c][r].btn.GetLayout();
         layout.SetOffsetMin(new Vec2(x - half, y - halfY));
         layout.SetOffsetMax(new Vec2(x + half, y + halfY));
@@ -607,6 +741,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         }
 
         // после раскладки обвала: тряска двигает всё поле, пульс — плитки бонусов
+        this._UpdateKicks(dt);
         this._UpdateShake(dt);
         this._UpdateBonusIdle(dt);
     }
