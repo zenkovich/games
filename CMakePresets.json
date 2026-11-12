@@ -9,7 +9,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
-                "CMAKE_Metal_COMPILER": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/metal",
+                "CMAKE_Metal_COMPILER": "${sourceDir}/Platforms/Mac/metal.sh",
                 "O2_EDITOR": "ON",
                 "O2_TESTS": "ON"
             },
@@ -27,7 +27,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
-                "CMAKE_Metal_COMPILER": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/metal",
+                "CMAKE_Metal_COMPILER": "${sourceDir}/Platforms/Mac/metal.sh",
                 "O2_EDITOR": "ON",
                 "O2_TESTS": "OFF"
             },
@@ -274,6 +274,24 @@
                 "type": "notEquals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
+            }
+        },
+        {
+            "name": "wasm-kit",
+            "inherits": "wasm-editor",
+            "displayName": "WebAssembly build kit for the o2 portal (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
+            }
+        },
+        {
+            "name": "wasm-kit-game",
+            "inherits": "wasm",
+            "displayName": "WebAssembly build kit for the o2 portal: the game without the editor (Release, no LTO)",
+            "binaryDir": "${sourceDir}/build-wasm-kit-game",
+            "cacheVariables": {
+                "O2_WASM_LTO": "OFF"
             }
         }
     ],

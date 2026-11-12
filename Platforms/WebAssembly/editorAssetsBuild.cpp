@@ -1,31 +1,68 @@
-#include "o2/stdafx.h"
-#include "o2/Assets/Assets.h"
-#include "o2/EngineSettings.h"
+#include "o2Editor/stdafx.h"
+#include "webSceneBridge.h"
 
 #include <emscripten.h>
-#include "o2AssetBuilder/AssetsBuilder.h"
 
-namespace o2
+#include "o2/Assets/Types/SceneAsset.h"
+#include "o2/Scene/UI/WidgetLayout.h"
+#include "o2Editor/EditorApplication.h"
+#include "o2Editor/Windows/GameWindow/GameWindow.h"
+#include "o2Editor/Windows/WindowsManager.h"
+
+using namespace o2;
+
+static Editor::EditorApplication* EditorApp()
 {
-    // Called by Assets::RebuildAssets under PLATFORM_WASM (declared extern there,
-    // so o2Framework does not depend on AssetsBuildTool headers). Runs the asset
-    // builder in-process over MEMFS: the editor sees fresh BuiltAssets immediately
-    // and the FS mirror persists them into the server session.
-    void o2_WasmRebuildAssets(bool forcible)
-    {
-        AssetsBuilder builder;
-        builder.BuildAssets(Platform::WebAssembly,
-                            ::GetAssetsPath(),
-                            ::GetBuiltAssetsPath(),
-                            ::GetBuiltAssetsTreePath(),
-                            String(::GetEditorAssetsPath()) + "../../CompressToolsConfig.json",
-                            forcible);
-    }
+    return (Editor::EditorApplication*)(o2::Application::InstancePtr());
 }
 
-// Page-callable rebuild (used by the shell and tests): full editor flow —
-// build, reload the assets tree, fire onAssetsRebuilt
-extern "C" EMSCRIPTEN_KEEPALIVE void o2_web_rebuild_assets()
+// Play mode control for the page (the AI agent drives the game this way, since
+// clicking the editor chrome from script is unreliable)
+extern "C" EMSCRIPTEN_KEEPALIVE void o2_web_set_play(int playing)
 {
-    o2Assets.RebuildAssets(false);
+    EditorApp()->SetPlaying(playing != 0);
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE int o2_web_is_playing()
+{
+    return EditorApp()->IsPlaying() ? 1 : 0;
+}
+
+// Scene control for the page: the agent cannot click the editor chrome, so it
+// opens and saves scenes through here
+extern "C" EMSCRIPTEN_KEEPALIVE void o2_web_open_scene(const char* path)
+{
+    EditorApp()->LoadScene(o2::AssetRef<o2::SceneAsset>(o2::String(path)));
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE void o2_web_save_scene()
+{
+    EditorApp()->SaveScene();
+}
+
+// ---------------------------------------------------------------- bridge hooks
+
+String WebBridge::OpenSceneName()
+{
+    return EditorApp()->GetLoadedSceneName();
+}
+
+bool WebBridge::IsPlaying()
+{
+    return EditorApp()->IsPlaying();
+}
+
+String WebBridge::ViewInfoExtra()
+{
+    if (auto gameWindow = Editor::WindowsManager::Instance().GetWindow<Editor::GameWindow>())
+    {
+        if (auto view = gameWindow->GetGameViewWidget())
+        {
+            RectF r = view->layout->GetWorldRect();
+            return ",\"gameView\":{\"left\":" + (String)r.left + ",\"top\":" + (String)r.top +
+                   ",\"right\":" + (String)r.right + ",\"bottom\":" + (String)r.bottom + "}";
+        }
+    }
+
+    return String();
 }

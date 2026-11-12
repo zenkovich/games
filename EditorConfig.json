@@ -21,7 +21,7 @@
                     "anchors": {
                         "left": 0.0,
                         "bottom": 0.0,
-                        "right": 0.6764985918998718,
+                        "right": 0.7242553234100342,
                         "top": 1.0
                     },
                     "childs": [
@@ -42,9 +42,10 @@
                                     },
                                     "windows": [
                                         "scene window",
-                                        "animation state graph window"
+                                        "animation state graph window",
+                                        "pipeline window"
                                     ],
-                                    "active": "scene window"
+                                    "active": "pipeline window"
                                 },
                                 {
                                     "anchors": {
@@ -67,8 +68,8 @@
                                 "top": 0.3652697801589966
                             },
                             "windows": [
-                                "log window",
                                 "animation window",
+                                "log window",
                                 "assets window"
                             ],
                             "active": "assets window"
@@ -77,7 +78,7 @@
                 },
                 {
                     "anchors": {
-                        "left": 0.6764985918998718,
+                        "left": 0.7242553234100342,
                         "bottom": 0.0,
                         "right": 1.0,
                         "top": 1.0
@@ -91,5 +92,6 @@
             ]
         }
     },
-    "mLastLoadedScene": "Main.scn"
+    "mLastLoadedScene": "Main.scn",
+    "mLastPipelineAsset": "Unnamed"
 }

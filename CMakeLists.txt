@@ -49,7 +49,15 @@ if(EMSCRIPTEN)
     if(NOT O2_WASM_EDITOR)
         set(O2_EDITOR OFF CACHE BOOL "" FORCE)
     endif()
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    # OFF builds the libraries as plain wasm objects: a link against them takes seconds
+    # and little memory instead of re-optimizing the whole engine. That is what the
+    # portal's build kit is made of (o2portal/tools/make-kit.ts) - its server compiles
+    # only a project's own sources and links.
+    option(O2_WASM_LTO "Link-time optimization of WebAssembly release builds" ON)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT O2_WASM_LTO)
+        add_compile_options(-Os -msimd128 -DNDEBUG)
+        add_link_options(-O1 -msimd128)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         # Size-optimized (-Oz: like -Os with extra size passes) + LTO + WebAssembly SIMD
         add_compile_options(-Oz -flto -msimd128 -DNDEBUG)
         add_link_options(-Oz -flto -msimd128)
@@ -150,6 +158,11 @@ endif()
 # o2 libraries
 add_subdirectory(o2)
 
+# o2libs: optional modules on top of o2. A module is in the build when its option is ON
+set(O2LIBS_REMOTE_CONFIG ON CACHE BOOL "o2libs: remote configs and A/B tests client")
+set(O2LIBS_SAVES ON CACHE BOOL "o2libs: player saves")
+add_subdirectory(o2libs)
+
 # Vendored CDT throws and has no switch for it, so its two includers keep
 # exceptions (and can't share the PCH, which is built without them).
 if((ANDROID AND O2_ANDROID_NO_EXCEPTIONS AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -220,17 +233,19 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT EMSCRIPTEN AND NOT ANDROID)
                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/o2/CodeTool/Bin/o2CodeTool
                               -project GameLib
                               -sources "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Game"
-                              -parent_projects "${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml"
+                              -parent_projects "${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml ${O2LIBS_CODEGEN_CACHES}"
                       COMMENT "Run CodeTool: ${CMAKE_CURRENT_SOURCE_DIR}/o2/CodeTool/Bin/o2CodeTool "
                               "-project GameLib "
                               "-sources \"${CMAKE_CURRENT_SOURCE_DIR}/Sources/Game\" "
-                              "-parent_projects \"${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml\""
+                              "-parent_projects \"${CMAKE_CURRENT_SOURCE_DIR}/o2/Framework/Sources/o2/CodeToolCache.xml ${O2LIBS_CODEGEN_CACHES}\""
     )
     add_dependencies(GameLibCodegen o2CodeTool o2FrameworkCodegen)
     add_dependencies(GameLib o2Framework GameLibCodegen)
 else()
     add_dependencies(GameLib o2Framework)
 endif()
+
+o2libs_link(GameLib GameLibCodegen)
 
 # Assets builder (not built for iOS / WebAssembly / Android - use pre-built host tools)
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT EMSCRIPTEN AND NOT ANDROID)
@@ -451,7 +466,8 @@ if(O2_EDITOR)
     if (EMSCRIPTEN)
         target_sources(Editor PRIVATE
             "Platforms/WebAssembly/editorMain.cpp"
-            "Platforms/WebAssembly/editorAssetsBuild.cpp")
+            "Platforms/WebAssembly/editorAssetsBuild.cpp"
+            "Platforms/WebAssembly/webSceneBridge.cpp")
         # In-browser asset rebuilds: the builder library runs inside the editor
         target_link_libraries(Editor PUBLIC o2AssetsBuilder)
         set_target_properties(Editor PROPERTIES SUFFIX ".html")
@@ -512,6 +528,51 @@ if(O2_EDITOR)
       set_property(TARGET Editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Editor>")
     endif()
 
+    # ---------------------------------------------------------------- game preview
+    # The web editor's second face: the game client itself, built against the
+    # session's working copy instead of a packed .data, so it rebuilds assets and
+    # restarts with the changes. Only worth building where that page exists.
+    if (EMSCRIPTEN AND O2_WASM_EDITOR)
+        add_executable(GamePreview)
+        target_sources(GamePreview PRIVATE
+            "Platforms/WebAssembly/previewMain.cpp"
+            "Platforms/WebAssembly/previewBridge.cpp"
+            "Platforms/WebAssembly/webSceneBridge.cpp")
+        target_link_libraries(GamePreview PUBLIC GameLib o2AssetsBuilder)
+        add_dependencies(GamePreview GameLib)
+        set_target_properties(GamePreview PROPERTIES SUFFIX ".html")
+        target_link_options(GamePreview PRIVATE
+            "-sUSE_WEBGL2=1"
+            "-sMIN_WEBGL_VERSION=2"
+            "-sMAX_WEBGL_VERSION=2"
+            "-sFULL_ES3=1"
+            "-sALLOW_MEMORY_GROWTH=1"
+            "-sINITIAL_MEMORY=256MB"
+            "-sMAXIMUM_MEMORY=4GB"
+            "-sSTACK_SIZE=5MB"
+            # The project tree is streamed from the server into MEMFS at startup
+            # (no --preload-file), so the JS FS API must survive DCE.
+            "-sFORCE_FILESYSTEM=1"
+            "-sEXPORTED_RUNTIME_METHODS=[ccall,cwrap,UTF8ToString,FS]"
+            "-sASSERTIONS=0"
+            "-sENVIRONMENT=web"
+            "-sTEXTDECODER=2"
+            "-sABORTING_MALLOC=0"
+            "--emit-symbol-map"
+            "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/Platforms/WebAssembly/preview.html")
+        set_property(TARGET GamePreview APPEND PROPERTY LINK_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/WebAssembly/preview.html")
+        set_target_output_directories(GamePreview)
+        # Its page loads shell/preview-boot.js and shell/preview.css from next to
+        # itself, the same folder the editor shell is copied into
+        add_custom_command(TARGET GamePreview POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/WebAssembly/shell"
+                    "${BIN_OUTPUTDIR}/shell"
+            COMMENT "Copying editor shell assets")
+        set_target_properties(GamePreview PROPERTIES FOLDER Apps)
+    endif()
+
     set_target_properties(EditorLib PROPERTIES FOLDER Game)
     if(TARGET EditorLibCodegen)
         set_target_properties(EditorLibCodegen PROPERTIES FOLDER Game/Codegen)
@@ -526,6 +587,10 @@ if(O2_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
         set_target_properties(${_test_target} PROPERTIES FOLDER o2/Tests)
         add_dependencies(${_test_target} BuildAssets)
     endforeach()
+
+    if(TARGET o2SvgRasterizer)
+        set_target_output_directories(o2SvgRasterizer)
+    endif()
 
     # Game component tests (links GameLib + shared o2 test support)
     include(GoogleTest)
@@ -572,6 +637,13 @@ if(O2_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
     o2_gtest_discover_tests(GameUITests
         WORKING_DIRECTORY $<TARGET_FILE_DIR:GameUITests>
     )
+
+    o2libs_add_tests()
+    if(TARGET o2libsTests)
+        o2_gtest_discover_tests(o2libsTests
+            WORKING_DIRECTORY $<TARGET_FILE_DIR:o2libsTests>
+        )
+    endif()
 endif()
 
 # Groups in IDE

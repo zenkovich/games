@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
+#include "o2libs/o2libs.h"
 
 extern void InitializeTypeso2TestsSupport();
 extern void InitializeTypesGameLib();
@@ -29,6 +30,7 @@ int main(int argc, char** argv)
 
 	InitializeTypeso2TestsSupport();
 	InitializeTypesGameLib();
+	O2LIBS_INITIALIZE_TYPES;
 	INITIALIZE_O2;
 
 	::testing::InitGoogleTest(&argc, argv);
@@ -45,6 +47,7 @@ int main(int argc, char** argv)
 	{
 		app = mmake<Application>();
 		app->Initialize();
+		O2LIBS_START;
 	}
 
 	int result = RUN_ALL_TESTS();

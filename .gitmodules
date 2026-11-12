@@ -2,3 +2,7 @@
 	path = o2
 	url = https://github.com/zenkovich/o2.git
 	branch = master
+[submodule "o2libs"]
+	path = o2libs
+	url = https://github.com/o2-engine/o2libs.git
+	branch = main
