@@ -27,5 +27,5 @@ protected:
 	void OnDraw() override;
 
 protected:
-	String mScenePath = "Main.scn"; // Scene loaded on start and on restart
+	String mScenePath = "DragonCrashers/MainMenu.scn"; // Scene loaded on start and on restart
 };
