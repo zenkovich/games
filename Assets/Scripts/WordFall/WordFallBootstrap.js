@@ -1,7 +1,9 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
-// Точка входа сцены WordFall: собирает экран игры из прототипа при старте и переключает
-// его с редактором уровней (WordFallGame.screens). Сервис игры живёт рядом, на акторе GameService
+// Точка входа сцены WordFall: собирает экраны из прототипов при старте и переключает их (WordFallGame.screens).
+// Игра начинается с главного экрана; конец уровня ведёт в окно победы поверх главного экрана или в окно
+// продолжения поверх поля. Без главного экрана (startOnMain = false) — сразу уровень, финал в попапе поля.
+// Сервис игры живёт рядом, на акторе GameService
 WordFallBootstrap = class WordFallBootstrap extends o2.Component
 {
     constructor()
@@ -9,8 +11,20 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
         super();
         this.screenPrototype = "WordFall/Prototypes/GameScreen.proto"; // экран: поле, HUD, панели, эффекты
         this.editorPrototype = "WordFall/Prototypes/LevelEditorScreen.proto"; // редактор уровней, создаётся при первом открытии
+        this.mainPrototype = "WordFall/UI/MainScreen.proto";              // главный экран (макет пайплайна «Wordfall UI»)
+        this.victoryPrototype = "WordFall/UI/VictoryWindow.proto";        // окно победы
+        this.continuePrototype = "WordFall/UI/ContinueWindow.proto";      // окно продолжения за ходы
+        this.startOnMain = true;   // начинать с главного экрана
+        this.endDelay = 0.5;       // пауза после эффектов финала уровня до окна, с
         this._game = null;
         this._editor = null;
+        this._main = null;
+        this._victory = null;
+        this._continue = null;
+        this._ended = "";
+        this._endWait = 0;
+
+        WordFallGame.screens = this;
     }
 
     OnStart()
@@ -18,9 +32,23 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
         WordFallGame.screens = this;
         var self = this;
         this._game = o2.Profile("WordFall: game screen", function() { return self._Instantiate(self.screenPrototype); });
+        if (!this.startOnMain)
+            return;
+
+        o2.Profile("WordFall: meta screens", function() {
+            self._main = self._Instantiate(self.mainPrototype);
+            self._victory = self._Instantiate(self.victoryPrototype);
+            self._continue = self._Instantiate(self.continuePrototype);
+        });
+        if (this._main)
+            this.ShowMain();
     }
 
+    // Конец уровня решают окна меты, а не попап поля
+    IsMetaFlow() { return this._main != null; }
+
     IsEditorOpen() { return this._editor != null && this._editor.IsEnabled(); }
+    IsMainShown() { return this._main != null && this._main.IsEnabled(); }
 
     ShowEditor()
     {
@@ -32,14 +60,79 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
         this._editor.SetEnabled(true);
         if (this._game)
             this._game.SetEnabled(false);
+        if (this._main)
+            this._main.SetEnabled(false);
     }
 
     ShowGame()
     {
         if (this._editor)
             this._editor.SetEnabled(false);
+        if (this._main)
+            this._main.SetEnabled(false);
         if (this._game)
             this._game.SetEnabled(true);
+    }
+
+    ShowMain()
+    {
+        if (this._editor)
+            this._editor.SetEnabled(false);
+        if (this._game)
+            this._game.SetEnabled(false);
+        if (this._main)
+            this._main.SetEnabled(true);
+    }
+
+    // PLAY: текущий уровень кампании; недоигранный финал начинается заново
+    Play()
+    {
+        var svc = WordFallGame.service;
+        if (svc && svc.GetGameState() != "playing")
+            svc.RestartLevel();
+        this.ShowGame();
+    }
+
+    // Конец уровня: после эффектов начисления и короткой паузы — окно победы (поверх главного экрана) или
+    // окно продолжения (поверх поля)
+    Update(dt)
+    {
+        var svc = WordFallGame.service;
+        if (!this.IsMetaFlow() || !svc || !this._game || !this._game.IsEnabled())
+            return;
+
+        var state = svc.GetGameState();
+        if (state == "playing")
+        {
+            this._ended = "";
+            this._endWait = 0;
+            return;
+        }
+        if (this._ended == state)
+            return;
+
+        var fx = globalThis.WordFallViews ? WordFallViews.fx : null;
+        if (fx && fx.IsBusy())
+        {
+            this._endWait = 0;
+            return;
+        }
+        this._endWait += dt;
+        if (this._endWait < this.endDelay)
+            return;
+
+        this._ended = state;
+        if (state == "won")
+        {
+            if (fx)
+                fx.Finish();
+            var result = svc.WinLevel();
+            this.ShowMain();
+            if (WordFallViews.victory)
+                WordFallViews.victory.Open(result);
+        }
+        else if (WordFallViews.continueWindow)
+            WordFallViews.continueWindow.Open();
     }
 
     _Instantiate(path)

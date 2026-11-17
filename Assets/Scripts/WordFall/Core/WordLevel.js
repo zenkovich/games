@@ -323,7 +323,10 @@ WordLevel = class WordLevel
     DebugSetTargetScore(target) { this.config.targetScore = target; }
     DebugSetMovesLeft(moves) { this.movesLeft = moves; }
 
-    DebugAddMoves(moves)
+    DebugAddMoves(moves) { this.AddMoves(moves); }
+
+    // Докупленные ходы: уровень, проигранный по ходам, играется дальше
+    AddMoves(moves)
     {
         this.movesLeft = Math.max(0, this.movesLeft + moves);
         if (this.state == "lost" && this.movesLeft > 0)

@@ -332,7 +332,7 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
 
     Update(dt)
     {
-        if (!this._svc)
+        if (!this._svc || (WordFallGame.screens && WordFallGame.screens.IsMetaFlow()))
             return;
 
         var state = this._svc.GetGameState();

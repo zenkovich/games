@@ -1,0 +1,44 @@
+{
+    "mEffects": [
+        {
+            "Type": "o2::FontColorEffect",
+            "Value": {
+                "color": {
+                    "r": 113,
+                    "g": 48,
+                    "b": 12,
+                    "a": 255
+                }
+            }
+        },
+        {
+            "Type": "o2::FontStrokeEffect",
+            "Value": {
+                "radius": 2.0,
+                "alphaThreshold": 100,
+                "color": {
+                    "r": 255,
+                    "g": 210,
+                    "b": 105,
+                    "a": 230
+                }
+            }
+        },
+        {
+            "Type": "o2::FontShadowEffect",
+            "Value": {
+                "blurRadius": 1.0,
+                "offset": {
+                    "x": 0,
+                    "y": 2
+                },
+                "color": {
+                    "r": 255,
+                    "g": 228,
+                    "b": 154,
+                    "a": 166
+                }
+            }
+        }
+    ]
+}

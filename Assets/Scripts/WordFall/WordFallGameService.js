@@ -22,6 +22,12 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.fallSpeedCells = 9.5;                   // скорость падения, клеток/с
         this.fallCascadeDelay = 0.05;                // пауза стартов плиток колонки
         this.hintWordsPerFrame = 1500;               // слов словаря за кадр в поиске подсказки наперёд
+        this.startCoins = 1000;                      // монеты нового игрока
+        this.coinsPerScore = 1;                      // монет награды за очко уровня
+        this.maxLives = 5;                           // полный запас жизней
+        this.lifeRegenSeconds = 1800;                // жизнь восстанавливается за это время
+        this.continueMoves = 5;                      // ходов за продолжение уровня
+        this.continuePrice = 900;                    // цена продолжения в монетах
 
         this._started = false;
         this._dictionary = null;
@@ -499,6 +505,89 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._revision++;
     }
 
+    // --- мета: монеты, жизни, звёзды, награда за победу, продолжение за ходы ---
+
+    GetCoins() { this._EnsureStarted(); return this._progress.coins; }
+    GetStars() { this._EnsureStarted(); return this._progress.TotalStars(); }
+
+    GetLives()
+    {
+        this._EnsureStarted();
+        var lives = this._progress.lives, at = this._progress.livesAt;
+        this._progress.RegenLives(this.maxLives, this.lifeRegenSeconds, Date.now());
+        if (lives != this._progress.lives || at != this._progress.livesAt)
+            this._SaveProgress();
+        return this._progress.lives;
+    }
+
+    // Звёзды за запас очков сверх цели: 1 — цель, 2 — +25 %, 3 — +60 %
+    StarsFor(score, target)
+    {
+        if (score < target)
+            return 0;
+        return score >= target*1.6 ? 3 : score >= target*1.25 ? 2 : 1;
+    }
+
+    // Победа: звёзды и прогресс сохраняются, стартует следующий уровень. Награда ещё не выдана —
+    // её забирают из окна победы (ClaimReward), обычную или удвоенную
+    WinLevel()
+    {
+        this._EnsureStarted();
+        var score = this._level.GetScore(), target = this._level.GetTargetScore();
+        var result = { level: this._levelIndex + 1, score: score, target: target, stars: this.StarsFor(score, target),
+                       reward: Math.max(1, Math.round(score*this.coinsPerScore)) };
+        this._progress.SetStars(this._levelIndex, result.stars);
+        this.AdvanceToNextLevel();
+        return result;
+    }
+
+    ClaimReward(coins)
+    {
+        this._EnsureStarted();
+        this._progress.coins += Math.max(0, Math.round(coins));
+        this._SaveProgress();
+        this._revision++;
+        return this._progress.coins;
+    }
+
+    CanContinueWithCoins() { this._EnsureStarted(); return this._progress.coins >= this.continuePrice; }
+
+    // Ходы кончились: продолжить за монеты; false — уровень не проигран или монет не хватает
+    ContinueWithCoins()
+    {
+        this._EnsureStarted();
+        if (this._level.GetState() != "lost" || !this.CanContinueWithCoins())
+            return false;
+        this._progress.coins -= this.continuePrice;
+        this._SaveProgress();
+        this._level.AddMoves(this.continueMoves);
+        this._revision++;
+        return true;
+    }
+
+    // Продолжить за просмотр рекламы
+    ContinueForAd()
+    {
+        this._EnsureStarted();
+        if (this._level.GetState() != "lost")
+            return false;
+        this._level.AddMoves(this.continueMoves);
+        this._revision++;
+        return true;
+    }
+
+    // Отказ от продолжения: жизнь сгорает, уровень начнётся заново
+    GiveUpLevel()
+    {
+        this._EnsureStarted();
+        this.GetLives();
+        if (this._progress.lives >= this.maxLives)
+            this._progress.livesAt = Date.now();
+        this._progress.lives = Math.max(0, this._progress.lives - 1);
+        this._SaveProgress();
+        this.RestartLevel();
+    }
+
     IsTutorialSeen(key) { this._EnsureStarted(); return this._progress.IsTutorialSeen(key); }
 
     // Запомнить показанный туториал (сохраняет прогресс)
@@ -578,6 +667,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         var self = this;
         o2.Profile("WordFall: progress", function() {
             self._progress.Load(self.progressPath);
+            if (self._progress.coins < 0)
+                self._progress.coins = self.startCoins;
             WordFallLanguages.SetCurrent(self._progress.language);
         });
         o2.Profile("WordFall: dictionary", function() { self._Dictionary(); });
@@ -614,6 +705,12 @@ WordFallGameService = class WordFallGameService extends o2.Component
         });
 
         o2.Profile("WordFall: start level", function() { self.StartLevel(self._progress.currentLevel); });
+    }
+
+    _SaveProgress()
+    {
+        if (!this._progress.Save(this.progressPath))
+            print("WordFall: failed to save progress to " + this.progressPath);
     }
 
     _SaveStore()
