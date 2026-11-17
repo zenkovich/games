@@ -529,7 +529,7 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarStarAndFillItGradually)
 	auto starDrawable = flyerWidget->GetLayer("star")->GetDrawable();
 	ASSERT_TRUE(starDrawable);
 	Basis starBasis = starDrawable->GetBasis();
-	Vec2F starCenter = starBasis.origin + starBasis.xv*0.5f + starBasis.yv*0.5f;
+	Vec2F starCenter = WorldToGame(starBasis.origin + starBasis.xv*0.5f + starBasis.yv*0.5f);
 	EXPECT_NEAR(starCenter.x, aim.x, 4.0f);
 	EXPECT_NEAR(starCenter.y, aim.y, 4.0f);
 

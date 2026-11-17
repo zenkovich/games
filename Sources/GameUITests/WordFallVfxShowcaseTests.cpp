@@ -341,9 +341,9 @@ TEST_F(WordFallVfxShowcase, RocketArrivesAtTargetTileCenter)
 			return;
 
 		arrived = true;
-		arrival = rocket->transform->GetWorldPosition().XY();
+		arrival = WorldToGame(rocket->transform->GetWorldPosition().XY());
 		arrivalRect = DynamicCast<Widget>(rocket)->layout->GetWorldRect().Center();
-		glitterAt = rocket->GetChild("Glitter")->transform->GetWorldPosition().XY();
+		glitterAt = WorldToGame(rocket->GetChild("Glitter")->transform->GetWorldPosition().XY());
 	});
 	ASSERT_TRUE(arrived) << "ракета не долетела до конца траектории";
 
@@ -510,7 +510,7 @@ TEST_F(WordFallVfxShowcase, RocketKeepsSpeedAndArcsAroundCloseTargets)
 		if (!rocket->IsEnabled() || trajectory->GetPosition() >= 1.0f)
 			return;
 
-		Vec2F position = rocket->transform->GetWorldPosition().XY();
+		Vec2F position = WorldToGame(rocket->transform->GetWorldPosition().XY());
 		if (!flying)
 		{
 			flying = true;

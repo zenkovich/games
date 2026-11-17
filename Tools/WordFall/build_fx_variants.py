@@ -3,7 +3,9 @@
 
 Every spec below makes a pool of emitters S_<name>_<i>: WordFallVfx plays them in turn, a rocket trail takes one
 for the flight. The game picks a variant by WordFallFxView.bombStyle / rocketStyle / fireworksStyle (0 - the
-original effects, which stay as they are). Rerunning rebuilds the S_ emitters with the same ids.
+original effects, which stay as they are). Rerunning rebuilds the S_ emitters with the same ids. The specs are in the
+game screen's own units (its 868x1813 frame): sizes, speeds, gravity and areas are written at the scale of its root actor
+(apply_camera_units.py fits it into the ui camera), since particles do not take their parents' scale.
 
     python3 Tools/WordFall/build_fx_variants.py
 """
@@ -249,13 +251,13 @@ FIREWORKS = [
 SPECS = BOMB + ROCKET + FIREWORKS
 
 
-def emitter_actor(spec, index):
+def emitter_actor(spec, index, units=1.0):
     s = spec
     rate = s["rate"] if s["rate"] is not None else s["count"]/s["emit"]
     lifetime = s["life"]
     effects = []
     if s["gravity"] is not None:
-        effects.append({"Type": "o2::ParticlesGravityEffect", "Value": {"mGravity": {"x": 0.0, "y": float(s["gravity"]), "z": 0.0}}})
+        effects.append({"Type": "o2::ParticlesGravityEffect", "Value": {"mGravity": {"x": 0.0, "y": float(s["gravity"])*units, "z": 0.0}}})
     if s["damping"] is not None:
         effects.append({"Type": "o2::ParticlesDampingEffect", "Value": {"mDamping": float(s["damping"])}})
     if s["random_colors"]:
@@ -266,7 +268,7 @@ def emitter_actor(spec, index):
     if s["size_curve"]:
         effects.append({"Type": "o2::ParticlesSizeEffect", "Value": {"curve": curve(s["size_curve"])}})
     if s["stretch"]:
-        effects.append({"Type": "o2::ParticlesVelocityStretchEffect", "Value": {"mStretch": s["stretch"][0], "mMaxStretch": s["stretch"][1]}})
+        effects.append({"Type": "o2::ParticlesVelocityStretchEffect", "Value": {"mStretch": s["stretch"][0]/units, "mMaxStretch": s["stretch"][1]}})
 
     component = {
         "mDuration": s["emit"] + lifetime + s["life_range"]*0.5,
@@ -282,16 +284,16 @@ def emitter_actor(spec, index):
         "mEmitParticlesPerSecond": float(rate),
         "mInitialAngle": float(s["angle"]),
         "mInitialAngleRange": float(s["angle_range"]),
-        "mInitialSize": float(s["size"]),
-        "mInitialSizeRange": float(s["size_range"]),
+        "mInitialSize": float(s["size"])*units,
+        "mInitialSizeRange": float(s["size_range"])*units,
         "mInitialWidthScale": float(s["width"]),
         "mInitialWidthScaleRange": float(s["width_range"]),
-        "mInitialSpeed": float(s["speed"]),
-        "mInitialSpeedRangle": float(s["speed_range"]),
+        "mInitialSpeed": float(s["speed"])*units,
+        "mInitialSpeedRangle": float(s["speed_range"])*units,
         "mInitialMoveDirection": float(s["direction"]),
         "mInitialMoveDirectionRange": float(s["direction_range"]),
         "mId": uid(),
-        "mSize": {"x": float(s["area"]), "y": float(s["area"]), "z": 0.0},
+        "mSize": {"x": float(s["area"])*units, "y": float(s["area"])*units, "z": 0.0},
         "mPivot": {"x": 0.5, "y": 0.5, "z": 0.0},
     }
     if s["shell"]:
@@ -326,11 +328,12 @@ def main():
     raw = PROTO.read_text(encoding="utf-8")
     doc = json.loads(raw)
     vfx = find(doc["mActor"], "Vfx")
+    units = data(doc["mActor"]).get("Transform", {}).get("scale", {}).get("x", 1.0)
     children = [ch for ch in data(vfx)["Children"] if not data(ch).get("mName", "").startswith("S_")]
     count = 0
     for spec in SPECS:
         for i in range(spec["pool"]):
-            children.append(emitter_actor(spec, i))
+            children.append(emitter_actor(spec, i, units))
             count += 1
     data(vfx)["Children"] = children
     PROTO.write_text(json.dumps(doc, ensure_ascii="\\u0" in raw, indent=4) + "\n", encoding="utf-8")

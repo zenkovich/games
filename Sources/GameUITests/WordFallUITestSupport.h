@@ -234,7 +234,19 @@ namespace
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
 	const String kTestLevelsPath = "wordfall_test_levels.json"; // правки редактора уровней в тестах — не в файле игрока
 
-	const Vec2F kScreenSize(868, 1813); // логический экран игры (вёрстка Generated/UI/Screen.proto), fitted-камера сцены WordFall.scn
+	const Vec2F kCameraSize(1179, 2556);     // fitted-камера сцены WordFall.scn: экран iPhone 16, устройство UI kit пайплайна «Wordfall UI»
+	const Vec2F kScreenSize(868, 1813);      // кадр экрана игры в его единицах (вёрстка Generated/UI/Screen.proto)
+	const float kGameScale = 1179.0f/868.0f; // корень экрана игры вписан в кадр камеры по ширине
+
+	// Точка экрана игры (его прямоугольники раскладки) в мире, где рисуются слои и летят эффекты: корень в нуле, масштаб
+	Vec2F GameToWorld(const Vec2F& point) { return point*kGameScale; }
+	Vec2F WorldToGame(const Vec2F& point) { return point/kGameScale; }
+
+	// Пикселей окна (картинки размером size) на единицу экрана игры
+	float GameToWindowScale(const Vec2F& size)
+	{
+		return Math::Min(size.x/kCameraSize.x, size.y/kCameraSize.y)*kGameScale;
+	}
 
 	// Центр плитки в экранных координатах — как его считает вьюха поля
 	Vec2F TilePosition(int column, int row)
@@ -259,12 +271,10 @@ namespace
 
 	// Портретное окно система может ужать по высоте экрана; fitted-камера масштабирует
 	// картинку, ввод конвертируется через камеру — кликаем в оконных координатах:
-	// мировые * масштаб камеры
+	// координаты экрана игры * его масштаб * масштаб камеры
 	Vec2F ToWindow(const Vec2F& worldPos)
 	{
-		Vec2F resolution = (Vec2F)o2Render.GetResolution();
-		float scale = Math::Min(resolution.x/kScreenSize.x, resolution.y/kScreenSize.y);
-		return worldPos*scale;
+		return worldPos*GameToWindowScale((Vec2F)o2Render.GetResolution());
 	}
 
 	void Click(const Vec2F& worldPos)
@@ -282,7 +292,7 @@ namespace
 	Color4 ScreenPixel(const Ref<Bitmap>& frame, const Vec2F& worldPos)
 	{
 		Vec2I size = frame->GetSize();
-		float scale = Math::Min(size.x/kScreenSize.x, size.y/kScreenSize.y);
+		float scale = GameToWindowScale((Vec2F)size);
 		int x = Math::Clamp((int)(size.x*0.5f + worldPos.x*scale), 0, size.x - 1);
 		int y = Math::Clamp((int)(size.y*0.5f + worldPos.y*scale), 0, size.y - 1);
 		const UInt8* p = &frame->GetData()[(y*size.x + x)*4];
@@ -390,6 +400,9 @@ protected:
 	// Кампания из campaign.json вместо процедурной генерации
 	virtual bool UseCampaign() const { return false; }
 
+	// Игра с главного экрана и окон меты; иначе уровень сразу, финал в попапе поля
+	virtual bool StartOnMainScreen() const { return false; }
+
 	// Загружает сцену игры; сервис настраивается до старта уровня
 	void LoadScene()
 	{
@@ -400,6 +413,8 @@ protected:
 
 		ASSERT_TRUE(WordFallJsService::Object().IsObject()) << "сцена без WordFallGame.service";
 		mService = &mServiceView;
+		if (!StartOnMainScreen())
+			o2Scripts.Eval("WordFallGame.screens.startOnMain = false");
 	}
 
 	void SetUp() override

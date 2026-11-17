@@ -225,7 +225,7 @@ TEST_F(WordFallMainScreenUI, TileColoursAreRandomAndTravelWithTheTiles)
 		for (int r = 0; r < 8; r++)
 		{
 			auto back = DynamicCast<Widget>(board->GetChild(String::Format("Tile_%i_%i", c, r)))->GetLayer("back");
-			EXPECT_NEAR(back->GetDrawable()->GetRect().Width(), back->GetRect().Width(), 0.5f) << c << "," << r;
+			EXPECT_NEAR(back->GetDrawable()->GetSize2D().x, back->GetRect().Width(), 0.5f) << c << "," << r;
 		}
 	}
 

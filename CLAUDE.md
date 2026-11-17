@@ -228,7 +228,16 @@ Rules that hold there:
   saves the campaign or a level to a file and loads any of them back, and takes the field (shape,
   crates, chains, ice, stones, bonuses) from a Gardenscapes / Homescapes level XML
   (`Core/WordFallMatch3Import.js`; natively from `match3ImportPath` next to the executable).
-- The main screen (868x1813, the fitted camera of `WordFall.scn`) follows the layout of the "Wordfall main"
+- Units: the ui camera of `WordFall.scn` is the screen of the "Wordfall UI" pipeline's UI kit device, iPhone 16
+  (FittedSize 1179x2556, one world unit = one pixel of it); the camera fits it into the window or the device.
+  `Tools/WordFall/apply_camera_units.py` sets it and fits the screens laid out in an 868x1813 frame (the game screen, the
+  level editor) into it by their root actors' scale 1179/868; their scripts keep working in their own units (layout rects
+  are unscaled). Under a scaled widget o2 layers keep the layout size and pass the scale to their drawables, so letters
+  and sliced-sprite corners are magnified with the screen (before that fix the texts of the scaled screen looked small). Particles take size, speed and gravity in world units, not from the parents' scale: the script scales
+  every emitter of GameScreen, FxRocket and FxFlyingLetter by the same factor (velocity stretch by its inverse), and
+  `build_fx_variants.py` writes its emitters at the game screen's scale. UI tests click in game-screen units
+  (`ToWindow` = × `kGameScale` × camera fit, `kCameraSize` 1179x2556, `kScreenSize` 868x1813 is the game frame).
+- The game screen (868x1813 in its own units) follows the layout of the "Wordfall main"
   pipeline: `Assets/Generated/UI/Screen.proto` (its imageToUi node) with raster sprites and Roboto fonts in
   `Generated/UI/Screen_Resources`. The sprites are packed into the o2 atlas `Screen_Resources/ScreenUI.atlas`
   (every image meta has its `atlasId`). `Tools/WordFall/apply_screen_layout.py` moves the layout onto
@@ -260,3 +269,23 @@ Rules that hold there:
   still uses the composer sprites in `WordFall/SpritesNew`. `LevelEditorScreen.proto` and the Cheats panel of
   `GameScreen.proto` are scaffolded by `Tools/WordFall/build_screens.py`. After that the prototypes are the
   source of truth — rerunning a script discards editor tweaks.
+- Meta screens follow the "Wordfall UI" pipeline (three AI UI layout nodes on one UI kit): the main screen, the victory
+  window and the continue window are `WordFall/UI/{MainScreen,VictoryWindow,ContinueWindow}.proto`, designed at 1179x2112
+  (iPhone 16, 460 dpi). The UI kit lives in one folder, `WordFall/UIKit` (`Sprites` — the kit graphics the screens use, with their nine-slice
+  borders, `Fonts`, `FontStyles`); a screen's `_Resources` keeps only its own graphics (backdrop, season pass).
+  `Tools/WordFall/save_ui_layouts/save_ui_layouts.sh` saves the layouts again (the node's Save to project run headless in
+  o2EditorUITests, own graphics taken from the nodes' cached outputs) and runs `Tools/WordFall/apply_ui_screens.py`, which
+  merges the kit into `WordFall/UIKit` (uids rewritten), lifts the drawing depths over the game screen (main 200+, windows
+  400+), drops the windows' backdrops, adds pressed states, the main screen's counters and the view scripts, and puts each
+  screen into the ui camera's frame. Don't Save to project from the editor without renaming the layouts' roots: all three
+  are named "Screen" and would overwrite `Generated/UI/Screen.proto` of the game screen. Screens live inside the ui camera
+  (iPhone 16, see Units) — no runtime layout code: the root is the camera's frame 1179x2556 at scale 1, the 1179x2112
+  design goes into it like Expand (the extra height goes to the anchors), the backdrop keeps its proportions and covers as
+  far as the game screen's BG reaches (20:9 phones) with what the layout put on it as its children, the windows' dimmers
+  reach as far. `WordFallBootstrap` starts
+  on the main screen (`startOnMain`; the UI test fixture switches it off for the old suites) and, after the end-of-level
+  effects, opens the victory window over the main screen (`WinLevel` → reward claimed ×1 or ×2 for an ad) or the continue
+  window over the board (+`continueMoves` for `continuePrice` coins or an ad; the cross gives up: a life burns, back to the
+  main screen). The board's own popup only works without the main screen. Ads are not wired: watching one is granted at
+  once. Coins, lives (regen `lifeRegenSeconds`), stars per level are in `PlayerProgress`. Tests: `GameTests/WordFallMeta`,
+  `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`).
