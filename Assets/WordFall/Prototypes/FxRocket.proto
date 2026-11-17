@@ -169,10 +169,10 @@
                                     "mParticlesLifetime": 0.30000001192092896,
                                     "mEmitParticlesPerSecond": 28.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.09000000357627869,
-                                    "mInitialSizeRange": 0.029999999329447746,
-                                    "mInitialSpeed": 24.0,
-                                    "mInitialSpeedRangle": 16.0,
+                                    "mInitialSize": 0.12224654863644306,
+                                    "mInitialSizeRange": 0.040748847015459555,
+                                    "mInitialSpeed": 32.59907834101382,
+                                    "mInitialSpeedRangle": 21.732718894009217,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 12867698085400471602,
                                     "mPivot": {
@@ -319,7 +319,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -300.0,
+                                                    "y": -407.4884792626728,
                                                     "z": 0.0
                                                 }
                                             }
@@ -337,10 +337,10 @@
                                     "mParticlesLifetime": 0.41999998688697815,
                                     "mEmitParticlesPerSecond": 110.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.46000000834465027,
-                                    "mInitialSizeRange": 0.1599999964237213,
-                                    "mInitialSpeed": 90.0,
-                                    "mInitialSpeedRangle": 60.0,
+                                    "mInitialSize": 0.6248156795372611,
+                                    "mInitialSizeRange": 0.21732718408245097,
+                                    "mInitialSpeed": 122.24654377880185,
+                                    "mInitialSpeedRangle": 81.49769585253456,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 13094248796985739659,
                                     "mPivot": {
@@ -480,7 +480,7 @@
                                     "mIsParticlesRelative": false,
                                     "mParticlesLifetime": 0.18000000715255737,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.41999998688697815,
+                                    "mInitialSize": 0.5704838531563908,
                                     "mInitialSizeRange": 0.0,
                                     "mInitialSpeed": 0.0,
                                     "mInitialSpeedRangle": 0.0,
@@ -635,7 +635,7 @@
                                         {
                                             "Type": "o2::ParticlesVelocityStretchEffect",
                                             "Value": {
-                                                "mStretch": 0.0012000000569969416,
+                                                "mStretch": 0.0008834606017585626,
                                                 "mMaxStretch": 1.350000023841858
                                             }
                                         },
@@ -644,7 +644,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -520.0,
+                                                    "y": -706.3133640552995,
                                                     "z": 0.0
                                                 }
                                             }
@@ -661,10 +661,10 @@
                                     "mParticlesLifetime": 0.6000000238418579,
                                     "mEmitParticlesPerSecond": 100.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.20000000298023224,
-                                    "mInitialSizeRange": 0.07999999821186066,
-                                    "mInitialSpeed": 360.0,
-                                    "mInitialSpeedRangle": 180.0,
+                                    "mInitialSize": 0.27165899022314954,
+                                    "mInitialSizeRange": 0.10866359204122548,
+                                    "mInitialSpeed": 488.9861751152074,
+                                    "mInitialSpeedRangle": 244.4930875576037,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 24687300854828710,
                                     "mPivot": {
@@ -816,7 +816,7 @@
                                         {
                                             "Type": "o2::ParticlesVelocityStretchEffect",
                                             "Value": {
-                                                "mStretch": 0.0012000000569969416,
+                                                "mStretch": 0.0008834606017585626,
                                                 "mMaxStretch": 1.350000023841858
                                             }
                                         },
@@ -825,7 +825,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -520.0,
+                                                    "y": -706.3133640552995,
                                                     "z": 0.0
                                                 }
                                             }
@@ -842,10 +842,10 @@
                                     "mParticlesLifetime": 0.6000000238418579,
                                     "mEmitParticlesPerSecond": 100.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.20000000298023224,
-                                    "mInitialSizeRange": 0.07999999821186066,
-                                    "mInitialSpeed": 360.0,
-                                    "mInitialSpeedRangle": 180.0,
+                                    "mInitialSize": 0.27165899022314954,
+                                    "mInitialSizeRange": 0.10866359204122548,
+                                    "mInitialSpeed": 488.9861751152074,
+                                    "mInitialSpeedRangle": 244.4930875576037,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 14971424316191114593,
                                     "mPivot": {
@@ -997,7 +997,7 @@
                                         {
                                             "Type": "o2::ParticlesVelocityStretchEffect",
                                             "Value": {
-                                                "mStretch": 0.0012000000569969416,
+                                                "mStretch": 0.0008834606017585626,
                                                 "mMaxStretch": 1.350000023841858
                                             }
                                         },
@@ -1006,7 +1006,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -520.0,
+                                                    "y": -706.3133640552995,
                                                     "z": 0.0
                                                 }
                                             }
@@ -1023,10 +1023,10 @@
                                     "mParticlesLifetime": 0.6000000238418579,
                                     "mEmitParticlesPerSecond": 100.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.20000000298023224,
-                                    "mInitialSizeRange": 0.07999999821186066,
-                                    "mInitialSpeed": 360.0,
-                                    "mInitialSpeedRangle": 180.0,
+                                    "mInitialSize": 0.27165899022314954,
+                                    "mInitialSizeRange": 0.10866359204122548,
+                                    "mInitialSpeed": 488.9861751152074,
+                                    "mInitialSpeedRangle": 244.4930875576037,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 8003372165940694401,
                                     "mPivot": {
@@ -1202,7 +1202,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -420.0,
+                                                    "y": -570.483870967742,
                                                     "z": 0.0
                                                 }
                                             }
@@ -1219,10 +1219,10 @@
                                     "mParticlesLifetime": 1.0,
                                     "mEmitParticlesPerSecond": 100.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.23999999463558197,
-                                    "mInitialSizeRange": 0.10000000149011612,
-                                    "mInitialSpeed": 250.0,
-                                    "mInitialSpeedRangle": 150.0,
+                                    "mInitialSize": 0.32599077612367644,
+                                    "mInitialSizeRange": 0.13582949511157477,
+                                    "mInitialSpeed": 339.573732718894,
+                                    "mInitialSpeedRangle": 203.7442396313364,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 14552490473834212585,
                                     "mPivot": {
@@ -1373,7 +1373,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -260.0,
+                                                    "y": -353.15668202764977,
                                                     "z": 0.0
                                                 }
                                             }
@@ -1390,10 +1390,10 @@
                                     "mParticlesLifetime": 0.6499999761581421,
                                     "mEmitParticlesPerSecond": 100.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.1599999964237213,
-                                    "mInitialSizeRange": 0.07999999821186066,
-                                    "mInitialSpeed": 140.0,
-                                    "mInitialSpeedRangle": 90.0,
+                                    "mInitialSize": 0.21732718408245097,
+                                    "mInitialSizeRange": 0.10866359204122548,
+                                    "mInitialSpeed": 190.16129032258064,
+                                    "mInitialSpeedRangle": 122.24654377880185,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 15011327185319114279,
                                     "mPivot": {

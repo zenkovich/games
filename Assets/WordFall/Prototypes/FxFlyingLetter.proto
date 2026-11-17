@@ -90,7 +90,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -90.0,
+                                                    "y": -122.24654377880185,
                                                     "z": 0.0
                                                 }
                                             }
@@ -235,17 +235,17 @@
                                     "mParticlesLifetimeRange": 0.0,
                                     "mEmitParticlesPerSecond": 14.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.17,
-                                    "mInitialSizeRange": 0.07,
+                                    "mInitialSize": 0.23091013824884796,
+                                    "mInitialSizeRange": 0.09508064516129033,
                                     "mInitialWidthScale": 1.0,
-                                    "mInitialSpeed": 40.0,
-                                    "mInitialSpeedRangle": 40.0,
+                                    "mInitialSpeed": 54.331797235023046,
+                                    "mInitialSpeedRangle": 54.331797235023046,
                                     "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 13317882420296736339,
                                     "mSize": {
-                                        "x": 26,
-                                        "y": 26,
+                                        "x": 35.315668202764975,
+                                        "y": 35.315668202764975,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -313,7 +313,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -90.0,
+                                                    "y": -122.24654377880185,
                                                     "z": 0.0
                                                 }
                                             }
@@ -458,17 +458,17 @@
                                     "mParticlesLifetimeRange": 0.0,
                                     "mEmitParticlesPerSecond": 14.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.17,
-                                    "mInitialSizeRange": 0.07,
+                                    "mInitialSize": 0.23091013824884796,
+                                    "mInitialSizeRange": 0.09508064516129033,
                                     "mInitialWidthScale": 1.0,
-                                    "mInitialSpeed": 40.0,
-                                    "mInitialSpeedRangle": 40.0,
+                                    "mInitialSpeed": 54.331797235023046,
+                                    "mInitialSpeedRangle": 54.331797235023046,
                                     "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 10761946745808986862,
                                     "mSize": {
-                                        "x": 26,
-                                        "y": 26,
+                                        "x": 35.315668202764975,
+                                        "y": 35.315668202764975,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -536,7 +536,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -320.0,
+                                                    "y": -434.65437788018437,
                                                     "z": 0.0
                                                 }
                                             }
@@ -669,17 +669,17 @@
                                     "mParticlesLifetimeRange": 0.0,
                                     "mEmitParticlesPerSecond": 50.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.24,
-                                    "mInitialSizeRange": 0.08,
+                                    "mInitialSize": 0.32599078341013826,
+                                    "mInitialSizeRange": 0.10866359447004609,
                                     "mInitialWidthScale": 1.0,
-                                    "mInitialSpeed": 280.0,
-                                    "mInitialSpeedRangle": 140.0,
+                                    "mInitialSpeed": 380.3225806451613,
+                                    "mInitialSpeedRangle": 190.16129032258064,
                                     "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 11555472389683638968,
                                     "mSize": {
-                                        "x": 20,
-                                        "y": 20,
+                                        "x": 27.165898617511523,
+                                        "y": 27.165898617511523,
                                         "z": 0.0
                                     },
                                     "mPivot": {
@@ -747,7 +747,7 @@
                                             "Value": {
                                                 "mGravity": {
                                                     "x": 0.0,
-                                                    "y": -320.0,
+                                                    "y": -434.65437788018437,
                                                     "z": 0.0
                                                 }
                                             }
@@ -880,17 +880,17 @@
                                     "mParticlesLifetimeRange": 0.0,
                                     "mEmitParticlesPerSecond": 50.0,
                                     "mInitialAngleRange": 360.0,
-                                    "mInitialSize": 0.24,
-                                    "mInitialSizeRange": 0.08,
+                                    "mInitialSize": 0.32599078341013826,
+                                    "mInitialSizeRange": 0.10866359447004609,
                                     "mInitialWidthScale": 1.0,
-                                    "mInitialSpeed": 280.0,
-                                    "mInitialSpeedRangle": 140.0,
+                                    "mInitialSpeed": 380.3225806451613,
+                                    "mInitialSpeedRangle": 190.16129032258064,
                                     "mInitialMoveDirection": 0.0,
                                     "mInitialMoveDirectionRange": 360.0,
                                     "mId": 12255633346768181570,
                                     "mSize": {
-                                        "x": 20,
-                                        "y": 20,
+                                        "x": 27.165898617511523,
+                                        "y": 27.165898617511523,
                                         "z": 0.0
                                     },
                                     "mPivot": {
