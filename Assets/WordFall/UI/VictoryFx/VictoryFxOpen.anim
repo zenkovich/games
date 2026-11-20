@@ -1,0 +1,150 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_halo/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 5577446518333482817,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.125,
+                                        "rightSupportValue": 0.75
+                                    },
+                                    {
+                                        "uid": 9183761876650132666,
+                                        "value": 1.0,
+                                        "position": 0.5,
+                                        "leftSupportPosition": -0.25,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_rays/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 5178781845545609757,
+                                        "value": 0.0,
+                                        "position": 0.1,
+                                        "rightSupportPosition": 0.17500000000000002,
+                                        "rightSupportValue": 0.75
+                                    },
+                                    {
+                                        "uid": 1959443742297574494,
+                                        "value": 1.0,
+                                        "position": 0.8,
+                                        "leftSupportPosition": -0.35000000000000003,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_rays/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 1110408068992135721,
+                                        "value": 0.55,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.225,
+                                        "rightSupportValue": 0.33749999999999997
+                                    },
+                                    {
+                                        "uid": 8155562763574625911,
+                                        "value": 1.0,
+                                        "position": 0.9,
+                                        "leftSupportPosition": -0.45,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_rays/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 7933321145622326773,
+                                        "value": 0.55,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.225,
+                                        "rightSupportValue": 0.33749999999999997
+                                    },
+                                    {
+                                        "uid": 416095061928314188,
+                                        "value": 1.0,
+                                        "position": 0.9,
+                                        "leftSupportPosition": -0.45,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/confetti_left/child/warm/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.25,
+                        "mSubTrackDuration": 2.66
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/confetti_left/child/cool/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.25,
+                        "mSubTrackDuration": 2.66
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/confetti_right/child/warm/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.32,
+                        "mSubTrackDuration": 2.66
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/confetti_right/child/cool/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.32,
+                        "mSubTrackDuration": 2.66
+                    }
+                }
+            ],
+            "mDuration": 3.03
+        }
+    }
+}

@@ -1810,6 +1810,992 @@
                             {
                                 "Type": "o2::Widget",
                                 "Data": {
+                                    "mDrawingDepth": 432.5,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "victory_fx",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 806294955265382704,
+                                    "Transform": {
+                                        "anchorMax": {
+                                            "x": 1.0,
+                                            "y": 1.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [],
+                                    "States": [],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Image",
+                                            "Data": {
+                                                "mDrawingDepth": 432.6,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "glow_rays",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 2383339230179296247,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -983.0,
+                                                        "y": -1924.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 1017.0,
+                                                        "y": 76.0
+                                                    },
+                                                    "pivot": {
+                                                        "x": 0.5,
+                                                        "y": 0.5,
+                                                        "z": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "image",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Sprite",
+                                                                "Value": {
+                                                                    "mColor": {
+                                                                        "r": 255,
+                                                                        "g": 224,
+                                                                        "b": 150,
+                                                                        "a": 90
+                                                                    },
+                                                                    "mImageAsset": {
+                                                                        "id": "6a945eaa2183c4531c99d696aef643be",
+                                                                        "path": "WordFall/Sprites/vfx_rays.png"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 1914276459893575942
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::Image",
+                                            "Data": {
+                                                "mDrawingDepth": 432.7,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "glow_halo",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 756652103524112839,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -733.0,
+                                                        "y": -1674.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 767.0,
+                                                        "y": -174.0
+                                                    },
+                                                    "pivot": {
+                                                        "x": 0.5,
+                                                        "y": 0.5,
+                                                        "z": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "image",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Sprite",
+                                                                "Value": {
+                                                                    "mColor": {
+                                                                        "r": 255,
+                                                                        "g": 200,
+                                                                        "b": 110,
+                                                                        "a": 140
+                                                                    },
+                                                                    "mImageAsset": {
+                                                                        "id": "006eeda86fc418c044e7d345f716b5d8",
+                                                                        "path": "WordFall/Sprites/vfx_glow.png"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 756713842986866207
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::Widget",
+                                            "Data": {
+                                                "mDrawingDepth": 462.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "confetti_left",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 3150715468577398947,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -20.0,
+                                                        "y": -900.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 40.0,
+                                                        "y": -820.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [],
+                                                "States": [],
+                                                "Children": [
+                                                    {
+                                                        "Type": "o2::Actor",
+                                                        "Data": {
+                                                            "mDrawingDepth": 462.0,
+                                                            "mInheritDrawingDepthFromParent": false,
+                                                            "mName": "warm",
+                                                            "mSceneLayer": {
+                                                                "Type": "o2::SceneLayer",
+                                                                "Value": {
+                                                                    "mName": "UI"
+                                                                }
+                                                            },
+                                                            "Id": 5990800288018279006,
+                                                            "Transform": {
+                                                                "position": {
+                                                                    "x": 30.0,
+                                                                    "y": 40.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "size": {
+                                                                    "x": 60.0,
+                                                                    "y": 80.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "pivot": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5,
+                                                                    "z": 0.0
+                                                                }
+                                                            },
+                                                            "Components": [
+                                                                {
+                                                                    "Type": "o2::ParticlesEmitterComponent",
+                                                                    "Data": {
+                                                                        "mDuration": 2.66,
+                                                                        "mEndTime": 2.66,
+                                                                        "mParticlesSource": {
+                                                                            "Type": "o2::SingleSpriteParticleSource",
+                                                                            "Value": {
+                                                                                "image": {
+                                                                                    "id": "c99f36688c16051d85607edad8ae8213",
+                                                                                    "path": "WordFall/Sprites/vfx_confetti.png"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "mShape": {
+                                                                            "Type": "o2::CircleParticlesEmitterShape",
+                                                                            "Value": {}
+                                                                        },
+                                                                        "mEffects": [
+                                                                            {
+                                                                                "Type": "o2::ParticlesGravityEffect",
+                                                                                "Value": {
+                                                                                    "mGravity": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -1100.0,
+                                                                                        "z": 0.0
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesDampingEffect",
+                                                                                "Value": {
+                                                                                    "mDamping": 1.9
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesRandomColorEffect",
+                                                                                "Value": {
+                                                                                    "colorGradientA": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 1917489351482427452,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 4874806413294245279,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 6955433369492944038,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    "colorGradientB": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 7057199116301858011,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 459002325300736228,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 7081778621831358159,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesAngleSpeedEffect",
+                                                                                "Value": {
+                                                                                    "curve": {
+                                                                                        "Type": "o2::Curve",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 1984827093261728527,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 0.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 7251144703630579771,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 1.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        ],
+                                                                        "mParticlesNumLimit": 12,
+                                                                        "mIsParticlesRelative": false,
+                                                                        "mEmissionDuration": 0.06,
+                                                                        "mParticlesLifetime": 2.6,
+                                                                        "mEmitParticlesPerSecond": 250.0,
+                                                                        "mInitialAngle": 0.0,
+                                                                        "mInitialAngleRange": 360.0,
+                                                                        "mInitialSize": 0.6,
+                                                                        "mInitialSizeRange": 0.25,
+                                                                        "mInitialWidthScale": 0.75,
+                                                                        "mInitialWidthScaleRange": 0.4,
+                                                                        "mInitialSpeed": 1750.0,
+                                                                        "mInitialSpeedRangle": 1100.0,
+                                                                        "mInitialMoveDirection": 62.0,
+                                                                        "mInitialMoveDirectionRange": 34.0,
+                                                                        "mId": 5658074063018973539
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "Type": "o2::Actor",
+                                                        "Data": {
+                                                            "mDrawingDepth": 462.0,
+                                                            "mInheritDrawingDepthFromParent": false,
+                                                            "mName": "cool",
+                                                            "mSceneLayer": {
+                                                                "Type": "o2::SceneLayer",
+                                                                "Value": {
+                                                                    "mName": "UI"
+                                                                }
+                                                            },
+                                                            "Id": 8624393190264050817,
+                                                            "Transform": {
+                                                                "position": {
+                                                                    "x": 30.0,
+                                                                    "y": 40.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "size": {
+                                                                    "x": 60.0,
+                                                                    "y": 80.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "pivot": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5,
+                                                                    "z": 0.0
+                                                                }
+                                                            },
+                                                            "Components": [
+                                                                {
+                                                                    "Type": "o2::ParticlesEmitterComponent",
+                                                                    "Data": {
+                                                                        "mDuration": 2.66,
+                                                                        "mEndTime": 2.66,
+                                                                        "mParticlesSource": {
+                                                                            "Type": "o2::SingleSpriteParticleSource",
+                                                                            "Value": {
+                                                                                "image": {
+                                                                                    "id": "c99f36688c16051d85607edad8ae8213",
+                                                                                    "path": "WordFall/Sprites/vfx_confetti.png"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "mShape": {
+                                                                            "Type": "o2::CircleParticlesEmitterShape",
+                                                                            "Value": {}
+                                                                        },
+                                                                        "mEffects": [
+                                                                            {
+                                                                                "Type": "o2::ParticlesGravityEffect",
+                                                                                "Value": {
+                                                                                    "mGravity": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -1100.0,
+                                                                                        "z": 0.0
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesDampingEffect",
+                                                                                "Value": {
+                                                                                    "mDamping": 1.9
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesRandomColorEffect",
+                                                                                "Value": {
+                                                                                    "colorGradientA": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 2562241949421493532,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 5277142794819076280,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 5939546681006946429,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    "colorGradientB": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 5455642504482931192,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 5910271667520986196,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 1427613324135314853,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesAngleSpeedEffect",
+                                                                                "Value": {
+                                                                                    "curve": {
+                                                                                        "Type": "o2::Curve",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 5723305126610866969,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 0.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 8108340649998107629,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 1.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        ],
+                                                                        "mParticlesNumLimit": 12,
+                                                                        "mIsParticlesRelative": false,
+                                                                        "mEmissionDuration": 0.06,
+                                                                        "mParticlesLifetime": 2.6,
+                                                                        "mEmitParticlesPerSecond": 250.0,
+                                                                        "mInitialAngle": 0.0,
+                                                                        "mInitialAngleRange": 360.0,
+                                                                        "mInitialSize": 0.6,
+                                                                        "mInitialSizeRange": 0.25,
+                                                                        "mInitialWidthScale": 0.75,
+                                                                        "mInitialWidthScaleRange": 0.4,
+                                                                        "mInitialSpeed": 1750.0,
+                                                                        "mInitialSpeedRangle": 1100.0,
+                                                                        "mInitialMoveDirection": 62.0,
+                                                                        "mInitialMoveDirectionRange": 34.0,
+                                                                        "mId": 5769276433517099614
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::Widget",
+                                            "Data": {
+                                                "mDrawingDepth": 462.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "confetti_right",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 829231414085568493,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -40.0,
+                                                        "y": -900.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 20.0,
+                                                        "y": -820.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [],
+                                                "States": [],
+                                                "Children": [
+                                                    {
+                                                        "Type": "o2::Actor",
+                                                        "Data": {
+                                                            "mDrawingDepth": 462.0,
+                                                            "mInheritDrawingDepthFromParent": false,
+                                                            "mName": "warm",
+                                                            "mSceneLayer": {
+                                                                "Type": "o2::SceneLayer",
+                                                                "Value": {
+                                                                    "mName": "UI"
+                                                                }
+                                                            },
+                                                            "Id": 8657216570211841377,
+                                                            "Transform": {
+                                                                "position": {
+                                                                    "x": 30.0,
+                                                                    "y": 40.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "size": {
+                                                                    "x": 60.0,
+                                                                    "y": 80.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "pivot": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5,
+                                                                    "z": 0.0
+                                                                }
+                                                            },
+                                                            "Components": [
+                                                                {
+                                                                    "Type": "o2::ParticlesEmitterComponent",
+                                                                    "Data": {
+                                                                        "mDuration": 2.66,
+                                                                        "mEndTime": 2.66,
+                                                                        "mParticlesSource": {
+                                                                            "Type": "o2::SingleSpriteParticleSource",
+                                                                            "Value": {
+                                                                                "image": {
+                                                                                    "id": "c99f36688c16051d85607edad8ae8213",
+                                                                                    "path": "WordFall/Sprites/vfx_confetti.png"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "mShape": {
+                                                                            "Type": "o2::CircleParticlesEmitterShape",
+                                                                            "Value": {}
+                                                                        },
+                                                                        "mEffects": [
+                                                                            {
+                                                                                "Type": "o2::ParticlesGravityEffect",
+                                                                                "Value": {
+                                                                                    "mGravity": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -1100.0,
+                                                                                        "z": 0.0
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesDampingEffect",
+                                                                                "Value": {
+                                                                                    "mDamping": 1.9
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesRandomColorEffect",
+                                                                                "Value": {
+                                                                                    "colorGradientA": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 353657602027099544,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 3704636979205528132,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 357998118238528812,
+                                                                                                    "color": {
+                                                                                                        "r": 255,
+                                                                                                        "g": 204,
+                                                                                                        "b": 64,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    "colorGradientB": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 2270017095820031859,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 2874354554433877066,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 2608981123971696675,
+                                                                                                    "color": {
+                                                                                                        "r": 246,
+                                                                                                        "g": 96,
+                                                                                                        "b": 128,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesAngleSpeedEffect",
+                                                                                "Value": {
+                                                                                    "curve": {
+                                                                                        "Type": "o2::Curve",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 4796404682762379909,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 0.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 2148514888897546066,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 1.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        ],
+                                                                        "mParticlesNumLimit": 12,
+                                                                        "mIsParticlesRelative": false,
+                                                                        "mEmissionDuration": 0.06,
+                                                                        "mParticlesLifetime": 2.6,
+                                                                        "mEmitParticlesPerSecond": 250.0,
+                                                                        "mInitialAngle": 0.0,
+                                                                        "mInitialAngleRange": 360.0,
+                                                                        "mInitialSize": 0.6,
+                                                                        "mInitialSizeRange": 0.25,
+                                                                        "mInitialWidthScale": 0.75,
+                                                                        "mInitialWidthScaleRange": 0.4,
+                                                                        "mInitialSpeed": 1750.0,
+                                                                        "mInitialSpeedRangle": 1100.0,
+                                                                        "mInitialMoveDirection": 118.0,
+                                                                        "mInitialMoveDirectionRange": 34.0,
+                                                                        "mId": 7069097171788176155
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "Type": "o2::Actor",
+                                                        "Data": {
+                                                            "mDrawingDepth": 462.0,
+                                                            "mInheritDrawingDepthFromParent": false,
+                                                            "mName": "cool",
+                                                            "mSceneLayer": {
+                                                                "Type": "o2::SceneLayer",
+                                                                "Value": {
+                                                                    "mName": "UI"
+                                                                }
+                                                            },
+                                                            "Id": 204916327331958953,
+                                                            "Transform": {
+                                                                "position": {
+                                                                    "x": 30.0,
+                                                                    "y": 40.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "size": {
+                                                                    "x": 60.0,
+                                                                    "y": 80.0,
+                                                                    "z": 0.0
+                                                                },
+                                                                "pivot": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5,
+                                                                    "z": 0.0
+                                                                }
+                                                            },
+                                                            "Components": [
+                                                                {
+                                                                    "Type": "o2::ParticlesEmitterComponent",
+                                                                    "Data": {
+                                                                        "mDuration": 2.66,
+                                                                        "mEndTime": 2.66,
+                                                                        "mParticlesSource": {
+                                                                            "Type": "o2::SingleSpriteParticleSource",
+                                                                            "Value": {
+                                                                                "image": {
+                                                                                    "id": "c99f36688c16051d85607edad8ae8213",
+                                                                                    "path": "WordFall/Sprites/vfx_confetti.png"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "mShape": {
+                                                                            "Type": "o2::CircleParticlesEmitterShape",
+                                                                            "Value": {}
+                                                                        },
+                                                                        "mEffects": [
+                                                                            {
+                                                                                "Type": "o2::ParticlesGravityEffect",
+                                                                                "Value": {
+                                                                                    "mGravity": {
+                                                                                        "x": 0.0,
+                                                                                        "y": -1100.0,
+                                                                                        "z": 0.0
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesDampingEffect",
+                                                                                "Value": {
+                                                                                    "mDamping": 1.9
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesRandomColorEffect",
+                                                                                "Value": {
+                                                                                    "colorGradientA": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 8416299355723573369,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 7017338210687150130,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 2676699954822893947,
+                                                                                                    "color": {
+                                                                                                        "r": 64,
+                                                                                                        "g": 200,
+                                                                                                        "b": 232,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    "colorGradientB": {
+                                                                                        "Type": "o2::ColorGradient",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 5579782356105847808,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 255
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 2178175369279414420,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 255
+                                                                                                    },
+                                                                                                    "position": 0.72
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 4545531582702171889,
+                                                                                                    "color": {
+                                                                                                        "r": 150,
+                                                                                                        "g": 112,
+                                                                                                        "b": 240,
+                                                                                                        "a": 0
+                                                                                                    },
+                                                                                                    "position": 1.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "Type": "o2::ParticlesAngleSpeedEffect",
+                                                                                "Value": {
+                                                                                    "curve": {
+                                                                                        "Type": "o2::Curve",
+                                                                                        "Value": {
+                                                                                            "mKeys": [
+                                                                                                {
+                                                                                                    "uid": 7755073668161795152,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 0.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                },
+                                                                                                {
+                                                                                                    "uid": 1625823446081833637,
+                                                                                                    "value": -7.0,
+                                                                                                    "position": 1.0,
+                                                                                                    "valueRange": 14.0
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        ],
+                                                                        "mParticlesNumLimit": 12,
+                                                                        "mIsParticlesRelative": false,
+                                                                        "mEmissionDuration": 0.06,
+                                                                        "mParticlesLifetime": 2.6,
+                                                                        "mEmitParticlesPerSecond": 250.0,
+                                                                        "mInitialAngle": 0.0,
+                                                                        "mInitialAngleRange": 360.0,
+                                                                        "mInitialSize": 0.6,
+                                                                        "mInitialSizeRange": 0.25,
+                                                                        "mInitialWidthScale": 0.75,
+                                                                        "mInitialWidthScaleRange": 0.4,
+                                                                        "mInitialSpeed": 1750.0,
+                                                                        "mInitialSpeedRangle": 1100.0,
+                                                                        "mInitialMoveDirection": 118.0,
+                                                                        "mInitialMoveDirectionRange": 34.0,
+                                                                        "mId": 5465730656515477970
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Widget",
+                                "Data": {
                                     "mDrawingDepth": 433.0,
                                     "mInheritDrawingDepthFromParent": false,
                                     "mName": "victory_popup",
@@ -3687,6 +4673,38 @@
                             "path": "Scripts/WordFall/WordFallVictoryView.js"
                         },
                         "mInstance": {}
+                    }
+                },
+                {
+                    "Type": "o2::AnimationComponent",
+                    "Data": {
+                        "mStates": [
+                            {
+                                "Type": "o2::AnimationState",
+                                "Value": {
+                                    "name": "open",
+                                    "autoPlay": false,
+                                    "mask": {},
+                                    "mAnimation": {
+                                        "id": "b4e1949162304e6e97b9f54b79dda2e2",
+                                        "path": "WordFall/UI/VictoryFx/VictoryFxOpen.anim"
+                                    }
+                                }
+                            },
+                            {
+                                "Type": "o2::AnimationState",
+                                "Value": {
+                                    "name": "idle",
+                                    "autoPlay": true,
+                                    "mask": {},
+                                    "mAnimation": {
+                                        "id": "66430f2525e213c14fe2fa2b9ebd6021",
+                                        "path": "WordFall/UI/VictoryFx/VictoryFxIdle.anim"
+                                    }
+                                }
+                            }
+                        ],
+                        "mId": 6578737761346887256
                     }
                 }
             ],
