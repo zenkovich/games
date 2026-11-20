@@ -289,3 +289,10 @@ Rules that hold there:
   main screen). The board's own popup only works without the main screen. Ads are not wired: watching one is granted at
   once. Coins, lives (regen `lifeRegenSeconds`), stars per level are in `PlayerProgress`. Tests: `GameTests/WordFallMeta`,
   `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`).
+
+<!-- o2 agent memory: imports -->
+## Agent memory
+
+The lessons the agents keep - this project's and the general ones of the o2 engine (synced with the o2 portal):
+@AgentMemory.md
+@o2/AgentMemory.md
