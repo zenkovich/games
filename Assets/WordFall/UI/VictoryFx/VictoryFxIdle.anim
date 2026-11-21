@@ -1,0 +1,438 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_rays/transform/angleDegrees",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 6090628716150467861,
+                                        "value": 0.0,
+                                        "position": 0.0
+                                    },
+                                    {
+                                        "uid": 4195103277963963442,
+                                        "value": -360.0,
+                                        "position": 40.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_halo/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 8071015552127703683,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3900735382613176593,
+                                        "value": 1.05,
+                                        "position": 2.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8608746432700893343,
+                                        "value": 1.0,
+                                        "position": 4.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 67787708156357033,
+                                        "value": 1.05,
+                                        "position": 6.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1386589431826639057,
+                                        "value": 1.0,
+                                        "position": 8.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7704157832971091735,
+                                        "value": 1.05,
+                                        "position": 10.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8174504874423549409,
+                                        "value": 1.0,
+                                        "position": 12.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2552669127976214943,
+                                        "value": 1.05,
+                                        "position": 14.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4851694621324861332,
+                                        "value": 1.0,
+                                        "position": 16.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4716439614642716804,
+                                        "value": 1.05,
+                                        "position": 18.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4922162106944058633,
+                                        "value": 1.0,
+                                        "position": 20.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2456056825498484235,
+                                        "value": 1.05,
+                                        "position": 22.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5950655459858710786,
+                                        "value": 1.0,
+                                        "position": 24.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8414192961579576354,
+                                        "value": 1.05,
+                                        "position": 26.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9050779194230064452,
+                                        "value": 1.0,
+                                        "position": 28.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2000922366982129747,
+                                        "value": 1.05,
+                                        "position": 30.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5210416542807465608,
+                                        "value": 1.0,
+                                        "position": 32.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1953040352817999157,
+                                        "value": 1.05,
+                                        "position": 34.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 6606493530583530260,
+                                        "value": 1.0,
+                                        "position": 36.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 6933601282580445992,
+                                        "value": 1.05,
+                                        "position": 38.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8802185432957290405,
+                                        "value": 1.0,
+                                        "position": 40.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/home_screen/child/victory_fx/child/glow_halo/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 4991666009544033971,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9156568591806802690,
+                                        "value": 1.05,
+                                        "position": 2.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8342439090546122092,
+                                        "value": 1.0,
+                                        "position": 4.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3521643384215935148,
+                                        "value": 1.05,
+                                        "position": 6.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3390203450506731052,
+                                        "value": 1.0,
+                                        "position": 8.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7286378819987863707,
+                                        "value": 1.05,
+                                        "position": 10.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4402046667156154002,
+                                        "value": 1.0,
+                                        "position": 12.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 834433478129605649,
+                                        "value": 1.05,
+                                        "position": 14.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 656787271022254490,
+                                        "value": 1.0,
+                                        "position": 16.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2500183584606315070,
+                                        "value": 1.05,
+                                        "position": 18.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8177931488543174824,
+                                        "value": 1.0,
+                                        "position": 20.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8260565888533509693,
+                                        "value": 1.05,
+                                        "position": 22.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1729511446900981656,
+                                        "value": 1.0,
+                                        "position": 24.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5107769873512262907,
+                                        "value": 1.05,
+                                        "position": 26.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1713814335934673944,
+                                        "value": 1.0,
+                                        "position": 28.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 91770846093667367,
+                                        "value": 1.05,
+                                        "position": 30.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 6195313192732159337,
+                                        "value": 1.0,
+                                        "position": 32.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8434972636462483234,
+                                        "value": 1.05,
+                                        "position": 34.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 569499218663181098,
+                                        "value": 1.0,
+                                        "position": 36.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8119045982250094159,
+                                        "value": 1.05,
+                                        "position": 38.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5346887341191973611,
+                                        "value": 1.0,
+                                        "position": 40.0,
+                                        "leftSupportPosition": -0.6666666666666666,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.6666666666666666,
+                                        "rightSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "mDuration": 40.0,
+            "mLoop": "Repeat"
+        }
+    }
+}

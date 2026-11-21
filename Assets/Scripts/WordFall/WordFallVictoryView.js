@@ -12,6 +12,9 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         super();
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.victory = this;
+        // свечение за окном и конфетти (home_screen/victory_fx) — состояния AnimationComponent окна
+        this.fxOpenState = "open";
+        this.fxIdleState = "idle";
         this._tweens = new WordFallUiTweens();
         this._ready = false;
         this._open = false;
@@ -34,6 +37,7 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         var hud = this._actor.GetChild("home_screen");
         var parchment = "victory_frame/victory_parchment/";
         this._content = hud;
+        this._fx = this._actor.GetComponent("o2::AnimationComponent");
         this._dim = hud.GetChild("modal_dimmer");
         this._dimTransparency = this._dim.GetTransparency();
         this._popup = hud.GetChild("victory_popup");
@@ -83,6 +87,12 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         this._stars.SetText(WordFallUi.FormatNumber(svc.GetStars()));
         this._content.SetEnabled(true);
         this._content.SetTransparency(1);
+
+        if (this._fx)
+        {
+            this._fx.RewindAndPlay(this.fxOpenState);
+            this._fx.Play(this.fxIdleState);
+        }
 
         WordFallUi.FadeIn(this._tweens, this._dim, 0, 0.3, this._dimTransparency);
         WordFallUi.PopIn(this._tweens, this._popup, 0.08, 0.42);
