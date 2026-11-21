@@ -1,0 +1,23 @@
+{
+  "count": 100,
+  "onboarding": 12,
+  "onboardingEnd": 1.05,
+  "baseEnd": 1.7,
+  "baseShape": 0.8,
+  "wave": 0.18,
+  "block": 5,
+  "hard": {
+    "first": 25,
+    "every": 10,
+    "from": 1.9,
+    "to": 3.2
+  },
+  "superHard": {
+    "first": 49,
+    "every": 10,
+    "from": 3,
+    "to": 5
+  },
+  "relief": 1.05,
+  "overrides": {}
+}

@@ -290,6 +290,29 @@ Rules that hold there:
   once. Coins, lives (regen `lifeRegenSeconds`), stars per level are in `PlayerProgress`. Tests: `GameTests/WordFallMeta`,
   `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`).
 
+- The campaign is generated and balanced by LevelLab (`Tools/WordFall/LevelLab`, README there; `node
+  Tools/WordFall/LevelLab/server.mjs --open` is the page, `lab/cli.mjs` the same from the shell). It loads the scripts
+  of `Assets/Scripts/WordFall/Core` into Node and plays them: a change of the rules is a change of the simulator. The
+  difficulty of a level is the attempts an average player needs (1 / win rate) as bots measure it; a level's target comes
+  from the curve (`data/curve.json`, defaults in `lab/curve.mjs`), the tuner sets `moves` and `targetScore`, the
+  statistics live in `data/levels.json`. Regenerate or re-evaluate after changing the bot, the scoring or a dictionary -
+  the numbers go stale, the levels do not break.
+- Letters fall through the gaps (holes) of the board: only a chain cuts a column (`WordBoard._CollapseOnce`), so a level
+  may have any shape, gaps inside included. LevelLab's shapes (`lab/shapes.mjs`, hardness measured by the bots) and
+  symmetric layouts of blockers and bonuses (`lab/layouts.mjs`) build on that.
+- The bot is `Core/WordFallBot.js` (profile: erudition, effort, skill, boosters, spread; `NextAction()` and
+  `WordFallBot.Apply`): the same code plays in the lab and in the game. `WordFallBotRunner.js` drives it through the
+  views when `WordFallBootstrap` finds a fresh `wordfall_bot.json` next to the executable (the lab writes it): the level
+  starts through `WordFallGameService.PlayCustomLevel`, which leaves progress, lives and tutorials alone. `O2_GAME_SPEED`
+  speeds the game up, `O2_BACKGROUND_WINDOW` + `O2_INVISIBLE_WINDOW` keep its window off the screen. With the same
+  seeds an attempt in the game repeats the simulated one move for move.
+- Dictionaries are built: `Tools/WordFall/LevelLab/dictionary/<lang>.tsv` (word, difficulty 1-9, familiarity 1-9, kind:
+  `.` ordinary, `w` fit to be a level's word, `n` name, `p` rude) -> `node .../dictionary/build_dictionary.mjs` ->
+  `Assets/WordFall/Dictionaries/<lang>.json` (parallel strings `difficulty`, `familiarity`, `kinds`). Edit the table,
+  never the asset; words are only added. Level words (the generator, `WordFallWordAgent`) come from `w` words; names and
+  rude words are accepted from the player but never asked for or hinted. `languages.json: scoreScale` scales score
+  targets for a language whose letters are worth less (en 0.77, found by `lab/cli.mjs scale en`).
+
 <!-- o2 agent memory: imports -->
 ## Agent memory
 

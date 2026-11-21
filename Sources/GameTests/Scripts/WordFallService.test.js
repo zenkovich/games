@@ -88,7 +88,7 @@ include("Scripts/WordFall/WordFallGameService.js");
     test("CampaignComesFromTheDataAssetAndProgressPersists", function()
     {
         var service = MakeService({});
-        expectEq(service.GetLevelCount(), 130, "кампания из campaign.json");
+        expectEq(service.GetLevelCount(), 100, "кампания из campaign.json");
         expectEq(service.GetLevelIndex(), 0);
 
         service.DebugCompleteTasks();
@@ -115,6 +115,27 @@ include("Scripts/WordFall/WordFallGameService.js");
         expect(!restored.IsTutorialSeen("basics"));
 
         o2.FileSystem.FileDelete(progressPath);
+    });
+
+    // Уровень не из кампании (прогон бота из LevelLab) играется вместо текущего и не трогает прогресс игрока
+    test("CustomLevelIsPlayedInsteadOfTheCampaignAndKeepsProgress", function()
+    {
+        var service = MakeService({ campaignPath: "" });
+        service.StartLevel(2);
+        service.PlayCustomLevel({ id: "LAB", words: { ru: ["ЛУНА"] }, moves: 7, targetScore: 30, tasks: [{ taskType: "AnyWords", count: 2 }] }, "ru");
+        expect(service.IsCustomLevel());
+        expectEq(service.GetWords().map(function(w) { return w.word; }), ["ЛУНА"]);
+        expectEq([service.GetMovesLeft(), service.GetTargetScore(), service.GetLevelIndex()], [7, 30, 2], "уровень свой, место в кампании прежнее");
+        expect(service.IsTutorialSeen("basics"), "обучение прогону не мешает");
+
+        service.DebugCompleteTasks();
+        service.DebugAddScore(1000);
+        expectEq(service.GetGameState(), "won");
+        service.WinLevel();
+        expectEq([service.GetGameState(), service.GetMovesLeft(), service.GetLevelIndex()], ["playing", 7, 2], "после победы — тот же уровень заново");
+        service.GiveUpLevel();
+        service.MarkTutorialSeen("ice");
+        expect(o2.FileSystem.ReadFile(progressPath) === undefined, "прогресс игрока не записан");
     });
 
     // Подсказка ищется наперёд, по части словаря за кадр; нажатие берёт найденное, изменение поля начинает поиск заново

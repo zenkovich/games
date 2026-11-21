@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LevelLab — Word Fall</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="appbar">
+    <div class="brand">LevelLab <span>Word Fall</span></div>
+    <div class="divider"></div>
+    <div class="seg" id="languageSeg" title="Язык, на котором боты оценивают уровни"></div>
+    <div class="grow"></div>
+    <div id="jobPill" class="job-pill hidden"></div>
+    <div id="gameStatus" class="game-status"></div>
+    <div class="divider"></div>
+    <button id="openGenerate" class="btn primary"></button>
+    <button id="openPlayers" class="btn"></button>
+    <button id="openWords" class="btn"></button>
+</header>
+
+<section class="curve" id="curvePanel">
+    <div class="curve-bar">
+        <button id="toggleCurve" class="btn ghost icon" title="Свернуть или развернуть кривую"></button>
+        <h2 title="Среднее число попыток, которое нужно среднему игроку, чтобы пройти уровень (шкала логарифмическая)">Кривая сложности, попыток</h2>
+        <div class="legend">
+            <span title="Цель уровня на кривой"><i class="l-plan"></i>план</span>
+            <span title="Оценка ботами и её 95 % интервал"><i class="l-bot"></i>боты</span>
+            <span><i class="l-hard"></i>сложный</span>
+            <span><i class="l-super"></i>очень сложный</span>
+        </div>
+        <div class="grow"></div>
+        <div class="kpis" id="kpis"></div>
+        <button id="openCurve" class="btn"></button>
+    </div>
+    <div id="chart" class="chart"></div>
+</section>
+
+<main class="workspace">
+    <aside class="pane levels">
+        <div class="pane-head">
+            <input id="levelFilter" class="input" type="search" placeholder="Номер, слово, задание, форма">
+            <div class="seg block" id="levelTabs"></div>
+        </div>
+        <div class="pane-body" id="levelList"></div>
+        <div class="pane-foot" id="levelTools"></div>
+    </aside>
+
+    <section class="pane editor">
+        <div class="pane-head" id="editorHead"></div>
+        <div class="pane-body"><div class="editor-body" id="editorBody"></div></div>
+    </section>
+
+    <aside class="pane inspector">
+        <div class="pane-head" id="inspectorHead"></div>
+        <div class="pane-body" id="inspectorBody"></div>
+    </aside>
+</main>
+
+<aside id="curveDrawer" class="drawer hidden"></aside>
+<div id="modalRoot"></div>
+<div id="tooltip" class="tooltip hidden"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
