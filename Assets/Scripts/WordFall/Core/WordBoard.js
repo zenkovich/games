@@ -228,7 +228,7 @@ WordBoard = class WordBoard
             !WordBoard.IsTileStatic(tile);
     }
 
-    // Клетка не двигается и держит колонку над собой (дыра, цепь)
+    // Клетка не двигается (дыра, цепь); колонку над собой держит только цепь — пустоту буквы пролетают
     static IsTileStatic(tile)
     {
         return tile.hole || tile.chained;
@@ -544,7 +544,7 @@ WordBoard = class WordBoard
         return search.Result() != null;
     }
 
-    // Лучшее собираемое слово по оценщику scorer(word, value) -> вес (<= 0 — не подходит); при равных весах —
+    // Лучшее собираемое слово по оценщику scorer(word, value, index) -> вес (<= 0 — не подходит); при равных весах —
     // первое по словарю. Жадный подбор: каждая буква берёт самую дорогую свободную плитку с этой буквой,
     // недостача добирается джокерами в порядке поля. Опции — у WordSearch
     FindBestWordBy(dictionary, scorer, options)
@@ -1106,7 +1106,8 @@ WordBoard = class WordBoard
         }
     }
 
-    // Колонки обваливаются по сегментам между статичными клетками; спавн — только в открытые сверху сегменты
+    // Колонки обваливаются по сегментам между цепями: цепь держит всё над собой, а пустые клетки поля буквы
+    // пролетают насквозь, как в «три в ряд» с фигурными полями. Спавн — только в сегменты, над которыми цепей нет
     _CollapseOnce()
     {
         var moved = [];
@@ -1118,57 +1119,52 @@ WordBoard = class WordBoard
             var r = 0;
             while (r < rows)
             {
-                if (WordBoard.IsTileStatic(this.grid[c][r]))
+                if (this.grid[c][r].chained && !this.grid[c][r].hole)
                 {
                     r++;
                     continue;
                 }
 
-                var bottom = r;
+                // клетки сегмента снизу вверх, без пустот
+                var cells = [];
                 var top = r;
-                while (top + 1 < rows && !WordBoard.IsTileStatic(this.grid[c][top + 1]))
-                    top++;
+                for (; top < rows && !(this.grid[c][top].chained && !this.grid[c][top].hole); top++)
+                {
+                    if (!this.grid[c][top].hole)
+                        cells.push(top);
+                }
 
                 var stack = [];
                 var fromRows = [];
-                for (var i = bottom; i <= top; i++)
+                for (var i = 0; i < cells.length; i++)
                 {
-                    if (WordBoard.IsTileOccupied(this.grid[c][i]))
+                    if (WordBoard.IsTileOccupied(this.grid[c][cells[i]]))
                     {
-                        stack.push(this.grid[c][i]);
-                        fromRows.push(i);
+                        stack.push(this.grid[c][cells[i]]);
+                        fromRows.push(cells[i]);
                     }
                 }
 
-                var fed = true;
-                for (var i = top + 1; i < rows; i++)
+                var fed = top >= rows;
+                for (var i = 0; i < cells.length; i++)
                 {
-                    if (!this.grid[c][i].hole)
+                    var row = cells[i];
+                    if (i < stack.length)
                     {
-                        fed = false;
-                        break;
-                    }
-                }
-
-                for (var i = bottom; i <= top; i++)
-                {
-                    var index = i - bottom;
-                    if (index < stack.length)
-                    {
-                        this.grid[c][i] = stack[index];
-                        if (fromRows[index] != i)
-                            moved.push({ c: c, fromR: fromRows[index], toR: i });
+                        this.grid[c][row] = stack[i];
+                        if (fromRows[i] != row)
+                            moved.push({ c: c, fromR: fromRows[i], toR: row });
                     }
                     else if (fed)
                     {
-                        this.grid[c][i] = this._MakeTile(this._DrawLetter(this._NeedVowelAt(c, i)));
-                        spawned.push({ c: c, r: i });
+                        this.grid[c][row] = this._MakeTile(this._DrawLetter(this._NeedVowelAt(c, row)));
+                        spawned.push({ c: c, r: row });
                     }
                     else
-                        this.grid[c][i] = new WordTile();
+                        this.grid[c][row] = new WordTile();
                 }
 
-                r = top + 1;
+                r = top;
             }
         }
 
@@ -1419,7 +1415,7 @@ WordSearch = class WordSearch
 
     _Consider(w, value)
     {
-        var weight = this._scorer(this._dictionary.GetAllWords()[w], value);
+        var weight = this._scorer(this._dictionary.GetAllWords()[w], value, w);
         if (weight > 0 && (weight > this._bestValue || (weight == this._bestValue && w < this._bestIndex)))
         {
             this._bestValue = weight;

@@ -103,6 +103,19 @@ include("Scripts/WordFall/WordFallGameService.js");
         expect(excluded.indexOf(words[0]) < 0, "заданные вручную слова не повторяются");
     });
 
+    test("AgentPicksWordsThatFitALevel", function()
+    {
+        for (var difficulty = 1; difficulty <= 10; difficulty += 3)
+        {
+            var config = WordFallConfigs.NormalizeLevel({ id: "W" + difficulty, difficulty: difficulty, wordsAuto: 4 });
+            WordFallWordAgent.PickWords(config, dictionary, boardConfig, []).forEach(function(word) {
+                var index = dictionary.IndexOf(word);
+                expect(dictionary.IsLevelWord(index), word + " — слово, которое годится загадать");
+                expect(dictionary.GetFamiliarity(index) >= 6, word + " — знакомое слово, узнаваемость " + dictionary.GetFamiliarity(index));
+            });
+        }
+    });
+
     test("AgentDifficultyShapesWords", function()
     {
         var average = function(difficulty) {

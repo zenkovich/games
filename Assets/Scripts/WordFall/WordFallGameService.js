@@ -30,6 +30,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.continuePrice = 900;                    // цена продолжения в монетах
 
         this._started = false;
+        this._custom = null;
         this._dictionary = null;
         this._campaign = [];
         this._store = null;
@@ -63,8 +64,9 @@ WordFallGameService = class WordFallGameService extends o2.Component
     StartLevel(index)
     {
         this._EnsureStarted();
-        this._levelIndex = this._ValidLevelFrom(Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
-        this._level.Start(this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
+        if (!this._custom)
+            this._levelIndex = this._ValidLevelFrom(Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
+        this._level.Start(this._custom || this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
         this._LogRemote();
         this._lastMove = new WordMoveResult();
         this._revision++;
@@ -75,13 +77,33 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.StartLevel(this._levelIndex);
     }
 
+    // Уровень не из кампании (прогон бота из LevelLab): играется вместо текущего, пока игра не закрыта; прогресс
+    // игрока, жизни и обучение при этом не трогаются. language — язык прогона, в настройки игрока не пишется
+    PlayCustomLevel(config, language)
+    {
+        this._EnsureStarted();
+        if (language && WordFallLanguages.Get(language))
+        {
+            WordFallLanguages.SetCurrent(language);
+            this._Dictionary();
+        }
+        this._custom = WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(config));
+        this.StartLevel(this._levelIndex);
+    }
+
+    IsCustomLevel() { return this._custom != null; }
+
     // Победа подтверждена вьюхой: двигает прогресс, сохраняет, стартует следующий
     AdvanceToNextLevel()
     {
         this._EnsureStarted();
+        if (this._custom)
+        {
+            this.StartLevel(this._levelIndex);
+            return;
+        }
         this._progress.CompleteLevel(this._levelIndex, this._level.GetScore(), this.GetLevelCount());
-        if (!this._progress.Save(this.progressPath))
-            print("WordFall: failed to save progress to " + this.progressPath);
+        this._SaveProgress();
 
         this.StartLevel(this._progress.currentLevel);
     }
@@ -536,7 +558,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         var score = this._level.GetScore(), target = this._level.GetTargetScore();
         var result = { level: this._levelIndex + 1, score: score, target: target, stars: this.StarsFor(score, target),
                        reward: Math.max(1, Math.round(score*this.coinsPerScore)) };
-        this._progress.SetStars(this._levelIndex, result.stars);
+        if (!this._custom)
+            this._progress.SetStars(this._levelIndex, result.stars);
         this.AdvanceToNextLevel();
         return result;
     }
@@ -580,6 +603,11 @@ WordFallGameService = class WordFallGameService extends o2.Component
     GiveUpLevel()
     {
         this._EnsureStarted();
+        if (this._custom)
+        {
+            this.RestartLevel();
+            return;
+        }
         this.GetLives();
         if (this._progress.lives >= this.maxLives)
             this._progress.livesAt = Date.now();
@@ -588,14 +616,14 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.RestartLevel();
     }
 
-    IsTutorialSeen(key) { this._EnsureStarted(); return this._progress.IsTutorialSeen(key); }
+    IsTutorialSeen(key) { this._EnsureStarted(); return this._custom != null || this._progress.IsTutorialSeen(key); }
 
     // Запомнить показанный туториал (сохраняет прогресс)
     MarkTutorialSeen(key)
     {
         this._EnsureStarted();
         this._progress.MarkTutorialSeen(key);
-        this._progress.Save(this.progressPath);
+        this._SaveProgress();
     }
 
     ResetTutorials()
@@ -709,6 +737,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     _SaveProgress()
     {
+        if (this._custom)
+            return;
         if (!this._progress.Save(this.progressPath))
             print("WordFall: failed to save progress to " + this.progressPath);
     }

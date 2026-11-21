@@ -1,8 +1,11 @@
+include("Scripts/WordFall/WordFallBotRunner.js");
+
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Точка входа сцены WordFall: собирает экраны из прототипов при старте и переключает их (WordFallGame.screens).
 // Игра начинается с главного экрана; конец уровня ведёт в окно победы поверх главного экрана или в окно
 // продолжения поверх поля. Без главного экрана (startOnMain = false) — сразу уровень, финал в попапе поля.
+// С запросом LevelLab на прогон бота (botRequestPath) игра сразу открывает его уровень, и играет бот.
 // Сервис игры живёт рядом, на акторе GameService
 WordFallBootstrap = class WordFallBootstrap extends o2.Component
 {
@@ -16,6 +19,8 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
         this.continuePrototype = "WordFall/UI/ContinueWindow.proto";      // окно продолжения за ходы
         this.startOnMain = true;   // начинать с главного экрана
         this.endDelay = 0.5;       // пауза после эффектов финала уровня до окна, с
+        this.botRequestPath = "wordfall_bot.json"; // запрос LevelLab на прогон бота, файл рядом с игрой
+        this._bot = null;
         this._game = null;
         this._editor = null;
         this._main = null;
@@ -31,8 +36,11 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
     {
         WordFallGame.screens = this;
         var self = this;
+        var request = WordFallBotRunner.ReadRequest(this.botRequestPath);
+        if (request)
+            this._bot = new WordFallBotRunner(request);
         this._game = o2.Profile("WordFall: game screen", function() { return self._Instantiate(self.screenPrototype); });
-        if (!this.startOnMain)
+        if (!this.startOnMain || this._bot)
             return;
 
         o2.Profile("WordFall: meta screens", function() {
@@ -97,6 +105,9 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
     // окно продолжения (поверх поля)
     Update(dt)
     {
+        if (this._bot)
+            this._bot.Update(dt);
+
         var svc = WordFallGame.service;
         if (!this.IsMetaFlow() || !svc || !this._game || !this._game.IsEnabled())
             return;

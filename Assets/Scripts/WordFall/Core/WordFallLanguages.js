@@ -77,6 +77,7 @@ WordFallLanguages = class WordFallLanguages
 
         result.letters = language.letters.map(function(def) { return { letter: def.letter, value: def.value, bagCount: def.bagCount }; });
         result.vowels = language.vowels;
+        result.scoreScale = language.scoreScale;
         if (language.maxConsonantRun > 0)
             result.maxConsonantRun = language.maxConsonantRun;
         return result;
@@ -135,6 +136,8 @@ WordFallLanguages = class WordFallLanguages
                 alphabet: language.alphabet || "",
                 vowels: language.vowels || "",
                 maxConsonantRun: language.maxConsonantRun || 0,
+                // цели уровней по очкам заданы для языка по умолчанию; у языка с другими номиналами букв — свой масштаб
+                scoreScale: language.scoreScale > 0 ? language.scoreScale : 1,
                 dictionary: language.dictionary || "WordFall/Dictionaries/" + language.code + ".json",
                 letters: language.letters.map(function(def) {
                     return { letter: String(def.letter).toUpperCase(), value: def.value !== undefined ? def.value : 1, bagCount: def.bagCount !== undefined ? def.bagCount : 1 };
@@ -145,7 +148,7 @@ WordFallLanguages = class WordFallLanguages
         if (languages.length == 0)
         {
             var board = WordFallConfigs.DefaultBoardConfig();
-            languages.push({ code: "ru", name: "Русский", alphabet: "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЬЭЮЯ", vowels: board.vowels, maxConsonantRun: 0,
+            languages.push({ code: "ru", name: "Русский", alphabet: "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЬЭЮЯ", vowels: board.vowels, maxConsonantRun: 0, scoreScale: 1,
                              dictionary: "WordFall/Dictionaries/ru.json", letters: board.letters });
         }
 

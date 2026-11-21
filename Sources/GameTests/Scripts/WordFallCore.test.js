@@ -627,6 +627,37 @@ include("Scripts/WordFall/Core/WordFallCore.js");
         holes.forEach(function(cell) { expect(board.IsHole(cell), "дыра заполнилась"); });
     });
 
+    // Пустые клетки внутри поля не перекрывают колонку: буквы пролетают их, клетки под пустотой пополняются
+    test("TilesFallThroughGapsInsideTheBoard", function()
+    {
+        var holes = [Cell(1, 4), Cell(1, 5), Cell(3, 3)];
+        var level = StartLevel(LevelConfig({ targetScore: 100, moves: 10, holeCells: holes, tasks: [WordFallConfigs.MakeWord("КОТ")] }));
+        var board = level.GetBoard();
+        for (var c = 0; c < boardConfig.columns; c++)
+            for (var r = 0; r < boardConfig.rows; r++)
+                if (board.IsPlayable(Cell(c, r)))
+                    board.DebugSetTile(Cell(c, r), "Щ");
+        board.DebugSetTile(Cell(1, 6), "Ж");
+
+        var removed = board.RemoveTile(Cell(1, 2));
+        expectEq(board.GetTile(Cell(1, 3)).letter, "Ж", "буква сверху перелетела пустоту");
+        expect(board.GetTile(Cell(1, 7)).letter.length > 0, "колонка пополнилась сверху");
+        expect(board.IsHole(Cell(1, 4)) && board.IsHole(Cell(1, 5)), "пустота осталась пустотой");
+        expect(removed.moved.some(function(move) { return move.c == 1 && move.fromR == 6 && move.toR == 3; }), "движение через пустоту");
+
+        // слово под пустотой: клетки под ней не остаются без букв
+        Plant(board, "КОТ", 0, 2);
+        board.ClearSelection();
+        SelectRow(board, 3, 0, 2);
+        var result = level.AcceptWord(dictionary);
+        assert(result.ok);
+        for (var r = 0; r < boardConfig.rows; r++)
+        {
+            var tile = board.GetTile(Cell(3, r));
+            expect(r == 3 ? tile.hole : WordBoard.IsTileUsable(tile), "колонка 3, ряд " + r);
+        }
+    });
+
     test("PlayerProgressSavesAndLoads", function()
     {
         var path = "test_wordfall_progress.json";

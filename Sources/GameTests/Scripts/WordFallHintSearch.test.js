@@ -60,7 +60,7 @@ include("Scripts/WordFall/Core/WordFallCore.js");
             for (var i = start; i < end; i++)
                 cursor[codes[i]] = 0;
 
-            var value = scorer(words[w], Math.fround(sum*WordBoard.LengthMultiplier(end - start)));
+            var value = scorer(words[w], Math.fround(sum*WordBoard.LengthMultiplier(end - start)), w);
             if (value > 0 && value > bestValue)
             {
                 bestValue = value;
@@ -81,7 +81,7 @@ include("Scripts/WordFall/Core/WordFallCore.js");
         return { word: words[bestIndex], cells: cells };
     }
 
-    // Прежний оценщик подсказки
+    // Оценщик подсказки, как он задан в WordLevel.BeginHintSearch
     function ReferenceHint(level)
     {
         var taskWord = level.NextWord(), letterWanted = "", lengthWanted = 0, powerupLength = 0, scoreWanted = 0;
@@ -98,15 +98,18 @@ include("Scripts/WordFall/Core/WordFallCore.js");
             }
         });
 
-        return ReferenceFindBestWordBy(level.GetBoard(), function(candidate, value) {
+        return ReferenceFindBestWordBy(level.GetBoard(), function(candidate, value, index) {
             if (level.IsWordUsed(candidate))
                 return 0;
             if (taskWord && candidate == taskWord)
                 return 100000;
             if (wanted.indexOf(candidate) >= 0)
                 return 50000;
+            if (!dictionary.IsCommon(index))
+                return 0;
 
-            var weight = value, length = candidate.length;
+            var familiarity = dictionary.GetFamiliarity(index);
+            var weight = value*(familiarity >= 7 ? 1 : familiarity >= 5 ? 0.6 : 0.25), length = candidate.length;
             if (lengthWanted > 0 && length == lengthWanted)
                 weight *= 2.2;
             if (powerupLength > 0 && length == powerupLength)

@@ -159,6 +159,8 @@ WordFallWordPanelView = class WordFallWordPanelView extends o2.Component
         this._gainLabel.SetText(text);
     }
 
+    ShowMessage(text) { this._ShowMessage(text); }
+
     // Короткое сообщение на плашке поверх полосы прогресса (дубль слова, нет в словаре)
     _ShowMessage(text)
     {

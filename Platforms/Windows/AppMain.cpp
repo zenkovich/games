@@ -2,6 +2,8 @@
 #include "o2/O2.h"
 #include "o2libs/o2libs.h"
 
+#include <cstdlib>
+
 extern void InitializeTypesGameLib();
 
 int main()
@@ -12,6 +14,10 @@ int main()
 		InitializeTypesGameLib();
 		O2LIBS_INITIALIZE_TYPES;
 	}
+
+	// A tool that needs only the outcome of a run (a bot playing a level) keeps the window off the user's screen
+	if (std::getenv("O2_BACKGROUND_WINDOW"))
+		Integration::SetBackgroundWindow(true);
 
 	auto app = mmake<GameApplication>();
 	app->Initialize();

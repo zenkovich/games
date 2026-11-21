@@ -1,9 +1,17 @@
-// Словарь допустимых слов. Матчинг с джокером: '?' совпадает с любой буквой
+// Словарь допустимых слов. Матчинг с джокером: '?' совпадает с любой буквой.
+// У каждого слова две оценки 1..9 — сложность (как трудно додуматься до слова и собрать его) и узнаваемость
+// (какая доля взрослых знает слово) — и вид: обычное, имя собственное или грубое; часть обычных слов помечена
+// как годные в слова уровня (знакомое всем существительное, которое легко представить)
 WordDictionary = class WordDictionary
 {
-    constructor(words)
+    static get KindCommon() { return 0; }
+    static get KindName() { return 1; }
+    static get KindRude() { return 2; }
+
+    // ratings — {difficulty, familiarity, kinds}: строки по символу на слово в порядке words
+    constructor(words, ratings)
     {
-        this.Load(words || []);
+        this.Load(words || [], ratings);
     }
 
     static LoadDefault()
@@ -11,7 +19,9 @@ WordDictionary = class WordDictionary
         return WordDictionary.LoadAsset("WordFall/Dictionaries/ru.json");
     }
 
-    // Словарь из data-ассета {"language", "words"}: слова одной строкой через пробел
+    // Словарь из data-ассета {"language", "words", "difficulty", "familiarity", "kinds"}: слова одной строкой
+    // через пробел, оценки — строками цифр 1..9, виды — "." обычное, "w" обычное и годится в слова уровня,
+    // "n" имя, "p" грубое
     static LoadAsset(path)
     {
         var asset = new o2.AssetRefDataAsset(path);
@@ -22,13 +32,15 @@ WordDictionary = class WordDictionary
         }
 
         var json = asset.Get().GetJson();
+        var data = null;
         var words = o2.Profile("WordDictionary: parse words", function() {
-            return (JSON.parse(json).words || "").split(" ").filter(function(w) { return w.length > 0; });
+            data = JSON.parse(json);
+            return (data.words || "").split(" ").filter(function(w) { return w.length > 0; });
         });
-        return o2.Profile("WordDictionary: build index", function() { return new WordDictionary(words); });
+        return o2.Profile("WordDictionary: build index", function() { return new WordDictionary(words, data); });
     }
 
-    Load(words)
+    Load(words, ratings)
     {
         this._words = [];
         this._byLength = {};
@@ -72,7 +84,51 @@ WordDictionary = class WordDictionary
         this._allIndices = new Int32Array(words.length);
         for (var i = 0; i < words.length; i++)
             this._allIndices[i] = i;
+
+        this._LoadRatings(ratings);
     }
+
+    // Без оценок в ассете: сложность по длине слова, узнаваемость средняя
+    _LoadRatings(ratings)
+    {
+        var count = this._words.length;
+        var aligned = function(text) { return typeof text == "string" && text.length == count; };
+        var difficulty = ratings && aligned(ratings.difficulty) ? ratings.difficulty : null;
+        var familiarity = ratings && aligned(ratings.familiarity) ? ratings.familiarity : null;
+        var kinds = ratings && aligned(ratings.kinds) ? ratings.kinds : null;
+
+        this._rated = difficulty != null && familiarity != null;
+        this._difficulty = new Uint8Array(count);
+        this._familiarity = new Uint8Array(count);
+        this._kinds = new Uint8Array(count);
+        this._levelWords = new Uint8Array(count);
+        this._levelWordsCount = 0;
+        for (var i = 0; i < count; i++)
+        {
+            var byLength = Math.min(Math.max(this._words[i].length - 1, 1), 9);
+            this._difficulty[i] = difficulty ? Math.min(Math.max(difficulty.charCodeAt(i) - 48, 1), 9) : byLength;
+            this._familiarity[i] = familiarity ? Math.min(Math.max(familiarity.charCodeAt(i) - 48, 1), 9) : 6;
+            var kind = kinds ? kinds[i] : ".";
+            this._kinds[i] = kind == "n" ? WordDictionary.KindName : kind == "p" ? WordDictionary.KindRude : WordDictionary.KindCommon;
+            if (kind == "w")
+            {
+                this._levelWords[i] = 1;
+                this._levelWordsCount++;
+            }
+        }
+    }
+
+    HasRatings() { return this._rated; }
+    GetDifficulty(index) { return this._difficulty[index]; }
+    GetFamiliarity(index) { return this._familiarity[index]; }
+    GetKind(index) { return this._kinds[index]; }
+
+    // Имена и грубые слова только принимаются от игрока: ни в слова уровня, ни в подсказку они не идут
+    IsCommon(index) { return this._kinds[index] == WordDictionary.KindCommon; }
+
+    // Годится в слова уровня; в словаре без такой разметки — любое обычное слово
+    IsLevelWord(index) { return this._levelWordsCount > 0 ? this._levelWords[index] == 1 : this._kinds[index] == WordDictionary.KindCommon; }
+    HasLevelWords() { return this._levelWordsCount > 0; }
 
     IsEmpty() { return this._words.length == 0; }
     GetWordsCount() { return this._words.length; }

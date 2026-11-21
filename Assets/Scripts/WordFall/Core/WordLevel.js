@@ -40,6 +40,8 @@ WordLevel = class WordLevel
                 return WordFallWordAgent.TargetScore(config, words, boardConfig);
             });
         }
+        else
+            WordLevel.ScaleScores(config, boardConfig.scoreScale);
         this.config = config;
         this.words = words.map(function(word) { return { word: word, found: false }; });
         this.score = 0;
@@ -85,6 +87,19 @@ WordLevel = class WordLevel
         this._RefreshIceTasks();
         this._RefreshObstacleTasks();
         o2.Profile("WordLevel: achievable tasks", function() { self._EnsureTasksAchievable(dictionary); });
+    }
+
+    // Цель и пороги очков уровня в масштабе языка (номиналы букв у языков разные)
+    static ScaleScores(config, scale)
+    {
+        if (!(scale > 0) || scale == 1)
+            return;
+
+        config.targetScore = Math.max(10, Math.round(config.targetScore*scale/10)*10);
+        config.tasks.forEach(function(task) {
+            if (task.taskType == "WordScore")
+                task.scoreThreshold = Math.max(1, Math.round(task.scoreThreshold*scale));
+        });
     }
 
     GetBoard() { return this.board; }
@@ -187,8 +202,9 @@ WordLevel = class WordLevel
         return ok;
     }
 
-    // Подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких слов; prepared — результат
-    // поиска BeginHintSearch по текущему полю, если он уже сделан
+    // Подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких, ни грубых слов, ни имён,
+    // а малоизвестные слова — в последнюю очередь; prepared — результат поиска BeginHintSearch по текущему полю,
+    // если он уже сделан
     UseHint(dictionary, prepared)
     {
         if (this.state != "playing" || this._charges[WordLevel.Hint] <= 0)
@@ -244,15 +260,18 @@ WordLevel = class WordLevel
         }
 
         var self = this;
-        return this.board.BeginWordSearch(dictionary, function(candidate, value) {
+        return this.board.BeginWordSearch(dictionary, function(candidate, value, index) {
             if (self.IsWordUsed(candidate))
                 return 0;
             if (taskWord && candidate == taskWord)
                 return 100000;
             if (wanted.indexOf(candidate) >= 0)
                 return 50000;
+            if (!dictionary.IsCommon(index))
+                return 0;
 
-            var weight = value;
+            var familiarity = dictionary.GetFamiliarity(index);
+            var weight = value*(familiarity >= 7 ? 1 : familiarity >= 5 ? 0.6 : 0.25);
             var length = candidate.length;
             if (lengthWanted > 0 && length == lengthWanted)
                 weight *= 2.2;
@@ -489,11 +508,6 @@ WordLevel = class WordLevel
         if (!board.AnyWordExists(dictionary, 0))
             board.PlantMissingLetters(board.RandomDictWord(dictionary, 4), repaired);
 
-        // следующее слово уровня всегда собираемо из букв поля
-        var nextWord = this.NextWord();
-        if (nextWord && !board.CanAssembleWord(nextWord))
-            board.PlantMissingLetters(nextWord, repaired);
-
         for (var i = 0; i < this.tasks.length; i++)
         {
             var task = this.tasks[i];
@@ -517,6 +531,12 @@ WordLevel = class WordLevel
             else if (type == "WordScore" && !board.AnyWordWorth(dictionary, config.scoreThreshold))
                 board.PlantMissingLetters(board.ExpensiveDictWord(dictionary), repaired);
         }
+
+        // следующее слово уровня всегда собираемо из букв поля — подсев под задания мог занять его буквы,
+        // поэтому оно проверяется последним
+        var nextWord = this.NextWord();
+        if (nextWord && !board.CanAssembleWord(nextWord))
+            board.PlantMissingLetters(nextWord, repaired);
         return repaired;
     }
 

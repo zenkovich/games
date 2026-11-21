@@ -3,7 +3,8 @@ include("Scripts/WordFall/Core/WordFallRandom.js");
 include("Scripts/WordFall/Core/WordDictionary.js");
 
 // Агент подбора слов уровня: по сложности, числу слов и их длине выбирает слова из словаря
-// текущего языка и считает цель по очкам. В уровне хранятся только эти параметры — слова
+// текущего языка и считает цель по очкам. Слова берутся из помеченных в словаре как годные в слова уровня
+// и не малоизвестные: чем проще уровень, тем узнаваемее слово. В уровне хранятся только эти параметры — слова
 // подбираются на старте, поэтому уровень переносится на другой язык заменой словаря.
 // Подбор детерминирован: один и тот же уровень с тем же словарём получает те же слова
 WordFallWordAgent = class WordFallWordAgent
@@ -150,12 +151,21 @@ WordFallWordAgent = class WordFallWordAgent
             return cache[key];
 
         var bucket = dictionary.GetWordsOfLength(length);
+        var indices = dictionary.GetIndices(length);
+        var minFamiliarity = !dictionary.HasRatings() ? 0 : target < 0.35 ? 8 : target < 0.7 ? 7 : 6;
         var scored = [];
-        for (var i = 0; i < bucket.length; i++)
+        // слов уровня нужной узнаваемости может не набраться — тогда планка опускается
+        for (; scored.length < 40 && minFamiliarity >= 0; minFamiliarity -= 2)
         {
-            var word = bucket[i];
-            if (WordFallWordAgent._Spellable(word, values))
-                scored.push({ word: word, distance: Math.abs(WordFallWordAgent.WordDifficulty(word, boardConfig, values) - target) });
+            scored = [];
+            for (var i = 0; i < bucket.length; i++)
+            {
+                var word = bucket[i];
+                if (!dictionary.IsLevelWord(indices[i]) || dictionary.GetFamiliarity(indices[i]) < minFamiliarity)
+                    continue;
+                if (WordFallWordAgent._Spellable(word, values))
+                    scored.push({ word: word, distance: Math.abs(WordFallWordAgent.WordDifficulty(word, boardConfig, values) - target) });
+            }
         }
         scored.sort(function(a, b) { return a.distance - b.distance || (a.word < b.word ? -1 : 1); });
         var ranked = scored.slice(0, 400).map(function(item) { return item.word; });

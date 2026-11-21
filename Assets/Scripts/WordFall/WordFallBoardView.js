@@ -355,6 +355,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this._hintTimer = 0;
     }
 
+    // Подсказка ещё набирает своё слово
+    IsSelecting() { return this._hintQueue.length > 0; }
+
     // Буква и номинал, которые клетка показывает сейчас (до синка после хода)
     TileInfo(c, r)
     {

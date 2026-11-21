@@ -159,4 +159,55 @@ include("Scripts/WordFall/WordFallGameService.js");
             o2.FileSystem.FileDelete(levelsPath);
         }
     });
+    // Слова словарей оценены: сложность и узнаваемость 1..9, вид слова, пометка «годится в слова уровня»
+    test("DictionariesRateTheirWords", function()
+    {
+        var ru = WordFallLanguages.Dictionary("ru"), en = WordFallLanguages.Dictionary("en");
+        expect(ru.HasRatings() && en.HasRatings() && ru.HasLevelWords() && en.HasLevelWords());
+        expect(ru.GetWordsCount() >= 36000 && en.GetWordsCount() >= 32000, "слов: ru " + ru.GetWordsCount() + ", en " + en.GetWordsCount());
+
+        var of = function(dictionary, word) {
+            var index = dictionary.IndexOf(word);
+            assert(index >= 0, "нет слова " + word);
+            return { d: dictionary.GetDifficulty(index), f: dictionary.GetFamiliarity(index), kind: dictionary.GetKind(index), level: dictionary.IsLevelWord(index) };
+        };
+        expect(of(ru, "ДОМ").f == 9 && of(ru, "ДОМ").level && of(en, "HOUSE").f == 9 && of(en, "HOUSE").level, "ДОМ и HOUSE знают все");
+        expect(of(ru, "ВЫЯ").f <= 3 && !of(ru, "ВЫЯ").level, "редкое слово остаётся в словаре, но в слова уровня не идёт");
+        expect(of(ru, "ДОМ").d < of(ru, "ПАРАШЮТ").d, "длинное слово с подвохом сложнее");
+        expectEq([of(ru, "МОСКВА").kind, of(ru, "ИВАН").kind, of(en, "LONDON").kind], [WordDictionary.KindName, WordDictionary.KindName, WordDictionary.KindName]);
+        expectEq([of(ru, "ЖОПА").kind, of(en, "SHIT").kind], [WordDictionary.KindRude, WordDictionary.KindRude]);
+        expect(!of(ru, "МОСКВА").level && !of(ru, "ЖОПА").level, "имена и грубые слова принимаются от игрока, но не загадываются");
+        expect(ru.Contains("ИДТИ") && ru.Contains("БЕЛЫЙ") && ru.Contains("ДЕНЬГИ") && ru.Contains("БЫСТРО"), "в словаре не только существительные");
+        expect(en.Contains("SELFIE") && en.Contains("MICHAEL"));
+
+        var plain = new WordDictionary(["КОТ", "ПАЛУБА"]);
+        expect(!plain.HasRatings() && !plain.HasLevelWords());
+        expectEq([plain.GetDifficulty(0), plain.GetDifficulty(1), plain.GetFamiliarity(0)], [2, 5, 6], "без оценок: сложность по длине, узнаваемость средняя");
+        expect(plain.IsLevelWord(0), "без разметки в слова уровня годится любое обычное слово");
+
+        var rated = new WordDictionary(["КОТ", "РИМ", "ХАМ"], { difficulty: "234", familiarity: "987", kinds: "wnp" });
+        expectEq([rated.GetDifficulty(1), rated.GetFamiliarity(2)], [3, 7]);
+        expectEq([rated.IsLevelWord(0), rated.IsLevelWord(1), rated.IsCommon(0), rated.IsCommon(1), rated.IsCommon(2)], [true, false, true, false, false]);
+    });
+
+    // Цели уровней по очкам заданы для языка по умолчанию; у языка с другими номиналами букв свой масштаб
+    test("ScoreTargetsFollowTheLanguageScale", function()
+    {
+        expectEq(WordFallLanguages.Get("ru").scoreScale, 1);
+        var scale = WordFallLanguages.Get("en").scoreScale;
+        expect(scale > 0.5 && scale < 1, "английские буквы дешевле: масштаб " + scale);
+
+        var file = { id: "S001", words: { en: ["CAT"], ru: ["КОТ"] }, targetScore: 500, moves: 10, tasks: [{ taskType: "WordScore", scoreThreshold: 40 }] };
+        OnLanguage("en", function() {
+            var level = new WordLevel();
+            level.Start(file, WordFallLanguages.ApplyBoard(WordFallConfigs.DefaultBoardConfig(), "en"), WordFallLanguages.Dictionary("en"), 3);
+            expectEq(level.GetTargetScore(), Math.round(500*scale/10)*10);
+            expectEq(level.GetTasks()[0].config.scoreThreshold, Math.round(40*scale));
+        });
+        OnLanguage("ru", function() {
+            var level = new WordLevel();
+            level.Start(file, WordFallLanguages.ApplyBoard(WordFallConfigs.DefaultBoardConfig(), "ru"), WordFallLanguages.Dictionary("ru"), 3);
+            expectEq([level.GetTargetScore(), level.GetTasks()[0].config.scoreThreshold], [500, 40]);
+        });
+    });
 })();

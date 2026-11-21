@@ -28,4 +28,7 @@ protected:
 
 protected:
 	String mScenePath; // What the game starts with, and restarts into (GameInfo.json startScene)
+
+	float mSpeed = 1.0f;         // Game time per real time, set by O2_GAME_SPEED: tools watch a bot play faster
+	double mLastFrameTime = 0.0; // When the previous frame was updated, seconds of the steady clock
 };
