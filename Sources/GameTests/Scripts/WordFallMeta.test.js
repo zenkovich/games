@@ -100,4 +100,86 @@ include("Scripts/WordFall/WordFallUiTweens.js");
         expectEq(WordFallUi.FormatNumber(1234567.4), "1,234,567");
         expectEq(WordFallUi.FormatNumber(0), "0");
     });
+
+    test("CoinsBuyBoostersBonusesAndLives", function()
+    {
+        var service = MakeService();
+        expectEq(service.GetShopPacks().length, 6);
+        expect(service.BuyCoins(0), "пачка банка засчитывается сразу");
+        expectEq(service.GetCoins(), 1000 + service.shopPacks[0].coins);
+
+        var coins = service.GetCoins();
+        var hammers = service.GetBoosterStock(WordLevel.Hammer);
+        expect(service.BuyBooster(WordLevel.Hammer));
+        expectEq(service.GetBoosterStock(WordLevel.Hammer), hammers + service.boosterPack);
+        expectEq(service.GetBoosterCharges(WordLevel.Hammer), hammers + service.boosterPack, "купленное — сразу в уровне");
+        expectEq(service.GetCoins(), coins - service.GetBoosterPrice(WordLevel.Hammer));
+
+        expectEq(service.GetBonusCount(1), 1, "бонусы на старт у нового игрока");
+        expect(service.BuyBonus(1));
+        expectEq(service.GetBonusCount(1), 1 + service.boosterPack);
+
+        service.GetProgress().coins = 10;
+        expect(!service.BuyBooster(WordLevel.Hint), "монет не хватает");
+        expect(!service.BuyBonus(0));
+        expectEq(service.GetCoins(), 10);
+
+        // жизни: таймер следующей, полный запас за монеты, жизнь за ролик
+        service.GiveUpLevel();
+        expectEq(service.GetLives(), 4);
+        var next = service.GetNextLifeSeconds();
+        expect(next > 0 && next <= service.lifeRegenSeconds, "до следующей жизни " + next + " с");
+        expect(!service.CanRefillLives());
+        expect(!service.RefillLivesWithCoins());
+        service.GetProgress().coins = 5000;
+        expect(service.RefillLivesWithCoins());
+        expectEq([service.GetLives(), service.GetNextLifeSeconds(), service.GetCoins()], [5, 0, 5000 - service.livesRefillPrice]);
+        expect(!service.AddLifeForAd(), "запас полон");
+        service.GiveUpLevel();
+        expect(service.AddLifeForAd());
+        expectEq(service.GetLives(), 5);
+
+        // всё лежит в сохранении
+        var again = new WordFallGameService();
+        again.progressPath = progressPath;
+        again.editedLevelsPath = levelsPath;
+        expectEq(again.GetBonusCount(1), 1 + service.boosterPack);
+        expectEq(again.GetBoosterStock(WordLevel.Hammer), hammers + service.boosterPack);
+        expectEq(again.GetCoins(), service.GetCoins());
+        o2.FileSystem.FileDelete(progressPath);
+    });
+
+    test("ChosenBonusesStandOnTheBoardAtTheStart", function()
+    {
+        var service = MakeService();
+        service.GetProgress().bonuses = [2, 1, 0];
+        var placed = service.StartLevelWithBonuses([0, 1, 2]);
+        expectEq(placed.length, 2, "салюта в запасе нет");
+        expectEq(service.GetProgress().bonuses, [1, 0, 0]);
+        var kinds = placed.map(function(cell) { return service.GetTile(cell.c, cell.r).powerup; });
+        expectEq(kinds, ["bomb", "rocket"]);
+        var seeded = service.GetSeededCells();
+        placed.forEach(function(cell) { expect(!WordFallCells.Contains(seeded, cell), "бонус встал на букву слова уровня"); });
+        expectEq(service.GetGameState(), "playing");
+
+        // без выбора — чистое поле
+        var none = service.StartLevelWithBonuses([]);
+        expectEq(none.length, 0);
+        o2.FileSystem.FileDelete(progressPath);
+    });
+
+    test("SettingsAreKeptInTheProgress", function()
+    {
+        var service = MakeService();
+        expect(service.GetSetting("sound"), "по умолчанию включено");
+        service.SetSetting("sound", false);
+        expect(!service.GetSetting("sound"));
+        expect(service.GetSetting("music"));
+
+        var again = new WordFallGameService();
+        again.progressPath = progressPath;
+        again.editedLevelsPath = levelsPath;
+        expect(!again.GetSetting("sound"));
+        o2.FileSystem.FileDelete(progressPath);
+    });
 })();

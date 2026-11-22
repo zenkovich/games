@@ -1,243 +1,243 @@
 {
- "stamp": "ed66e8ef1e1f8f3e",
+ "stamp": "bd1d8855039be6c5",
  "shapes": {
   "full": {
-   "scorePerMove": 29,
-   "longWords": 0.311,
+   "scorePerMove": 28.4,
+   "longWords": 0.31,
    "factor": 1,
    "longFactor": 1,
    "hardness": 0
   },
   "corners": {
-   "scorePerMove": 29.8,
-   "longWords": 0.31,
-   "factor": 1.03,
-   "longFactor": 1,
+   "scorePerMove": 29.5,
+   "longWords": 0.315,
+   "factor": 1.04,
+   "longFactor": 1.02,
    "hardness": 0
   },
   "pillow": {
-   "scorePerMove": 29.5,
-   "longWords": 0.309,
-   "factor": 1.02,
-   "longFactor": 0.99,
+   "scorePerMove": 29.2,
+   "longWords": 0.316,
+   "factor": 1.03,
+   "longFactor": 1.02,
    "hardness": 0
   },
   "crown": {
-   "scorePerMove": 28.7,
-   "longWords": 0.31,
-   "factor": 0.99,
+   "scorePerMove": 28.5,
+   "longWords": 0.309,
+   "factor": 1,
    "longFactor": 1,
-   "hardness": 0.01
+   "hardness": 0
   },
   "stalactites": {
-   "scorePerMove": 27.5,
-   "longWords": 0.302,
+   "scorePerMove": 27.1,
+   "longWords": 0.303,
    "factor": 0.95,
-   "longFactor": 0.97,
+   "longFactor": 0.98,
    "hardness": 0.04
   },
   "keyhole": {
-   "scorePerMove": 27.2,
-   "longWords": 0.308,
+   "scorePerMove": 26.8,
+   "longWords": 0.307,
    "factor": 0.94,
    "longFactor": 0.99,
    "hardness": 0.04
   },
   "honeycomb": {
-   "scorePerMove": 26.9,
-   "longWords": 0.308,
+   "scorePerMove": 26.3,
+   "longWords": 0.301,
    "factor": 0.93,
-   "longFactor": 0.99,
-   "hardness": 0.05
-  },
-  "floors": {
-   "scorePerMove": 27.2,
-   "longWords": 0.303,
-   "factor": 0.94,
    "longFactor": 0.97,
    "hardness": 0.05
   },
+  "floors": {
+   "scorePerMove": 26.6,
+   "longWords": 0.295,
+   "factor": 0.94,
+   "longFactor": 0.95,
+   "hardness": 0.06
+  },
   "towers2": {
-   "scorePerMove": 27,
-   "longWords": 0.309,
-   "factor": 0.93,
-   "longFactor": 0.99,
-   "hardness": 0.05
+   "scorePerMove": 26.7,
+   "longWords": 0.31,
+   "factor": 0.94,
+   "longFactor": 1,
+   "hardness": 0.04
   },
   "octagon": {
    "scorePerMove": 29.1,
-   "longWords": 0.291,
-   "factor": 1,
+   "longWords": 0.292,
+   "factor": 1.02,
    "longFactor": 0.94,
-   "hardness": 0.02
+   "hardness": 0.01
   },
   "house": {
-   "scorePerMove": 27.9,
-   "longWords": 0.275,
-   "factor": 0.96,
-   "longFactor": 0.88,
-   "hardness": 0.07
-  },
-  "heart": {
-   "scorePerMove": 28.6,
+   "scorePerMove": 27.7,
    "longWords": 0.279,
-   "factor": 0.99,
+   "factor": 0.98,
    "longFactor": 0.9,
    "hardness": 0.05
   },
-  "butterfly": {
-   "scorePerMove": 27.7,
-   "longWords": 0.29,
-   "factor": 0.96,
-   "longFactor": 0.93,
-   "hardness": 0.05
+  "heart": {
+   "scorePerMove": 28.5,
+   "longWords": 0.279,
+   "factor": 1,
+   "longFactor": 0.9,
+   "hardness": 0.04
   },
-  "hourglass": {
-   "scorePerMove": 27.8,
-   "longWords": 0.296,
-   "factor": 0.96,
+  "butterfly": {
+   "scorePerMove": 27.5,
+   "longWords": 0.294,
+   "factor": 0.97,
    "longFactor": 0.95,
    "hardness": 0.04
   },
+  "hourglass": {
+   "scorePerMove": 27.3,
+   "longWords": 0.291,
+   "factor": 0.96,
+   "longFactor": 0.94,
+   "hardness": 0.05
+  },
   "ring": {
-   "scorePerMove": 26.2,
-   "longWords": 0.279,
-   "factor": 0.9,
-   "longFactor": 0.9,
-   "hardness": 0.1
+   "scorePerMove": 26.3,
+   "longWords": 0.285,
+   "factor": 0.93,
+   "longFactor": 0.92,
+   "hardness": 0.07
   },
   "frame": {
-   "scorePerMove": 26.3,
-   "longWords": 0.298,
+   "scorePerMove": 25.9,
+   "longWords": 0.296,
    "factor": 0.91,
-   "longFactor": 0.96,
+   "longFactor": 0.95,
    "hardness": 0.07
   },
   "arch": {
-   "scorePerMove": 27.9,
-   "longWords": 0.288,
-   "factor": 0.96,
-   "longFactor": 0.93,
-   "hardness": 0.05
+   "scorePerMove": 27.8,
+   "longWords": 0.293,
+   "factor": 0.98,
+   "longFactor": 0.95,
+   "hardness": 0.03
   },
   "comb": {
-   "scorePerMove": 23.8,
-   "longWords": 0.275,
-   "factor": 0.82,
-   "longFactor": 0.88,
-   "hardness": 0.16
+   "scorePerMove": 23.6,
+   "longWords": 0.277,
+   "factor": 0.83,
+   "longFactor": 0.89,
+   "hardness": 0.15
   },
   "quarters": {
-   "scorePerMove": 24.6,
-   "longWords": 0.281,
-   "factor": 0.85,
-   "longFactor": 0.9,
-   "hardness": 0.13
+   "scorePerMove": 24.4,
+   "longWords": 0.282,
+   "factor": 0.86,
+   "longFactor": 0.91,
+   "hardness": 0.12
   },
   "cross": {
-   "scorePerMove": 27.3,
-   "longWords": 0.268,
-   "factor": 0.94,
+   "scorePerMove": 27,
+   "longWords": 0.267,
+   "factor": 0.95,
    "longFactor": 0.86,
    "hardness": 0.09
   },
   "mushroom": {
-   "scorePerMove": 27.4,
-   "longWords": 0.273,
-   "factor": 0.94,
-   "longFactor": 0.88,
+   "scorePerMove": 27.1,
+   "longWords": 0.271,
+   "factor": 0.95,
+   "longFactor": 0.87,
    "hardness": 0.08
   },
   "towers3": {
-   "scorePerMove": 22.3,
-   "longWords": 0.27,
+   "scorePerMove": 22,
+   "longWords": 0.272,
    "factor": 0.77,
-   "longFactor": 0.87,
+   "longFactor": 0.88,
    "hardness": 0.19
   },
   "wave": {
-   "scorePerMove": 29.1,
-   "longWords": 0.301,
-   "factor": 1,
-   "longFactor": 0.97,
-   "hardness": 0.01
+   "scorePerMove": 29,
+   "longWords": 0.307,
+   "factor": 1.02,
+   "longFactor": 0.99,
+   "hardness": 0
   },
   "bowl": {
-   "scorePerMove": 26.1,
-   "longWords": 0.271,
+   "scorePerMove": 25.6,
+   "longWords": 0.265,
    "factor": 0.9,
-   "longFactor": 0.87,
-   "hardness": 0.11
+   "longFactor": 0.86,
+   "hardness": 0.12
   },
   "bridge": {
-   "scorePerMove": 24.6,
-   "longWords": 0.268,
+   "scorePerMove": 24.2,
+   "longWords": 0.265,
    "factor": 0.85,
    "longFactor": 0.86,
    "hardness": 0.15
   },
   "pyramid": {
    "scorePerMove": 27.6,
-   "longWords": 0.265,
-   "factor": 0.95,
-   "longFactor": 0.85,
-   "hardness": 0.09
+   "longWords": 0.267,
+   "factor": 0.97,
+   "longFactor": 0.86,
+   "hardness": 0.07
   },
   "funnel": {
-   "scorePerMove": 27.8,
-   "longWords": 0.266,
+   "scorePerMove": 27.3,
+   "longWords": 0.261,
    "factor": 0.96,
-   "longFactor": 0.85,
-   "hardness": 0.08
+   "longFactor": 0.84,
+   "hardness": 0.09
   },
   "wings": {
-   "scorePerMove": 26.2,
-   "longWords": 0.262,
-   "factor": 0.9,
+   "scorePerMove": 25.9,
+   "longWords": 0.26,
+   "factor": 0.91,
    "longFactor": 0.84,
    "hardness": 0.12
   },
   "tee": {
-   "scorePerMove": 26.8,
-   "longWords": 0.254,
-   "factor": 0.92,
+   "scorePerMove": 27,
+   "longWords": 0.255,
+   "factor": 0.95,
    "longFactor": 0.82,
-   "hardness": 0.12
+   "hardness": 0.1
   },
   "diamond": {
-   "scorePerMove": 27.2,
-   "longWords": 0.234,
+   "scorePerMove": 26.7,
+   "longWords": 0.229,
    "factor": 0.94,
-   "longFactor": 0.75,
+   "longFactor": 0.74,
    "hardness": 0.14
   },
   "star": {
-   "scorePerMove": 26.7,
-   "longWords": 0.236,
-   "factor": 0.92,
-   "longFactor": 0.76,
-   "hardness": 0.14
+   "scorePerMove": 26.6,
+   "longWords": 0.24,
+   "factor": 0.94,
+   "longFactor": 0.77,
+   "hardness": 0.13
   },
   "zigzag": {
-   "scorePerMove": 25.7,
-   "longWords": 0.23,
-   "factor": 0.89,
-   "longFactor": 0.74,
-   "hardness": 0.17
+   "scorePerMove": 26.1,
+   "longWords": 0.239,
+   "factor": 0.92,
+   "longFactor": 0.77,
+   "hardness": 0.14
   },
   "stairs": {
-   "scorePerMove": 28,
-   "longWords": 0.276,
+   "scorePerMove": 27.6,
+   "longWords": 0.277,
    "factor": 0.97,
    "longFactor": 0.89,
    "hardness": 0.06
   },
   "islands": {
-   "scorePerMove": 21,
-   "longWords": 0.239,
-   "factor": 0.72,
+   "scorePerMove": 20.9,
+   "longWords": 0.24,
+   "factor": 0.74,
    "longFactor": 0.77,
-   "hardness": 0.26
+   "hardness": 0.25
   }
  }
 }

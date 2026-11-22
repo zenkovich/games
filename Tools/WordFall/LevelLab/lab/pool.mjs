@@ -1,12 +1,13 @@
-// Pool of simulation workers: many bots play at once, one batch of attempts per worker at a time.
-import os from 'node:os';
-import { Worker } from 'node:worker_threads';
+// Pool of simulation workers: many bots play at once, one batch of attempts per worker at a time. The workers are the
+// host's (node_host.mjs: worker threads, web_host.mjs: Web Workers).
+import { getHost } from './core.mjs';
 
 export class Pool
 {
     constructor(size)
     {
-        this.size = Math.max(1, size || Math.max(1, os.availableParallelism() - 2));
+        const host = getHost();
+        this.size = Math.max(1, size || host.parallelism());
         this.attempts = 0;
         this._workers = [];
         this._idle = [];
@@ -15,9 +16,9 @@ export class Pool
         this._nextId = 1;
         for (let i = 0; i < this.size; i++)
         {
-            const worker = new Worker(new URL('./worker.mjs', import.meta.url));
-            worker.on('message', (message) => this._done(worker, message));
-            worker.on('error', (error) => this._failed(worker, error));
+            const worker = host.makeWorker();
+            worker.onMessage((message) => this._done(worker, message));
+            worker.onError((error) => this._failed(worker, error));
             this._workers.push(worker);
             this._idle.push(worker);
         }
@@ -40,8 +41,14 @@ export class Pool
     {
         for (const worker of this._workers)
             worker.terminate();
+        for (const job of this._jobs.values())
+            job.reject(new Error('the bots were stopped'));
+        for (const job of this._queue)
+            job.reject(new Error('the bots were stopped'));
         this._workers = [];
         this._idle = [];
+        this._queue = [];
+        this._jobs.clear();
     }
 
     _run(level, options)
@@ -60,12 +67,18 @@ export class Pool
             const job = this._queue.shift();
             this._jobs.set(job.id, job);
             worker.job = job.id;
-            worker.postMessage({ id: job.id, level: job.level, options: job.options });
+            worker.post({ id: job.id, level: job.level, options: job.options });
         }
     }
 
     _done(worker, message)
     {
+        // a worker that could not start says so before any job
+        if (!message.id)
+        {
+            this._failed(worker, new Error(message.error || 'worker error'));
+            return;
+        }
         const job = this._jobs.get(message.id);
         this._jobs.delete(message.id);
         worker.job = 0;
@@ -87,6 +100,13 @@ export class Pool
         {
             this._jobs.delete(worker.job);
             job.reject(error);
+        }
+        else
+        {
+            // nothing to hand the failure to: the next job would wait for this worker forever
+            this._idle = this._idle.filter((item) => item != worker);
+            for (const waiting of this._queue.splice(0))
+                waiting.reject(error);
         }
     }
 }

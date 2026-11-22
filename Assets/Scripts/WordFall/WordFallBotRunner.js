@@ -5,15 +5,19 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 // Прогон бота в самой игре. LevelLab (Tools/WordFall/LevelLab) кладёт рядом с игрой запрос — уровень, профиль
 // игрока, сиды поля и бота, число попыток — и запускает её; бот играет через те же вьюхи, что и человек: жмёт
 // плитки по одной, ✓ и бустеры, думая между ходами. С теми же сидами попытка повторяет ту, что показал
-// симулятор. Скорость всей игры задаёт запуск (O2_GAME_SPEED), итоги попыток пишутся в файл запроса resultPath
+// симулятор. Скорость всей игры задаёт запуск (O2_GAME_SPEED), итоги попыток пишутся в файл запроса resultPath.
+// Запрос с human: true открывает уровень для человека: играет он сам, «Ещё раз» в попапе начинает новую попытку,
+// а её итог (ходы, очки, слова) так же уходит в resultPath
 WordFallBotRunner = class WordFallBotRunner
 {
-    // Запрос из файла рядом с игрой; null — файла нет, он битый или устарел (игру запустили не из LevelLab)
+    // Запрос из файла рядом с игрой; null — файла нет, он битый или устарел (игру запустили не из LevelLab).
+    // Прочитанный запрос удаляется: следующий старт игры (Restart в вебе) — снова обычная игра
     static ReadRequest(path)
     {
         var text = o2.FileSystem.ReadFile(path);
         if (text === undefined)
             return null;
+        o2.FileSystem.FileDelete(path);
 
         try
         {
@@ -36,6 +40,8 @@ WordFallBotRunner = class WordFallBotRunner
         this._request = request;
         this._attempts = Math.max(1, request.attempts || 1);
         this._think = typeof request.think == "number" ? request.think : 0.5;
+        // во сколько раз быстрее идут паузы бота: в вебе (портал) игру саму не ускорить, как O2_GAME_SPEED на машине
+        this._pace = typeof request.pace == "number" ? Math.max(0.25, Math.min(16, request.pace)) : 1;
         this._attempt = -1;
         this._results = [];
         this._bot = null;
@@ -45,15 +51,25 @@ WordFallBotRunner = class WordFallBotRunner
         this._cells = [];
         this._refused = 0;
         this._moves = 0;
+        this._movesLeft = 0;
+        this._words = [];
     }
 
     get _svc() { return WordFallGame.service; }
+
+    IsHuman() { return !!this._request.human; }
 
     Update(dt)
     {
         var views = globalThis.WordFallViews;
         if (!this._svc || !views || !views.board || !views.wordPanel || !views.boosters)
             return;
+
+        if (this.IsHuman())
+        {
+            this._WatchHuman();
+            return;
+        }
 
         if (this._state == "wait")
         {
@@ -67,7 +83,7 @@ WordFallBotRunner = class WordFallBotRunner
         if (this._Busy())
             return;
 
-        this._timer -= dt;
+        this._timer -= dt*this._pace;
         if (this._timer > 0)
             return;
 
@@ -111,6 +127,75 @@ WordFallBotRunner = class WordFallBotRunner
         this._timer = 1.2;
         WordFallViews.wordPanel.ShowMessage("Бот" + (request.profileName ? " «" + request.profileName + "»" : "") +
                                             (this._attempts > 1 ? ": попытка " + (this._attempt + 1) + " из " + this._attempts : ""));
+    }
+
+    // Человек играет сам: первая попытка — на сиде запроса (если он есть), следующие начинает попап и они случайны
+    _WatchHuman()
+    {
+        var svc = this._svc;
+        if (this._state == "wait")
+        {
+            this._attempt = 0;
+            svc.randomSeed = this._request.seed >>> 0;
+            svc.PlayCustomLevel(this._request.level, this._request.language);
+            svc.randomSeed = 0;
+            this._BeginHumanAttempt();
+            var level = this._request.level;
+            print("WordFall player: level " + level.id + " from LevelLab, moves " + svc.GetMovesLeft() + ", target " + svc.GetTargetScore());
+            WordFallViews.wordPanel.ShowMessage("LevelLab, " + (this._request.title || level.name || level.id || "уровень") + ": играйте сами");
+            return;
+        }
+
+        var state = svc.GetGameState();
+        if (this._state == "ended")
+        {
+            if (state == "playing")
+            {
+                this._attempt++;
+                this._BeginHumanAttempt();
+            }
+            return;
+        }
+
+        // уровень начат заново посреди попытки (смена языка, читы): недоигранная попытка не считается
+        var left = svc.GetMovesLeft();
+        if (left > this._movesLeft)
+        {
+            this._BeginHumanAttempt();
+            return;
+        }
+        if (left < this._movesLeft)
+        {
+            var move = svc.GetLastMove();
+            this._moves++;
+            if (move.ok && move.word)
+                this._words.push(move.word);
+        }
+        this._movesLeft = left;
+        if (state != "playing")
+        {
+            this._state = "ended";
+            this._Record({ attempt: this._attempt + 1, won: state == "won", stuck: false, moves: this._moves, movesLeft: left,
+                           score: svc.GetScore(), target: svc.GetTargetScore(), words: this._words.slice() });
+        }
+    }
+
+    _BeginHumanAttempt()
+    {
+        this._state = "play";
+        this._moves = 0;
+        this._words = [];
+        this._movesLeft = this._svc.GetMovesLeft();
+    }
+
+    _Record(result)
+    {
+        this._results.push(result);
+        print("WordFall " + (this.IsHuman() ? "player" : "bot") + ": attempt " + result.attempt + (result.won ? " won" : " lost") +
+              ", moves " + result.moves + ", score " + result.score + "/" + result.target);
+        if (this._request.resultPath)
+            o2.FileSystem.WriteFile(this._request.resultPath, JSON.stringify({ profileName: this._request.profileName || "", human: this.IsHuman(),
+                                                                               attempts: this._results }));
     }
 
     _Decide()
@@ -218,12 +303,8 @@ WordFallBotRunner = class WordFallBotRunner
     _EndAttempt(stuck)
     {
         var svc = this._svc;
-        var result = { attempt: this._attempt + 1, won: svc.GetGameState() == "won", stuck: !!stuck, moves: this._moves, movesLeft: svc.GetMovesLeft(),
-                       score: svc.GetScore(), target: svc.GetTargetScore(), seed: svc.randomSeed };
-        this._results.push(result);
-        print("WordFall bot: attempt " + result.attempt + (result.won ? " won" : " lost") + ", moves " + result.moves + ", score " + result.score + "/" + result.target);
-        if (this._request.resultPath)
-            o2.FileSystem.WriteFile(this._request.resultPath, JSON.stringify({ profileName: this._request.profileName || "", attempts: this._results }));
+        this._Record({ attempt: this._attempt + 1, won: svc.GetGameState() == "won", stuck: !!stuck, moves: this._moves, movesLeft: svc.GetMovesLeft(),
+                       score: svc.GetScore(), target: svc.GetTargetScore(), seed: svc.randomSeed });
 
         if (this._attempt + 1 < this._attempts)
         {

@@ -10,53 +10,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseTable, assetOf } from './table.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const assets = path.resolve(here, '../../../../Assets/WordFall');
 
 export function readTable(language)
 {
-    const rows = [];
-    const seen = new Set();
-    const text = fs.readFileSync(path.join(here, language + '.tsv'), 'utf8');
-    for (const line of text.split('\n'))
-    {
-        if (!line.trim())
-            continue;
-        const [word, difficulty, familiarity, kind] = line.split('\t');
-        const d = Number(difficulty), f = Number(familiarity);
-        if (!word || !(d >= 1 && d <= 9) || !(f >= 1 && f <= 9) || !['.', 'w', 'n', 'p'].includes(kind))
-            throw new Error(language + '.tsv: bad line "' + line + '"');
-        if (seen.has(word))
-            throw new Error(language + '.tsv: duplicate word ' + word);
-        seen.add(word);
-        rows.push({ word, difficulty: d, familiarity: f, kind });
-    }
-    rows.sort((a, b) => a.word.length - b.word.length || (a.word < b.word ? -1 : a.word > b.word ? 1 : 0));
-    return rows;
+    return parseTable(language, fs.readFileSync(path.join(here, language + '.tsv'), 'utf8'));
 }
 
 export function buildAsset(language)
 {
-    const rows = readTable(language);
-    const languages = JSON.parse(fs.readFileSync(path.join(assets, 'languages.json'), 'utf8')).languages;
-    const config = languages.find((item) => item.code == language);
-    const alphabet = new Set(config ? config.alphabet : '');
-    for (const row of rows)
-    {
-        for (const letter of row.word)
-        {
-            if (!alphabet.has(letter))
-                throw new Error(language + ': "' + row.word + '" has a letter outside the alphabet of languages.json');
-        }
-    }
-    return {
-        language,
-        words: rows.map((row) => row.word).join(' '),
-        difficulty: rows.map((row) => row.difficulty).join(''),
-        familiarity: rows.map((row) => row.familiarity).join(''),
-        kinds: rows.map((row) => row.kind).join('')
-    };
+    return assetOf(language, readTable(language), fs.readFileSync(path.join(assets, 'languages.json'), 'utf8'));
 }
 
 function main()

@@ -6,7 +6,7 @@ import { evaluateLevel } from './difficulty.mjs';
 import { shapes, shapeById, shapeOf, mirrorHoles, columns, rows } from './shapes.mjs';
 import { Layout, patternNames } from './layouts.mjs';
 
-export const generatorVersion = 2;
+export const generatorVersion = 3;
 
 // Level at which a mechanic first appears; the level that introduces it shows it alone
 export const unlocks = {
@@ -175,7 +175,7 @@ export function designLevel(number, count, tier, options = {})
 
     const level = {
         id: WordFallConfigs.LevelId(number - 1), difficulty: 1, words: {}, targetScore: 200, moves: 12,
-        boosterCharges: (options.boosterCharges || [1, 1, 1, 1, 1]).slice(), holeCells: shape.holes, tasks: []
+        boosterCharges: (options.boosterCharges || [0, 0, 0, 0, 0]).slice(), holeCells: shape.holes, tasks: []
     };
 
     // blockers: one kind early, up to three later; a freshly introduced kind is featured for a few levels

@@ -122,6 +122,15 @@ WordLevel = class WordLevel
     }
     GetBoosterCharges(booster) { return this._charges[booster] || 0; }
 
+    // Заряды извне вместо зарядов конфига уровня: уровень тратит запас игрока прямо из этого массива — он общий
+    // на всю игру и на старте следующего уровня не восстанавливается. Вызывается после Start
+    UseCharges(charges)
+    {
+        while (charges.length < 5)
+            charges.push(0);
+        this._charges = charges;
+    }
+
     // Слово уже принималось на этом уровне
     IsWordUsed(word) { return this._usedWords.indexOf(word) >= 0; }
 

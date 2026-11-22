@@ -81,6 +81,34 @@ WordFallRemote = class WordFallRemote
         return WordFallRemote.IsAvailable() ? o2libs.RemoteConfig.GetGroup(WordFallRemote.Experiment) : "";
     }
 
+    static get LevelsKey() { return "wordfall_levels"; }
+
+    // Уровень кампании из удалённого конфига "wordfall_levels" ({levels: {id: уровень}}: его шлёт в билды LevelLab
+    // на портале) поверх собранного в билд; null — такого там нет или это не уровень
+    static Level(id)
+    {
+        if (!id || !WordFallRemote.IsAvailable())
+            return null;
+
+        var data = o2libs.RemoteConfig.Get(WordFallRemote.LevelsKey);
+        var levels = data && typeof data === "object" && data.levels && typeof data.levels === "object" ? data.levels : null;
+        var level = levels ? levels[id] : null;
+        if (!level || typeof level !== "object" || Array.isArray(level))
+            return null;
+
+        try
+        {
+            var normalized = WordFallConfigs.NormalizeLevel(WordFallConfigs.UpgradeFileLevel(level));
+            normalized.id = id;
+            return normalized;
+        }
+        catch (e)
+        {
+            print("WordFall: remote level " + id + " is broken: " + e);
+            return null;
+        }
+    }
+
     // Зовёт callback, когда конфиги обновились (докачались или началось событие по расписанию)
     static OnChanged(callback)
     {

@@ -3,7 +3,8 @@ include("Scripts/WordFall/WordFallUiTweens.js");
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Главный экран (макет пайплайна «Wordfall UI», WordFall/UI/MainScreen.proto): счётчики монет, жизней и звёзд
-// догоняют сервис, PLAY ведёт в текущий уровень, остальные кнопки пока только откликаются
+// догоняют сервис, PLAY открывает окно старта уровня, плюс у монет — банк, жизни — их окно, шестерёнка —
+// настройки; вкладки нижней панели пока только откликаются
 WordFallMainScreenView = class WordFallMainScreenView extends o2.Component
 {
     constructor()
@@ -46,8 +47,19 @@ WordFallMainScreenView = class WordFallMainScreenView extends o2.Component
                 WordFallGame.screens.Play();
         };
 
-        var idle = ["top_hud/coin_counter/add_currency_button", "top_hud/settings_button",
-                    "bottom_navigation/tabs/map/map_button", "bottom_navigation/tabs/trophy/trophy_button",
+        var windows = { "top_hud/coin_counter/add_currency_button": "shop", "top_hud/settings_button": "settings",
+                        "top_hud/lives_counter/lives_button": "lives" };
+        Object.keys(windows).forEach(function(path) {
+            var button = root.GetChild(path);
+            if (button)
+                button.onClick = function() {
+                    var window = (globalThis.WordFallViews || {})[windows[path]];
+                    if (window)
+                        window.Open();
+                };
+        });
+
+        var idle = ["bottom_navigation/tabs/map/map_button", "bottom_navigation/tabs/trophy/trophy_button",
                     "bottom_navigation/tabs/team/team_button", "bottom_navigation/tabs/journal/journal_button"];
         idle.forEach(function(path) {
             var button = root.GetChild(path);

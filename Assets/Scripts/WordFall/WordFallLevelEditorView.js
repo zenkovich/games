@@ -995,9 +995,10 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
         return "";
     }
 
+    // Проба уровня: заряды бустеров — заданные в редакторе, запас игрока не тратится
     Play()
     {
-        this._svc.StartLevel(this._index);
+        this._svc.StartLevel(this._index, true);
         var fx = WordFallViews.fx;
         if (fx)
             fx.Finish();

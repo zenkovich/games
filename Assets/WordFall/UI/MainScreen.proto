@@ -817,6 +817,60 @@
                                                 ],
                                                 "States": []
                                             }
+                                        },
+                                        {
+                                            "Type": "o2::Button",
+                                            "Data": {
+                                                "mDrawingDepth": 210.6,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "lives_button",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 9893464152471069919,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "back",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Sprite",
+                                                                "Value": {
+                                                                    "mImageAsset": {
+                                                                        "id": "77be47815137582f49031144a7fc76b9",
+                                                                        "path": "WordFall/UIKit/Sprites/white.png"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 2920520530470480303,
+                                                            "mTransparency": 0.0
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
                                         }
                                     ],
                                     "InternalWidgets": [],

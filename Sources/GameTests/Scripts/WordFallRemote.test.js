@@ -98,6 +98,35 @@ include("Scripts/WordFall/WordFallGameService.js");
         });
     });
 
+    test("CampaignLevelsComeFromTheRemoteConfigById", function()
+    {
+        var progressPath = "wordfall_test_remote_levels_progress.json";
+        var levelsPath = "wordfall_test_remote_levels_edits.json";
+        o2.FileSystem.FileDelete(progressPath);
+        o2.FileSystem.FileDelete(levelsPath);
+        var levels = { L002: { id: "L002", words: { ru: ["КОТ"], en: ["CAT"] }, moves: 33, targetScore: 777, tasks: [] }, L003: [1, 2], L004: "broken" };
+        WithRemote({ wordfall_levels: { version: 1, levels: levels } }, {}, function()
+        {
+            var service = new WordFallGameService();
+            service.randomSeed = 7;
+            service.progressPath = progressPath;
+            service.editedLevelsPath = levelsPath;
+            service.StartLevel(1);
+            expectEq(service.GetMovesLeft(), 33, "уровень из удалённого конфига вместо собранного");
+            expectEq(service.GetTargetScore(), 777);
+            expectEq(service.GetLevelConfig(1).id, "L002");
+            expectEq(service.GetLevelConfig(1).moves, 33, "редактор уровней видит тот же уровень");
+
+            var builtIn = WordFallConfigs.NormalizeLevel(JSON.parse(new o2.AssetRefDataAsset("WordFall/campaign.json").Get().GetJson())[0]);
+            service.StartLevel(0);
+            expectEq(service.GetMovesLeft(), builtIn.moves, "уровня нет в конфиге — играется собранный");
+            expectEq(WordFallRemote.Level("L003"), null, "не уровень — не применяется");
+            expectEq(WordFallRemote.Level("L004"), null);
+        });
+        o2.FileSystem.FileDelete(progressPath);
+        o2.FileSystem.FileDelete(levelsPath);
+    });
+
     test("SubscribesToChanges", function()
     {
         WithRemote({}, {}, function(listeners)

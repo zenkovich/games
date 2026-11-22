@@ -377,7 +377,8 @@ TEST_F(WordFallFeaturesUI, BlockingTutorialStepSwallowsClicksInsideTheCutout)
 	Tap(shuffle);
 	AppTestDriver::PumpFrames(3);
 	EXPECT_EQ(mService->GetBoosterCharges(1), charges) << "бустер не сработал сквозь обучение";
-	EXPECT_NE(text->GetText(), before) << "тап увёл обучение дальше";
+	// у второго уровня кампании нет препятствий: шаг про бустеры — последний, тап закрывает обучение
+	EXPECT_TRUE(mService->IsTutorialSeen("boosters")) << "тап увёл обучение дальше";
 }
 
 // Появление отдаёт буквы покою без рывка: последний кадр влёта совпадает с первым кадром idle

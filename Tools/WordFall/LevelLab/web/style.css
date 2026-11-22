@@ -446,3 +446,64 @@ table.data td.em { font-weight: 650; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 5px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- a tab of the project on the o2 portal (portal.js puts html.o2portal): the portal's palette, type and light look ---------- */
+html.o2portal {
+    color-scheme: light;
+    --bg: #EDF2F1;
+    --panel: #FAFCFC;
+    --panel-2: #F3F7F6;
+    --panel-3: #E4EBEA;
+    --line: #D3DEDC;
+    --line-strong: #B9C6C4;
+    --text: #1F2927;
+    --text-2: #4A5A58;
+    --text-3: #7A8A88;
+    --accent: #268578;
+    --accent-hover: #1F6E64;
+    --accent-ink: #FFFFFF;
+    --accent-weak: #DDF0ED;
+    --good: #1C7F45;
+    --good-weak: #DCF2E4;
+    --warn: #9A6406;
+    --warn-weak: #FAEFD2;
+    --bad: #A6403D;
+    --bad-weak: #F7E1DE;
+    --t-tutorial: #7A8A88;
+    --t-normal: #2A78D6;
+    --t-relief: #1BAF7A;
+    --t-hard: #EB6834;
+    --t-super: #C2497E;
+    --series-plan: #7A8A88;
+    --series-bot: #2A78D6;
+    --grid: #E4EBEA;
+    --shadow: 0 1px 2px rgba(20,40,38,.06), 0 8px 24px rgba(20,40,38,.10);
+    --shadow-sm: 0 1px 2px rgba(20,40,38,.06);
+    --focus: 0 0 0 3px #DDF0ED;
+    --radius: 7px;
+    --radius-lg: 8px;
+    --control: 30px;
+}
+html.o2portal body { font: 13px/1.45 "Onest", "Segoe UI", system-ui, -apple-system, sans-serif; min-width: 980px; }
+html.o2portal h1, html.o2portal h2, html.o2portal h3, html.o2portal .brand, html.o2portal .modal-head h2 { font-family: "Geologica", "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+html.o2portal .btn { font-weight: 500; }
+html.o2portal .btn.sm { height: 26px; border-radius: 6px; }
+html.o2portal .btn:hover:not(:disabled) { border-color: var(--accent); background: var(--panel); }
+html.o2portal .btn.primary:hover:not(:disabled) { background: var(--accent-hover); }
+html.o2portal .btn.ghost:hover:not(:disabled) { background: var(--panel-3); border-color: transparent; }
+html.o2portal .chip { font-weight: 600; }
+/* the portal's header names the project and the tab: the page's own bar is a toolbar under it */
+html.o2portal .appbar { background: var(--panel); box-shadow: none; }
+html.o2portal .brand span { display: none; }
+.commit-list { max-height: 220px; overflow: auto; display: flex; flex-direction: column; gap: 4px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-2); }
+.commit-list .mono, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+.build-card { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.build-line { display: flex; align-items: center; gap: 10px; }
+.build-line > .muted { width: 160px; }
+/* narrower (on the portal the game pane takes the right part of the window): the side columns give way to the board */
+@media (max-width: 1320px) {
+    .workspace { grid-template-columns: 264px minmax(0, 1fr) 324px; }
+    .levels .seg button { padding-left: 4px; padding-right: 4px; font-size: 11.5px; }
+}
+.pane-foot > span { white-space: nowrap; }
+@media (max-width: 1120px) { .workspace { grid-template-columns: 236px minmax(0, 1fr) 300px; } }

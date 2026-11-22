@@ -64,7 +64,12 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
         }
 
         if (svc.GetBoosterCharges(index) <= 0)
+        {
+            // в кампании заряды — запас игрока: пустой бустер открывает его покупку
+            if (WordFallGame.screens && WordFallGame.screens.IsMetaFlow() && !svc.IsCustomLevel() && WordFallViews.boosterShop)
+                WordFallViews.boosterShop.Open({ booster: index });
             return;
+        }
 
         if (mode == "shuffle")
             svc.UseShuffle();

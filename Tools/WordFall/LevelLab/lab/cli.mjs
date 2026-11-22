@@ -14,6 +14,7 @@ import { evaluateLevel } from './difficulty.mjs';
 import { generateLevel, recentShapes } from './generate.mjs';
 import { shapeHardness } from './shape_cache.mjs';
 import { summarize } from './sim.mjs';
+import { io } from './node_host.mjs';
 
 function parseArgs(list)
 {
@@ -54,7 +55,7 @@ async function main()
     loadCore();
     const args = parseArgs(process.argv.slice(2));
     const command = args._[0] || 'curve';
-    const store = new Store();
+    const store = new Store(io);
     if (typeof args.count == 'number')
         store.curve.count = args.count;
     const curve = buildCurve(store.curve);
@@ -94,7 +95,7 @@ async function main()
             const seed = typeof args.seed == 'number' ? args.seed : 1;
             if (!args.dry && store.campaign.length > curve.length && from == 1 && to == curve.length)
                 store.campaign.length = curve.length;
-            const measured = await shapeHardness(pool, store.settings);
+            const measured = await shapeHardness(pool, store.settings, io);
             for (let number = from; number <= to; number++)
             {
                 const point = curve[number - 1];

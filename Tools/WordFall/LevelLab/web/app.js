@@ -41,6 +41,9 @@ const icons = {
     chevronDown: '<path d="M4 6l4 4 4-4"/>',
     chevronUp: '<path d="M4 10l4-4 4 4"/>',
     close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+    upload: '<path d="M8 11V2.5M4.5 6 8 2.5 11.5 6M2.5 13.5h11"/>',
+    commit: '<circle cx="8" cy="8" r="2.5"/><path d="M1.5 8h4M10.5 8h4"/>',
+    build: '<path d="M2.5 5.5 8 2.5l5.5 3v5L8 13.5l-5.5-3z"/><path d="M2.5 5.5 8 8.5l5.5-3M8 8.5v5"/>',
     play: '<path d="M5 3.5v9l7.5-4.5z" fill="currentColor"/>',
     pause: '<path d="M5.5 3.5v9M10.5 3.5v9"/>',
     step: '<path d="M4 3.5v9l6-4.5z" fill="currentColor"/><path d="M12.5 3.5v9"/>',
@@ -70,8 +73,15 @@ function icon(name)
     return span.firstChild;
 }
 
+// Where the API is: the LevelLab server on this machine (server.mjs), or this page itself when it is a tab of the project
+// on the o2 portal (portal.js: the same API in the browser, the project's files through the portal's bridge)
+const onPortal = !!window.o2portal;
+let backend = null;
+
 async function call(method, path, body)
 {
+    if (backend)
+        return backend.call(method, path, body);
     const response = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
     const data = await response.json();
     if (!response.ok || data.error)
@@ -126,7 +136,7 @@ const section = (title, ...children) => h('div', {}, h('div', { class: 'section-
 
 // ================= game vocabulary =================
 
-const sprite = (path) => '/game/' + path;
+const sprite = (path) => onPortal ? window.o2portal.files.url('Assets/' + path) : '/game/' + path;
 const SP = {
     tiles: ['Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png', 'Generated/UI/Screen_Resources/Sprites/icon_tile_gold.png',
             'Generated/UI/Screen_Resources/Sprites/icon_tile_gold.png', 'Generated/UI/Screen_Resources/Sprites/icon_tile_orange.png'].map(sprite),
@@ -187,7 +197,7 @@ function taskCaption(task, language)
 const S = {
     state: null, shapes: [], selected: 0, draft: null, history: [], future: [], tool: 'ice', mirror: true,
     saveTimer: 0, problems: [], shapeInfo: null, busy: '', jobLog: [], hover: -1, drag: null,
-    filter: 'all', bot: 'average', mind: 0.5, speed: 4, gameAttempts: 3, gameResult: null, curveOpen: true
+    filter: 'all', bot: 'average', mind: 0.5, speed: 4, gameAttempts: 3, gameResult: null, curveOpen: true, vcs: null
 };
 
 const language = () => S.state.settings.language;
@@ -852,7 +862,10 @@ function renderEditorHead()
         h('div', { class: 'grow' }),
         h('span', { id: 'saveState' }),
         h('button', { class: 'btn ghost icon', title: 'Отменить  [⌘Z]', disabled: S.history.length == 0, onclick: undo }, icon('undo')),
-        h('button', { class: 'btn ghost icon', title: 'Вернуть  [⇧⌘Z]', disabled: S.future.length == 0, onclick: redo }, icon('redo')));
+        h('button', { class: 'btn ghost icon', title: 'Вернуть  [⇧⌘Z]', disabled: S.future.length == 0, onclick: redo }, icon('redo')),
+        h('button', { class: 'btn', disabled: !S.state.game.binary,
+                      title: S.state.game.binary ? 'Открыть этот уровень в игре и сыграть самому' : 'Игра не собрана: ' + S.state.game.binaryPath,
+                      onclick: () => playYourself() }, icon('gamepad'), 'Играть'));
 }
 
 function renderEditor()
@@ -952,8 +965,9 @@ function renderProps(force)
         h('div', { class: 'help', style: { marginTop: '8px' }, text: 'Победа: найдены все слова уровня, закрыты задания и набрана цель по очкам.' }));
 
     const charges = level.boosterCharges || [3, 3, 3, 3, 3];
-    const boosters = card('Бустеры на старте', null, h('div', { class: 'grid-5' }, charges.map((count, i) => h('label', { class: 'booster' }, h('span', { text: boosterNames[i] }),
-        numberInput(count, set((d, v) => { d.boosterCharges = (d.boosterCharges || [3, 3, 3, 3, 3]).slice(); d.boosterCharges[i] = Math.max(0, Math.round(v)); }), { min: 0, max: 99 })))));
+    const boosters = card('Бустеры в прогонах', null, h('div', { class: 'grid-5' }, charges.map((count, i) => h('label', { class: 'booster' }, h('span', { text: boosterNames[i] }),
+        numberInput(count, set((d, v) => { d.boosterCharges = (d.boosterCharges || [3, 3, 3, 3, 3]).slice(); d.boosterCharges[i] = Math.max(0, Math.round(v)); }), { min: 0, max: 99 })))),
+        h('div', { class: 'help', style: { marginTop: '8px' }, text: 'С ними уровень играют боты и проба в игре. В кампании у игрока свой запас на всю игру — уровень его не пополняет.' }));
 
     const flow = card('Мешок букв и падающие', null,
         h('div', { class: 'grid-3' },
@@ -1463,13 +1477,13 @@ function renderInspector()
             h('button', { class: 'btn', onclick: () => watch('win'), title: 'Попытка, которая кончилась победой' }, 'Победа'),
             h('button', { class: 'btn', onclick: () => watch('loss'), title: 'Попытка, которая кончилась поражением' }, 'Поражение')),
         h('div', { class: 'row', style: { gap: '6px' } },
-            h('button', { class: 'btn grow', disabled: !S.state.game.binary, title: S.state.game.binary ? 'Запустить игру с этим уровнем: играть будет бот' : 'Игра не собрана: ' + S.state.game.binaryPath,
+            h('button', { class: 'btn grow', disabled: !S.state.game.binary, title: S.state.game.kind == 'portal' ? 'Бот играет этот уровень в игре проекта, в панели справа' : S.state.game.binary ? 'Запустить игру с этим уровнем: играть будет бот' : 'Игра не собрана: ' + S.state.game.binaryPath,
                           onclick: () => playInGame() }, icon('gamepad'), 'В игре'),
             h('select', { class: 'select', style: { width: '64px' }, title: 'Скорость игры', onchange: (event) => { S.speed = Number(event.target.value); } },
                 [1, 2, 4, 8, 16].map((speed) => h('option', { value: speed, text: '×' + speed, selected: S.speed == speed }))),
             h('label', { class: 'row', style: { gap: '4px', fontSize: '12px', color: 'var(--text-3)' }, title: 'Сколько попыток сыграть подряд' }, '×',
                 numberInput(S.gameAttempts, (value) => { S.gameAttempts = Math.max(1, Math.round(value)); }, { min: 1, max: 50, style: { width: '48px' } })),
-            h('button', { class: 'btn', disabled: !S.state.game.binary, title: 'Те же попытки в настоящей игре без окна и на полной скорости: сверка симулятора с игрой',
+            S.state.game.kind == 'portal' ? null : h('button', { class: 'btn', disabled: !S.state.game.binary, title: 'Те же попытки в настоящей игре без окна и на полной скорости: сверка симулятора с игрой',
                           onclick: () => playInGame(0, null, '', true) }, 'Без окна')),
         h('div', { id: 'gameResult', class: 'bot-result' }))));
 
@@ -1751,8 +1765,9 @@ function openPlayers()
                 h('label', { text: 'Ходов не больше' }), number(settings.moves, 'max', { min: 3 }),
                 h('label', { text: 'Доля пика от заданий', title: 'Остальное — цель по очкам; она сильнее отсекает слабых игроков' }), number(settings, 'peakGoals', { min: 0, max: 1, step: 0.05 }))),
             h('div', { class: 'stack', style: { gap: '22px' } },
-                section('Бустеры новых уровней', h('div', { class: 'grid-5' }, settings.boosterCharges.map((count, i) => h('label', { class: 'booster' }, h('span', { text: boosterNames[i] }),
-                    numberInput(count, (value) => { settings.boosterCharges[i] = Math.max(0, Math.round(value)); }, { min: 0 }))))),
+                section('Бустеры бота на уровень', h('div', { class: 'grid-5' }, settings.boosterCharges.map((count, i) => h('label', { class: 'booster' }, h('span', { text: boosterNames[i] }),
+                    numberInput(count, (value) => { settings.boosterCharges[i] = Math.max(0, Math.round(value)); }, { min: 0 })))),
+                    h('div', { class: 'help', style: { marginTop: '8px' }, text: 'Запас бустеров у игрока общий на всю игру, уровень его не пополняет — поэтому новые уровни меряются без бесплатных бустеров.' })),
                 section('Сводный индекс',
                     h('div', { class: 'help', style: { marginBottom: '8px' }, text: 'индекс = попытки среднего^a · слабого^b · сильного^c × (1 − s·запас ходов + f·безнадёжные поражения)' }),
                     h('div', { class: 'grid-5' }, [['average', 'a'], ['weak', 'b'], ['strong', 'c'], ['slack', 's'], ['frustration', 'f']].map(([key, label]) =>
@@ -1975,6 +1990,7 @@ function openReplay(result, profileName, profile)
         width: '840px', headExtra: h('div', { class: 'row', style: { gap: '6px' } }, h('span', { class: 'chip accent', text: profileName }), outcome),
         foot: [h('button', { class: 'btn', onclick: () => { modal.close(); watch(''); } }, 'Другая попытка'),
                h('div', { class: 'grow' }),
+               h('button', { class: 'btn', disabled: !S.state.game.binary, title: 'Это же поле в игре, но играете вы сами', onclick: () => { modal.close(); playYourself(result.seed); } }, 'Сыграть самому'),
                h('button', { class: 'btn', disabled: !S.state.game.binary, title: 'Эта же попытка в игре: те же сиды поля и бота', onclick: () => playInGame(result.seed, profile, profileName) }, icon('gamepad'), 'Эту попытку в игре'),
                h('button', { class: 'btn primary', onclick: () => modal.close() }, 'Закрыть')],
         onclose: () => { clearTimeout(view.timer); document.removeEventListener('keydown', onKey); }
@@ -1996,20 +2012,36 @@ async function playInGame(seed, profile, profileName, background)
             : background ? 'Игра играет без окна — итог появится под кнопками бота' : 'Игра запущена: бот играет уровень, скорость ×' + result.speed, result.stale ? 'bad' : '', 5000);
 }
 
+// The level opens in the game for the person; seed 0 is a random board, a bot attempt's seed is its board
+async function playYourself(seed)
+{
+    flushSave();
+    S.gameResult = null;
+    renderGameResult();
+    const number = S.selected + 1;
+    const result = await guarded(() => call('POST', '/api/play', { level: S.draft, human: true, seed: seed || 0, title: 'уровень ' + number, language: language() }));
+    if (result)
+        toast(result.stale ? 'Игра открыта, но её ассеты старше скриптов и словарей — соберите ассеты (вверху справа)'
+            : 'Игра открыта на уровне ' + number + ': играйте сами, итоги попыток появятся справа', result.stale ? 'bad' : '', 5000);
+}
+
 function renderGameResult()
 {
     const node = $('gameResult');
     if (!node)
         return;
     const result = S.gameResult;
+    const game = S.state.game;
     if (!result || !result.attempts || result.attempts.length == 0)
     {
-        node.replaceChildren(S.state.game.running ? h('div', { class: 'busy' }, h('div', { class: 'spinner' }), 'Игра запущена, бот играет…') : '');
+        node.replaceChildren(game.running ? h('div', { class: 'busy' }, h('div', { class: 'spinner' }), game.human ? 'Игра открыта, играете вы…' : 'Игра запущена, бот играет…') : '');
         return;
     }
     const wins = result.attempts.filter((attempt) => attempt.won).length;
-    node.replaceChildren(h('div', { class: 'row wrap', style: { gap: '4px' } }, h('span', { class: 'muted', text: 'В игре:' }),
-        result.attempts.map((attempt) => h('span', { class: 'chip ' + (attempt.won ? 'good' : 'bad'), title: attempt.score + ' из ' + attempt.target + ' очков',
+    const title = (attempt) => attempt.score + ' из ' + attempt.target + ' очков, осталось ' + attempt.movesLeft + ' ' + plural(attempt.movesLeft, 'ход', 'хода', 'ходов') +
+                               (attempt.words && attempt.words.length ? '\n' + attempt.words.join(', ') : '');
+    node.replaceChildren(h('div', { class: 'row wrap', style: { gap: '4px' } }, h('span', { class: 'muted', text: result.human ? 'Вы в игре:' : 'Бот в игре:' }),
+        result.attempts.map((attempt) => h('span', { class: 'chip ' + (attempt.won ? 'good' : 'bad'), title: title(attempt),
                                                      text: (attempt.won ? 'победа' : 'поражение') + ' · ' + attempt.moves + ' ход.' })),
         h('span', { class: 'muted', text: 'побед ' + wins + ' из ' + result.attempts.length })));
 }
@@ -2026,6 +2058,27 @@ function renderGameStatus()
 {
     const game = S.state.game;
     const nodes = [];
+    if (game.kind == 'portal')
+    {
+        // on the o2 portal: the project's working copy, the levels of the builds, and the game in the pane next to the page
+        const vcs = S.vcs;
+        if (vcs && vcs.changes && vcs.changes.length)
+            nodes.push(h('button', { class: 'btn sm', title: vcs.changes.map((change) => change.path).join('\n'), onclick: openCommit },
+                         icon('commit'), vcs.changes.length + ' ' + plural(vcs.changes.length, 'изменение', 'изменения', 'изменений')));
+        else if (vcs)
+            nodes.push(h('span', { class: 'chip good', title: 'Всё, что сделано здесь, закоммичено в проекте' }, icon('check'), 'в проекте'));
+        if (S.state.services.remote)
+            nodes.push(h('button', { class: 'btn sm', title: 'Уровни LevelLab в вышедших билдах игры — через удалённый конфиг', onclick: openBuild }, icon('build'), 'В билд'));
+        if (game.building)
+            nodes.push(h('span', { class: 'chip warn' }, h('span', { class: 'spinner', style: { width: '10px', height: '10px' } }), 'ассеты пекутся'));
+        else
+            nodes.push(h('button', { class: 'btn sm ghost', title: 'Перепечь ассеты игры на портале: игра в панели увидит новые скрипты, словари и кампанию',
+                                     onclick: () => guarded(() => call('POST', '/api/assets', {})) }, 'Перепечь'));
+        if (game.running)
+            nodes.push(h('button', { class: 'btn sm', onclick: () => guarded(() => call('POST', '/api/play/stop', {})) }, icon('stop'), 'Закрыть игру'));
+        $('gameStatus').replaceChildren(...nodes);
+        return;
+    }
     if (!game.binary)
         nodes.push(h('span', { class: 'chip bad', title: 'cmake --build --preset mac --target Game', text: 'игра не собрана' }));
     else if (game.building)
@@ -2137,16 +2190,105 @@ function onEvent(event)
         if (event.result)
             S.gameResult = event.result;
         if (event.built === true)
-            toast('Ассеты игры собраны');
+            toast(event.game.kind == 'portal' ? 'Ассеты игры перепечены: игра в панели справа идёт на них' : 'Ассеты игры собраны');
         else if (event.built === false)
-            toast('Сборка ассетов не удалась (код ' + event.code + ')', 'bad', 7000);
+            toast('Сборка ассетов не удалась (' + event.code + ')', 'bad', 7000);
         renderGameStatus();
         renderGameResult();
     }
+    // on the portal: what the lab wrote went to the project's working copy, or did not
+    else if (event.type == 'saved' || event.type == 'vcs')
+        refreshVcsSoon();
+    else if (event.type == 'error')
+        toast(event.message, 'bad', 8000);
+}
+
+// ---------- the project on the o2 portal: its working copy and its builds ----------
+
+let vcsTimer = 0;
+function refreshVcsSoon()
+{
+    clearTimeout(vcsTimer);
+    vcsTimer = setTimeout(refreshVcs, 900);
+}
+
+async function refreshVcs()
+{
+    if (!S.state.services.vcs)
+        return;
+    const vcs = await call('GET', '/api/vcs').catch(() => null);
+    if (vcs)
+    {
+        S.vcs = vcs;
+        renderGameStatus();
+    }
+}
+
+const changeNames = { M: 'изменён', A: 'добавлен', D: 'удалён', '?': 'новый', R: 'переименован' };
+
+function openCommit()
+{
+    const changes = (S.vcs && S.vcs.changes) || [];
+    const message = h('input', { class: 'input', value: 'LevelLab: уровни Word Fall', placeholder: 'Что изменилось' });
+    const push = h('input', { type: 'checkbox', checked: true });
+    const list = h('div', { class: 'commit-list' }, changes.map((change) => h('div', { class: 'row' },
+        h('span', { class: 'chip', text: changeNames[change.st] || change.st }), h('span', { class: 'mono ell', text: change.path }))));
+    const modal = openModal('Изменения LevelLab в проекте', h('div', { class: 'stack', style: { gap: '12px' } },
+        h('p', { class: 'muted', text: 'Уровни, кривая и статистика уже лежат в рабочей копии проекта на портале. Коммит сохранит их в истории проекта — только файлы LevelLab, остальное не трогается.' }),
+        list, field('Сообщение коммита', message),
+        h('label', { class: 'row', style: { gap: '8px' } }, push, 'Отправить в репозиторий проекта (push)')), {
+        width: '560px',
+        foot: [h('div', { class: 'grow' }), h('button', { class: 'btn', onclick: () => modal.close() }, 'Отмена'),
+               h('button', { class: 'btn primary', disabled: !changes.length || !S.vcs.canCommit, title: S.vcs.canCommit ? '' : 'У зрителя проекта нет права на коммит',
+                             onclick: async () => {
+                                 const done = await guarded(() => call('POST', '/api/vcs/commit', { message: message.value, push: push.checked }));
+                                 if (!done)
+                                     return;
+                                 modal.close();
+                                 toast('Закоммичено: ' + done.files.length + ' ' + plural(done.files.length, 'файл', 'файла', 'файлов') + (push.checked ? ' и отправлено' : ''));
+                                 refreshVcs();
+                             } }, icon('check'), 'Закоммитить')]
+    });
+}
+
+async function openBuild()
+{
+    const state = await guarded(() => call('GET', '/api/build'));
+    if (!state)
+        return;
+    const note = h('input', { class: 'input', placeholder: 'Что поменялось, для истории Live-ops' });
+    const line = (label, part) => h('div', { class: 'build-line' }, h('span', { class: 'muted', text: label }),
+        part.count ? h('b', { text: part.count + ' ' + plural(part.count, 'уровень', 'уровня', 'уровней') }) : h('b', { text: 'нет' }),
+        part.count ? h('span', { class: 'chip ' + (part.differ ? 'warn' : 'good'), text: part.differ ? 'отличаются от LevelLab: ' + part.differ : 'совпадают с LevelLab' }) : null);
+    const send = async (publish, clear) => {
+        const done = await guarded(() => call('POST', '/api/build', { publish, clear, note: note.value }));
+        if (!done)
+            return;
+        modal.close();
+        toast(clear ? 'Уровни из билдов убраны' + (publish ? '' : ' в черновике') : publish ? 'Опубликовано: билды игры берут уровни LevelLab' : 'Уровни в черновике Live-ops: опубликует владелец проекта');
+    };
+    const modal = openModal('Уровни в билдах игры', h('div', { class: 'stack', style: { gap: '12px' } },
+        h('p', { class: 'muted', text: 'Игра берёт уровень из удалённого конфига ' + state.key + ' по его id вместо собранного в билд — без новой сборки и обновления. ' +
+                                       'Так меняются уровни уже вышедших билдов, подключённых к Live-ops. Порядок и число уровней задаёт сам билд.' }),
+        h('div', { class: 'card build-card' }, line('В билдах сейчас', state.live), line('В черновике Live-ops', state.draft),
+            state.publishedAt ? h('div', { class: 'muted', style: { fontSize: '12px' }, text: 'Последняя публикация: ' + new Date(state.publishedAt).toLocaleString('ru') + (state.note ? ' — ' + state.note : '') }) : null),
+        field('Заметка', note)), {
+        width: '600px',
+        foot: [h('button', { class: 'btn danger', disabled: !state.live.count && !state.draft.count, onclick: () => send(state.canPublish, true) }, 'Убрать из билдов'),
+               h('div', { class: 'grow' }),
+               h('button', { class: 'btn', onclick: () => send(false, false), title: 'Положить ' + state.campaign + ' уровней в черновик Live-ops' }, 'В черновик'),
+               h('button', { class: 'btn primary', disabled: !state.canPublish, title: state.canPublish ? 'Все игроки получат эти уровни при следующем запуске' : 'Публикует владелец проекта — положите уровни в черновик',
+                             onclick: () => send(true, false) }, icon('upload'), 'Опубликовать')]
+    });
 }
 
 function connect()
 {
+    if (backend)
+    {
+        onEvent(backend.hello());
+        return;
+    }
     const source = new EventSource('/api/events');
     source.onmessage = (message) => onEvent(JSON.parse(message.data));
     source.onerror = () => toast('Нет связи с сервером LevelLab — перезапустите server.mjs', 'bad', 5000);
@@ -2170,6 +2312,14 @@ function renderAll()
 
 async function init()
 {
+    if (onPortal)
+    {
+        // (an absolute URL: in the portal's sandbox this script is cross-origin, and a relative import() would have no base)
+        const { createPortalBackend } = await import(new URL('portal.js', location.href).href);
+        backend = await createPortalBackend((event) => onEvent(event));
+        // the board's letters in the game's own font, from the project
+        document.head.append(h('style', { text: '@font-face { font-family: "WordFallTile"; src: url("' + sprite('WordFall/game_font_heavy.ttf') + '") format("truetype"); font-display: block; }' }));
+    }
     S.state = await call('GET', '/api/state');
     try { S.curveOpen = localStorage.getItem('levellab.curveOpen') != '0'; } catch (error) {}
     $('openGenerate').replaceChildren(icon('sparkle'), 'Генерация');
@@ -2226,6 +2376,7 @@ async function init()
     setInterval(() => { if (S.state.job && S.state.job.state == 'running') renderJobPill(); }, 1000);
     validateDraft();
 
+    refreshVcs();
     const shapes = await guarded(() => call('GET', '/api/shapes'));
     if (shapes)
     {

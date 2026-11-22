@@ -287,8 +287,23 @@ Rules that hold there:
   effects, opens the victory window over the main screen (`WinLevel` → reward claimed ×1 or ×2 for an ad) or the continue
   window over the board (+`continueMoves` for `continuePrice` coins or an ad; the cross gives up: a life burns, back to the
   main screen). The board's own popup only works without the main screen. Ads are not wired: watching one is granted at
-  once. Coins, lives (regen `lifeRegenSeconds`), stars per level are in `PlayerProgress`. Tests: `GameTests/WordFallMeta`,
-  `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`).
+  once. Coins, lives (regen `lifeRegenSeconds`), stars per level and the boosters are in `PlayerProgress`. The boosters
+  (the five buttons under the board) are one stock for the whole game: a new player gets `startBoosters`, a level
+  spends them, no level refills them (a level's `boosterCharges` count only for `PlayCustomLevel`). Rockets fly to the
+  task obstacles, then under the envelopes, then to any blocker, and only then to a random letter
+  (`WordBoard._RocketTargetScore`). Tests: `GameTests/WordFallMeta`,
+  `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`, `6x_meta_*.png`).
+- Meta windows from the UI kit's sprites, built by `Tools/WordFall/build_meta_windows.py` (rerun after editing it; it
+  also adds `Screen/Hud/QuitButton` to GameScreen.proto and `lives_button` to MainScreen.proto): `WordFall/UI/`
+  LevelStartWindow (PLAY: the level's goals, start bonuses bomb/rocket/fireworks from `PlayerProgress.bonuses`, placed by
+  `WordBoard.PlaceBonus` through `StartLevelWithBonuses`), LivesWindow (PLAY with no lives, the lives counter: timer,
+  refill for `livesRefillPrice`, +1 for an ad), ShopWindow (the bank: `shopPacks`, granted at once - no payments),
+  BoosterShopWindow (an empty booster or start bonus: a pack of `boosterPack` for `boosterPrices`/`bonusPrices`),
+  QuitLevelWindow (the level's cross: a life burns), SettingsWindow (sound/music flags in `PlayerProgress.settings`,
+  language, the tutorial again). Views extend `WordFallWindow.js`; a window opens and closes with its root's `visible`
+  state (the clip is in the prototype), no code tweens. Not enough coins anywhere opens the bank on top. Texts are
+  English like the pipeline's windows (LilitaOne has no Cyrillic). The cross sits over the cheats' hidden long-press
+  corner (depth 96 > 95).
 
 - The campaign is generated and balanced by LevelLab (`Tools/WordFall/LevelLab`, README there; `node
   Tools/WordFall/LevelLab/server.mjs --open` is the page, `lab/cli.mjs` the same from the shell). It loads the scripts
@@ -305,7 +320,17 @@ Rules that hold there:
   views when `WordFallBootstrap` finds a fresh `wordfall_bot.json` next to the executable (the lab writes it): the level
   starts through `WordFallGameService.PlayCustomLevel`, which leaves progress, lives and tutorials alone. `O2_GAME_SPEED`
   speeds the game up, `O2_BACKGROUND_WINDOW` + `O2_INVISIBLE_WINDOW` keep its window off the screen. With the same
-  seeds an attempt in the game repeats the simulated one move for move.
+  seeds an attempt in the game repeats the simulated one move for move. A request with `human: true` (the page's
+  «Играть») opens the level for a person instead of the bot and records their attempts the same way. The request file is
+  deleted once read (a restart is the ordinary game again); `pace` speeds the bot's own pauses where the game cannot run
+  faster (the web game on the portal).
+- LevelLab is also the project's **Levels** tab on the o2 portal: `o2portal.json` (root) lists `Tools/WordFall/LevelLab`,
+  whose `plugin.json` says what it may read and write. There the page runs `lab/api.mjs` itself in the browser
+  (`web/portal.js`): files through the portal's bridge, bots in Web Workers, the game in a pane next to the page. Keep
+  `lab/*.mjs` free of Node-only imports except `node_host.mjs`, `worker.mjs` and `cli.mjs`.
+- Levels of builds already out: the remote config `wordfall_levels` (`{levels: {id: level}}`) overrides a campaign level
+  by its id (`WordFallRemote.Level`, read at every level start through the level store's source); LevelLab's «В билд»
+  publishes the campaign there. Edits in the in-game level editor still win over it.
 - Dictionaries are built: `Tools/WordFall/LevelLab/dictionary/<lang>.tsv` (word, difficulty 1-9, familiarity 1-9, kind:
   `.` ordinary, `w` fit to be a level's word, `n` name, `p` rude) -> `node .../dictionary/build_dictionary.mjs` ->
   `Assets/WordFall/Dictionaries/<lang>.json` (parallel strings `difficulty`, `familiarity`, `kinds`). Edit the table,

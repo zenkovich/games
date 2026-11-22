@@ -1,35 +1,40 @@
 // Measured hardness of the catalog shapes, kept in data/shapes.json: measured again when the catalog, the bot,
 // the rules or the bot settings change
-import fs from 'node:fs';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import { assetsRoot, dataRoot } from './core.mjs';
+import { getHost, paths } from './core.mjs';
 import { shapes, measureShapes } from './shapes.mjs';
+import { storeFiles } from './store.mjs';
 
-const file = path.join(dataRoot, 'shapes.json');
-
-function fingerprint(settings)
+async function fingerprint(settings)
 {
-    const hash = crypto.createHash('sha1');
-    hash.update(JSON.stringify(shapes.map((shape) => shape.lines)));
-    hash.update(JSON.stringify([settings.language, settings.profiles.average]));
-    for (const script of ['Core/WordFallBot.js', 'Core/WordBoard.js', 'Core/WordLevel.js'])
-        hash.update(fs.readFileSync(path.join(assetsRoot, 'Scripts/WordFall', script)));
-    return hash.digest('hex').slice(0, 16);
+    const host = getHost();
+    const parts = [JSON.stringify(shapes.map((shape) => shape.lines)), JSON.stringify([settings.language, settings.profiles.average])];
+    for (const script of ['WordFallBot.js', 'WordBoard.js', 'WordLevel.js'])
+        parts.push(host.readText(paths.scripts + '/' + script) || '');
+    const digest = await globalThis.crypto.subtle.digest('SHA-1', new TextEncoder().encode(parts.join('')));
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('').slice(0, 16);
 }
 
-export async function shapeHardness(pool, settings)
+let measuring = null;
+
+export async function shapeHardness(pool, settings, io)
 {
-    const stamp = fingerprint(settings);
+    const stamp = await fingerprint(settings);
     try
     {
-        const cached = JSON.parse(fs.readFileSync(file, 'utf8'));
-        if (cached.stamp == stamp)
+        const cached = JSON.parse(io.read(storeFiles.shapes) || 'null');
+        if (cached && cached.stamp == stamp)
             return cached.shapes;
     }
     catch (error) {}
-    const measured = await measureShapes(pool, settings, { count: 600 });
-    fs.mkdirSync(dataRoot, { recursive: true });
-    fs.writeFileSync(file, JSON.stringify({ stamp, shapes: measured }, null, 1) + '\n');
-    return measured;
+    // two callers at once (the page asks for the gallery while a job starts) measure once
+    if (!measuring || measuring.stamp != stamp)
+    {
+        const job = measureShapes(pool, settings, { count: 600 }).then((measured) => {
+            io.write(storeFiles.shapes, JSON.stringify({ stamp, shapes: measured }, null, 1) + '\n');
+            return measured;
+        });
+        measuring = { stamp, job };
+        job.catch(() => { if (measuring && measuring.job == job) measuring = null; });
+    }
+    return measuring.job;
 }

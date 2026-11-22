@@ -165,6 +165,40 @@ include("Scripts/WordFall/WordFallGameService.js");
         expectEq(service.GetCurrentWord(), direct.word, "недосчитанный поиск дорабатывает нажатие");
     });
 
+    test("BoostersAreThePlayersStockForTheWholeGame", function()
+    {
+        var service = MakeService({ campaignPath: "", startBoosters: [2, 2, 2, 2, 2] });
+        service.StartLevel(3);
+        expectEq(service.GetBoosterCharges(WordLevel.Hint), 2, "новому игроку — стартовый запас, а не заряды уровня");
+        expect(service.UseHint());
+        expectEq(service.GetBoosterCharges(WordLevel.Hint), 1);
+
+        service.RestartLevel();
+        expectEq(service.GetBoosterCharges(WordLevel.Hint), 1, "перезапуск уровня запас не восполняет");
+        service.StartLevel(4);
+        expectEq(service.GetBoosterCharges(WordLevel.Hint), 1, "следующий уровень тоже");
+        expectEq(service.GetBoosterCharges(WordLevel.Hammer), 2);
+
+        // запас лежит в сохранении: новая сессия игры продолжает с ним
+        var again = new WordFallGameService();
+        again.randomSeed = 42;
+        again.progressPath = progressPath;
+        again.editedLevelsPath = levelsPath;
+        again.campaignPath = "";
+        again.StartLevel(0);
+        expectEq(again.GetBoosterCharges(WordLevel.Hint), 1);
+        expectEq(again.GetProgress().boosters, [2, 2, 1, 2, 2]);
+
+        // уровень из LevelLab играется со своими зарядами и запас игрока не трогает
+        again.PlayCustomLevel({ id: "LAB", words: { ru: ["ЛУНА"] }, moves: 7, targetScore: 30, boosterCharges: [0, 0, 5, 0, 0] }, "ru");
+        expectEq(again.GetBoosterCharges(WordLevel.Hint), 5);
+        expectEq(again.GetBoosterCharges(WordLevel.Hammer), 0);
+        expect(again.UseHint());
+        expectEq(again.GetProgress().boosters, [2, 2, 1, 2, 2]);
+
+        o2.FileSystem.FileDelete(progressPath);
+    });
+
     test("BoostersAndCheatsChangeTheLevel", function()
     {
         var service = MakeService({ campaignPath: "" });

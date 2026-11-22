@@ -107,6 +107,14 @@ WordFallContinueView = class WordFallContinueView extends o2.Component
             WordFallUi.Bounce(this._tweens, this._buy);
             this.Close();
         }
+        else if (WordFallViews.shop)
+        {
+            // монет не хватает — банк поверх окна; после него цена сверяется с балансом заново
+            var self = this;
+            WordFallViews.shop.Open(function() {
+                self._buy.SetTransparency(WordFallGame.service.CanContinueWithCoins() ? 1 : 0.6);
+            });
+        }
         else
             WordFallUi.Shake(this._tweens, this._buy);
     }

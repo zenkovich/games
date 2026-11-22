@@ -9,14 +9,18 @@ the bot playing.
 
 No dependencies beyond Node 22+. The server listens on localhost only: it writes project files and starts the game.
 
+The same page is also the project's **Levels** tab on the o2 portal (a plugin: `plugin.json` here, `o2portal.json` at
+the repository's root) - see "On the o2 portal" below.
+
 ## What is what
 
 | Path | Role |
 |---|---|
-| `server.mjs`, `web/` | the page and its API (state, evaluate, tune, generate with live progress, replay, play in the game, dictionary) |
-| `lab/core.mjs` | loads the game's rule scripts (`Assets/Scripts/WordFall/Core`) into Node — the lab plays the very code the game runs |
+| `lab/api.mjs` | the page's API (state, evaluate, tune, generate with live progress, replay, play in the game, dictionary, levels into the builds, commit), whoever serves it: the files, the game, the remote config and git are services handed in |
+| `server.mjs`, `web/` | the API over HTTP on this machine (the checkout's files, the native game) and the page; `web/portal.js` is the page's own backend on the portal |
+| `lab/core.mjs` | loads the game's rule scripts (`Assets/Scripts/WordFall/Core`) — the lab plays the very code the game runs; where the files come from is the host's: `lab/node_host.mjs` (the checkout, `node:vm`, worker threads) or `lab/web_host.mjs` (files fetched through the portal, indirect eval, Web Workers) |
 | `lab/sim.mjs` | one attempt of a level by the bot; statistics of many attempts |
-| `lab/pool.mjs`, `lab/worker.mjs` | worker threads: many bots play at once (≈10–15 thousand attempts per second on a desktop) |
+| `lab/pool.mjs`, `lab/worker.mjs`, `lab/worker_web.mjs` | the host's workers: many bots play at once (≈10–15 thousand attempts per second on a desktop, in Node and in a browser alike) |
 | `lab/difficulty.mjs` | the difficulty of a level: attempts per player profile, the parameters around them, the index |
 | `lab/curve.mjs` | the difficulty curve: the target attempts of every level |
 | `lab/tune.mjs` | fits moves and the target score of a level to a target difficulty |
@@ -102,6 +106,12 @@ three words: marked in the dictionary as fit for a level, known to everyone, not
 language. Then it is tuned; when the goals are out of reach or the target is missed the design is softened or
 replaced, up to seven times. 100 levels take about a minute.
 
+*Boosters.* A player's boosters (the five buttons under the board) are a stock for the whole game, kept in the save
+and never refilled by a level (`PlayerProgress.boosters`). So a generated level is measured without free boosters:
+`settings.boosterCharges` (the page's «Бустеры бота на уровень») is 0 for all five, and a level's own
+`boosterCharges` is only what the bots and the try-out in the game play with. Generator version 3 (2026-11-22)
+regenerated levels 1–100 under that rule and the new rocket targets.
+
 *Shapes.* 34 boards after the fields of match-3 games: cut corners, pillow, crown, keyhole, honeycomb, two floors,
 two and three towers, octagon, heart, butterfly, hourglass, ring, frame, arch, comb, four squares, cross, mushroom,
 wave, vase, bridge, pyramid, funnel, wings, T, diamond, star, zigzag, stairs, islands. Letters fall through the gaps
@@ -120,7 +130,8 @@ the corners. Each kind has its patterns and its zone (crates low, snow and envel
 a chain starves the cells under it); blockers of one level share the board by zones. Bonuses come in mirrored pairs
 of one kind, a row of three or one in the middle, and go where they help: in the middle of a ring, next to the
 thickest blockers, stones always with bonuses to break them. The page's «Разложить» lays out a level's own blockers
-and bonuses anew in the same way.
+and bonuses anew in the same way. Bombs need the place (they hit 3×3); rockets and fireworks fly to the useful cells
+wherever they are (see the game side).
 
 ## Dictionaries
 
@@ -168,14 +179,47 @@ assets.
   be trimmed at the top and bottom. Test `WordFallCore.TilesFallThroughGapsInsideTheBoard`; in the real game an
   attempt on a ring-shaped level repeats the simulated one point for point.
 - `WordDictionary` reads the ratings; `WordFallWordAgent` and the hint use them.
+- Rockets (and the ten of a firework) fly to what helps the level (`WordBoard._RocketTargetScore`): the obstacles of
+  its tasks first, then the cells under an envelope (the one nearest the bottom first; a chain holding it counts),
+  then any other blocker — stone, crate, chain, ice, snow; only with nothing of the kind on the board a random letter,
+  the letters the level keeps (the seeded word, the task's letter) last. Tests `WordFallLevelRules.Rockets*`.
+- Boosters are the player's stock for the whole game (`PlayerProgress.boosters`, `WordFallGameService.startBoosters`
+  for a new player): a level spends it and restarting or the next level does not refill it. A level's own
+  `boosterCharges` apply only to a level played through `PlayCustomLevel` (the lab's bots and try-outs). Test
+  `WordFallService.BoostersAreThePlayersStockForTheWholeGame`.
 - `languages.json: scoreScale` — score targets are tuned for the default language; a language whose letters are
   worth less scales them (`node lab/cli.mjs scale en` finds the value: 0.77).
 - `WordFallGameService.PlayCustomLevel` plays a level that is not in the campaign and leaves the player's progress,
   lives and tutorials alone; `WordFallBootstrap` starts it with the bot when a fresh request file
-  (`wordfall_bot.json`, written by the lab) lies next to the game.
+  (`wordfall_bot.json`, written by the lab) lies next to the game. A request with `human: true` (the page's «Играть» in
+  the level's header, or «Сыграть самому» under a bot attempt — that attempt's board) opens the level for the person at
+  normal speed: «Ещё раз» in the end popup starts the next attempt, and each attempt (won, moves, score, words) comes
+  back to the page as «Вы в игре».
 - `O2_GAME_SPEED` (1…16) runs the game faster; `O2_BACKGROUND_WINDOW` with `O2_INVISIBLE_WINDOW` keeps its window
   off the screen.
 
 The game reads built assets: after the campaign, a dictionary or a script changed, press "rebuild assets" on the
 page (or build the `BuildAssets` target) before starting the game from an IDE. A bot run from the page does not
 need it for the level — the level travels in the request — but does for scripts and dictionaries.
+
+## On the o2 portal
+
+The project's page on the o2 portal has a **Levels** tab: this page, run as a plugin of the project (`plugin.json`; the
+portal's README, "Plugins"). There is no server of its own there: `web/portal.js` runs `lab/api.mjs` in the browser.
+
+- The files are the project's main working copy on the portal, read and written through the portal's bridge
+  (`window.o2portal.files`) within `plugin.json`'s globs: the rules, the dictionaries and the lab's files are loaded once,
+  then the lab works in memory and writes behind itself. The header says how many files it changed; **N изменений**
+  commits them (only the lab's files) and pushes if asked.
+- The bots are Web Workers of the browser (the page is in a sandbox: a worker is made from a blob that imports
+  `lab/worker_web.mjs` by its URL). Generation runs on the machine of whoever has the tab open, and goes on while they
+  look at another tab of the project.
+- **В игре** and **Играть** open the project's game next to the page (the portal's Play face of the working copy): the
+  request goes into the game's folder (`wordfall_bot.json`), the game starts over on it, the result comes back the same
+  way. A web game cannot run faster than the clock, so the speed is the bot's pace instead (`pace` in the request:
+  `WordFallBotRunner` shortens its own pauses). There is no "без окна" there. **Перепечь** has the editor bake the assets,
+  for scripts and dictionaries changed since.
+- **В билд** puts the campaign into the remote config `wordfall_levels` (`{levels: {id: level}}`): the game takes a level
+  from it by its id over the one baked into the build (`WordFallRemote.Level`, the service's level source), so the levels of
+  builds already out change without a new build. Only the owner publishes; an editor puts them into the draft. **Убрать из
+  билдов** empties it. The order and the number of levels are the build's own.

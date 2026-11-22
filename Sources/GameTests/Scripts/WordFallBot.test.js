@@ -1,5 +1,6 @@
 include("Scripts/WordFall/Core/WordFallCore.js");
 include("Scripts/WordFall/WordFallBotRunner.js");
+include("Scripts/WordFall/WordFallGameService.js");
 
 // Бот-игрок: проходит уровень по правилам игры, повторяет попытку по сидам, знает слова по своей эрудиции,
 // идёт к целям уровня; сильный игрок набирает больше слабого
@@ -161,11 +162,76 @@ include("Scripts/WordFall/WordFallBotRunner.js");
         var request = WordFallBotRunner.ReadRequest(path);
         assert(request, "свежий запрос принят");
         expectEq(request.level.id, "B001");
+        expectEq(o2.FileSystem.ReadFile(path), undefined, "запрос читается один раз: следующий старт игры — обычный");
 
         o2.FileSystem.WriteFile(path, JSON.stringify({ expires: Date.now() - 1000, level: plain }));
         expectEq(WordFallBotRunner.ReadRequest(path), null, "устаревший запрос не перехватывает запуск игры");
         o2.FileSystem.WriteFile(path, "{ broken");
         expectEq(WordFallBotRunner.ReadRequest(path), null);
         o2.FileSystem.FileDelete(path);
+    });
+
+    test("RunnerRecordsTheAttemptsOfAPersonPlaying", function()
+    {
+        var resultPath = "wordfall_test_human_result.json";
+        var progressPath = "wordfall_test_human_progress.json";
+        o2.FileSystem.FileDelete(resultPath);
+        o2.FileSystem.FileDelete(progressPath);
+        var savedService = WordFallGame.service, savedViews = globalThis.WordFallViews;
+        var messages = [];
+        try
+        {
+            var service = new WordFallGameService();
+            service.campaignPath = "";
+            service.progressPath = progressPath;
+            service.editedLevelsPath = "wordfall_test_human_levels.json";
+            globalThis.WordFallViews = { board: { IsSelecting: function() { return false; } }, boosters: {},
+                                         wordPanel: { ShowMessage: function(text) { messages.push(text); } } };
+            var level = { id: "H001", words: ["КОТ"], moves: 3, targetScore: 100000, boosterCharges: noBoosters, tasks: [] };
+            var runner = new WordFallBotRunner({ human: true, level: level, language: "ru", seed: 7, title: "уровень 5", resultPath: resultPath });
+            var play = function(word) {
+                for (var i = 0; i < word.length; i++)
+                {
+                    service.DebugSetTile(i, 0, word[i]);
+                    service.ToggleSelect(i, 0);
+                }
+                expect(service.AcceptWord().ok, word);
+                runner.Update(0.016);
+            };
+
+            runner.Update(0.016);
+            expect(service.IsCustomLevel(), "уровень из запроса открыт вместо кампании");
+            expectEq(service.GetMovesLeft(), 3);
+            expectEq(service.randomSeed, 0, "сид запроса — только для первого поля, дальше поля случайны");
+            expect(messages.length == 1 && messages[0].indexOf("уровень 5") >= 0, "подсказка, что играет человек: " + messages.join());
+
+            ["ДОМ", "СОН", "ЛЕС"].forEach(play);
+            expectEq(service.GetGameState(), "lost");
+            var result = JSON.parse(o2.FileSystem.ReadFile(resultPath));
+            expect(result.human);
+            expectEq(result.attempts.length, 1);
+            expectEq(result.attempts[0].won, false);
+            expectEq(result.attempts[0].moves, 3);
+            expectEq(result.attempts[0].words, ["ДОМ", "СОН", "ЛЕС"]);
+
+            runner.Update(0.016);
+            service.RestartLevel();
+            runner.Update(0.016);
+            play("ДОМ");
+            service.RestartLevel();
+            runner.Update(0.016);
+            ["СОН", "ЛЕС", "ДОМ"].forEach(play);
+            result = JSON.parse(o2.FileSystem.ReadFile(resultPath));
+            expectEq(result.attempts.length, 2, "попытка, начатая заново посреди игры, не считается");
+            expectEq(result.attempts[1].attempt, 2);
+            expectEq(result.attempts[1].words, ["СОН", "ЛЕС", "ДОМ"]);
+        }
+        finally
+        {
+            WordFallGame.service = savedService;
+            globalThis.WordFallViews = savedViews;
+            o2.FileSystem.FileDelete(resultPath);
+            o2.FileSystem.FileDelete(progressPath);
+        }
     });
 })();

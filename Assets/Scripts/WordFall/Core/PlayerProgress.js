@@ -1,5 +1,5 @@
 // Прогресс игрока: текущий уровень кампании, лучшие результаты и звёзды, показанные туториалы, язык,
-// монеты и жизни. Хранится JSON-файлом; путь задаёт сервис
+// монеты, жизни, бустеры, бонусы на старт уровня и настройки. Хранится JSON-файлом; путь задаёт сервис
 PlayerProgress = class PlayerProgress
 {
     constructor()
@@ -12,6 +12,31 @@ PlayerProgress = class PlayerProgress
         this.coins = -1;          // монеты; -1 — новый игрок, стартовый запас даёт сервис
         this.lives = -1;          // жизни; -1 — полный запас
         this.livesAt = 0;         // время (мс) последнего восстановления жизни, 0 — запас полон
+        this.boosters = null;     // заряды бустеров по индексам WordLevel, общие на всю игру; null — новый игрок
+        this.bonuses = null;      // бонусы на старт уровня: бомба, ракета, салют; null — новый игрок
+        this.settings = {};       // настройки игрока: sound, music (true — включено)
+    }
+
+    // Бонусы на старт уровня: три неотрицательных целых; новому игроку — start
+    EnsureBonuses(start)
+    {
+        if (!Array.isArray(this.bonuses))
+            this.bonuses = (start || []).slice();
+        for (var i = 0; i < 3; i++)
+            this.bonuses[i] = Math.max(0, Math.floor(this.bonuses[i] || 0));
+        this.bonuses.length = 3;
+        return this.bonuses;
+    }
+
+    // Запас бустеров: пять неотрицательных целых; новому игроку — start
+    EnsureBoosters(start)
+    {
+        if (!Array.isArray(this.boosters))
+            this.boosters = (start || []).slice();
+        for (var i = 0; i < 5; i++)
+            this.boosters[i] = Math.max(0, Math.floor(this.boosters[i] || 0));
+        this.boosters.length = 5;
+        return this.boosters;
     }
 
     SetStars(levelIndex, stars)
@@ -80,7 +105,8 @@ PlayerProgress = class PlayerProgress
     Save(path)
     {
         var data = { currentLevel: this.currentLevel, bestScores: this.bestScores, seenTutorials: this.seenTutorials, language: this.language,
-                     stars: this.stars, coins: this.coins, lives: this.lives, livesAt: this.livesAt };
+                     stars: this.stars, coins: this.coins, lives: this.lives, livesAt: this.livesAt, boosters: this.boosters,
+                     bonuses: this.bonuses, settings: this.settings };
         return o2.FileSystem.WriteFile(path, JSON.stringify(data, null, 4));
     }
 
@@ -101,6 +127,9 @@ PlayerProgress = class PlayerProgress
             this.coins = typeof data.coins == "number" ? data.coins : -1;
             this.lives = typeof data.lives == "number" ? data.lives : -1;
             this.livesAt = typeof data.livesAt == "number" ? data.livesAt : 0;
+            this.boosters = Array.isArray(data.boosters) ? data.boosters : null;
+            this.bonuses = Array.isArray(data.bonuses) ? data.bonuses : null;
+            this.settings = data.settings && typeof data.settings == "object" ? data.settings : {};
             return true;
         }
         catch (e)

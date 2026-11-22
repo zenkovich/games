@@ -38,19 +38,30 @@ protected:
 
 TEST_F(WordFallLevelsShowcase, CampaignLevelsRenderObstacles)
 {
-	ASSERT_GE(mService->GetLevelCount(), 130) << "кампания из campaign.json не загрузилась";
+	int count = mService->GetLevelCount();
+	ASSERT_GE(count, 100) << "кампания из campaign.json не загрузилась";
 
+	// первый уровень кампании с препятствием каждого вида и последний с ящиками или камнями (кампанию генерирует
+	// LevelLab — номера уровней не зашиты)
+	auto first = [&](const char* list, bool last = false) {
+		int found = -1;
+		for (int i = 0; i < count && (last || found < 0); i++)
+			if (mService->Call("GetLevelConfig", { ScriptValue(i) }).GetProperty(list).GetLength() > 0)
+				found = i;
+		return found;
+	};
 	struct Probe { int index; const char* name; std::function<bool(const WordTile&)> has; };
 	Vector<Probe> probes = {
-		{ 0, "level_01_holes", [](const WordTile& t) { return t.hole; } },
-		{ 1, "level_02_crates", [](const WordTile& t) { return t.crate > 0; } },
-		{ 11, "level_12_chains", [](const WordTile& t) { return t.chained; } },
-		{ 15, "level_16_snow", [](const WordTile& t) { return t.snow; } },
-		{ 22, "level_23_parcels", [](const WordTile& t) { return t.parcel; } },
-		{ 128, "level_129_late", [](const WordTile& t) { return t.crate > 0 || t.stone > 0; } },
+		{ first("holeCells"), "level_holes", [](const WordTile& t) { return t.hole; } },
+		{ first("crateCells"), "level_crates", [](const WordTile& t) { return t.crate > 0; } },
+		{ first("chainCells"), "level_chains", [](const WordTile& t) { return t.chained; } },
+		{ first("snowCells"), "level_snow", [](const WordTile& t) { return t.snow; } },
+		{ first("parcelCells"), "level_parcels", [](const WordTile& t) { return t.parcel; } },
+		{ first("stoneCells", true), "level_late_stones", [](const WordTile& t) { return t.stone > 0; } },
 	};
 	for (auto& probe : probes)
 	{
+		ASSERT_GE(probe.index, 0) << probe.name;
 		mService->StartLevel(probe.index);
 		AppTestDriver::PumpFrames(4);
 		EXPECT_EQ(mService->GetLevelIndex(), probe.index);

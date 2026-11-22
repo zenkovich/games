@@ -663,7 +663,7 @@ WordFallBot = class WordFallBot
         }
         var score = Math.ceil(Math.fround(Math.fround(base*WordBoard.LengthMultiplier(cells.length))*(cluster >= 2 ? cluster : 1)));
 
-        var outcome = { score: score, ice: 0, crates: 0, snow: 0, bombs: 0, rockets: 0, delivery: 0, extra: 0 };
+        var outcome = { score: score, ice: 0, crates: 0, snow: 0, bombs: 0, rockets: 0, delivery: 0, rocketDelivery: 0, extra: 0 };
         var seen = {};
         for (var i = 0; i < cells.length; i++)
             seen[cells[i].c*rows + cells[i].r] = true;
@@ -692,14 +692,17 @@ WordFallBot = class WordFallBot
                     }
                     else if (tile.powerup)
                     {
+                        // ракета без выгодной цели бьёт случайную букву — в среднем дешёвую
                         var shots = tile.powerup == "fireworks" ? 10 : 1;
                         outcome.rockets += shots;
-                        outcome.extra += 3*shots;
+                        outcome.extra += 2*shots;
                     }
                 }
             }
         }
 
+        // ракеты после препятствий заданий копают под конверт, что ближе к дну
+        var nearest = 0;
         for (var i = 0; i < view.parcels.length; i++)
         {
             var parcel = view.parcels[i];
@@ -713,8 +716,14 @@ WordFallBot = class WordFallBot
                     cleared += cells[j].c == parcel.c && cells[j].r == r ? 1 : 0;
             }
             if (below > 0)
+            {
                 outcome.delivery += cleared/below;
+                if (below > cleared)
+                    nearest = Math.max(nearest, 1/(below - cleared));
+            }
         }
+        if (outcome.rockets > 0 && nearest > 0)
+            outcome.rocketDelivery = Math.min(1, outcome.rockets*nearest);
         return outcome;
     }
 
@@ -740,7 +749,8 @@ WordFallBot = class WordFallBot
             utility += 2.5*Math.min(hits, view.letterLeft)/view.letterLeft;
         }
 
-        // ракеты сами летят в препятствия заданий, бомба бьёт вокруг себя — умелый игрок это учитывает
+        // ракеты сами летят в препятствия заданий, затем под конверты; бомба бьёт вокруг себя — умелый игрок
+        // это учитывает
         var blast = (outcome.rockets + outcome.bombs*2)*skill;
         if (view.clearIce && view.ice > 0)
             utility += 3*Math.min(outcome.ice + blast, view.ice)/view.ice;
@@ -749,7 +759,7 @@ WordFallBot = class WordFallBot
         if (view.meltLeft > 0)
             utility += 3*Math.min(outcome.snow + blast, view.meltLeft)/view.meltLeft;
         if (view.deliverLeft > 0)
-            utility += 4*Math.min(outcome.delivery, 1.5);
+            utility += 4*Math.min(outcome.delivery + outcome.rocketDelivery*skill, 1.5);
 
         if (length >= 5)
             utility += 0.6*skill;

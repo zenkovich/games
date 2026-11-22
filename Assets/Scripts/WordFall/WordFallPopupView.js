@@ -101,10 +101,11 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
     {
         var self = this;
         var svc = this._svc;
-        var last = this._IsLastLevel();
+        var custom = svc.IsCustomLevel();
+        var last = this._IsLastLevel() && !custom;
         var score = svc.GetScore();
         var target = svc.GetTargetScore();
-        var best = svc.GetBestScore();
+        var best = custom ? 0 : svc.GetBestScore();
         var words = svc.GetWords();
         var tasks = svc.GetTasks();
         var done = 0;
@@ -126,7 +127,7 @@ WordFallPopupView = class WordFallPopupView extends o2.Component
         this._tasksCheck.SetEnabled(false);
         this._subtitle.SetText(won ? (best > 0 && score > best ? "Новый рекорд! Было " + best : best > 0 ? "Рекорд: " + best : "")
                                    : (done < goals ? "Задачи не закрыты" : score < target ? "Не хватило " + (target - score) + " очков" : "Не хватило ходов"));
-        this._buttonCaption.text = won ? (last ? "СНАЧАЛА" : "ДАЛЬШЕ") : "ЕЩЁ РАЗ";
+        this._buttonCaption.text = won && !custom ? (last ? "СНАЧАЛА" : "ДАЛЬШЕ") : "ЕЩЁ РАЗ";
         this._content.SetEnabled(true);
 
         // затемнение, карточка выскакивает, плашка-заголовок падает сверху и пружинит

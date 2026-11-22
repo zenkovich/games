@@ -682,6 +682,33 @@ WordBoard = class WordBoard
         this.grid[cell.c][cell.r] = tile;
     }
 
+    // Бонус на старт уровня: встаёт на случайную букву поля вместо неё — не на букву засеянного слова и не на
+    // заданную уровнем. Возвращает клетку или null, если места нет
+    PlaceBonus(kind)
+    {
+        var cells = [];
+        for (var c = 0; c < this.config.columns; c++)
+        {
+            for (var r = 0; r < this.config.rows; r++)
+            {
+                var cell = { c: c, r: r };
+                if (this.IsPlayable(cell) && WordBoard.IsTileUsable(this.grid[c][r]) && !this.grid[c][r].chained &&
+                    !WordFallCells.Contains(this.seededCells, cell) && !WordFallCells.Contains(this._presetCells, cell))
+                {
+                    cells.push(cell);
+                }
+            }
+        }
+        if (cells.length == 0)
+            return null;
+
+        var target = cells[this._random.NextInt(cells.length)];
+        var tile = new WordTile();
+        tile.powerup = kind;
+        this.grid[target.c][target.r] = tile;
+        return target;
+    }
+
     DebugSetStone(cell)
     {
         this.grid[cell.c][cell.r].stone = 1;
@@ -801,28 +828,78 @@ WordBoard = class WordBoard
         return "";
     }
 
-    // Ценность клетки как цели ракеты по приоритетам уровня
-    _RocketTargetScore(cell)
+    // Ценность клетки как цели ракеты. Сперва препятствия заданий уровня, затем клетки под конвертами (под тем, что
+    // ближе к дну, — первыми), затем прочие блокеры: камень (его ломают только бонусы), ящик, цепь, лёд, снежок.
+    // Выгодных клеток нет — любая буква, все равны: цель выберет случай. Буквы, которые уровень бережёт (засеянное
+    // слово, буква задания), — в последнюю очередь. under — ценность клеток под конвертами (_UnderParcels)
+    _RocketTargetScore(cell, under)
     {
         var tile = this.grid[cell.c][cell.r];
         var p = this._rocketPriorities;
-        if (tile.crate > 0)
-            return p.crates ? 100 + tile.crate : 30;
-        if (tile.snow)
-            return p.snow ? 90 : 25;
-        if (tile.ice > 0)
-            return p.ice ? 80 : 35;
+        if (p.crates && tile.crate > 0)
+            return 400 + tile.crate;
+        if (p.ice && tile.ice > 0)
+            return 380;
+        if (p.snow && tile.snow)
+            return 370;
+        var parcel = under[cell.c*this.config.rows + cell.r] || 0;
+        if (parcel > 0)
+            return 300 + parcel;
         if (tile.stone > 0)
-            return 60;
-        if (tile.powerup)
-            return 5;
+            return 250;
+        if (tile.crate > 0)
+            return 240 + tile.crate;
+        if (tile.chained)
+            return 230;
+        if (tile.ice > 0)
+            return 220;
+        if (tile.snow)
+            return 210;
 
-        var score = 10 + this._TileValue(tile)*3;
         if (WordFallCells.Contains(p.keepCells, cell))
-            score -= 200;
+            return 0;
         if (p.keepLetter && tile.letter == p.keepLetter)
-            score -= 40;
-        return score;
+            return 5;
+        return 10;
+    }
+
+    // Клетки под конвертами, удар ракеты по которым опускает конверт: плитки, которые ракета убирает с поля (буква
+    // без брони, ящик, снежок), до цепи, держащей колонку, включая её саму. Ценность тем выше, чем меньше плиток
+    // осталось под конвертом, — такой ракета доставит скорее; цепь на пути — на единицу ценнее: она держит всё над
+    // собой. gone — ключи c*rows + r клеток, которые уже уходят с поля этим ходом
+    _UnderParcels(gone)
+    {
+        var rows = this.config.rows;
+        var under = {};
+        for (var c = 0; c < this.config.columns; c++)
+        {
+            for (var r = 1; r < rows; r++)
+            {
+                if (!this.grid[c][r].parcel || gone[c*rows + r])
+                    continue;
+
+                var depth = 0, path = [], held = false;
+                for (var below = r - 1; below >= 0; below--)
+                {
+                    var tile = this.grid[c][below];
+                    if (tile.hole || gone[c*rows + below] || (!WordBoard.IsTileOccupied(tile) && !tile.chained))
+                        continue;
+
+                    depth++;
+                    if (!held && tile.stone == 0 && tile.ice == 0)
+                        path.push(below);
+                    held = held || tile.chained;
+                }
+
+                var worth = Math.max(1, 20 - 2*depth);
+                for (var i = 0; i < path.length; i++)
+                {
+                    var key = c*rows + path[i];
+                    under[key] = Math.max(under[key] || 0, worth + (this.grid[c][path[i]].chained ? 1 : 0));
+                }
+            }
+        }
+        return under;
     }
 
     // Слово бьёт по соседям: лёд теряет слой, ящик — прочность, снежок тает
@@ -963,34 +1040,41 @@ WordBoard = class WordBoard
         return result;
     }
 
-    // Ракета летит в самую выгодную по задачам клетку; среди равных — в случайную
+    // Ракета летит в самую выгодную клетку (_RocketTargetScore); среди равных — в случайную
     _FireRocket(from, destroyedKeys, result, use)
     {
+        var rows = this.config.rows;
+        // уходят с поля: сгоревшее, разбитые ящики и растаявшие снежки; уже задетое повторно не бьётся
+        var gone = {}, skip = {};
+        [destroyedKeys, result.crateBroken, result.snowMelted].forEach(function(list) {
+            list.forEach(function(cell) { gone[cell.c*rows + cell.r] = skip[cell.c*rows + cell.r] = true; });
+        });
+        [result.targeted, result.activated].forEach(function(list) {
+            list.forEach(function(cell) { skip[cell.c*rows + cell.r] = true; });
+        });
+
         var candidates = [];
         for (var c = 0; c < this.config.columns; c++)
         {
-            for (var r = 0; r < this.config.rows; r++)
+            for (var r = 0; r < rows; r++)
             {
-                var cell = { c: c, r: r };
                 var tile = this.grid[c][r];
                 var obstacle = tile.crate > 0 || tile.snow;
-                if ((!tile.letter && !obstacle) || WordFallCells.Contains(destroyedKeys, cell) ||
-                    WordFallCells.Contains(result.activated, cell) || WordFallCells.Contains(result.targeted, cell))
-                {
+                if ((!tile.letter && !obstacle) || skip[c*rows + r])
                     continue;
-                }
-                candidates.push(cell);
+                candidates.push({ c: c, r: r });
             }
         }
 
         if (candidates.length == 0)
             return;
 
+        var under = this._UnderParcels(gone);
         var best = -1e9;
         var top = [];
         for (var i = 0; i < candidates.length; i++)
         {
-            var score = this._RocketTargetScore(candidates[i]);
+            var score = this._RocketTargetScore(candidates[i], under);
             if (score > best + 0.5)
             {
                 best = score;

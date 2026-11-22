@@ -15,7 +15,9 @@ export function defaultSettings()
         tolerance: 0.12,                       // accepted miss of the target, in ln(attempts)
         moves: { min: 8, max: 20 },            // limits of a level's moves for the tuner
         peakGoals: 0.75,                       // share of a hard level's difficulty carried by its goals, the rest by the score
-        boosterCharges: [1, 1, 1, 1, 1],       // boosters of a generated level
+        // boosters the bots bring to a generated level: a player's stock lasts the whole game and a level adds none,
+        // so a level is measured without free boosters
+        boosterCharges: [0, 0, 0, 0, 0],
         // the single number: weights of the player profiles, of the slack of a win and of hopeless losses
         index: { average: 0.6, weak: 0.25, strong: 0.15, slack: 0.3, frustration: 0.2 },
         // logit(p human) = offset + slope*logit(p bot): the place for a fit against real players' pass rates

@@ -1,0 +1,26 @@
+{
+    "id": "levellab",
+    "name": "LevelLab",
+    "description": "Word Fall levels: the difficulty curve, the generator and the bots, tests in the game, and the levels of the game's builds through a remote config",
+    "tabs": [
+        { "id": "levels", "title": "Levels", "icon": "grid", "page": "web/index.html" }
+    ],
+    "permissions": {
+        "files": {
+            "read": [
+                "Assets/Scripts/WordFall/Core/**",
+                "Assets/WordFall/**",
+                "Assets/Generated/UI/Screen_Resources/Sprites/*.png"
+            ],
+            "write": [
+                "Assets/WordFall/campaign.json",
+                "Assets/WordFall/Dictionaries/*.json",
+                "Tools/WordFall/LevelLab/data/*.json",
+                "Tools/WordFall/LevelLab/dictionary/*.tsv"
+            ]
+        },
+        "remoteConfigs": ["wordfall_levels"],
+        "saves": "none",
+        "game": true
+    }
+}

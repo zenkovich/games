@@ -28,6 +28,16 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.lifeRegenSeconds = 1800;                // жизнь восстанавливается за это время
         this.continueMoves = 5;                      // ходов за продолжение уровня
         this.continuePrice = 900;                    // цена продолжения в монетах
+        this.startBoosters = [3, 3, 3, 3, 3];        // бустеры нового игрока: молоток, перемешать, подсказка, джокер, удвоитель
+        this.startBonuses = [1, 1, 1];               // бонусы на старт уровня у нового игрока: бомба, ракета, салют
+        this.boosterPack = 3;                        // бустеров или бонусов в одной покупке
+        this.boosterPrices = [600, 400, 300, 700, 500]; // цены покупки бустеров за монеты, по индексам WordLevel
+        this.bonusPrices = [500, 700, 900];          // цены покупки бонусов на старт: бомба, ракета, салют
+        this.livesRefillPrice = 900;                 // полный запас жизней за монеты
+        this.shopPacks = [                           // банк: пачки монет и их цены в магазине платформы
+            { coins: 1000, price: "$0.99" }, { coins: 3000, price: "$2.99" }, { coins: 6500, price: "$4.99" },
+            { coins: 14000, price: "$9.99" }, { coins: 30000, price: "$19.99" }, { coins: 80000, price: "$49.99" }
+        ];
 
         this._started = false;
         this._custom = null;
@@ -60,13 +70,17 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     // --- уровень и прогресс ---
 
-    // Уровень без слов текущего языка не играется: стартует ближайший следующий валидный
-    StartLevel(index)
+    // Уровень без слов текущего языка не играется: стартует ближайший следующий валидный. levelCharges — уровень
+    // играется со своими зарядами бустеров (проба из редактора уровней), а не с запасом игрока
+    StartLevel(index, levelCharges)
     {
         this._EnsureStarted();
         if (!this._custom)
             this._levelIndex = this._ValidLevelFrom(Math.min(Math.max(index, 0), this.GetLevelCount() - 1));
         this._level.Start(this._custom || this._store.GetLevel(this._levelIndex), this._BoardConfig(), this._dictionary, this.randomSeed);
+        // бустеры кампании — запас игрока на всю игру; уровень из LevelLab и проба из редактора — со своими зарядами
+        if (!this._custom && !levelCharges)
+            this._level.UseCharges(this._progress.boosters);
         this._LogRemote();
         this._lastMove = new WordMoveResult();
         this._revision++;
@@ -434,21 +448,21 @@ WordFallGameService = class WordFallGameService extends o2.Component
         if (result.ok)
         {
             this._lastMove = result;
-            this._revision++;
+            this._BoosterSpent(true);
         }
         return this._MoveToScript(result);
     }
 
-    UseShuffle() { this._EnsureStarted(); return this._Mutation(this._level.UseShuffle(this._dictionary)); }
+    UseShuffle() { this._EnsureStarted(); return this._BoosterSpent(this._level.UseShuffle(this._dictionary)); }
     UseHint()
     {
         this._EnsureStarted();
         var search = this._HintSearch();
         search.Step(Infinity);
-        return this._Mutation(this._level.UseHint(this._dictionary, search.Result()));
+        return this._BoosterSpent(this._level.UseHint(this._dictionary, search.Result()));
     }
-    UseJoker(column, row) { this._EnsureStarted(); return this._Mutation(this._level.UseJoker({ c: column, r: row })); }
-    UseDoubler(column, row) { this._EnsureStarted(); return this._Mutation(this._level.UseDoubler({ c: column, r: row })); }
+    UseJoker(column, row) { this._EnsureStarted(); return this._BoosterSpent(this._level.UseJoker({ c: column, r: row })); }
+    UseDoubler(column, row) { this._EnsureStarted(); return this._BoosterSpent(this._level.UseDoubler({ c: column, r: row })); }
 
     // --- отладка, читы и тесты ---
 
@@ -459,7 +473,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     DebugCompleteTasks() { this._Debug(function(level) { level.DebugCompleteTasks(); }); }
     DebugAddMoves(moves) { this._Debug(function(level) { level.DebugAddMoves(moves); }); }
     DebugAddScore(score) { this._Debug(function(level) { level.DebugAddScore(score); }); }
-    DebugAddCharges(charges) { this._Debug(function(level) { level.DebugAddCharges(charges); }); }
+    DebugAddCharges(charges) { this._Debug(function(level) { level.DebugAddCharges(charges); }); this._SaveProgress(); }
     DebugLoseLevel() { this._Debug(function(level) { level.DebugLose(); }); }
 
     // Экран макета: поле строками сверху вниз («.» — пустая клетка), номиналы, цвета плашек c/p/o/y — кремовая,
@@ -616,6 +630,132 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.RestartLevel();
     }
 
+    // --- магазин и окна меты: монеты, бустеры, бонусы на старт уровня, жизни, настройки ---
+    // Платежей в игре нет: покупка пачки монет засчитывается сразу, как и просмотр ролика
+
+    static get BonusKinds() { return ["bomb", "rocket", "fireworks"]; }
+
+    GetShopPacks() { return this.shopPacks.map(function(pack) { return { coins: pack.coins, price: pack.price }; }); }
+
+    BuyCoins(index)
+    {
+        this._EnsureStarted();
+        var pack = this.shopPacks[index];
+        if (!pack)
+            return false;
+        this._progress.coins += Math.max(0, Math.round(pack.coins));
+        this._SaveProgress();
+        this._revision++;
+        return true;
+    }
+
+    // Запас бустеров игрока (в уровне кампании это и есть заряды уровня) и их покупка пачкой boosterPack
+    GetBoosterStock(booster) { this._EnsureStarted(); return this._progress.boosters[booster] || 0; }
+    GetBoosterPrice(booster) { return this.boosterPrices[booster] || 0; }
+    BuyBooster(booster)
+    {
+        this._EnsureStarted();
+        var pack = this.boosterPack;
+        return booster >= 0 && booster < 5 &&
+            this._Spend(this.GetBoosterPrice(booster), function(progress) { progress.boosters[booster] += pack; });
+    }
+
+    // Бонусы на старт уровня (индексы BonusKinds): запас и покупка
+    GetBonusCount(bonus) { this._EnsureStarted(); return this._progress.bonuses[bonus] || 0; }
+    GetBonusPrice(bonus) { return this.bonusPrices[bonus] || 0; }
+    BuyBonus(bonus)
+    {
+        this._EnsureStarted();
+        var pack = this.boosterPack;
+        return bonus >= 0 && bonus < 3 &&
+            this._Spend(this.GetBonusPrice(bonus), function(progress) { progress.bonuses[bonus] += pack; });
+    }
+
+    // Уровень кампании из окна старта: начинается заново, выбранные бонусы (индексы BonusKinds) встают на поле
+    // и списываются из запаса. Возвращает их клетки
+    StartLevelWithBonuses(bonuses)
+    {
+        this._EnsureStarted();
+        this.StartLevel(this._levelIndex);
+        var placed = [];
+        if (this._custom)
+            return placed;
+
+        var board = this._level.GetBoard();
+        for (var i = 0; i < (bonuses || []).length; i++)
+        {
+            var bonus = bonuses[i];
+            if (this.GetBonusCount(bonus) <= 0)
+                continue;
+            var cell = board.PlaceBonus(WordFallGameService.BonusKinds[bonus]);
+            if (!cell)
+                continue;
+            this._progress.bonuses[bonus]--;
+            placed.push(cell);
+        }
+        if (placed.length > 0)
+        {
+            this._SaveProgress();
+            this._revision++;
+        }
+        return placed;
+    }
+
+    GetMaxLives() { return this.maxLives; }
+
+    // Секунд до следующей жизни; 0 — запас полон
+    GetNextLifeSeconds()
+    {
+        var lives = this.GetLives();
+        if (lives >= this.maxLives || this._progress.livesAt <= 0)
+            return 0;
+        return Math.max(0, Math.ceil((this._progress.livesAt + this.lifeRegenSeconds*1000 - Date.now())/1000));
+    }
+
+    CanRefillLives() { return this.GetLives() < this.maxLives && this._progress.coins >= this.livesRefillPrice; }
+
+    RefillLivesWithCoins()
+    {
+        this._EnsureStarted();
+        if (!this.CanRefillLives())
+            return false;
+        this._progress.coins -= this.livesRefillPrice;
+        this._progress.lives = this.maxLives;
+        this._progress.livesAt = 0;
+        this._SaveProgress();
+        this._revision++;
+        return true;
+    }
+
+    // Жизнь за ролик
+    AddLifeForAd()
+    {
+        if (this.GetLives() >= this.maxLives)
+            return false;
+        this._progress.lives++;
+        if (this._progress.lives >= this.maxLives)
+            this._progress.livesAt = 0;
+        this._SaveProgress();
+        this._revision++;
+        return true;
+    }
+
+    // Настройки игрока: sound, music; не заданная — включена
+    GetSetting(name)
+    {
+        this._EnsureStarted();
+        var value = this._progress.settings[name];
+        return value === undefined ? true : !!value;
+    }
+
+    SetSetting(name, value)
+    {
+        this._EnsureStarted();
+        this._progress.settings[name] = !!value;
+        this._SaveProgress();
+        this._revision++;
+    }
+
     IsTutorialSeen(key) { this._EnsureStarted(); return this._custom != null || this._progress.IsTutorialSeen(key); }
 
     // Запомнить показанный туториал (сохраняет прогресс)
@@ -697,6 +837,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
             self._progress.Load(self.progressPath);
             if (self._progress.coins < 0)
                 self._progress.coins = self.startCoins;
+            self._progress.EnsureBoosters(self.startBoosters);
+            self._progress.EnsureBonuses(self.startBonuses);
             WordFallLanguages.SetCurrent(self._progress.language);
         });
         o2.Profile("WordFall: dictionary", function() { self._Dictionary(); });
@@ -726,7 +868,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         o2.Profile("WordFall: level store", function() {
             self._store = new WordFallLevelStore(function(index) {
                 return self.levels.length > 0 ? WordFallConfigs.UpgradeFileLevel(self.levels[index])
-                    : self._campaign.length > 0 ? self._campaign[index]
+                    : self._campaign.length > 0 ? WordFallRemote.Level(ids[index]) || self._campaign[index]
                     : WordFallLevels.Generate(index, self._dictionary, self._BoardConfig());
             }, count, ids);
             self._store.Load(self.editedLevelsPath);
@@ -778,6 +920,26 @@ WordFallGameService = class WordFallGameService extends o2.Component
         if (ok)
             this._revision++;
         return ok;
+    }
+
+    // Покупка за монеты: price списывается, grant(progress) кладёт купленное
+    _Spend(price, grant)
+    {
+        if (!(price > 0) || this._progress.coins < price)
+            return false;
+        this._progress.coins -= price;
+        grant(this._progress);
+        this._SaveProgress();
+        this._revision++;
+        return true;
+    }
+
+    // Бустер потрачен: в кампании это заряд из запаса игрока — он сохраняется сразу
+    _BoosterSpent(ok)
+    {
+        if (ok)
+            this._SaveProgress();
+        return this._Mutation(ok);
     }
 
     _Debug(action)

@@ -9,7 +9,7 @@ include("Scripts/WordFall/Core/WordFallCore.js");
 
     function Cell(c, r) { return { c: c, r: r }; }
 
-    function Setup(fields)
+    function Setup(fields, seed)
     {
         var config = WordFallConfigs.DefaultLevelConfig();
         config.targetScore = 100000;
@@ -19,7 +19,7 @@ include("Scripts/WordFall/Core/WordFallCore.js");
             config[key] = fields[key];
 
         var level = new WordLevel();
-        level.Start(config, boardConfig, dictionary, 5);
+        level.Start(config, boardConfig, dictionary, seed || 5);
         return level;
     }
 
@@ -155,6 +155,78 @@ include("Scripts/WordFall/Core/WordFallCore.js");
         var target = result.powerupsUsed[0].targets[0];
         expect(!WordFallCells.Contains(seeded, target), "ракета выбила букву слова-задания");
         expect(!WordFallCells.Equal(target, Cell(6, 7)), "ракета выбила букву задания");
+    });
+
+    test("RocketsHitBlockersBeforeLetters", function()
+    {
+        // заданий на препятствия нет, а ракета всё равно бьёт блокер: ящик, затем цепь — не дорогую букву
+        var level = Setup({ chainCells: [Cell(5, 6)], crateCells: [Cell(0, 6)], crateGrades: [1], tasks: [WordFallConfigs.MakeAnyWords(5)] });
+        var board = level.GetBoard();
+        FillBoardWithStubs(board);
+        board.GetTile(Cell(6, 7)).doubled = true;
+
+        board.DebugSetPowerup(Cell(3, 3), "rocket");
+        var result = AcceptRow(level, "КОТ", 2, 2);
+        assert(result.ok && result.powerupsUsed.length == 1);
+        expectEq(result.powerupsUsed[0].targets, [Cell(0, 6)], "ящик — первым");
+        expectEq(board.CountCrates(), 0);
+
+        FillBoardWithStubs(board);
+        board.DebugSetPowerup(Cell(3, 3), "rocket");
+        var second = AcceptRow(level, "ТОК", 2, 2);
+        assert(second.ok && second.powerupsUsed.length == 1);
+        expectEq(second.powerupsUsed[0].targets, [Cell(5, 6)], "затем цепь");
+        expect(!board.GetTile(Cell(5, 6)).chained, "ракета сбила цепь");
+    });
+
+    test("RocketsDigUnderTheEnvelopeNearestTheBottom", function()
+    {
+        // под ближним ко дну конвертом цепь: удар по ней опускает конверт и открывает колонку под ним
+        var level = Setup({ parcelCells: [Cell(5, 3), Cell(1, 6)], parcelTotal: 2, parcelOnScreen: 2, chainCells: [Cell(5, 1)],
+                            tasks: [WordFallConfigs.MakeDeliver(2)] });
+        var board = level.GetBoard();
+        FillBoardWithStubs(board);
+        board.DebugSetPowerup(Cell(3, 3), "rocket");
+        var result = AcceptRow(level, "КОТ", 2, 2);
+        assert(result.ok && result.powerupsUsed.length == 1);
+        expectEq(result.powerupsUsed[0].targets, [Cell(5, 1)]);
+
+        // залп выбивает всё под обоими конвертами — оба доставлены за ход
+        var salvoLevel = Setup({ parcelCells: [Cell(5, 3), Cell(1, 6)], parcelTotal: 2, parcelOnScreen: 2, tasks: [WordFallConfigs.MakeDeliver(2)] });
+        board = salvoLevel.GetBoard();
+        FillBoardWithStubs(board);
+        board.DebugSetPowerup(Cell(3, 3), "fireworks");
+        var salvo = AcceptRow(salvoLevel, "КОТ", 2, 2);
+        assert(salvo.ok && salvo.powerupsUsed.length == 1);
+        var targets = salvo.powerupsUsed[0].targets;
+        for (var r = 0; r < 3; r++)
+            expect(WordFallCells.Contains(targets, Cell(5, r)), "под конвертом 5,3 осталась клетка 5," + r);
+        for (var r = 0; r < 6; r++)
+            expect(WordFallCells.Contains(targets, Cell(1, r)), "под конвертом 1,6 осталась клетка 1," + r);
+        expectEq(salvo.delivered.length, 2);
+        expect(salvoLevel.GetTasks()[0].done);
+    });
+
+    test("RocketsWithNothingToBreakHitARandomLetter", function()
+    {
+        // выгодных целей нет: ракета бьёт любую букву наугад, а не самую дорогую
+        var targets = {};
+        var richest = 0;
+        for (var seed = 1; seed <= 6; seed++)
+        {
+            var level = Setup({ tasks: [WordFallConfigs.MakeAnyWords(5)] }, seed);
+            var board = level.GetBoard();
+            FillBoardWithStubs(board);
+            board.GetTile(Cell(6, 7)).doubled = true;
+            board.DebugSetPowerup(Cell(3, 3), "rocket");
+            var result = AcceptRow(level, "КОТ", 2, 2);
+            assert(result.ok && result.powerupsUsed.length == 1);
+            var target = result.powerupsUsed[0].targets[0];
+            targets[target.c + "," + target.r] = true;
+            richest += WordFallCells.Equal(target, Cell(6, 7)) ? 1 : 0;
+        }
+        expect(Object.keys(targets).length >= 3, "цели: " + Object.keys(targets).join(" "));
+        expect(richest < 6, "ракета каждый раз била самую дорогую букву");
     });
 
     test("CratesFallWithGravity", function()

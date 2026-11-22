@@ -131,6 +131,17 @@ WordFallHudView = class WordFallHudView extends o2.Component
             this._glow.GetTransform().SetPivot2D(new Vec2(0.5, 0.5));
             this._glow.SetTransparency(0);
         }
+
+        // крестик уровня — выход с подтверждением (окно QuitLevelWindow): только в игре с главным экраном
+        this._quit = this._actor.GetChild("QuitButton");
+        if (this._quit)
+        {
+            this._quit.onClick = function() {
+                var svc = WordFallGame.service;
+                if (svc && svc.GetGameState() == "playing" && WordFallViews.quit)
+                    WordFallViews.quit.Open();
+            };
+        }
     }
 
     Sync()
@@ -148,6 +159,13 @@ WordFallHudView = class WordFallHudView extends o2.Component
     {
         if (!this._svc)
             return;
+        if (this._quit)
+        {
+            var screens = WordFallGame.screens;
+            var shown = !!screens && screens.IsMetaFlow() && !this._svc.IsCustomLevel();
+            if (this._quit.IsEnabled() != shown)
+                this._quit.SetEnabled(shown);
+        }
 
         var self = this;
         if (this._punch && !this._Spring(this._punch, dt, function(v) {

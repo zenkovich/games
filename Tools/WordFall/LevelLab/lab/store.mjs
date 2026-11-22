@@ -1,70 +1,64 @@
 // Files of the lab: the game's campaign (Assets/WordFall/campaign.json — the levels themselves) and, next to the
 // tool, what only the lab needs: the difficulty curve, the settings and per-level notes (target, statistics).
-import fs from 'node:fs';
-import path from 'node:path';
-import { campaignPath, dataRoot } from './core.mjs';
+// io: { read(rel) -> text | null, write(rel, text), backup?(rel, label) -> path } over the project's files
+// (node_host.mjs: the checkout; the portal's plugin: the project's working copy through the bridge).
+import { paths } from './core.mjs';
 import { normalizeCurve } from './curve.mjs';
 import { normalizeSettings } from './difficulty.mjs';
 
-const curvePath = path.join(dataRoot, 'curve.json');
-const settingsPath = path.join(dataRoot, 'settings.json');
-const metaPath = path.join(dataRoot, 'levels.json');
-const backupsRoot = path.join(dataRoot, 'backups');
+export const storeFiles = {
+    campaign: paths.campaign,
+    curve: paths.data + '/curve.json',
+    settings: paths.data + '/settings.json',
+    meta: paths.data + '/levels.json',
+    shapes: paths.data + '/shapes.json'
+};
 
-function readJson(file, fallback)
+function readJson(io, rel, fallback)
 {
-    try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+    try
+    {
+        const text = io.read(rel);
+        return text == null ? fallback : JSON.parse(text);
+    }
     catch (error) { return fallback; }
 }
 
-function writeJson(file, value, text)
+// one level per line: a change of a level is one line of the diff
+export function campaignText(campaign)
 {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    const temporary = file + '.tmp';
-    fs.writeFileSync(temporary, text || JSON.stringify(value, null, 2) + '\n');
-    fs.renameSync(temporary, file);
+    return '[\n' + campaign.map((level) => JSON.stringify(level)).join(',\n') + '\n]\n';
 }
-
-let backedUp = false;
 
 export class Store
 {
-    constructor()
+    constructor(io)
     {
-        this.campaign = readJson(campaignPath, []);
-        this.curve = normalizeCurve(readJson(curvePath, null));
-        this.settings = normalizeSettings(readJson(settingsPath, null));
-        this.meta = (readJson(metaPath, {}) || {}).levels || {};
+        this.io = io;
+        this.campaign = readJson(io, storeFiles.campaign, []);
+        this.curve = normalizeCurve(readJson(io, storeFiles.curve, null));
+        this.settings = normalizeSettings(readJson(io, storeFiles.settings, null));
+        this.meta = (readJson(io, storeFiles.meta, {}) || {}).levels || {};
+        this._backedUp = false;
     }
 
     indexOf(id) { return this.campaign.findIndex((level) => level.id == id); }
     level(id) { return this.campaign[this.indexOf(id)] || null; }
 
-    // The campaign as it was before this session's first change, kept among the backups
+    // The campaign as it was before this session's first change, kept among the backups (where the host keeps any)
     backup(label)
     {
-        if (!fs.existsSync(campaignPath))
-            return '';
-        fs.mkdirSync(backupsRoot, { recursive: true });
-        const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-        const file = path.join(backupsRoot, 'campaign-' + stamp + (label ? '-' + label : '') + '.json');
-        fs.copyFileSync(campaignPath, file);
-        const old = fs.readdirSync(backupsRoot).filter((name) => name.startsWith('campaign-')).sort();
-        while (old.length > 30)
-            fs.unlinkSync(path.join(backupsRoot, old.shift()));
-        return file;
+        return this.io.backup ? this.io.backup(storeFiles.campaign, label) : '';
     }
 
     saveCampaign()
     {
-        if (!backedUp)
+        if (!this._backedUp)
         {
             this.backup('before');
-            backedUp = true;
+            this._backedUp = true;
         }
-        // one level per line: a change of a level is one line of the diff
-        const text = '[\n' + this.campaign.map((level) => JSON.stringify(level)).join(',\n') + '\n]\n';
-        writeJson(campaignPath, null, text);
+        this.io.write(storeFiles.campaign, campaignText(this.campaign));
     }
 
     saveMeta()
@@ -75,19 +69,19 @@ export class Store
             if (!ids.has(id))
                 delete this.meta[id];
         }
-        writeJson(metaPath, { version: 1, levels: this.meta });
+        this.io.write(storeFiles.meta, JSON.stringify({ version: 1, levels: this.meta }, null, 2) + '\n');
     }
 
     saveCurve(curve)
     {
         this.curve = normalizeCurve(curve);
-        writeJson(curvePath, this.curve);
+        this.io.write(storeFiles.curve, JSON.stringify(this.curve, null, 2) + '\n');
     }
 
     saveSettings(settings)
     {
         this.settings = normalizeSettings(settings);
-        writeJson(settingsPath, this.settings);
+        this.io.write(storeFiles.settings, JSON.stringify(this.settings, null, 2) + '\n');
     }
 
     setLevel(index, level, meta)

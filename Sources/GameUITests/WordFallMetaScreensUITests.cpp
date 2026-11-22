@@ -70,6 +70,48 @@ protected:
 	}
 
 	int Coins() const { return mService->Call("GetCoins").GetValue<int>(); }
+
+	static ScriptValue Js(const String& code) { return o2Scripts.Eval(code); }
+
+	// Окно меты открыто и его клип показа доигран (клики попадают в диалог в полный размер)
+	static bool WindowOpen(const String& root)
+	{
+		if (!Shown(root))
+			return false;
+		auto dialog = DynamicCast<Widget>(Find(root, "dialog"));
+		return dialog && dialog->transform->GetScale().x > 0.999f && dialog->transform->GetScale().x < 1.001f;
+	}
+
+	static bool WaitWindow(const String& root, float seconds = 3.0f)
+	{
+		bool shown = WaitFor([&]() { return Shown(root); }, seconds);
+		AppTestDriver::Wait(0.45f);
+		return shown && WindowOpen(root);
+	}
+
+	static bool WaitClosed(const String& root, float seconds = 3.0f)
+	{
+		return WaitFor([&]() { return !Shown(root); }, seconds);
+	}
+
+	// PLAY главного экрана → окно старта уровня → его PLAY: уровень на поле
+	void StartLevelFromMain()
+	{
+		Tap("MainScreen", "play_button");
+		ASSERT_TRUE(WaitWindow("LevelStartWindow")) << "окно старта уровня";
+		Tap("LevelStartWindow", "dialog/play_button");
+		ASSERT_TRUE(WaitFor([]() { return Shown("WordFall"); }, 2.0f));
+		AppTestDriver::Wait(0.3f);
+	}
+
+	int CountPowerups() const
+	{
+		int count = 0;
+		for (int c = 0; c < 7; c++)
+			for (int r = 0; r < 8; r++)
+				count += Js(String::Format("WordFallGame.service.GetTile(%i, %i).powerup ? 1 : 0", c, r)).GetValue<int>();
+		return count;
+	}
 	int Lives() const { return mService->Call("GetLives").GetValue<int>(); }
 
 	void TearDown() override
@@ -107,7 +149,7 @@ TEST_F(WordFallMetaUI, MainScreenComesFirstAndPlayStartsTheLevel)
 	AppTestDriver::Wait(0.3f);
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "50_meta_main_screen.png"));
 
-	Tap("MainScreen", "play_button");
+	StartLevelFromMain();
 	EXPECT_FALSE(Shown("MainScreen"));
 	EXPECT_TRUE(Shown("WordFall"));
 	EXPECT_EQ(mService->GetGameState(), String("playing"));
@@ -124,7 +166,7 @@ TEST_F(WordFallMetaUI, MainScreenComesFirstAndPlayStartsTheLevel)
 
 TEST_F(WordFallMetaUI, WinOpensTheVictoryWindowAndPaysTheReward)
 {
-	Tap("MainScreen", "play_button");
+	StartLevelFromMain();
 	mService->DebugSetTargetScore(10);
 	mService->DebugCompleteTasks();
 	PlantKot();
@@ -158,7 +200,7 @@ TEST_F(WordFallMetaUI, WinOpensTheVictoryWindowAndPaysTheReward)
 
 TEST_F(WordFallMetaUI, DoubleRewardPaysTwice)
 {
-	Tap("MainScreen", "play_button");
+	StartLevelFromMain();
 	mService->DebugSetTargetScore(10);
 	mService->DebugCompleteTasks();
 	PlantKot();
@@ -180,7 +222,7 @@ TEST_F(WordFallMetaUI, DoubleRewardPaysTwice)
 
 TEST_F(WordFallMetaUI, OutOfMovesOffersMovesForCoinsOrAnAd)
 {
-	Tap("MainScreen", "play_button");
+	StartLevelFromMain();
 	mService->DebugLoseLevel();
 	ASSERT_TRUE(WaitFor([]() { return Shown("ContinueWindow", "continue_dialog"); }, 4.0f)) << "окно продолжения";
 	EXPECT_TRUE(Shown("WordFall")) << "поверх поля";
@@ -196,13 +238,16 @@ TEST_F(WordFallMetaUI, OutOfMovesOffersMovesForCoinsOrAnAd)
 	EXPECT_EQ(mService->GetGameState(), String("playing"));
 	EXPECT_TRUE(WaitFor([]() { return !Shown("ContinueWindow", "continue_dialog"); }, 2.0f));
 
-	// монет не хватает — кнопка не продаёт, ролик продолжает
+	// монет не хватает — кнопка открывает банк поверх окна; ролик продолжает
 	mService->DebugLoseLevel();
 	ASSERT_TRUE(WaitFor([]() { return Shown("ContinueWindow", "continue_dialog"); }, 4.0f));
 	AppTestDriver::Wait(0.6f);
 	Tap("ContinueWindow", "continue_dialog/dialog_frame/action_row/buy_moves_button");
 	EXPECT_EQ(Coins(), 100);
 	EXPECT_EQ(mService->GetGameState(), String("lost"));
+	ASSERT_TRUE(WaitWindow("ShopWindow")) << "банк поверх окна продолжения";
+	Tap("ShopWindow", "dialog/close_button");
+	EXPECT_TRUE(WaitClosed("ShopWindow"));
 	Tap("ContinueWindow", "continue_dialog/dialog_frame/action_row/watch_ad_button");
 	EXPECT_EQ(mService->GetMovesLeft(), 5);
 	EXPECT_EQ(mService->GetGameState(), String("playing"));
@@ -241,4 +286,162 @@ TEST_F(WordFallMetaUI, MainScreenFitsATallPhone)
 	EXPECT_NEAR(root.top - hud.top, 35.0f, 1.0f) << "панель — у верха кадра";
 	EXPECT_LE(nav.bottom, root.bottom) << "навигация — у низа кадра";
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "53_meta_main_screen_phone.png"));
+}
+
+// Окна меты из спрайтов кита (Tools/WordFall/build_meta_windows.py): старт уровня с бонусами, покупка бонуса и бустера,
+// банк, жизни, выход из уровня, настройки. Клики настоящие, снимки — в Work/ScreenShots/55..61
+TEST_F(WordFallMetaUI, LevelStartShowsTheGoalsAndStartsWithTheChosenBonuses)
+{
+	Tap("MainScreen", "play_button");
+	ASSERT_TRUE(WaitWindow("LevelStartWindow"));
+	EXPECT_TRUE(Shown("MainScreen")) << "окно — поверх главного экрана";
+	EXPECT_EQ(Text("LevelStartWindow", "dialog/header/title"), String("LEVEL 1"));
+	EXPECT_EQ(Text("LevelStartWindow", "dialog/bonuses/bomb/badge/count"), String("1"));
+	EXPECT_TRUE(Shown("LevelStartWindow", "dialog/parchment/goals/goal0"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "55_meta_level_start.png"));
+
+	Tap("LevelStartWindow", "dialog/bonuses/bomb");
+	Tap("LevelStartWindow", "dialog/bonuses/rocket");
+	EXPECT_TRUE(Shown("LevelStartWindow", "dialog/bonuses/bomb/check"));
+	EXPECT_TRUE(Shown("LevelStartWindow", "dialog/bonuses/rocket/check"));
+	Tap("LevelStartWindow", "dialog/bonuses/rocket");
+	EXPECT_FALSE(Shown("LevelStartWindow", "dialog/bonuses/rocket/check")) << "второй клик снимает выбор";
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "55b_meta_level_start_bonus.png"));
+
+	Tap("LevelStartWindow", "dialog/play_button");
+	ASSERT_TRUE(WaitFor([]() { return Shown("WordFall"); }, 2.0f));
+	EXPECT_TRUE(WaitClosed("LevelStartWindow"));
+	EXPECT_EQ(CountPowerups(), 1) << "бомба на поле";
+	EXPECT_EQ(Js("WordFallGame.service.GetBonusCount(0)").GetValue<int>(), 0);
+	EXPECT_EQ(Js("WordFallGame.service.GetBonusCount(1)").GetValue<int>(), 1);
+}
+
+TEST_F(WordFallMetaUI, AnEmptyBonusOpensItsPurchase)
+{
+	Js("WordFallGame.service.GetProgress().bonuses = [1, 1, 0]");
+	Tap("MainScreen", "play_button");
+	ASSERT_TRUE(WaitWindow("LevelStartWindow"));
+	EXPECT_TRUE(Shown("LevelStartWindow", "dialog/bonuses/fireworks/badge/plus")) << "пустой бонус — с плюсом";
+
+	Tap("LevelStartWindow", "dialog/bonuses/fireworks");
+	ASSERT_TRUE(WaitWindow("BoosterShopWindow"));
+	EXPECT_EQ(Text("BoosterShopWindow", "dialog/header/title"), String("FIREWORKS"));
+	EXPECT_TRUE(Shown("BoosterShopWindow", "dialog/parchment/icon_fireworks"));
+	EXPECT_FALSE(Shown("BoosterShopWindow", "dialog/parchment/icon_hammer"));
+	EXPECT_EQ(Text("BoosterShopWindow", "dialog/buy_button/label"), String("900"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "56_meta_bonus_shop.png"));
+
+	Tap("BoosterShopWindow", "dialog/buy_button");
+	EXPECT_EQ(Coins(), 100);
+	EXPECT_TRUE(WaitClosed("BoosterShopWindow"));
+	EXPECT_EQ(Text("LevelStartWindow", "dialog/bonuses/fireworks/badge/count"), String("3"));
+	EXPECT_TRUE(Shown("LevelStartWindow", "dialog/bonuses/fireworks/check")) << "купленный бонус сразу выбран";
+
+	// второй раз монет не хватает: поверх открывается банк
+	Js("WordFallGame.service.GetProgress().bonuses[2] = 0; WordFallViews.levelStart.OnOpen()");
+	Tap("LevelStartWindow", "dialog/bonuses/fireworks");
+	ASSERT_TRUE(WaitWindow("BoosterShopWindow"));
+	Tap("BoosterShopWindow", "dialog/buy_button");
+	ASSERT_TRUE(WaitWindow("ShopWindow")) << "банк";
+	EXPECT_TRUE(Shown("BoosterShopWindow")) << "под банком — покупка бонуса";
+}
+
+TEST_F(WordFallMetaUI, TheBankSellsCoins)
+{
+	Tap("MainScreen", "top_hud/coin_counter/add_currency_button");
+	ASSERT_TRUE(WaitWindow("ShopWindow"));
+	EXPECT_EQ(Text("ShopWindow", "dialog/balance/value"), String("1,000"));
+	EXPECT_EQ(Text("ShopWindow", "dialog/packs/pack0/amount"), String("1,000"));
+	EXPECT_EQ(Text("ShopWindow", "dialog/packs/pack5/buy/label"), String("$49.99"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "57_meta_shop.png"));
+
+	Tap("ShopWindow", "dialog/packs/pack1/buy");
+	EXPECT_EQ(Coins(), 4000);
+	EXPECT_TRUE(WaitFor([]() { return Text("ShopWindow", "dialog/balance/value") == String("4,000"); }, 2.0f));
+	Tap("ShopWindow", "dimmer");
+	EXPECT_TRUE(WaitClosed("ShopWindow")) << "клик мимо окна закрывает его";
+	EXPECT_TRUE(WaitFor([]() { return Text("MainScreen", "top_hud/coin_counter/coin_balance") == String("4,000"); }, 3.0f));
+}
+
+TEST_F(WordFallMetaUI, WithoutLivesPlayOpensTheLivesWindow)
+{
+	Js("var p = WordFallGame.service.GetProgress(); p.lives = 0; p.livesAt = Date.now() - 60000");
+	Tap("MainScreen", "play_button");
+	ASSERT_TRUE(WaitWindow("LivesWindow")) << "жизней нет — их окно, а не уровень";
+	EXPECT_FALSE(Shown("LevelStartWindow"));
+	EXPECT_EQ(Text("LivesWindow", "dialog/parchment/heart/count"), String("0"));
+	EXPECT_EQ(Text("LivesWindow", "dialog/parchment/status"), String("Next life in 29:00"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "58_meta_lives.png"));
+
+	Tap("LivesWindow", "dialog/refill_button");
+	EXPECT_EQ(Lives(), 5);
+	EXPECT_EQ(Coins(), 100);
+	EXPECT_TRUE(WaitFor([]() { return Text("LivesWindow", "dialog/parchment/status") == String("Your lives are full!"); }, 2.0f));
+	Tap("LivesWindow", "dialog/close_button");
+	EXPECT_TRUE(WaitClosed("LivesWindow"));
+
+	// счётчик жизней главного экрана открывает то же окно
+	Tap("MainScreen", "top_hud/lives_counter/lives_button");
+	EXPECT_TRUE(WaitWindow("LivesWindow"));
+}
+
+TEST_F(WordFallMetaUI, QuittingALevelAsksAndCostsALife)
+{
+	StartLevelFromMain();
+	EXPECT_TRUE(Shown("WordFall", "Screen/Hud/QuitButton"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "59a_meta_game_quit_button.png"));
+	Tap("WordFall", "Screen/Hud/QuitButton");
+	ASSERT_TRUE(WaitWindow("QuitLevelWindow"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "59_meta_quit_level.png"));
+
+	Tap("QuitLevelWindow", "dialog/play_on_button");
+	EXPECT_TRUE(WaitClosed("QuitLevelWindow"));
+	EXPECT_TRUE(Shown("WordFall"));
+	EXPECT_EQ(Lives(), 5);
+
+	Tap("WordFall", "Screen/Hud/QuitButton");
+	ASSERT_TRUE(WaitWindow("QuitLevelWindow"));
+	Tap("QuitLevelWindow", "dialog/quit_button");
+	EXPECT_EQ(Lives(), 4);
+	EXPECT_TRUE(WaitFor([]() { return Shown("MainScreen"); }, 2.0f));
+	EXPECT_FALSE(Shown("WordFall"));
+}
+
+TEST_F(WordFallMetaUI, AnEmptyBoosterOpensItsPurchase)
+{
+	StartLevelFromMain();
+	Js("WordFallGame.service.GetProgress().boosters[0] = 0");
+	EXPECT_EQ(mService->GetBoosterCharges(0), 0) << "заряды уровня — запас игрока";
+	Tap("WordFall", "Screen/Boosters/Booster0/Btn");
+	ASSERT_TRUE(WaitWindow("BoosterShopWindow"));
+	EXPECT_EQ(Text("BoosterShopWindow", "dialog/header/title"), String("HAMMER"));
+	EXPECT_EQ(Text("BoosterShopWindow", "dialog/owned"), String("You have 0"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "60_meta_booster_shop.png"));
+
+	Tap("BoosterShopWindow", "dialog/buy_button");
+	EXPECT_TRUE(WaitClosed("BoosterShopWindow"));
+	EXPECT_EQ(mService->GetBoosterCharges(0), 3);
+	EXPECT_EQ(Coins(), 400);
+}
+
+TEST_F(WordFallMetaUI, SettingsKeepSoundMusicAndLanguage)
+{
+	Tap("MainScreen", "top_hud/settings_button");
+	ASSERT_TRUE(WaitWindow("SettingsWindow"));
+	EXPECT_EQ(Text("SettingsWindow", "dialog/parchment/language/switch/value"), String("RUSSIAN"));
+	EXPECT_TRUE(Shown("SettingsWindow", "dialog/parchment/sound/toggle/on"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "61_meta_settings.png"));
+
+	Tap("SettingsWindow", "dialog/parchment/sound/toggle");
+	EXPECT_FALSE(Js("WordFallGame.service.GetSetting('sound')").ToBool());
+	EXPECT_TRUE(Shown("SettingsWindow", "dialog/parchment/sound/toggle/off"));
+	EXPECT_FALSE(Shown("SettingsWindow", "dialog/parchment/sound/toggle/on"));
+	EXPECT_TRUE(Js("WordFallGame.service.GetSetting('music')").ToBool());
+
+	Tap("SettingsWindow", "dialog/parchment/language/switch");
+	EXPECT_EQ(Js("WordFallGame.service.GetLanguage()").ToString(), String("en"));
+	EXPECT_EQ(Text("SettingsWindow", "dialog/parchment/language/switch/value"), String("ENGLISH"));
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "61b_meta_settings_changed.png"));
+	Tap("SettingsWindow", "dialog/parchment/language/switch");
+	EXPECT_EQ(Js("WordFallGame.service.GetLanguage()").ToString(), String("ru"));
 }

@@ -134,3 +134,38 @@ test('letters fall through gaps inside the board in the simulator', () => {
                 assert.ok(cell.l || cell.bonus, x + ',' + y + ' has a letter after ' + record.moves + ' moves');
         }
 });
+
+test('the API sends the campaign to the builds through a remote config and says what differs', async () => {
+    const { LabApi } = await import('../lab/api.mjs');
+    const { io: disk } = await import('../lab/node_host.mjs');
+    const written = {};
+    const io = { kind: 'memory', read: (rel) => (rel in written ? written[rel] : disk.read(rel)), write: (rel, text) => { written[rel] = text; } };
+    const configs = { draft: null, live: null };
+    const remote = {
+        get: async () => ({ draft: configs.draft, live: configs.live, canPublish: true, publishedAt: 0 }),
+        set: async (key, data) => { assert.equal(key, 'wordfall_levels'); configs.draft = data; },
+        publish: async () => { configs.live = configs.draft; }
+    };
+    const game = { status: () => ({ kind: 'test' }), play: async () => ({}), stop: async () => {}, result: async () => null, build: async () => {} };
+    const api = new LabApi({ io, game, remote, workers: 1 });
+    try
+    {
+        const url = (path) => new URL(path, 'http://lab');
+        assert.deepEqual((await api.handle('GET', url('/api/build'), {})).live, { count: 0, same: 0, differ: 0 });
+        await api.handle('POST', url('/api/build'), { publish: false });
+        let state = await api.handle('GET', url('/api/build'), {});
+        assert.equal(state.draft.count, api.store.campaign.length);
+        assert.equal(state.live.count, 0, 'a draft is not what the builds get');
+        await api.handle('POST', url('/api/build'), { publish: true, note: 'test' });
+        const first = api.store.campaign[0];
+        assert.deepEqual(configs.live.levels[first.id], first, 'the levels by their id, as the campaign has them');
+        await api.handle('POST', url('/api/level'), { id: first.id, level: { ...first, moves: first.moves + 7 } });
+        state = await api.handle('GET', url('/api/build'), {});
+        assert.deepEqual(state.live, { count: api.store.campaign.length, same: api.store.campaign.length - 1, differ: 1 });
+        assert.ok(written['Assets/WordFall/campaign.json'].includes('"moves":' + (first.moves + 7)), 'the edit went to the files of the io');
+        await api.handle('POST', url('/api/build'), { publish: true, clear: true });
+        assert.deepEqual(configs.live.levels, {});
+        assert.equal((await api.handle('GET', url('/api/vcs'), {})).available, false, 'no working copy service: no commit from here');
+    }
+    finally { api.close(); }
+});

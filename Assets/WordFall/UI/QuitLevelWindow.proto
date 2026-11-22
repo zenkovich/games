@@ -1,0 +1,1335 @@
+{
+    "mActor": {
+        "Type": "o2::Widget",
+        "Value": {
+            "mInheritDrawingDepthFromParent": false,
+            "mName": "QuitLevelWindow",
+            "mSceneLayer": {
+                "Type": "o2::SceneLayer",
+                "Value": {
+                    "mName": "UI"
+                }
+            },
+            "mEnabled": false,
+            "Id": 7544164077308020584,
+            "Transform": {
+                "anchorMin": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "anchorMax": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "offsetMin": {
+                    "x": -589.5,
+                    "y": -1278.0
+                },
+                "offsetMax": {
+                    "x": 589.5,
+                    "y": 1278.0
+                },
+                "pivot": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.0
+                }
+            },
+            "Children": [
+                {
+                    "Type": "o2::Button",
+                    "Data": {
+                        "mDrawingDepth": 751.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "dimmer",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 3039985020677242819,
+                        "Transform": {
+                            "anchorMin": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMin": {
+                                "x": -600.0,
+                                "y": -200.0
+                            },
+                            "offsetMax": {
+                                "x": 600.0,
+                                "y": 200.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "image",
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "77be47815137582f49031144a7fc76b9",
+                                                "path": "WordFall/UIKit/Sprites/white.png"
+                                            },
+                                            "mColor": {
+                                                "r": 0,
+                                                "g": 0,
+                                                "b": 0,
+                                                "a": 165
+                                            }
+                                        }
+                                    },
+                                    "mUID": 11523711581073902975
+                                }
+                            }
+                        ],
+                        "States": [],
+                        "mTransparency": 0.65
+                    }
+                },
+                {
+                    "Type": "o2::Widget",
+                    "Data": {
+                        "mDrawingDepth": 752.0,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "dialog",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 10520817249617570807,
+                        "Transform": {
+                            "anchorMin": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "anchorMax": {
+                                "x": 0.5,
+                                "y": 0.5
+                            },
+                            "offsetMin": {
+                                "x": -500.0,
+                                "y": -530.0
+                            },
+                            "offsetMax": {
+                                "x": 500.0,
+                                "y": 530.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "Layers": [],
+                        "States": [],
+                        "Children": [
+                            {
+                                "Type": "o2::Image",
+                                "Data": {
+                                    "mDrawingDepth": 753.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "frame",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 4102147751350484138,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 1.0,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": 0.0,
+                                            "y": 0.0
+                                        },
+                                        "offsetMax": {
+                                            "x": 0.0,
+                                            "y": -80.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "image",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "2bfe302e84fd42a5ab21e8c20ac71b97",
+                                                            "path": "WordFall/UIKit/Sprites/panel_wood_purple_2.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 120,
+                                                            "bottom": 160,
+                                                            "right": 129,
+                                                            "top": 120
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 13627424756812627056
+                                            }
+                                        }
+                                    ],
+                                    "States": []
+                                }
+                            },
+                            {
+                                "Type": "o2::Image",
+                                "Data": {
+                                    "mDrawingDepth": 754.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "parchment",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 14816504518061100351,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": -430.0,
+                                            "y": -740.0
+                                        },
+                                        "offsetMax": {
+                                            "x": 430.0,
+                                            "y": -220.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "image",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "a39683d16a4f8ef6e2cbb694e81d8f66",
+                                                            "path": "WordFall/UIKit/Sprites/panel_parchment.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 154,
+                                                            "bottom": 163,
+                                                            "right": 172,
+                                                            "top": 163
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 6512563425615245927
+                                            }
+                                        }
+                                    ],
+                                    "States": [],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Image",
+                                            "Data": {
+                                                "mDrawingDepth": 755.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "heart",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 2767568462105837483,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -115.0,
+                                                        "y": -284.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 115.0,
+                                                        "y": -70.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "image",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Sprite",
+                                                                "Value": {
+                                                                    "mImageAsset": {
+                                                                        "id": "07acdad7c23b6d760fd967bf359d8774",
+                                                                        "path": "WordFall/UIKit/Sprites/icon_heart.png"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 12808109956287823245
+                                                        }
+                                                    }
+                                                ],
+                                                "States": [],
+                                                "Children": [
+                                                    {
+                                                        "Type": "o2::Label",
+                                                        "Data": {
+                                                            "mDrawingDepth": 756.0,
+                                                            "mInheritDrawingDepthFromParent": false,
+                                                            "mName": "minus",
+                                                            "mSceneLayer": {
+                                                                "Type": "o2::SceneLayer",
+                                                                "Value": {
+                                                                    "mName": "UI"
+                                                                }
+                                                            },
+                                                            "Id": 16649711528123724331,
+                                                            "Transform": {
+                                                                "anchorMin": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5
+                                                                },
+                                                                "anchorMax": {
+                                                                    "x": 0.5,
+                                                                    "y": 0.5
+                                                                },
+                                                                "offsetMin": {
+                                                                    "x": -100.0,
+                                                                    "y": -51.0
+                                                                },
+                                                                "offsetMax": {
+                                                                    "x": 100.0,
+                                                                    "y": 79.0
+                                                                }
+                                                            },
+                                                            "InternalWidgets": [],
+                                                            "Layers": [
+                                                                {
+                                                                    "Type": "o2::WidgetLayer",
+                                                                    "Value": {
+                                                                        "name": "text",
+                                                                        "mDrawable": {
+                                                                            "Type": "o2::Text",
+                                                                            "Value": {
+                                                                                "mText": "-1",
+                                                                                "mFontAssetId": "0222fdcc48b17041cfd0eceac59fe3c9",
+                                                                                "mHeight": 104,
+                                                                                "mSymbolsDistCoef": 1.0,
+                                                                                "mLinesDistanceCoef": 1.0,
+                                                                                "mVerAlign": "Middle",
+                                                                                "mHorAlign": "Middle",
+                                                                                "mFontStyleAsset": {
+                                                                                    "id": "81d3d81a641fbf9748769165d45433c9",
+                                                                                    "path": "WordFall/UIKit/FontStyles/text_f7dfe03d5880c43f.fntstyle"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "mUID": 6715541064231549572
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "States": []
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::Label",
+                                            "Data": {
+                                                "mDrawingDepth": 757.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "message",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 3755350238983892172,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.5,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -350.0,
+                                                        "y": -460.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 350.0,
+                                                        "y": -320.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "text",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Text",
+                                                                "Value": {
+                                                                    "mText": "If you leave the level,\nyou will lose a life!",
+                                                                    "mFontAssetId": "215353645cf99c3138ec28e5d0c58db9",
+                                                                    "mHeight": 48,
+                                                                    "mSymbolsDistCoef": 1.0,
+                                                                    "mLinesDistanceCoef": 1.0,
+                                                                    "mVerAlign": "Middle",
+                                                                    "mHorAlign": "Middle",
+                                                                    "mColor": {
+                                                                        "r": 102,
+                                                                        "g": 48,
+                                                                        "b": 15,
+                                                                        "a": 255
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 15360547112533397477
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Button",
+                                "Data": {
+                                    "mDrawingDepth": 758.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "quit_button",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 7442350281040767522,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": -415.0,
+                                            "y": -980.0
+                                        },
+                                        "offsetMax": {
+                                            "x": -15.0,
+                                            "y": -800.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "back",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "808c828c447d90fbb9647af05561b7bd",
+                                                            "path": "WordFall/UIKit/Sprites/btn_amber.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 93,
+                                                            "bottom": 76,
+                                                            "right": 112,
+                                                            "top": 71
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 7388183938782554453
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "808c828c447d90fbb9647af05561b7bd",
+                                                            "path": "WordFall/UIKit/Sprites/btn_amber.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 93,
+                                                            "bottom": 76,
+                                                            "right": 112,
+                                                            "top": 71
+                                                        },
+                                                        "mColor": {
+                                                            "r": 24,
+                                                            "g": 14,
+                                                            "b": 4,
+                                                            "a": 255
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 12092790892602519206,
+                                                "mTransparency": 0.0,
+                                                "mDepth": 2.0
+                                            }
+                                        }
+                                    ],
+                                    "States": [
+                                        {
+                                            "Type": "o2::WidgetState",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mAnimation": {
+                                                    "instance": {
+                                                        "Type": "o2::AnimationAsset",
+                                                        "Value": {
+                                                            "animation": {
+                                                                "Type": "o2::AnimationClip",
+                                                                "Value": {
+                                                                    "mTracks": [
+                                                                        {
+                                                                            "Type": "o2::AnimationTrack<float>",
+                                                                            "Value": {
+                                                                                "path": "layer/pressed/transparency",
+                                                                                "curve": {
+                                                                                    "Type": "o2::Curve",
+                                                                                    "Value": {
+                                                                                        "mKeys": [
+                                                                                            {
+                                                                                                "uid": 16546567488003029368,
+                                                                                                "rightSupportPosition": 0.024,
+                                                                                                "supportsType": "Broken"
+                                                                                            },
+                                                                                            {
+                                                                                                "uid": 7632055626193603170,
+                                                                                                "value": 0.3,
+                                                                                                "position": 0.06,
+                                                                                                "leftSupportPosition": -0.06,
+                                                                                                "supportsType": "Broken"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "mDuration": 0.06
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "meta": {
+                                                        "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                                        "Value": {
+                                                            "mId": "10029e392088ffa911e179999b2aeada"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Label",
+                                            "Data": {
+                                                "mDrawingDepth": 759.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "label",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 16376158612795149819,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": 30.0,
+                                                        "y": 12.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": -30.0,
+                                                        "y": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "text",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Text",
+                                                                "Value": {
+                                                                    "mText": "QUIT",
+                                                                    "mFontAssetId": "0222fdcc48b17041cfd0eceac59fe3c9",
+                                                                    "mHeight": 66,
+                                                                    "mSymbolsDistCoef": 1.0,
+                                                                    "mLinesDistanceCoef": 1.0,
+                                                                    "mVerAlign": "Middle",
+                                                                    "mHorAlign": "Middle",
+                                                                    "mFontStyleAsset": {
+                                                                        "id": "56d050619a4212ac7521123dcd41e246",
+                                                                        "path": "WordFall/UIKit/FontStyles/text_a18ea832fcd255b3.fntstyle"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 18100155771680447955
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Button",
+                                "Data": {
+                                    "mDrawingDepth": 760.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "play_on_button",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 16326636289732671550,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": 15.0,
+                                            "y": -980.0
+                                        },
+                                        "offsetMax": {
+                                            "x": 415.0,
+                                            "y": -800.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "back",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "4f4a1cfe3b4ff466dd869dc6ee12fdfa",
+                                                            "path": "WordFall/UIKit/Sprites/btn_green.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 100,
+                                                            "bottom": 71,
+                                                            "right": 112,
+                                                            "top": 72
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 15049068367697438697
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "4f4a1cfe3b4ff466dd869dc6ee12fdfa",
+                                                            "path": "WordFall/UIKit/Sprites/btn_green.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 100,
+                                                            "bottom": 71,
+                                                            "right": 112,
+                                                            "top": 72
+                                                        },
+                                                        "mColor": {
+                                                            "r": 24,
+                                                            "g": 14,
+                                                            "b": 4,
+                                                            "a": 255
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 4290070322919328226,
+                                                "mTransparency": 0.0,
+                                                "mDepth": 2.0
+                                            }
+                                        }
+                                    ],
+                                    "States": [
+                                        {
+                                            "Type": "o2::WidgetState",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mAnimation": {
+                                                    "instance": {
+                                                        "Type": "o2::AnimationAsset",
+                                                        "Value": {
+                                                            "animation": {
+                                                                "Type": "o2::AnimationClip",
+                                                                "Value": {
+                                                                    "mTracks": [
+                                                                        {
+                                                                            "Type": "o2::AnimationTrack<float>",
+                                                                            "Value": {
+                                                                                "path": "layer/pressed/transparency",
+                                                                                "curve": {
+                                                                                    "Type": "o2::Curve",
+                                                                                    "Value": {
+                                                                                        "mKeys": [
+                                                                                            {
+                                                                                                "uid": 15170486225434694997,
+                                                                                                "rightSupportPosition": 0.024,
+                                                                                                "supportsType": "Broken"
+                                                                                            },
+                                                                                            {
+                                                                                                "uid": 8104177825733438657,
+                                                                                                "value": 0.3,
+                                                                                                "position": 0.06,
+                                                                                                "leftSupportPosition": -0.06,
+                                                                                                "supportsType": "Broken"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "mDuration": 0.06
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "meta": {
+                                                        "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                                        "Value": {
+                                                            "mId": "935fa5d14a522b33c4da9bf244e3360d"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Label",
+                                            "Data": {
+                                                "mDrawingDepth": 761.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "label",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 10002796091368673501,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": 30.0,
+                                                        "y": 10.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": -30.0,
+                                                        "y": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "text",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Text",
+                                                                "Value": {
+                                                                    "mText": "PLAY ON",
+                                                                    "mFontAssetId": "0222fdcc48b17041cfd0eceac59fe3c9",
+                                                                    "mHeight": 62,
+                                                                    "mSymbolsDistCoef": 1.0,
+                                                                    "mLinesDistanceCoef": 1.0,
+                                                                    "mVerAlign": "Middle",
+                                                                    "mHorAlign": "Middle",
+                                                                    "mFontStyleAsset": {
+                                                                        "id": "5ff7a34a2f655e264a444be3913fa214",
+                                                                        "path": "WordFall/UIKit/FontStyles/text_2d7a850ca8394ec3.fntstyle"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 3608512655185259441
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Button",
+                                "Data": {
+                                    "mDrawingDepth": 762.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "header",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 4314916605459647101,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 0.5,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": -320.0,
+                                            "y": -165.0
+                                        },
+                                        "offsetMax": {
+                                            "x": 320.0,
+                                            "y": 0.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "back",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "daa866fe6bd40f325dce258808383203",
+                                                            "path": "WordFall/UIKit/Sprites/btn_wood_wide.png"
+                                                        },
+                                                        "mMode": "Sliced",
+                                                        "mSlices": {
+                                                            "left": 117,
+                                                            "bottom": 81,
+                                                            "right": 160,
+                                                            "top": 70
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 8955547228513808000
+                                            }
+                                        }
+                                    ],
+                                    "States": [],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Label",
+                                            "Data": {
+                                                "mDrawingDepth": 763.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "title",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 5934979073830727167,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 1.0,
+                                                        "y": 1.0
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 0.0,
+                                                        "y": 0.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "text",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Text",
+                                                                "Value": {
+                                                                    "mText": "QUIT LEVEL?",
+                                                                    "mFontAssetId": "0222fdcc48b17041cfd0eceac59fe3c9",
+                                                                    "mHeight": 76,
+                                                                    "mSymbolsDistCoef": 1.0,
+                                                                    "mLinesDistanceCoef": 1.0,
+                                                                    "mVerAlign": "Middle",
+                                                                    "mHorAlign": "Middle",
+                                                                    "mFontStyleAsset": {
+                                                                        "id": "a9570214c677b6486cf6607c7369c544",
+                                                                        "path": "WordFall/UIKit/FontStyles/text_dae0d727088036ba.fntstyle"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 18030353246944763672
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Button",
+                                "Data": {
+                                    "mDrawingDepth": 764.0,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "close_button",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 973493161363900231,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 1.0,
+                                            "y": 1.0
+                                        },
+                                        "anchorMax": {
+                                            "x": 1.0,
+                                            "y": 1.0
+                                        },
+                                        "offsetMin": {
+                                            "x": -150.0,
+                                            "y": -165.0
+                                        },
+                                        "offsetMax": {
+                                            "x": 8.0,
+                                            "y": -5.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "Layers": [
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "back",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "7accf177b4e973bd5e359813dd639ca1",
+                                                            "path": "WordFall/UIKit/Sprites/btn_round_red.png"
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 11390634010566079066
+                                            }
+                                        },
+                                        {
+                                            "Type": "o2::WidgetLayer",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mDrawable": {
+                                                    "Type": "o2::Sprite",
+                                                    "Value": {
+                                                        "mImageAsset": {
+                                                            "id": "7accf177b4e973bd5e359813dd639ca1",
+                                                            "path": "WordFall/UIKit/Sprites/btn_round_red.png"
+                                                        },
+                                                        "mColor": {
+                                                            "r": 24,
+                                                            "g": 14,
+                                                            "b": 4,
+                                                            "a": 255
+                                                        }
+                                                    }
+                                                },
+                                                "mUID": 3335023126582989240,
+                                                "mTransparency": 0.0,
+                                                "mDepth": 2.0
+                                            }
+                                        }
+                                    ],
+                                    "States": [
+                                        {
+                                            "Type": "o2::WidgetState",
+                                            "Value": {
+                                                "name": "pressed",
+                                                "mAnimation": {
+                                                    "instance": {
+                                                        "Type": "o2::AnimationAsset",
+                                                        "Value": {
+                                                            "animation": {
+                                                                "Type": "o2::AnimationClip",
+                                                                "Value": {
+                                                                    "mTracks": [
+                                                                        {
+                                                                            "Type": "o2::AnimationTrack<float>",
+                                                                            "Value": {
+                                                                                "path": "layer/pressed/transparency",
+                                                                                "curve": {
+                                                                                    "Type": "o2::Curve",
+                                                                                    "Value": {
+                                                                                        "mKeys": [
+                                                                                            {
+                                                                                                "uid": 17039261115454949858,
+                                                                                                "rightSupportPosition": 0.024,
+                                                                                                "supportsType": "Broken"
+                                                                                            },
+                                                                                            {
+                                                                                                "uid": 6205415766516520856,
+                                                                                                "value": 0.3,
+                                                                                                "position": 0.06,
+                                                                                                "leftSupportPosition": -0.06,
+                                                                                                "supportsType": "Broken"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "mDuration": 0.06
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "meta": {
+                                                        "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                                        "Value": {
+                                                            "mId": "80c09a76d639b2db3ac64ccb507c3498"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Children": [
+                                        {
+                                            "Type": "o2::Image",
+                                            "Data": {
+                                                "mDrawingDepth": 765.0,
+                                                "mInheritDrawingDepthFromParent": false,
+                                                "mName": "close_icon",
+                                                "mSceneLayer": {
+                                                    "Type": "o2::SceneLayer",
+                                                    "Value": {
+                                                        "mName": "UI"
+                                                    }
+                                                },
+                                                "Id": 17549904249173301333,
+                                                "Transform": {
+                                                    "anchorMin": {
+                                                        "x": 0.5,
+                                                        "y": 0.5
+                                                    },
+                                                    "anchorMax": {
+                                                        "x": 0.5,
+                                                        "y": 0.5
+                                                    },
+                                                    "offsetMin": {
+                                                        "x": -36.0,
+                                                        "y": -34.0
+                                                    },
+                                                    "offsetMax": {
+                                                        "x": 36.0,
+                                                        "y": 42.0
+                                                    }
+                                                },
+                                                "InternalWidgets": [],
+                                                "Layers": [
+                                                    {
+                                                        "Type": "o2::WidgetLayer",
+                                                        "Value": {
+                                                            "name": "image",
+                                                            "mDrawable": {
+                                                                "Type": "o2::Sprite",
+                                                                "Value": {
+                                                                    "mImageAsset": {
+                                                                        "id": "22f57282a2fe4a178f2bf961e57d6efa",
+                                                                        "path": "WordFall/UIKit/Sprites/icon_close.png"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mUID": 7730231225163897295
+                                                        }
+                                                    }
+                                                ],
+                                                "States": []
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "InternalWidgets": [],
+            "Layers": [],
+            "States": [
+                {
+                    "Type": "o2::WidgetState",
+                    "Value": {
+                        "name": "visible",
+                        "mAnimation": {
+                            "instance": {
+                                "Type": "o2::AnimationAsset",
+                                "Value": {
+                                    "animation": {
+                                        "Type": "o2::AnimationClip",
+                                        "Value": {
+                                            "mTracks": [
+                                                {
+                                                    "Type": "o2::AnimationTrack<float>",
+                                                    "Value": {
+                                                        "path": "child/dimmer/transparency",
+                                                        "curve": {
+                                                            "Type": "o2::Curve",
+                                                            "Value": {
+                                                                "mKeys": [
+                                                                    {
+                                                                        "uid": 13748609388570703953,
+                                                                        "value": 0.0,
+                                                                        "position": 0.0,
+                                                                        "rightSupportPosition": 0.0875,
+                                                                        "rightSupportValue": 0.5850000000000001
+                                                                    },
+                                                                    {
+                                                                        "uid": 14106095084059941858,
+                                                                        "value": 0.65,
+                                                                        "position": 0.25,
+                                                                        "leftSupportPosition": -0.1,
+                                                                        "leftSupportValue": 0.0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "Type": "o2::AnimationTrack<float>",
+                                                    "Value": {
+                                                        "path": "child/dialog/transparency",
+                                                        "curve": {
+                                                            "Type": "o2::Curve",
+                                                            "Value": {
+                                                                "mKeys": [
+                                                                    {
+                                                                        "uid": 12647679249186310996,
+                                                                        "value": 0.0,
+                                                                        "position": 0.0,
+                                                                        "rightSupportPosition": 0.055999999999999994,
+                                                                        "rightSupportValue": 0.9
+                                                                    },
+                                                                    {
+                                                                        "uid": 18358412340830983135,
+                                                                        "value": 1.0,
+                                                                        "position": 0.16,
+                                                                        "leftSupportPosition": -0.064,
+                                                                        "leftSupportValue": 0.0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "Type": "o2::AnimationTrack<float>",
+                                                    "Value": {
+                                                        "path": "child/dialog/transform/scaleX",
+                                                        "curve": {
+                                                            "Type": "o2::Curve",
+                                                            "Value": {
+                                                                "mKeys": [
+                                                                    {
+                                                                        "uid": 2316068702608647700,
+                                                                        "value": 0.82,
+                                                                        "position": 0.0,
+                                                                        "rightSupportPosition": 0.07,
+                                                                        "rightSupportValue": 0.2
+                                                                    },
+                                                                    {
+                                                                        "uid": 816792312175139180,
+                                                                        "value": 1.045,
+                                                                        "position": 0.2,
+                                                                        "leftSupportPosition": -0.06,
+                                                                        "leftSupportValue": 0.0,
+                                                                        "rightSupportPosition": 0.05,
+                                                                        "rightSupportValue": 0.0
+                                                                    },
+                                                                    {
+                                                                        "uid": 11315737852837432105,
+                                                                        "value": 1.0,
+                                                                        "position": 0.32,
+                                                                        "leftSupportPosition": -0.05,
+                                                                        "leftSupportValue": 0.0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "Type": "o2::AnimationTrack<float>",
+                                                    "Value": {
+                                                        "path": "child/dialog/transform/scaleY",
+                                                        "curve": {
+                                                            "Type": "o2::Curve",
+                                                            "Value": {
+                                                                "mKeys": [
+                                                                    {
+                                                                        "uid": 2316068702608647700,
+                                                                        "value": 0.82,
+                                                                        "position": 0.0,
+                                                                        "rightSupportPosition": 0.07,
+                                                                        "rightSupportValue": 0.2
+                                                                    },
+                                                                    {
+                                                                        "uid": 816792312175139180,
+                                                                        "value": 1.045,
+                                                                        "position": 0.2,
+                                                                        "leftSupportPosition": -0.06,
+                                                                        "leftSupportValue": 0.0,
+                                                                        "rightSupportPosition": 0.05,
+                                                                        "rightSupportValue": 0.0
+                                                                    },
+                                                                    {
+                                                                        "uid": 11315737852837432105,
+                                                                        "value": 1.0,
+                                                                        "position": 0.32,
+                                                                        "leftSupportPosition": -0.05,
+                                                                        "leftSupportValue": 0.0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "mDuration": 0.32
+                                        }
+                                    }
+                                }
+                            },
+                            "meta": {
+                                "Type": "o2::DefaultAssetMeta<o2::AnimationAsset>",
+                                "Value": {
+                                    "mId": "899af3cb137cdff06c528283f642fda4"
+                                }
+                            }
+                        },
+                        "offStateAnimationSpeed": 1.6
+                    }
+                }
+            ],
+            "Components": [
+                {
+                    "Type": "o2::ScriptableComponent",
+                    "Data": {
+                        "mId": 6524458766888074237,
+                        "mScript": {
+                            "id": "a9dd645e24c62eccbc3410f254b8481f",
+                            "path": "Scripts/WordFall/WordFallQuitView.js"
+                        },
+                        "mInstance": {}
+                    }
+                }
+            ],
+            "mDrawingDepth": 750.0
+        }
+    }
+}
