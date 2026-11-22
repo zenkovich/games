@@ -234,7 +234,10 @@ def window(name, depth, script, dialog_h, title, body, dialog_w=1000, closable=T
     returns the dialog's own children"""
     b = Builder(name, depth)
     d = '/dialog'
-    frame = b.image('frame', Rect((0.0, 0.0), (1.0, 1.0), (0, 0), (0, -80)), d + '/frame', KIT + 'panel_wood_purple_2.png')
+    # the frame is a button without an action: a click on the dialog's empty places stays in the dialog instead of
+    # falling through to the dimmer, which closes the window
+    frame = b.node('Button', 'frame', Rect((0.0, 0.0), (1.0, 1.0), (0, 0), (0, -80)), d + '/frame',
+                   [b.sprite_layer(d + '/frame', KIT + 'panel_wood_purple_2.png', 'back')])
     content = body(b, d)
     header = b.button('header', top(0, 0, 640, 165), d + '/header', KIT + 'btn_wood_wide.png',
                       [b.label('title', fill(), d + '/header/title', title, 76, style=STYLE_TITLE)])

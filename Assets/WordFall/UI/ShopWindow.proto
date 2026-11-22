@@ -137,7 +137,7 @@
                         "States": [],
                         "Children": [
                             {
-                                "Type": "o2::Image",
+                                "Type": "o2::Button",
                                 "Data": {
                                     "mDrawingDepth": 903.0,
                                     "mInheritDrawingDepthFromParent": false,
@@ -172,7 +172,7 @@
                                         {
                                             "Type": "o2::WidgetLayer",
                                             "Value": {
-                                                "name": "image",
+                                                "name": "back",
                                                 "mDrawable": {
                                                     "Type": "o2::Sprite",
                                                     "Value": {
@@ -189,7 +189,7 @@
                                                         }
                                                     }
                                                 },
-                                                "mUID": 17636409173413137761
+                                                "mUID": 12186373177865976697
                                             }
                                         }
                                     ],

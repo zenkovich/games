@@ -89,6 +89,14 @@ protected:
 		return shown && WindowOpen(root);
 	}
 
+	// Клик по затемнению над диалогом окна
+	static void TapOutside(const String& root)
+	{
+		RectF dialog = WorldRect(DynamicCast<Widget>(Find(root, "dialog")));
+		Click(Vec2F(dialog.Center().x, dialog.top + 60.0f)/kGameScale);
+		AppTestDriver::PumpFrames(3);
+	}
+
 	static bool WaitClosed(const String& root, float seconds = 3.0f)
 	{
 		return WaitFor([&]() { return !Shown(root); }, seconds);
@@ -355,10 +363,15 @@ TEST_F(WordFallMetaUI, TheBankSellsCoins)
 	EXPECT_EQ(Text("ShopWindow", "dialog/packs/pack5/buy/label"), String("$49.99"));
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "57_meta_shop.png"));
 
+	Tap("ShopWindow", "dialog/balance");
+	AppTestDriver::Wait(0.4f);
+	EXPECT_TRUE(Js("WordFallViews.shop.IsOpen()").ToBool()) << "клик по диалогу мимо кнопок окно не закрывает";
+	EXPECT_TRUE(WindowOpen("ShopWindow")) << "диалог в полный размер";
+
 	Tap("ShopWindow", "dialog/packs/pack1/buy");
 	EXPECT_EQ(Coins(), 4000);
 	EXPECT_TRUE(WaitFor([]() { return Text("ShopWindow", "dialog/balance/value") == String("4,000"); }, 2.0f));
-	Tap("ShopWindow", "dimmer");
+	TapOutside("ShopWindow");
 	EXPECT_TRUE(WaitClosed("ShopWindow")) << "клик мимо окна закрывает его";
 	EXPECT_TRUE(WaitFor([]() { return Text("MainScreen", "top_hud/coin_counter/coin_balance") == String("4,000"); }, 3.0f));
 }
