@@ -156,6 +156,13 @@ include("Scripts/WordFall/WordFallGameService.js");
         assert(prepared);
         expectEq(prepared.word, service.GetLevel().FindHint(service._dictionary).word);
 
+        // выбор букв подсказке не важен - щелчки по плиткам (и самой подсказки) поиск не начинают заново
+        service.ToggleSelect(1, 1);
+        service.ToggleSelect(2, 1);
+        service.ClearSelection();
+        service.Update(0.016);
+        expect(service._hintSearch == search, "выбор букв не перезапускает поиск");
+
         service.DebugSetTile(0, 0, "Ъ");
         service.Update(0.016);
         expect(service._hintSearch != search, "поле изменилось — поиск заново");

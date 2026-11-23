@@ -52,6 +52,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._motion = new WordBoardMotion();
         this._hintSearch = null;
         this._hintRevision = -1;
+        this._selectionRevisions = 0; // сколько раз ревизию двинул только выбор букв: подсказке он не важен
 
         WordFallGame.service = this;
     }
@@ -295,9 +296,12 @@ WordFallGameService = class WordFallGameService extends o2.Component
         return result;
     }
 
+    // Номинал буквы и размер поля - из конфига поля текущего уровня: _BoardConfig собирает конфиг заново (алфавит
+    // языка, remote) при каждом вызове, а вьюхи спрашивают это в циклах по клеткам и буквам
     GetLetterValue(letter)
     {
-        var letters = this._BoardConfig().letters;
+        this._EnsureStarted();
+        var letters = this._level.GetBoard().GetConfig().letters;
         for (var i = 0; i < letters.length; i++)
         {
             if (letters[i].letter == letter)
@@ -308,8 +312,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
     // --- состояние для вьюх ---
 
-    GetColumns() { return this._BoardConfig().columns; }
-    GetRows() { return this._BoardConfig().rows; }
+    GetColumns() { this._EnsureStarted(); return this._level.GetBoard().GetColumns(); }
+    GetRows() { this._EnsureStarted(); return this._level.GetBoard().GetRows(); }
 
     // Плитка: {letter, value, ice, stone, doubled, joker, powerup, hole, crate, chained, snow, parcel, empty}
     GetTile(column, row)
@@ -422,6 +426,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
         var result = this._level.GetBoard().ToggleSelect({ c: column, r: row });
         this._revision++;
+        this._selectionRevisions++;
         return result;
     }
 
@@ -430,6 +435,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._EnsureStarted();
         this._level.GetBoard().ClearSelection();
         this._revision++;
+        this._selectionRevisions++;
     }
 
     AcceptWord()
@@ -899,18 +905,23 @@ WordFallGameService = class WordFallGameService extends o2.Component
         if (!this._started || this._level.GetState() != "playing" || this._level.GetBoosterCharges(WordLevel.Hint) <= 0)
             return;
 
-        var fresh = this._hintRevision != this._revision;
+        var fresh = this._hintRevision != this._HintKey();
         var search = this._HintSearch();
         if (!fresh && !search.IsDone())
             search.Step(this.hintWordsPerFrame);
     }
 
+    // Состояние, от которого зависит слово подсказки: всё, кроме выбора букв. Выбор - каждая буква, которую игрок
+    // или сама подсказка щёлкает в лоток, - перезапускал перебор словаря, и нажатие подсказки после хода доделывало
+    // его целиком в одном кадре (десятки мс в вебе)
+    _HintKey() { return this._revision - this._selectionRevisions; }
+
     _HintSearch()
     {
-        if (!this._hintSearch || this._hintRevision != this._revision)
+        if (!this._hintSearch || this._hintRevision != this._HintKey())
         {
             this._hintSearch = this._level.BeginHintSearch(this._dictionary);
-            this._hintRevision = this._revision;
+            this._hintRevision = this._HintKey();
         }
         return this._hintSearch;
     }

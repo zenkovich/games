@@ -15,6 +15,7 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         // свечение за окном и конфетти (home_screen/victory_fx) — состояния AnimationComponent окна
         this.fxOpenState = "open";
         this.fxIdleState = "idle";
+        this.warmUpGlyphs = "0123456789,"; // символы надписей с числами: растеризуются при загрузке, а не при первом окне
         this._tweens = new WordFallUiTweens();
         this._ready = false;
         this._open = false;
@@ -58,6 +59,15 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         });
         WordFallUi.Center(this._amount);
         WordFallUi.Center(this._owl);
+
+        // Надписи с числами набраны стилями шрифта с тенями и обводками: глиф такого стиля растеризуется при первом
+        // показе (у суммы награды в её размере - несколько мс на цифру). Все цифры - сразу, при загрузке сцены,
+        // чтобы первое окно победы и набегание суммы не дёргались; Open всё равно перепишет эти надписи
+        var warm = this.warmUpGlyphs;
+        [this._amount, this._levelLabel, this._doubleLabel, this._coins, this._lives, this._stars].forEach(function(label) {
+            if (label && warm)
+                label.SetText(warm);
+        });
 
         this._continue.onClick = function() { self._Claim(1, self._continue); };
         // Рекламы в игре нет: просмотр ролика засчитывается сразу

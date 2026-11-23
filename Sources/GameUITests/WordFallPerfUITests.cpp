@@ -150,11 +150,12 @@ TEST_F(WordFallPerfUI, VectorScreenCost)
 }
 
 // Фризы по сценариям игры (запуск: WORDFALL_PROFILE=1; WORDFALL_PROFILE=js — ещё и методы скриптов игры в каждом
-// долгом кадре): каждый кадр дольше бюджета 60 FPS выводится отдельно с самыми дорогими зонами
+// долгом кадре): каждый кадр дольше бюджета 60 FPS выводится отдельно с самыми дорогими зонами. WORDFALL_BUDGET_MS —
+// свой бюджет кадра: в нативной сборке ниже 16.7, чтобы видеть то, что в вебе (в 2-3 раза медленнее) уже фриз
 class WordFallFrameProfile: public WordFallUI
 {
 protected:
-	static constexpr double kBudgetMs = 16.7;
+	double kBudgetMs = ::getenv("WORDFALL_BUDGET_MS") ? atof(::getenv("WORDFALL_BUDGET_MS")) : 16.7;
 
 	struct Spike { double ms = 0; int frame = 0; String zones; String js; };
 	struct Scenario
@@ -399,6 +400,312 @@ TEST_F(WordFallFrameProfile, Freezes)
 		auto& s = Begin("level start");
 		mService->StartLevel(1);
 		Frames(s, 180);
+	}
+
+	Report();
+}
+
+// Остальные случаи игры (WORDFALL_PROFILE=1 или js): бустеры по клеткам, уровни с каждым препятствием, смена языка,
+// открытие редактора уровней. Уровни берутся из кампании по их препятствиям — номера не зашиты
+TEST_F(WordFallFrameProfile, AllCases)
+{
+	auto mode = ::getenv("WORDFALL_PROFILE");
+	if (!mode)
+		GTEST_SKIP() << "профиль снимается по запросу: WORDFALL_PROFILE=1 или js";
+
+	mJs = String(mode) == "js";
+	if (mJs)
+		InstallJsProfiler();
+
+	auto firstLevelWith = [](const char* list) {
+		return o2Scripts.Eval(String::Format("(function() { var s = WordFallGame.service; for (var i = 0; i < s.GetLevelCount(); i++)"
+			" if ((s.GetLevelConfig(i).%s || []).length > 0) return i; return -1; })()", list)).GetValue<int>();
+	};
+	auto findTile = [](const char* predicate) {
+		auto cell = o2Scripts.Eval(String::Format("(function() { var s = WordFallGame.service; for (var c = 0; c < 7; c++)"
+			" for (var r = 0; r < 8; r++) { var t = s.GetTile(c, r); if (%s) return [c, r]; } return [-1, -1]; })()", predicate));
+		return Vec2I(cell.GetElement(0).GetValue<int>(), cell.GetElement(1).GetValue<int>());
+	};
+
+	// препятствия: уровень с каждым и восемь ходов подсказкой по нему
+	const char* lists[5] = { "iceCells", "crateCells", "chainCells", "snowCells", "parcelCells" };
+	const char* names[5] = { "level with ice: 8 moves", "level with crates: 8 moves", "level with chains: 8 moves",
+							 "level with snow: 8 moves", "level with envelopes: 8 moves" };
+	for (int i = 0; i < 5; i++)
+	{
+		int level = firstLevelWith(lists[i]);
+		ASSERT_GE(level, 0) << lists[i];
+		auto& s = Begin(names[i]);
+		mService->StartLevel(level);
+		Frames(s, 60);
+		mService->DebugAddCharges(20);
+		for (int move = 0; move < 8 && mService->GetGameState() == String("playing"); move++)
+		{
+			Tap(s, BoosterPosition(2));
+			Frames(s, 60);
+			Tap(s, AcceptPosition());
+			Frames(s, 120);
+		}
+	}
+
+	{
+		auto& s = Begin("hammer on a crate");
+		mService->StartLevel(firstLevelWith("crateCells"));
+		Frames(s, 30);
+		mService->DebugAddCharges(5);
+		Vec2I crate = findTile("t.crate > 0");
+		ASSERT_GE(crate.x, 0);
+		Tap(s, BoosterPosition(0));
+		Frames(s, 10);
+		Tap(s, TilePosition(crate.x, crate.y));
+		Frames(s, 120);
+	}
+	{
+		auto& s = Begin("joker on a tile");
+		Tap(s, BoosterPosition(3));
+		Frames(s, 10);
+		Tap(s, TilePosition(3, 3));
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("doubler on a tile");
+		Tap(s, BoosterPosition(4));
+		Frames(s, 10);
+		Tap(s, TilePosition(4, 4));
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("language: en and back");
+		mService->Call("SetLanguage", { ScriptValue(String("en")) });
+		Frames(s, 60);
+		mService->Call("SetLanguage", { ScriptValue(String("ru")) });
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("level editor: open");
+		o2Scripts.Eval("WordFallGame.screens.ShowEditor()");
+		Frames(s, 90);
+		o2Scripts.Eval("WordFallGame.screens.ShowGame()");
+		Frames(s, 30);
+	}
+
+	Report();
+}
+
+// Обучение: новый игрок, первый уровень — шаги ведут по буквам слова и кнопке принятия
+class WordFallTutorialProfile: public WordFallFrameProfile
+{
+protected:
+	void SetUp() override
+	{
+		WordFallUI::SetUp();
+		mService->ResetTutorials();
+		mService->StartLevel(0);
+		NanoProfiler::SetEnabled(true);
+		AppTestDriver::PumpFrames(30);
+	}
+};
+
+TEST_F(WordFallTutorialProfile, FirstLevelTutorial)
+{
+	auto mode = ::getenv("WORDFALL_PROFILE");
+	if (!mode)
+		GTEST_SKIP() << "профиль снимается по запросу: WORDFALL_PROFILE=1 или js";
+	mJs = String(mode) == "js";
+	if (mJs)
+		InstallJsProfiler();
+
+	auto& s = Begin("tutorial: the first word");
+	Frames(s, 60);
+	auto seeded = mService->GetLevel().GetBoard().GetSeededCells();
+	for (auto& cell : seeded)
+	{
+		Tap(s, TilePosition(cell.x, cell.y));
+		Frames(s, 30);
+	}
+	Tap(s, AcceptPosition());
+	Frames(s, 150);
+	// пояснительный шаг закрывается тапом
+	Tap(s, TilePosition(3, 3));
+	Frames(s, 60);
+	Report();
+}
+
+// Фризы меты (WORDFALL_PROFILE=1 или js): каждое окно в первый и во второй раз, старт уровня из окна, эффекты бонусов,
+// победа (первое и повторное окно), проигрыш, магазины, жизни, выход, настройки — клики настоящие, как у игрока
+class WordFallMetaProfile: public WordFallFrameProfile
+{
+protected:
+	bool StartOnMainScreen() const override { return true; }
+
+	void SetUp() override
+	{
+		WordFallFrameProfile::SetUp();
+		o2Application.SetWindowSize(Vec2I(590, 1279));
+		AppTestDriver::PumpFrames(5);
+	}
+
+	void TearDown() override
+	{
+		o2FileSystem.FileDelete(mService->GetProgressPath());
+		WordFallFrameProfile::TearDown();
+	}
+
+	// Центр виджета корня меты в единицах экрана игры (их берёт Tap)
+	static Vec2F MetaCenter(const String& root, const String& path)
+	{
+		auto actor = o2Scene.FindActor(root);
+		auto widget = actor ? DynamicCast<Widget>(path.IsEmpty() ? actor : actor->GetChild(path)) : nullptr;
+		EXPECT_TRUE(widget) << root.Data() << "/" << path.Data();
+		if (!widget)
+			return Vec2F();
+		return widget->layout->GetLayoutToWorldBasis().Transform(widget->layout->GetWorldRect().Center())/kGameScale;
+	}
+
+	void TapMeta(Scenario& s, const String& root, const String& path) { Tap(s, MetaCenter(root, path)); }
+
+	static bool Shown(const String& root)
+	{
+		auto actor = o2Scene.FindActor(root);
+		return actor && actor->IsEnabledInHierarchy();
+	}
+
+	// Кадры до условия (не больше max)
+	template<typename _cond>
+	void FramesUntil(Scenario& s, _cond condition, int max)
+	{
+		for (int i = 0; i < max && !condition(); i++)
+			Frame(s);
+	}
+
+	void WinCurrentLevel(Scenario& s)
+	{
+		mService->DebugSetTargetScore(10);
+		mService->DebugCompleteTasks();
+		PlantWord("КОТ");
+		for (int i = 1; i <= 3; i++)
+			Tap(s, TilePosition(i, 0));
+		Tap(s, AcceptPosition());
+		FramesUntil(s, []() { return Shown("VictoryWindow") && o2Scene.FindActor("VictoryWindow")->GetChild("home_screen")->IsEnabledInHierarchy(); }, 600);
+		Frames(s, 150);
+	}
+};
+
+TEST_F(WordFallMetaProfile, MetaFreezes)
+{
+	auto mode = ::getenv("WORDFALL_PROFILE");
+	if (!mode)
+		GTEST_SKIP() << "профиль снимается по запросу: WORDFALL_PROFILE=1 или js";
+
+	mJs = String(mode) == "js";
+	if (mJs)
+		InstallJsProfiler();
+
+	Frames(Begin("main idle"), 120);
+
+	{
+		auto& s = Begin("level start window, first");
+		TapMeta(s, "MainScreen", "play_button");
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("level start window, close");
+		TapMeta(s, "LevelStartWindow", "dialog/close_button");
+		Frames(s, 40);
+	}
+	{
+		auto& s = Begin("level start window, again");
+		TapMeta(s, "MainScreen", "play_button");
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("play: the level from the window");
+		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		Frames(s, 120);
+	}
+
+	const char* bonuses[3] = { "bomb", "rocket", "fireworks" };
+	const char* words[3] = { "ТОК", "КИТ", "ТИК" };
+	for (int i = 0; i < 3; i++)
+	{
+		auto& s = Begin(bonuses[i]);
+		mService->DebugSetPowerup(1, 1, bonuses[i]);
+		PlayWord(s, words[i]);
+		Frames(s, 240);
+	}
+
+	WinCurrentLevel(Begin("victory window, first"));
+	{
+		auto& s = Begin("victory: claim and close");
+		TapMeta(s, "VictoryWindow", "home_screen/victory_popup/victory_frame/victory_parchment/continue_button");
+		Frames(s, 150);
+	}
+	{
+		auto& s = Begin("level 2 from the start window");
+		TapMeta(s, "MainScreen", "play_button");
+		Frames(s, 40);
+		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		Frames(s, 90);
+	}
+	WinCurrentLevel(Begin("victory window, again"));
+	{
+		auto& s = Begin("victory: close");
+		TapMeta(s, "VictoryWindow", "home_screen/victory_popup/victory_frame/victory_parchment/continue_button");
+		Frames(s, 90);
+		TapMeta(s, "MainScreen", "play_button");
+		Frames(s, 40);
+		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		Frames(s, 90);
+	}
+
+	{
+		auto& s = Begin("continue window, first");
+		mService->DebugLoseLevel();
+		FramesUntil(s, []() { return Shown("ContinueWindow") && o2Scene.FindActor("ContinueWindow")->GetChild("continue_dialog")->IsEnabledInHierarchy(); }, 300);
+		Frames(s, 80);
+	}
+	{
+		auto& s = Begin("continue: ad");
+		TapMeta(s, "ContinueWindow", "continue_dialog/dialog_frame/action_row/watch_ad_button");
+		Frames(s, 60);
+	}
+	{
+		auto& s = Begin("empty booster: its shop, first");
+		o2Scripts.Eval("WordFallGame.service.GetProgress().boosters[0] = 0");
+		Tap(s, BoosterPosition(0));
+		Frames(s, 60);
+		TapMeta(s, "BoosterShopWindow", "dialog/close_button");
+		Frames(s, 30);
+	}
+	{
+		auto& s = Begin("quit window, first");
+		TapMeta(s, "WordFall", "Screen/Hud/QuitButton");
+		Frames(s, 60);
+		TapMeta(s, "QuitLevelWindow", "dialog/quit_button");
+		Frames(s, 90);
+	}
+	{
+		auto& s = Begin("shop (bank), first");
+		TapMeta(s, "MainScreen", "top_hud/coin_counter/add_currency_button");
+		Frames(s, 60);
+		TapMeta(s, "ShopWindow", "dialog/packs/pack0/buy");
+		Frames(s, 40);
+		TapMeta(s, "ShopWindow", "dialog/close_button");
+		Frames(s, 30);
+	}
+	{
+		auto& s = Begin("lives window, first");
+		TapMeta(s, "MainScreen", "top_hud/lives_counter/lives_button");
+		Frames(s, 60);
+		TapMeta(s, "LivesWindow", "dialog/close_button");
+		Frames(s, 30);
+	}
+	{
+		auto& s = Begin("settings window, first");
+		TapMeta(s, "MainScreen", "top_hud/settings_button");
+		Frames(s, 60);
+		TapMeta(s, "SettingsWindow", "dialog/close_button");
+		Frames(s, 30);
 	}
 
 	Report();

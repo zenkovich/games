@@ -536,12 +536,13 @@ WordBoard = class WordBoard
         return found;
     }
 
-    // Есть ли собираемое слово, которое по очкам (value с округлением вверх) не меньше minValue
+    // Есть ли собираемое слово, которое по очкам (value с округлением вверх) не меньше minValue. Слова длины L не
+    // дороже самых дорогих L плиток поля с множителем длины — длины, которым порог недостижим, не перебираются
+    // (проверка идёт после каждого хода уровня с заданием на очки слова — перебор всего словаря был заметен в вебе)
     AnyWordWorth(dictionary, minValue)
     {
-        var search = this.BeginWordSearch(dictionary, function(word, value) { return Math.ceil(value) >= minValue ? 1 : 0; }, { stopAt: 1 });
-        search.Step(Infinity);
-        return search.Result() != null;
+        var search = this.BeginWordSearch(dictionary, function() { return 0; }, { stopAt: 1 });
+        return search.AnyWorth(minValue);
     }
 
     // Лучшее собираемое слово по оценщику scorer(word, value, index) -> вес (<= 0 — не подходит); при равных весах —
@@ -1444,6 +1445,29 @@ WordSearch = class WordSearch
         }
         this._next = this._bestValue >= this._stopAt ? total : end;
         return this.IsDone();
+    }
+
+    // Есть ли слово с value не меньше minValue (с округлением вверх). Верхняя граница слова длины L — сумма L самых
+    // дорогих плиток с множителем длины (Math.fround монотонна): длины ниже порога пропускаются целиком
+    AnyWorth(minValue)
+    {
+        var dictionary = this._dictionary;
+        var top = 0;
+        for (var length = 1; length <= this._pool.length; length++)
+        {
+            top += this._pool[length - 1].value;
+            if (Math.ceil(Math.fround(top*(length > 3 ? 1 + 0.25*(length - 3) : 1))) < minValue)
+                continue;
+
+            var indices = dictionary.GetIndices(length);
+            for (var i = 0; i < indices.length; i++)
+            {
+                var value = this._Value(indices[i]);
+                if (value >= 0 && Math.ceil(value) >= minValue)
+                    return true;
+            }
+        }
+        return false;
     }
 
     // {word, cells} лучшего слова или null; перебор должен быть закончен

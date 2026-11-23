@@ -214,10 +214,20 @@ Rules that hold there:
   (`Integration::forcedFrameDeltaTime`).
 - Freezes are looked for frame by frame, never in an average: `WordFallFrameProfile.Freezes` (GameUITests, run with
   `WORDFALL_PROFILE=1`, or `=js` for the script methods too) plays the game — hint and accept, bonuses, shuffle, level
-  start — and prints every frame over 16.7 ms with its heaviest zones. A dictionary scan (~23k words, tens of ms in
-  QuickJS) never runs whole in a click frame: the hint is searched ahead by `WordFallGameService._PrepareHint`
-  (`WordSearch.Step`, `hintWordsPerFrame` words per frame, restarted on every revision), word-score checks use
-  `WordBoard.AnyWordWorth` (stops at the first word). A new `Sources/GameTests/Scripts/*.test.js` reaches ctest only
+  start — and prints every frame over 16.7 ms with its heaviest zones; `WordFallFrameProfile.AllCases` (every booster
+  on a cell, a level with each obstacle, the language switch, the level editor), `WordFallTutorialProfile` and
+  `WordFallMetaProfile.MetaFreezes` (every meta window first and again, the victory first and again, the continue
+  window) do the same. Profile the Release build: `cmake -S . -B build-release -DO2_TESTS=ON`, then
+  `cmake --build build-release --target GameUITests` (it writes the same `Bin/Mac/GameUITests`), and run it with
+  `O2_BACKGROUND_WINDOW=1 O2_INVISIBLE_WINDOW=1`. `WORDFALL_BUDGET_MS=6` lowers the frame budget: the web build is 2-3x
+  slower, so a 6 ms native frame is a freeze there. A dictionary scan (~37k words, tens of ms in QuickJS) never runs
+  whole in a click frame: the hint is searched ahead by `WordFallGameService._PrepareHint` (`WordSearch.Step`,
+  `hintWordsPerFrame` words per frame, restarted when anything but the selection changes — `_HintKey`), word-score
+  checks use `WordBoard.AnyWordWorth` (`WordSearch.AnyWorth`: lengths whose best tiles cannot reach the threshold are
+  skipped). Styled glyphs (font styles with shadows and strokes) are rasterized on the CPU when first shown — the
+  victory window warms its number glyphs at load (`warmUpGlyphs`); the engine's `Bitmap::Blur`/`Outline` are the cost
+  (o2 `BitmapEffects` tests). `GetColumns`/`GetRows`/`GetLetterValue` read the level's board: `_BoardConfig()` rebuilds
+  the config on every call. A new `Sources/GameTests/Scripts/*.test.js` reaches ctest only
   after `GameTests` is relinked (or touched).
 - The in-game level editor (cheats → «Открыть редактор», prototype `LevelEditorScreen.proto`, view
   `WordFallLevelEditorView.js`, model `Core/WordFallLevelDraft.js`, undo/redo `Core/WordFallEditHistory.js`):
