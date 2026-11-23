@@ -28,6 +28,7 @@ namespace
 {
     o2::Ref<GameApplication> gApp;
     JavaVM*                  gJavaVM = nullptr;
+    o2::BorderF              gSafeArea; // From MainActivity, given to the app before every frame
 
     constexpr const char* kLogTag = "Game";
 
@@ -92,7 +93,17 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_o2_template_NativeBridge_step(JNIEnv* /*env*/, jclass /*clazz*/)
 {
     if (gApp)
+    {
+        gApp->SetPlatformSafeAreaInsets(gSafeArea);
         gApp->Update();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_o2_template_NativeBridge_safeArea(JNIEnv* /*env*/, jclass /*clazz*/,
+                                             jfloat left, jfloat top, jfloat right, jfloat bottom)
+{
+    gSafeArea = o2::BorderF(left, bottom, right, top);
 }
 
 extern "C" JNIEXPORT void JNICALL

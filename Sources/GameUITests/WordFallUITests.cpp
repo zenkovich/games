@@ -5,28 +5,28 @@
 
 TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 {
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
 
 	for (int c = 0; c < 7; c++)
 	{
 		for (int r = 0; r < 8; r++)
 		{
-			auto tile = root->GetChild(String::Format("Screen/Board/Tile_%i_%i", c, r));
+			auto tile = root->GetChild(String::Format("Safe/Screen/Board/Tile_%i_%i", c, r));
 			ASSERT_TRUE(tile) << "tile " << c << " " << r;
 			EXPECT_TRUE(DynamicCast<Button>(tile));
 		}
 	}
 
-	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
-	EXPECT_TRUE(root->GetChild("Screen/Hud/ScorePanel/Bar"));
-	EXPECT_TRUE(root->GetChild("Screen/Tasks/Words/W0_0"));
-	EXPECT_TRUE(root->GetChild("Screen/Tasks/Objectives/Item0"));
-	EXPECT_TRUE(root->GetChild("Screen/WordBar/AcceptBtn"));
-	EXPECT_TRUE(root->GetChild("Screen/WordBar/Tray/Slot0"));
-	EXPECT_TRUE(root->GetChild("Screen/Boosters/Booster4/Btn"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Hud/ScorePanel/ScoreLabel"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Hud/ScorePanel/Bar"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Tasks/Words/W0_0"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Tasks/Objectives/Item0"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/WordBar/AcceptBtn"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/WordBar/Tray/Slot0"));
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Boosters/Booster4/Btn"));
 	EXPECT_TRUE(root->GetChild("Vfx"));
-	EXPECT_FALSE(root->GetChild("Screen/Popup/Content")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Popup/Content")->IsEnabled());
 
 	// сервис заполнил каждую плитку буквой
 	for (int c = 0; c < 7; c++)
@@ -51,21 +51,21 @@ TEST_F(WordFallUI, ClickingTilesSelectsWordAndSlotsFly)
 	AppTestDriver::Wait(0.5f); // буквы долетают до панели слова
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "02_selection.png"));
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	EXPECT_TRUE(root->GetChild("Screen/WordBar/Tray/Slot0")->IsEnabled());
-	EXPECT_TRUE(root->GetChild("Screen/WordBar/Tray/Slot2")->IsEnabled());
-	EXPECT_FALSE(root->GetChild("Screen/WordBar/Tray/Slot3")->IsEnabled());
+	EXPECT_TRUE(root->GetChild("Safe/Screen/WordBar/Tray/Slot0")->IsEnabled());
+	EXPECT_TRUE(root->GetChild("Safe/Screen/WordBar/Tray/Slot2")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/WordBar/Tray/Slot3")->IsEnabled());
 
 	// выбранные плитки улетели с поля — их ячейки пустые
-	EXPECT_FALSE(root->GetChild("Screen/Board/Tile_1_0")->IsEnabled());
-	EXPECT_FALSE(root->GetChild("Screen/Board/Tile_3_0")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Board/Tile_1_0")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Board/Tile_3_0")->IsEnabled());
 
 	// клик по первому слоту лотка снимает выбор с буквы и хвоста — весь выбор
 	Click(SlotPosition(0));
 	AppTestDriver::PumpFrames(2);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetSelection().Count(), 0);
-	EXPECT_TRUE(root->GetChild("Screen/Board/Tile_1_0")->IsEnabled());
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Board/Tile_1_0")->IsEnabled());
 }
 
 TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
@@ -87,9 +87,9 @@ TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
 
 	// середина полёта: плашка видима и едет по траектории компонента
 	AppTestDriver::Wait(0.22f);
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
+	auto flyer = root->GetChild("Safe/Screen/Fx/FxLetter0");
 	ASSERT_TRUE(flyer);
 	EXPECT_TRUE(flyer->IsEnabled());
 	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
@@ -124,9 +124,9 @@ TEST_F(WordFallUI, AcceptButtonBurnsWordAndScores)
 // плашку (мигание) — на старте каждого сбора буква полностью видима
 TEST_F(WordFallUI, ConsecutiveWordsKeepFlyingLettersVisible)
 {
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto flyer = DynamicCast<Widget>(root->GetChild("Screen/Fx/FxLetter0"));
+	auto flyer = DynamicCast<Widget>(root->GetChild("Safe/Screen/Fx/FxLetter0"));
 	ASSERT_TRUE(flyer);
 
 	const char* words[3] = { "КОТ", "ТОК", "КИТ" }; // слово принимается раз за уровень
@@ -210,20 +210,20 @@ TEST_F(WordFallUI, WinShowsPopupAndNextLevelStarts)
 	AppTestDriver::PumpFrames(3);
 
 	// победа зафиксирована сразу, попап ждёт окончания начисления очков
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
 	EXPECT_EQ(mService->GetGameState(), String("won"));
-	EXPECT_FALSE(root->GetChild("Screen/Popup/Content")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Popup/Content")->IsEnabled());
 
 	AppTestDriver::Wait(3.0f); // хореография доигрывается
-	EXPECT_TRUE(root->GetChild("Screen/Popup/Content")->IsEnabled());
+	EXPECT_TRUE(root->GetChild("Safe/Screen/Popup/Content")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "06_win_popup.png"));
 
 	Click(Vec2F(0, -180)); // ДАЛЬШЕ
 	AppTestDriver::PumpFrames(3);
 
 	// после победы стартует следующий уровень кампании
-	EXPECT_FALSE(root->GetChild("Screen/Popup/Content")->IsEnabled());
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Popup/Content")->IsEnabled());
 	EXPECT_EQ(mService->GetLevelIndex(), 1);
 	EXPECT_EQ(mService->GetScore(), 0);
 	EXPECT_EQ(mService->GetGameState(), String("playing"));
@@ -258,9 +258,9 @@ TEST_F(WordFallUI, FailingEffectDoesNotStallMovesOrWinPopup)
 
 	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(3.0f);
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto content = root->GetChild("Screen/Popup/Content");
+	auto content = root->GetChild("Safe/Screen/Popup/Content");
 	EXPECT_EQ(mService->GetGameState(), String("won"));
 	EXPECT_TRUE(content->IsEnabled());
 
@@ -278,7 +278,7 @@ TEST_F(WordFallUI, FailingEffectDoesNotStallMovesOrWinPopup)
 
 TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
 {
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
 
 	// слова уровня — рядами плашек в своей панели, прочие задачи — плашками под ней, последняя — цель по очкам
@@ -289,17 +289,17 @@ TEST_F(WordFallUI, TasksPanelShowsLevelTasks)
 	int tasks = o2Scripts.Eval("WordFallGame.service.GetTasks().length").GetValue<int>();
 	ASSERT_GT(tasks, 0);
 	for (int i = 0; i < 6; i++)
-		EXPECT_EQ(root->GetChild(String::Format("Screen/Tasks/Objectives/Item%i", i))->IsEnabled(), i <= tasks) << i;
-	auto caption = DynamicCast<Label>(root->GetChild("Screen/Tasks/Objectives/Item0/Label"));
+		EXPECT_EQ(root->GetChild(String::Format("Safe/Screen/Tasks/Objectives/Item%i", i))->IsEnabled(), i <= tasks) << i;
+	auto caption = DynamicCast<Label>(root->GetChild("Safe/Screen/Tasks/Objectives/Item0/Label"));
 	ASSERT_TRUE(caption);
 	EXPECT_FALSE(String(caption->GetText()).IsEmpty());
-	auto score = DynamicCast<Label>(root->GetChild(String::Format("Screen/Tasks/Objectives/Item%i/Label", tasks)));
+	auto score = DynamicCast<Label>(root->GetChild(String::Format("Safe/Screen/Tasks/Objectives/Item%i/Label", tasks)));
 	EXPECT_EQ(String(score->GetText()), String::Format("Набрать %i очков", mService->GetTargetScore()));
 
-	auto levelLabel = DynamicCast<Label>(root->GetChild("Screen/Hud/LevelBox/Value"));
+	auto levelLabel = DynamicCast<Label>(root->GetChild("Safe/Screen/Hud/LevelBox/Value"));
 	ASSERT_TRUE(levelLabel);
 	EXPECT_EQ(levelLabel->GetText(), WString("1"));
-	EXPECT_FALSE(root->GetChild("Screen/Hud/LevelBox")->IsEnabled()) << "в вёрстке нет плашки уровня";
+	EXPECT_FALSE(root->GetChild("Safe/Screen/Hud/LevelBox")->IsEnabled()) << "в вёрстке нет плашки уровня";
 
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "07_tasks_panel.png"));
 }
@@ -334,9 +334,9 @@ TEST_F(WordFallUI, FiveLetterWordSpawnsBombPowerup)
 
 	AppTestDriver::Wait(1.8f); // подтверждение слова и обвал доигрываются
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto tile = DynamicCast<Button>(root->GetChild("Screen/Board/Tile_5_0"));
+	auto tile = DynamicCast<Button>(root->GetChild("Safe/Screen/Board/Tile_5_0"));
 	ASSERT_TRUE(tile);
 	EXPECT_TRUE(tile->GetLayer("bomb")->IsEnabled());
 	EXPECT_FALSE(tile->GetLayer("rocket")->IsEnabled());
@@ -353,11 +353,11 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 	mService->DebugSetStone(5, 5);
 	AppTestDriver::PumpFrames(2);
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
 
 	// каменная плитка видима слоем и не выбирается кликом
-	auto stoneTile = DynamicCast<Button>(root->GetChild("Screen/Board/Tile_5_5"));
+	auto stoneTile = DynamicCast<Button>(root->GetChild("Safe/Screen/Board/Tile_5_5"));
 	ASSERT_TRUE(stoneTile);
 	EXPECT_TRUE(stoneTile->GetLayer("stone")->IsEnabled());
 	ClickTile(5, 5);
@@ -376,7 +376,7 @@ TEST_F(WordFallUI, RocketBonusFliesToTarget)
 	ASSERT_EQ(move.powerupsUsed[0].targets.Count(), 1);
 
 	// ракета в полёте (после паузы этапа, взлёта и зависания): виджет включён и едет по траектории
-	auto rocket = root->GetChild("Screen/Fx/FxRocket0");
+	auto rocket = root->GetChild("Safe/Screen/Fx/FxRocket0");
 	ASSERT_TRUE(rocket);
 	auto trajectory = rocket->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
@@ -422,14 +422,14 @@ TEST_F(WordFallUI, SelectionDoesNotBreakIceOrStone)
 	mService->DebugSetStone(0, 1);
 	AppTestDriver::PumpFrames(2);
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
 
 	ClickTile(1, 0); // сосед льда и камня — оба на месте
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(2, 1)).ice, 1);
 	EXPECT_EQ(mService->GetLevel().GetBoard().GetTile(Vec2I(0, 1)).stone, 1);
 
-	auto iceTile = DynamicCast<Button>(root->GetChild("Screen/Board/Tile_2_1"));
+	auto iceTile = DynamicCast<Button>(root->GetChild("Safe/Screen/Board/Tile_2_1"));
 	ASSERT_TRUE(iceTile);
 	EXPECT_TRUE(iceTile->GetLayer("ice")->IsEnabled());
 	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "12_ice_survives_select.png"));
@@ -491,23 +491,23 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarStarAndFillItGradually)
 	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::PumpFrames(3);
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto bar = DynamicCast<Widget>(root->GetChild("Screen/Hud/ScorePanel/Bar"));
-	auto star = DynamicCast<Widget>(root->GetChild("Screen/Hud/ScorePanel/Star"));
+	auto bar = DynamicCast<Widget>(root->GetChild("Safe/Screen/Hud/ScorePanel/Bar"));
+	auto star = DynamicCast<Widget>(root->GetChild("Safe/Screen/Hud/ScorePanel/Star"));
 	ASSERT_TRUE(bar && star);
 	auto tip = bar->FindLayer("tip");
 	ASSERT_TRUE(tip);
 
 	Vec2F aim = star->layout->GetWorldRect().Center();
-	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
+	auto flyer = root->GetChild("Safe/Screen/Fx/FxLetter0");
 	ASSERT_TRUE(flyer);
 	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
 	EXPECT_NEAR(trajectory->finishPoint.x, aim.x, 2.0f) << "the aim is the bar star center";
 	EXPECT_NEAR(trajectory->finishPoint.y, aim.y, 2.0f) << "the aim is the bar star center";
 
-	auto label = DynamicCast<Label>(root->GetChild("Screen/Hud/ScorePanel/ScoreLabel"));
+	auto label = DynamicCast<Label>(root->GetChild("Safe/Screen/Hud/ScorePanel/ScoreLabel"));
 	ASSERT_TRUE(label);
 	EXPECT_EQ(ShownScore(label), 0);
 
@@ -562,9 +562,9 @@ TEST_F(WordFallUI, FlyingLettersAimAtBarStarAndFillItGradually)
 // сбрасывать глобальный генератор, из которого оно берётся
 TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
 {
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto flyer = root->GetChild("Screen/Fx/FxLetter0");
+	auto flyer = root->GetChild("Safe/Screen/Fx/FxLetter0");
 	ASSERT_TRUE(flyer);
 	auto trajectory = flyer->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
@@ -582,8 +582,8 @@ TEST_F(WordFallUI, ConsecutiveFlightsUseDifferentTrajectories)
 		offsets.Add(trajectory->GetRandomOffset());
 
 		// и буквы одного слова летят по разным траекториям
-		auto second = root->GetChild("Screen/Fx/FxLetter1")->GetComponent<FlightTrajectoryComponent>();
-		auto third = root->GetChild("Screen/Fx/FxLetter2")->GetComponent<FlightTrajectoryComponent>();
+		auto second = root->GetChild("Safe/Screen/Fx/FxLetter1")->GetComponent<FlightTrajectoryComponent>();
+		auto third = root->GetChild("Safe/Screen/Fx/FxLetter2")->GetComponent<FlightTrajectoryComponent>();
 		ASSERT_TRUE(second && third);
 		EXPECT_TRUE(trajectory->GetRandomOffset() != second->GetRandomOffset() ||
 					second->GetRandomOffset() != third->GetRandomOffset()) << "letters of one word repeat the trajectory";
@@ -610,9 +610,9 @@ TEST_F(WordFallUI, LetterFlightSparksSimulateWithoutEditorBaking)
 	Click(AcceptPosition()); // ПРИНЯТЬ
 	AppTestDriver::Wait(0.45f);
 
-	auto root = o2Scene.FindActor("WordFall");
+	auto root = FindScreen("WordFall");
 	ASSERT_TRUE(root);
-	auto sparks = root->GetChild("Screen/Fx/FxLetter0/Sparks");
+	auto sparks = root->GetChild("Safe/Screen/Fx/FxLetter0/Sparks");
 	ASSERT_TRUE(sparks);
 	auto emitter = sparks->GetComponent<ParticlesEmitterComponent>();
 	ASSERT_TRUE(emitter);

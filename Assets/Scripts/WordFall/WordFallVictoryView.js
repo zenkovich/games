@@ -12,7 +12,7 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         super();
         globalThis.WordFallViews = globalThis.WordFallViews || {};
         WordFallViews.victory = this;
-        // свечение за окном и конфетти (home_screen/victory_fx) — состояния AnimationComponent окна
+        // свечение за окном и конфетти (home_screen/safe_area/victory_fx) — состояния AnimationComponent окна
         this.fxOpenState = "open";
         this.fxIdleState = "idle";
         this.warmUpGlyphs = "0123456789,"; // символы надписей с числами: растеризуются при загрузке, а не при первом окне
@@ -41,13 +41,13 @@ WordFallVictoryView = class WordFallVictoryView extends o2.Component
         this._fx = this._actor.GetComponent("o2::AnimationComponent");
         this._dim = hud.GetChild("modal_dimmer");
         this._dimTransparency = this._dim.GetTransparency();
-        this._popup = hud.GetChild("victory_popup");
+        this._popup = hud.GetChild("safe_area/victory_popup");
         this._levelLabel = this._popup.GetChild("level_header/level_header_label");
         this._amount = this._popup.GetChild(parchment + "reward_amount");
         this._doubleLabel = this._popup.GetChild(parchment + "double_reward_button/double_reward_label");
-        this._coins = hud.GetChild("coin_counter/coin_balance");
-        this._lives = hud.GetChild("lives_counter/lives_value");
-        this._stars = hud.GetChild("stars_counter/stars_value");
+        this._coins = hud.GetChild("safe_area/coin_counter/coin_balance");
+        this._lives = hud.GetChild("safe_area/lives_counter/lives_value");
+        this._stars = hud.GetChild("safe_area/stars_counter/stars_value");
         this._continue = this._popup.GetChild(parchment + "continue_button");
         this._double = this._popup.GetChild(parchment + "double_reward_button");
         this._close = this._popup.GetChild("close_button");

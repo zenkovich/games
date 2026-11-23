@@ -72,7 +72,7 @@ protected:
 		EXPECT_TRUE(AppTestDriver::SaveScreenshot(dir + "/" + name + ".png"));
 	}
 
-	Ref<Actor> Screen() { return o2Scene.FindActor("WordFall")->GetChild("Screen"); }
+	Ref<Actor> Screen() { return FindScreen("WordFall")->GetChild("Safe/Screen"); }
 
 	// Тап по центру виджета
 	void Tap(const Ref<Actor>& actor)
@@ -276,7 +276,7 @@ TEST_F(WordFallFeaturesUI, TutorialLeadsLetterByLetter)
 
 	auto seeded = mService->GetLevel().GetBoard().GetSeededCells();
 	ASSERT_GE(seeded.Count(), 3);
-	auto board = o2Scene.FindActor("WordFall")->GetChild("Screen/Board");
+	auto board = FindScreen("WordFall")->GetChild("Safe/Screen/Board");
 	auto tileCenter = [&](const Vec2I& cell)
 	{
 		auto tile = DynamicCast<Widget>(board->GetChild(String::Format("Tile_%i_%i", cell.x, cell.y)));

@@ -6,7 +6,7 @@
                 {
                     "Type": "o2::AnimationTrack<float>",
                     "Value": {
-                        "path": "child/home_screen/child/victory_fx/child/glow_rays/transform/angleDegrees",
+                        "path": "child/home_screen/child/safe_area/child/victory_fx/child/glow_rays/transform/angleDegrees",
                         "curve": {
                             "Type": "o2::Curve",
                             "Value": {
@@ -29,7 +29,7 @@
                 {
                     "Type": "o2::AnimationTrack<float>",
                     "Value": {
-                        "path": "child/home_screen/child/victory_fx/child/glow_halo/transform/scaleX",
+                        "path": "child/home_screen/child/safe_area/child/victory_fx/child/glow_halo/transform/scaleX",
                         "curve": {
                             "Type": "o2::Curve",
                             "Value": {
@@ -231,7 +231,7 @@
                 {
                     "Type": "o2::AnimationTrack<float>",
                     "Value": {
-                        "path": "child/home_screen/child/victory_fx/child/glow_halo/transform/scaleY",
+                        "path": "child/home_screen/child/safe_area/child/victory_fx/child/glow_halo/transform/scaleY",
                         "curve": {
                             "Type": "o2::Curve",
                             "Value": {

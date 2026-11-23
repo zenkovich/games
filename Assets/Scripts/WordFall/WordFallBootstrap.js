@@ -6,7 +6,7 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 // Игра начинается с главного экрана; конец уровня ведёт в окно победы поверх главного экрана или в окно
 // продолжения поверх поля. Без главного экрана (startOnMain = false) — сразу уровень, финал в попапе поля.
 // С запросом LevelLab (botRequestPath) игра сразу открывает его уровень, и играет бот или сам человек.
-// Сервис игры живёт рядом, на акторе GameService
+// Сервис игры живёт рядом, на акторе GameService. Bootstrap — компонент камеры интерфейса, экраны создаются в ней
 WordFallBootstrap = class WordFallBootstrap extends o2.Component
 {
     constructor()
@@ -164,6 +164,7 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
             WordFallViews.continueWindow.Open();
     }
 
+    // Экраны живут в камере интерфейса (Bootstrap — её компонент): их безопасные области (SafeArea) берут кадр камеры
     _Instantiate(path)
     {
         var asset = new o2.AssetRefActorAsset(path);
@@ -172,6 +173,9 @@ WordFallBootstrap = class WordFallBootstrap extends o2.Component
             print("WordFall: no screen prototype " + path);
             return null;
         }
-        return asset.Get().Instantiate();
+        var screen = asset.Get().Instantiate();
+        if (screen && this._actor)
+            this._actor.AddChild(screen);
+        return screen;
     }
 };

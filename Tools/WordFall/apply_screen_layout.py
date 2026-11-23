@@ -27,6 +27,8 @@ import json
 import random
 from pathlib import Path
 
+import safe_area
+
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "Assets"
 PROTOS = ASSETS / "WordFall" / "Prototypes"
@@ -1156,6 +1158,7 @@ def main():
 
     path, doc, raw = load("GameScreen")
     root = doc["mActor"]
+    safe_area.unwrap_game_screen(doc)  # Screen sits in the safe area; the layout works on root/Screen
     screen = child(root, "Screen")
     data(screen)["Transform"] = {"offsetMin": {"x": screen_rect[0], "y": screen_rect[1]},
                                  "offsetMax": {"x": screen_rect[2], "y": screen_rect[3]}}
@@ -1174,6 +1177,7 @@ def main():
             t = data(letter).setdefault("Transform", {})
             for key in ("offsetMin", "offsetMax"):
                 t[key] = dict(flying_transform[key])
+    safe_area.wrap_game_screen(doc, "WordFall/Prototypes/GameScreen.proto", safe_area.GAME_SCREENS["WordFall/Prototypes/GameScreen.proto"])
     dump(path, doc, raw)
     fit_scene_camera(screen_rect)
     images = pack_atlas()

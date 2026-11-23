@@ -13,9 +13,9 @@
 class WordFallLevelEditorUI: public WordFallUI
 {
 protected:
-	Ref<Actor> Game() { return o2Scene.FindActor("WordFall"); }
-	Ref<Actor> Editor() { return o2Scene.FindActor("LevelEditor"); }
-	Ref<Actor> Screen() { return Editor()->GetChild("Screen"); }
+	Ref<Actor> Game() { return FindScreen("WordFall"); }
+	Ref<Actor> Editor() { return FindScreen("LevelEditor"); }
+	Ref<Actor> Screen() { return Editor()->GetChild("Safe/Screen"); }
 
 	Vec2F CenterOf(const Ref<Actor>& actor)
 	{
@@ -49,7 +49,7 @@ protected:
 	{
 		OpenCheats();
 		SelectCheatsTab(5);
-		Tap(Game()->GetChild("Screen/Cheats/Panel/Content/Page5/EditorBtn/Btn"));
+		Tap(Game()->GetChild("Safe/Screen/Cheats/Panel/Content/Page5/EditorBtn/Btn"));
 		AppTestDriver::PumpFrames(5);
 	}
 

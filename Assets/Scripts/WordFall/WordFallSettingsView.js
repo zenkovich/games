@@ -13,7 +13,7 @@ WordFallSettingsView = class WordFallSettingsView extends WordFallWindow
         var self = this;
         this._toggles = {};
         ["sound", "music"].forEach(function(name) {
-            var path = "dialog/parchment/" + name + "/toggle";
+            var path = "safe_area/dialog/parchment/" + name + "/toggle";
             var button = self._Bind(path, function() { self._Toggle(name); });
             self._toggles[name] = {
                 off: button ? button.GetLayer("off") : null,
@@ -21,11 +21,11 @@ WordFallSettingsView = class WordFallSettingsView extends WordFallWindow
                 offLabel: self._Child(path + "/off")
             };
         });
-        this._language = this._Child("dialog/parchment/language/switch/value");
-        this._Bind("dialog/parchment/language/switch", function() { self._NextLanguage(); });
-        this._tutorial = this._Child("dialog/parchment/tutorial/replay/value");
-        this._Bind("dialog/parchment/tutorial/replay", function() { self._ReplayTutorial(); });
-        this._version = this._Child("dialog/version");
+        this._language = this._Child("safe_area/dialog/parchment/language/switch/value");
+        this._Bind("safe_area/dialog/parchment/language/switch", function() { self._NextLanguage(); });
+        this._tutorial = this._Child("safe_area/dialog/parchment/tutorial/replay/value");
+        this._Bind("safe_area/dialog/parchment/tutorial/replay", function() { self._ReplayTutorial(); });
+        this._version = this._Child("safe_area/dialog/version");
     }
 
     OnOpen()

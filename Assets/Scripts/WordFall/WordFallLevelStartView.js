@@ -44,24 +44,24 @@ WordFallLevelStartView = class WordFallLevelStartView extends WordFallWindow
     OnInit()
     {
         var self = this;
-        this._title = this._Child("dialog/header/title");
-        this._moves = this._Child("dialog/parchment/moves");
+        this._title = this._Child("safe_area/dialog/header/title");
+        this._moves = this._Child("safe_area/dialog/parchment/moves");
         this._slots = [];
         for (var i = 0; i < 6; i++)
         {
-            var path = "dialog/parchment/goals/goal" + i;
+            var path = "safe_area/dialog/parchment/goals/goal" + i;
             var slot = { root: this._Child(path), icons: {}, symbol: this._Child(path + "/symbol"), count: this._Child(path + "/count") };
             WordFallLevelStartView.GoalKinds.forEach(function(kind) { slot.icons[kind] = self._Child(path + "/icon_" + kind); });
             this._slots.push(slot);
         }
         this._bonuses = [];
         WordFallGameService.BonusKinds.forEach(function(kind, index) {
-            var path = "dialog/bonuses/" + kind;
+            var path = "safe_area/dialog/bonuses/" + kind;
             self._Bind(path, function() { self._TapBonus(index); });
             self._bonuses.push({ check: self._Child(path + "/check"), count: self._Child(path + "/badge/count"),
                                  plus: self._Child(path + "/badge/plus") });
         });
-        this._Bind("dialog/play_button", function() { self._Play(); });
+        this._Bind("safe_area/dialog/play_button", function() { self._Play(); });
     }
 
     OnOpen()

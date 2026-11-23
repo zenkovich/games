@@ -30,16 +30,16 @@ WordFallBoosterShopView = class WordFallBoosterShopView extends WordFallWindow
     OnInit()
     {
         var self = this;
-        this._title = this._Child("dialog/header/title");
-        this._text = this._Child("dialog/parchment/description");
-        this._amount = this._Child("dialog/parchment/amount_badge/amount");
-        this._price = this._Child("dialog/buy_button/label");
-        this._owned = this._Child("dialog/owned");
-        this._buy = this._Bind("dialog/buy_button", function() { self._Buy(); });
+        this._title = this._Child("safe_area/dialog/header/title");
+        this._text = this._Child("safe_area/dialog/parchment/description");
+        this._amount = this._Child("safe_area/dialog/parchment/amount_badge/amount");
+        this._price = this._Child("safe_area/dialog/buy_button/label");
+        this._owned = this._Child("safe_area/dialog/owned");
+        this._buy = this._Bind("safe_area/dialog/buy_button", function() { self._Buy(); });
         this._icons = {};
         var all = WordFallBoosterShopView.Boosters.concat(WordFallBoosterShopView.Bonuses);
         for (var i = 0; i < all.length; i++)
-            this._icons[all[i].key] = this._Child("dialog/parchment/icon_" + all[i].key);
+            this._icons[all[i].key] = this._Child("safe_area/dialog/parchment/icon_" + all[i].key);
     }
 
     // item: { booster: индекс } или { bonus: индекс }; onClosed(true), если покупка состоялась

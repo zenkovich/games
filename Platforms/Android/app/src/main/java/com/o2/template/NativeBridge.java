@@ -30,4 +30,7 @@ public final class NativeBridge {
     public static native void touchDown(int pointerId, float x, float y);
     public static native void touchMove(int pointerId, float x, float y);
     public static native void touchUp(int pointerId, float x, float y);
+
+    /** The safe area from {@link MainActivity}: the cutout, the bars on screen, the rounded corners, in pixels. */
+    public static native void safeArea(float left, float top, float right, float bottom);
 }

@@ -15,7 +15,7 @@
 class WordFallVfxShowcase: public WordFallUI
 {
 protected:
-	Ref<Actor> Vfx() const { return o2Scene.FindActor("WordFall")->GetChild("Vfx"); }
+	Ref<Actor> Vfx() const { return FindScreen("WordFall")->GetChild("Vfx"); }
 
 	// Живые частицы эмиттера эффекта по имени актора внутри Vfx
 	int ParticlesOf(const String& emitterName) const
@@ -40,7 +40,7 @@ protected:
 	// Вспышка эффекта картинкой: включённый FxFlash с этой картинкой
 	bool FlashShows(const char* image) const
 	{
-		auto fx = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx");
+		auto fx = FindScreen("WordFall")->GetChild("Safe/Screen/Fx");
 		for (int i = 0; i < 10; i++)
 		{
 			auto flash = DynamicCast<Widget>(fx->GetChild(String::Format("FxFlash%i", i)));
@@ -53,8 +53,8 @@ protected:
 
 	Ref<Button> Tile(int column, int row) const
 	{
-		return DynamicCast<Button>(o2Scene.FindActor("WordFall")->GetChild(
-			String::Format("Screen/Board/Tile_%i_%i", column, row)));
+		return DynamicCast<Button>(FindScreen("WordFall")->GetChild(
+			String::Format("Safe/Screen/Board/Tile_%i_%i", column, row)));
 	}
 
 	// Кадры клипа пишутся только по запросу: путь снаружи репозитория, кадров сотни
@@ -256,7 +256,7 @@ TEST_F(WordFallVfxShowcase, RainbowRocketKeepsItsBodyAndTrailsStars)
 	mService->DebugSetStone(6, 7); // цель в дальнем углу: полёт через всё поле
 	TriggerBonusWithWord("rocket");
 
-	auto rocket = DynamicCast<Widget>(o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0"));
+	auto rocket = DynamicCast<Widget>(FindScreen("WordFall")->GetChild("Safe/Screen/Fx/FxRocket0"));
 	ASSERT_TRUE(rocket);
 	auto ownSparks = rocket->GetChild("Sparks")->GetComponent<ParticlesEmitterComponent>();
 	ASSERT_TRUE(ownSparks);
@@ -320,7 +320,7 @@ TEST_F(WordFallVfxShowcase, RocketArrivesAtTargetTileCenter)
 
 	TriggerBonusWithWord("rocket");
 
-	auto rocket = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0");
+	auto rocket = FindScreen("WordFall")->GetChild("Safe/Screen/Fx/FxRocket0");
 	ASSERT_TRUE(rocket);
 	auto trajectory = rocket->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
@@ -387,7 +387,7 @@ TEST_F(WordFallVfxShowcase, RainbowRocketFliesLikeAPropeller)
 	Vec2F target = TilePosition(6, 7);
 	TriggerBonusWithWord("rocket");
 
-	auto rocket = DynamicCast<Widget>(o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0"));
+	auto rocket = DynamicCast<Widget>(FindScreen("WordFall")->GetChild("Safe/Screen/Fx/FxRocket0"));
 	ASSERT_TRUE(rocket);
 
 	struct Sample { float time; Vec2F at; Vec2F scale; };
@@ -457,7 +457,7 @@ TEST_F(WordFallVfxShowcase, SecondLaunchStartsWithoutStaleParticles)
 	TriggerBonusWithWord("rocket");
 	AppTestDriver::Wait(3.0f); // полёт, салют с конфетти, ракета выключена
 
-	auto rocket = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0");
+	auto rocket = FindScreen("WordFall")->GetChild("Safe/Screen/Fx/FxRocket0");
 	ASSERT_TRUE(rocket);
 	ASSERT_FALSE(rocket->IsEnabled());
 
@@ -497,7 +497,7 @@ TEST_F(WordFallVfxShowcase, RocketKeepsSpeedAndArcsAroundCloseTargets)
 	AppTestDriver::PumpFrames(2);
 	TriggerBonusWithWord("rocket");
 
-	auto rocket = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx/FxRocket0");
+	auto rocket = FindScreen("WordFall")->GetChild("Safe/Screen/Fx/FxRocket0");
 	ASSERT_TRUE(rocket);
 	auto trajectory = rocket->GetComponent<FlightTrajectoryComponent>();
 	ASSERT_TRUE(trajectory);
@@ -579,7 +579,7 @@ TEST_F(WordFallVfxShowcase, LongWordGivesFireworksAndItLaunchesSalvo)
 	int maxFlying = 0;
 	CaptureClip("fireworks_salvo", 3.4f, [&]()
 	{
-		auto fx = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx");
+		auto fx = FindScreen("WordFall")->GetChild("Safe/Screen/Fx");
 		int flying = 0;
 		for (int i = 0; i < 10; i++)
 		{
@@ -605,7 +605,7 @@ TEST_F(WordFallVfxShowcase, RainbowFireworksBurstAndSalvo)
 {
 	TriggerBonusWithWord("fireworks");
 
-	auto fx = o2Scene.FindActor("WordFall")->GetChild("Screen/Fx");
+	auto fx = FindScreen("WordFall")->GetChild("Safe/Screen/Fx");
 	ASSERT_TRUE(fx);
 
 	int maxFlying = 0, burst = 0, inner = 0, trails = 0, hits = 0;

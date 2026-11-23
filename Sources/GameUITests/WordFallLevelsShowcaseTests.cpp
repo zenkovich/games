@@ -80,7 +80,7 @@ TEST_F(WordFallLevelsShowcase, CampaignLevelsRenderObstacles)
 		{
 			if (!board.IsHole(Vec2I(c, r)))
 				continue;
-			auto tile = o2Scene.FindActor("WordFall")->GetChild(String::Format("Screen/Board/Tile_%i_%i", c, r));
+			auto tile = FindScreen("WordFall")->GetChild(String::Format("Safe/Screen/Board/Tile_%i_%i", c, r));
 			ASSERT_TRUE(tile);
 			hiddenHoles += tile->IsEnabled() ? 0 : 1;
 		}

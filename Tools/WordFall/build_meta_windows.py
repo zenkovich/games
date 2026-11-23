@@ -13,8 +13,9 @@ and adds the level's quit button to the game screen (GameScreen.proto: Screen/Hu
 lives counter of the main screen (MainScreen.proto: top_hud/lives_counter/lives_button).
 
 A window is a root widget the size of the ui camera's frame (1179x2556, the kit's iPhone 16) with a dimmer that
-takes the clicks and a dialog in the middle. It opens and closes with its "visible" state: the clip fades the dimmer
-in and pops the dialog - the motion lives in the prototype, the views only enable and disable the root.
+takes the clicks and covers the whole screen, and a dialog in the middle of its safe area (safe_area, see safe_area.py).
+It opens and closes with its "visible" state: the clip fades the dimmer in and pops the dialog - the motion lives in the
+prototype, the views only enable and disable the root.
 
 Ids are derived from the names, so a rerun reproduces the files. Run from the project root:
     python3 Tools/WordFall/build_meta_windows.py
@@ -23,6 +24,8 @@ import hashlib
 import json
 import os
 import sys
+
+import safe_area
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 ASSETS = os.path.join(ROOT, 'Assets')
@@ -218,9 +221,9 @@ def visible_state(owner, dim):
     pop = [key(0.0, 0.82, right=(0.07, 0.2)), key(0.2, 1.045, left=(-0.06, 0.0), right=(0.05, 0.0)), key(0.32, 1.0, left=(-0.05, 0.0))]
     return state('visible', owner, [
         track('child/dimmer/transparency', ease(0.0, dim, 0.0, 0.25)),
-        track('child/dialog/transparency', ease(0.0, 1.0, 0.0, 0.16)),
-        track('child/dialog/transform/scaleX', pop),
-        track('child/dialog/transform/scaleY', pop)], 0.32, off_speed=1.6)
+        track('child/safe_area/child/dialog/transparency', ease(0.0, 1.0, 0.0, 0.16)),
+        track('child/safe_area/child/dialog/transform/scaleX', pop),
+        track('child/safe_area/child/dialog/transform/scaleY', pop)], 0.32, off_speed=1.6)
 
 
 # --- the window skeleton ---
@@ -250,6 +253,9 @@ def window(name, depth, script, dialog_h, title, body, dialog_w=1000, closable=T
                                  KIT + 'btn_round_red.png', [b.image('close_icon', center(0, 4, 72, 76), d + '/close_button/icon', KIT + 'icon_close.png')]))
     dialog = b.widget('dialog', center(0, 0, dialog_w, dialog_h), d, children, pivot=(0.5, 0.5))
 
+    safe = safe_area.safe_node(name, safe_area.SAFE, safe_area.frame_safe_layout())
+    safe['Data']['Children'] = [dialog]
+
     root_depth = float(depth)
     b.depth = depth  # the dimmer goes under the dialog
     dimmer = b.node('Button', 'dimmer', Rect((0.0, 0.0), (1.0, 1.0), (-600, -200), (600, 200)), '/dimmer',
@@ -262,7 +268,7 @@ def window(name, depth, script, dialog_h, title, body, dialog_w=1000, closable=T
         'mEnabled': False,
         'Id': uid(name, 'root'),
         'Transform': Rect((0.5, 0.5), (0.5, 0.5), (-FRAME_W/2, -FRAME_H/2), (FRAME_W/2, FRAME_H/2)).transform((0.5, 0.5)),
-        'Children': [dimmer, dialog],
+        'Children': [dimmer, safe],
         'InternalWidgets': [],
         'Layers': [],
         'States': [visible_state(name, DIM)],

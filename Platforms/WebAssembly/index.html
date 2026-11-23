@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- viewport-fit=cover: the game draws under the notch and the home indicator, its safe area keeps the interface clear -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- added to the home screen, the page opens without the browser's bars -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <meta name="format-detection" content="telephone=no">
     <title>o2 Template</title>
     <style>
         html, body {
@@ -11,26 +18,38 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #101014;
+            background: #000;
             color: #eee;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overscroll-behavior: none;
+            -webkit-text-size-adjust: 100%;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
+        body { position: fixed; inset: 0; }
         #canvas-wrap {
-            position: absolute;
-            inset: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         canvas#canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background: #000;
             outline: none;
+            touch-action: none;
         }
         #status {
-            position: absolute;
+            position: fixed;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
@@ -58,6 +77,44 @@
             background: #6cf;
             transition: width 0.2s ease;
         }
+
+        /* iPhone Safari has no full screen for a page: it hides its bars when the page is scrolled. The page gets room
+           to scroll once, a swipe on the hint does it; the game stays fixed on the screen */
+        html.swipe, html.swipe body { position: static; overflow-y: auto; height: auto; }
+        html.swipe #swipe-room { display: block; height: calc(100vh + 160px); }
+        #swipe-room { display: none; }
+        #swipe-hint {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.15) 55%, rgba(0, 0, 0, 0));
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            touch-action: pan-y;
+        }
+        html.swipe.swipe-wait #swipe-hint { display: flex; }
+        #swipe-hint .arrow {
+            display: block;
+            margin: 0 auto 10px;
+            width: 22px;
+            height: 22px;
+            border-left: 3px solid #fff;
+            border-top: 3px solid #fff;
+            transform: rotate(45deg);
+            animation: swipe-up 1.2s ease-in-out infinite;
+        }
+        @keyframes swipe-up {
+            0% { opacity: 0; transform: translateY(14px) rotate(45deg); }
+            40% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-14px) rotate(45deg); }
+        }
+        #swipe-hint small { display: block; margin-top: 6px; font-weight: 400; opacity: 0.75; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -68,12 +125,87 @@
         <div id="status-text">Loading…</div>
         <div id="progress"><span></span></div>
     </div>
+    <div id="swipe-hint"><div><span class="arrow"></span>Swipe up to play full screen<small>or tap to play here</small></div></div>
+    <div id="swipe-room"></div>
 
     <script type="text/javascript">
-        console.log('[shell] inline script executing; shell build-tag=' + '2026-04-16-T3');
+        console.log('[shell] inline script executing; shell build-tag=' + '2026-11-23-fullscreen');
         var statusEl = document.getElementById('status');
         var statusText = document.getElementById('status-text');
         var progressBar = document.querySelector('#progress > span');
+
+        // A page that shows the game in a frame (the o2 portal, an emulated device) tells it its safe area: the frame
+        // cannot see the notch. {o2SafeArea: {top, right, bottom, left}} in CSS pixels of this page
+        window.addEventListener('message', function (e) {
+            if (e.data && typeof e.data === 'object' && e.data.o2SafeArea)
+                window.o2SafeArea = e.data.o2SafeArea;
+        });
+
+        // As little of the browser as it allows: the page's own manifest (full screen once added to the home screen),
+        // full screen on the first tap where a page may ask for it (Android), the swipe that hides Safari's bars (iPhone)
+        (function () {
+            var root = document.documentElement;
+            var standalone = window.navigator.standalone === true ||
+                (window.matchMedia && matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches);
+            var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+            var framed = window.self !== window.top;
+
+            try {
+                var manifest = {
+                    name: document.title, short_name: document.title, display: 'fullscreen', background_color: '#000000',
+                    theme_color: '#000000', start_url: location.href, scope: location.href.replace(/[^\/]*$/, '')
+                };
+                var link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+                document.head.appendChild(link);
+            } catch (e) { }
+
+            if (standalone || framed || !touch)
+                return;
+
+            var canFullscreen = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+            var iPhone = /iPhone|iPod/.test(navigator.userAgent);
+            if (canFullscreen && !iPhone) {
+                var ask = function () {
+                    if (document.fullscreenElement || document.webkitFullscreenElement)
+                        return;
+                    var request = root.requestFullscreen ? root.requestFullscreen({ navigationUI: 'hide' }) : root.webkitRequestFullscreen();
+                    if (request && request.catch)
+                        request.catch(function () { });
+                };
+                // once: a person who left full screen chose to
+                window.addEventListener('pointerup', ask, { once: true });
+                return;
+            }
+
+            if (!iPhone)
+                return;
+
+            // Safari minimizes its bars on a scroll; the page is high enough to scroll once, then holds still
+            root.classList.add('swipe', 'swipe-wait');
+            var base = window.innerHeight;
+            var done = function () {
+                root.classList.remove('swipe-wait');
+            };
+            var check = function () {
+                if (window.innerHeight > base + 20 || window.innerHeight >= screen.height - 4)
+                    done();
+                else if (window.innerHeight < base - 20)
+                    base = window.innerHeight;
+            };
+            window.addEventListener('resize', check);
+            window.addEventListener('scroll', check, { passive: true });
+            window.addEventListener('orientationchange', function () {
+                setTimeout(function () { base = window.innerHeight; check(); }, 300);
+            });
+            document.getElementById('swipe-hint').addEventListener('click', done);
+            // once the hint is gone the page does not scroll any more: touches are the game's
+            document.addEventListener('touchmove', function (e) {
+                if (!root.classList.contains('swipe-wait'))
+                    e.preventDefault();
+            }, { passive: false });
+        })();
 
         var Module = {
             canvas: (function () {

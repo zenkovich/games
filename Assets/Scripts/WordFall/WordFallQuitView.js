@@ -9,8 +9,8 @@ WordFallQuitView = class WordFallQuitView extends WordFallWindow
     OnInit()
     {
         var self = this;
-        this._Bind("dialog/quit_button", function() { self._Quit(); });
-        this._Bind("dialog/play_on_button", function() { self.Close(); });
+        this._Bind("safe_area/dialog/quit_button", function() { self._Quit(); });
+        this._Bind("safe_area/dialog/play_on_button", function() { self.Close(); });
     }
 
     _Quit()

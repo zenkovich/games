@@ -9,11 +9,11 @@ WordFallShopView = class WordFallShopView extends WordFallWindow
     OnInit()
     {
         var self = this;
-        this._balance = this._Child("dialog/balance/value");
+        this._balance = this._Child("safe_area/dialog/balance/value");
         this._packs = [];
         for (var i = 0; i < 6; i++)
         {
-            var path = "dialog/packs/pack" + i;
+            var path = "safe_area/dialog/packs/pack" + i;
             this._packs.push({ amount: this._Child(path + "/amount"), price: this._Child(path + "/buy/label") });
             (function(index) { self._Bind(path + "/buy", function() { self._Buy(index); }); })(i);
         }

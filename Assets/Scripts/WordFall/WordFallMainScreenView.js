@@ -35,20 +35,20 @@ WordFallMainScreenView = class WordFallMainScreenView extends o2.Component
         var root = this._actor;
         var self = this;
         this._counters = [
-            { label: root.GetChild("top_hud/coin_counter/coin_balance"), shown: -1, get: function(svc) { return svc.GetCoins(); } },
-            { label: root.GetChild("top_hud/lives_counter/lives_value"), shown: -1, get: function(svc) { return svc.GetLives(); } },
-            { label: root.GetChild("top_hud/stars_counter/stars_value"), shown: -1, get: function(svc) { return svc.GetStars(); } }
+            { label: root.GetChild("safe_area/top_hud/coin_counter/coin_balance"), shown: -1, get: function(svc) { return svc.GetCoins(); } },
+            { label: root.GetChild("safe_area/top_hud/lives_counter/lives_value"), shown: -1, get: function(svc) { return svc.GetLives(); } },
+            { label: root.GetChild("safe_area/top_hud/stars_counter/stars_value"), shown: -1, get: function(svc) { return svc.GetStars(); } }
         ].filter(function(c) { return c.label; });
 
-        this._play = root.GetChild("play_button");
+        this._play = root.GetChild("safe_area/play_button");
         WordFallUi.Center(this._play);
         this._play.onClick = function() {
             if (WordFallGame.screens)
                 WordFallGame.screens.Play();
         };
 
-        var windows = { "top_hud/coin_counter/add_currency_button": "shop", "top_hud/settings_button": "settings",
-                        "top_hud/lives_counter/lives_button": "lives" };
+        var windows = { "safe_area/top_hud/coin_counter/add_currency_button": "shop", "safe_area/top_hud/settings_button": "settings",
+                        "safe_area/top_hud/lives_counter/lives_button": "lives" };
         Object.keys(windows).forEach(function(path) {
             var button = root.GetChild(path);
             if (button)
@@ -59,8 +59,8 @@ WordFallMainScreenView = class WordFallMainScreenView extends o2.Component
                 };
         });
 
-        var idle = ["bottom_navigation/tabs/map/map_button", "bottom_navigation/tabs/trophy/trophy_button",
-                    "bottom_navigation/tabs/team/team_button", "bottom_navigation/tabs/journal/journal_button"];
+        var idle = ["safe_area/bottom_navigation/tabs/map/map_button", "safe_area/bottom_navigation/tabs/trophy/trophy_button",
+                    "safe_area/bottom_navigation/tabs/team/team_button", "safe_area/bottom_navigation/tabs/journal/journal_button"];
         idle.forEach(function(path) {
             var button = root.GetChild(path);
             if (button)

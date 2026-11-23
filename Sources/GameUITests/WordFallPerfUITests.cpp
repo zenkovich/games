@@ -554,7 +554,7 @@ protected:
 	// Центр виджета корня меты в единицах экрана игры (их берёт Tap)
 	static Vec2F MetaCenter(const String& root, const String& path)
 	{
-		auto actor = o2Scene.FindActor(root);
+		auto actor = FindScreen(root);
 		auto widget = actor ? DynamicCast<Widget>(path.IsEmpty() ? actor : actor->GetChild(path)) : nullptr;
 		EXPECT_TRUE(widget) << root.Data() << "/" << path.Data();
 		if (!widget)
@@ -566,7 +566,7 @@ protected:
 
 	static bool Shown(const String& root)
 	{
-		auto actor = o2Scene.FindActor(root);
+		auto actor = FindScreen(root);
 		return actor && actor->IsEnabledInHierarchy();
 	}
 
@@ -586,7 +586,7 @@ protected:
 		for (int i = 1; i <= 3; i++)
 			Tap(s, TilePosition(i, 0));
 		Tap(s, AcceptPosition());
-		FramesUntil(s, []() { return Shown("VictoryWindow") && o2Scene.FindActor("VictoryWindow")->GetChild("home_screen")->IsEnabledInHierarchy(); }, 600);
+		FramesUntil(s, []() { return Shown("VictoryWindow") && FindScreen("VictoryWindow")->GetChild("home_screen")->IsEnabledInHierarchy(); }, 600);
 		Frames(s, 150);
 	}
 };
@@ -605,22 +605,22 @@ TEST_F(WordFallMetaProfile, MetaFreezes)
 
 	{
 		auto& s = Begin("level start window, first");
-		TapMeta(s, "MainScreen", "play_button");
+		TapMeta(s, "MainScreen", "safe_area/play_button");
 		Frames(s, 60);
 	}
 	{
 		auto& s = Begin("level start window, close");
-		TapMeta(s, "LevelStartWindow", "dialog/close_button");
+		TapMeta(s, "LevelStartWindow", "safe_area/dialog/close_button");
 		Frames(s, 40);
 	}
 	{
 		auto& s = Begin("level start window, again");
-		TapMeta(s, "MainScreen", "play_button");
+		TapMeta(s, "MainScreen", "safe_area/play_button");
 		Frames(s, 60);
 	}
 	{
 		auto& s = Begin("play: the level from the window");
-		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		TapMeta(s, "LevelStartWindow", "safe_area/dialog/play_button");
 		Frames(s, 120);
 	}
 
@@ -637,36 +637,36 @@ TEST_F(WordFallMetaProfile, MetaFreezes)
 	WinCurrentLevel(Begin("victory window, first"));
 	{
 		auto& s = Begin("victory: claim and close");
-		TapMeta(s, "VictoryWindow", "home_screen/victory_popup/victory_frame/victory_parchment/continue_button");
+		TapMeta(s, "VictoryWindow", "home_screen/safe_area/victory_popup/victory_frame/victory_parchment/continue_button");
 		Frames(s, 150);
 	}
 	{
 		auto& s = Begin("level 2 from the start window");
-		TapMeta(s, "MainScreen", "play_button");
+		TapMeta(s, "MainScreen", "safe_area/play_button");
 		Frames(s, 40);
-		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		TapMeta(s, "LevelStartWindow", "safe_area/dialog/play_button");
 		Frames(s, 90);
 	}
 	WinCurrentLevel(Begin("victory window, again"));
 	{
 		auto& s = Begin("victory: close");
-		TapMeta(s, "VictoryWindow", "home_screen/victory_popup/victory_frame/victory_parchment/continue_button");
+		TapMeta(s, "VictoryWindow", "home_screen/safe_area/victory_popup/victory_frame/victory_parchment/continue_button");
 		Frames(s, 90);
-		TapMeta(s, "MainScreen", "play_button");
+		TapMeta(s, "MainScreen", "safe_area/play_button");
 		Frames(s, 40);
-		TapMeta(s, "LevelStartWindow", "dialog/play_button");
+		TapMeta(s, "LevelStartWindow", "safe_area/dialog/play_button");
 		Frames(s, 90);
 	}
 
 	{
 		auto& s = Begin("continue window, first");
 		mService->DebugLoseLevel();
-		FramesUntil(s, []() { return Shown("ContinueWindow") && o2Scene.FindActor("ContinueWindow")->GetChild("continue_dialog")->IsEnabledInHierarchy(); }, 300);
+		FramesUntil(s, []() { return Shown("ContinueWindow") && FindScreen("ContinueWindow")->GetChild("safe_area/continue_dialog")->IsEnabledInHierarchy(); }, 300);
 		Frames(s, 80);
 	}
 	{
 		auto& s = Begin("continue: ad");
-		TapMeta(s, "ContinueWindow", "continue_dialog/dialog_frame/action_row/watch_ad_button");
+		TapMeta(s, "ContinueWindow", "safe_area/continue_dialog/dialog_frame/action_row/watch_ad_button");
 		Frames(s, 60);
 	}
 	{
@@ -674,37 +674,37 @@ TEST_F(WordFallMetaProfile, MetaFreezes)
 		o2Scripts.Eval("WordFallGame.service.GetProgress().boosters[0] = 0");
 		Tap(s, BoosterPosition(0));
 		Frames(s, 60);
-		TapMeta(s, "BoosterShopWindow", "dialog/close_button");
+		TapMeta(s, "BoosterShopWindow", "safe_area/dialog/close_button");
 		Frames(s, 30);
 	}
 	{
 		auto& s = Begin("quit window, first");
-		TapMeta(s, "WordFall", "Screen/Hud/QuitButton");
+		TapMeta(s, "WordFall", "Safe/Screen/Hud/QuitButton");
 		Frames(s, 60);
-		TapMeta(s, "QuitLevelWindow", "dialog/quit_button");
+		TapMeta(s, "QuitLevelWindow", "safe_area/dialog/quit_button");
 		Frames(s, 90);
 	}
 	{
 		auto& s = Begin("shop (bank), first");
-		TapMeta(s, "MainScreen", "top_hud/coin_counter/add_currency_button");
+		TapMeta(s, "MainScreen", "safe_area/top_hud/coin_counter/add_currency_button");
 		Frames(s, 60);
-		TapMeta(s, "ShopWindow", "dialog/packs/pack0/buy");
+		TapMeta(s, "ShopWindow", "safe_area/dialog/packs/pack0/buy");
 		Frames(s, 40);
-		TapMeta(s, "ShopWindow", "dialog/close_button");
+		TapMeta(s, "ShopWindow", "safe_area/dialog/close_button");
 		Frames(s, 30);
 	}
 	{
 		auto& s = Begin("lives window, first");
-		TapMeta(s, "MainScreen", "top_hud/lives_counter/lives_button");
+		TapMeta(s, "MainScreen", "safe_area/top_hud/lives_counter/lives_button");
 		Frames(s, 60);
-		TapMeta(s, "LivesWindow", "dialog/close_button");
+		TapMeta(s, "LivesWindow", "safe_area/dialog/close_button");
 		Frames(s, 30);
 	}
 	{
 		auto& s = Begin("settings window, first");
-		TapMeta(s, "MainScreen", "top_hud/settings_button");
+		TapMeta(s, "MainScreen", "safe_area/top_hud/settings_button");
 		Frames(s, 60);
-		TapMeta(s, "SettingsWindow", "dialog/close_button");
+		TapMeta(s, "SettingsWindow", "safe_area/dialog/close_button");
 		Frames(s, 30);
 	}
 

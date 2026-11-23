@@ -14,6 +14,8 @@ import json
 import random
 from pathlib import Path
 
+import safe_area
+
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "Assets"
 PROTOS = ASSETS / "WordFall" / "Prototypes"
@@ -659,9 +661,15 @@ def main():
     raw = game_path.read_text(encoding="utf-8")
     game_screen_doc = json.loads(raw)
     ensure_ascii = "\\u0" in raw
+    safe_area.unwrap_game_screen(game_screen_doc)  # the screens are built as root/Screen, then put in the safe area
 
-    dump(out / "LevelEditorScreen.proto", build_level_editor(game_screen_doc["mActor"]), ensure_ascii)
+    editor = build_level_editor(game_screen_doc["mActor"])
+    editor_key = "WordFall/Prototypes/LevelEditorScreen.proto"
+    safe_area.wrap_game_screen(editor, editor_key, safe_area.GAME_SCREENS[editor_key])
+    dump(out / "LevelEditorScreen.proto", editor, ensure_ascii)
     rewrite_cheats(game_screen_doc["mActor"])
+    game_key = "WordFall/Prototypes/GameScreen.proto"
+    safe_area.wrap_game_screen(game_screen_doc, game_key, safe_area.GAME_SCREENS[game_key])
     dump(out / "GameScreen.proto", game_screen_doc, ensure_ascii)
     print(f"written {out / 'LevelEditorScreen.proto'}, {out / 'GameScreen.proto'} (Cheats)")
 

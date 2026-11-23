@@ -229,6 +229,18 @@ inline Vector<Vec2I> WordFallJsBoard::GetSeededCells() const
 	return WordFallJsService::Cells(mService.Call("GetSeededCells"));
 }
 
+// Экраны игры живут в камере интерфейса (Bootstrap — её компонент, экраны — её дети): корень экрана по имени,
+// путь от него — как в прототипе
+inline o2::Ref<o2::Actor> FindScreen(const o2::String& path)
+{
+	if (auto camera = o2Scene.FindActor("ui camera"))
+	{
+		if (auto screen = camera->GetChild(path))
+			return screen;
+	}
+	return o2Scene.FindActor(path);
+}
+
 namespace
 {
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
@@ -258,16 +270,16 @@ namespace
 	// Центр виджета экрана игры по пути от корня WordFall (кнопки лотка, бустеры, слоты)
 	Vec2F WidgetCenter(const String& path)
 	{
-		auto root = o2Scene.FindActor("WordFall");
+		auto root = FindScreen("WordFall");
 		auto widget = root ? DynamicCast<Widget>(root->GetChild(path)) : nullptr;
 		EXPECT_TRUE(widget) << path.Data();
 		return widget ? widget->layout->GetWorldRect().Center() : Vec2F();
 	}
 
-	Vec2F AcceptPosition() { return WidgetCenter("Screen/WordBar/AcceptBtn/Btn"); }
-	Vec2F ClearPosition() { return WidgetCenter("Screen/WordBar/ClearBtn/Btn"); }
-	Vec2F BoosterPosition(int index) { return WidgetCenter(String::Format("Screen/Boosters/Booster%i/Btn", index)); }
-	Vec2F SlotPosition(int index) { return WidgetCenter(String::Format("Screen/WordBar/Tray/Slot%i", index)); }
+	Vec2F AcceptPosition() { return WidgetCenter("Safe/Screen/WordBar/AcceptBtn/Btn"); }
+	Vec2F ClearPosition() { return WidgetCenter("Safe/Screen/WordBar/ClearBtn/Btn"); }
+	Vec2F BoosterPosition(int index) { return WidgetCenter(String::Format("Safe/Screen/Boosters/Booster%i/Btn", index)); }
+	Vec2F SlotPosition(int index) { return WidgetCenter(String::Format("Safe/Screen/WordBar/Tray/Slot%i", index)); }
 
 	// Портретное окно система может ужать по высоте экрана; fitted-камера масштабирует
 	// картинку, ввод конвертируется через камеру — кликаем в оконных координатах:
@@ -318,7 +330,7 @@ namespace
 
 	RectF TileRect(int column, int row)
 	{
-		auto tile = o2Scene.FindActor("WordFall")->GetChild(String::Format("Screen/Board/Tile_%i_%i", column, row));
+		auto tile = FindScreen("WordFall")->GetChild(String::Format("Safe/Screen/Board/Tile_%i_%i", column, row));
 		return DynamicCast<Widget>(tile)->layout->GetWorldRect();
 	}
 
@@ -340,15 +352,15 @@ namespace
 	// Читы открывает долгое нажатие на невидимую кнопку в правом верхнем углу
 	void OpenCheats()
 	{
-		LongPress(WidgetCenter("Screen/Cheats/Toggle"));
+		LongPress(WidgetCenter("Safe/Screen/Cheats/Toggle"));
 		AppTestDriver::PumpFrames(3);
 	}
 
 	// Тап по вкладке читов; вкладку за краем полосы сначала пролистывает палец
 	void SelectCheatsTab(int index)
 	{
-		auto root = o2Scene.FindActor("WordFall");
-		auto strip = root ? DynamicCast<Widget>(root->GetChild("Screen/Cheats/Panel/Tabs")) : nullptr;
+		auto root = FindScreen("WordFall");
+		auto strip = root ? DynamicCast<Widget>(root->GetChild("Safe/Screen/Cheats/Panel/Tabs")) : nullptr;
 		auto tab = strip ? DynamicCast<Widget>(strip->GetChild(String::Format("Tab%i/Btn", index))) : nullptr;
 		ASSERT_TRUE(tab) << "cheats tab " << index;
 

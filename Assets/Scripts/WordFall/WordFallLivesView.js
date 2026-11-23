@@ -9,11 +9,11 @@ WordFallLivesView = class WordFallLivesView extends WordFallWindow
     OnInit()
     {
         var self = this;
-        this._count = this._Child("dialog/parchment/heart/count");
-        this._status = this._Child("dialog/parchment/status");
-        this._price = this._Child("dialog/refill_button/label");
-        this._refill = this._Bind("dialog/refill_button", function() { self._Refill(); });
-        this._ad = this._Bind("dialog/ad_button", function() { self._Ad(); });
+        this._count = this._Child("safe_area/dialog/parchment/heart/count");
+        this._status = this._Child("safe_area/dialog/parchment/status");
+        this._price = this._Child("safe_area/dialog/refill_button/label");
+        this._refill = this._Bind("safe_area/dialog/refill_button", function() { self._Refill(); });
+        this._ad = this._Bind("safe_area/dialog/ad_button", function() { self._Ad(); });
     }
 
     OnOpen()

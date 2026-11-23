@@ -56,7 +56,7 @@ WordFallWindow = class WordFallWindow extends o2.Component
 
         var self = this;
         this._Bind("dimmer", function() { self.Close(); });
-        this._Bind("dialog/close_button", function() { self.Close(); });
+        this._Bind("safe_area/dialog/close_button", function() { self.Close(); });
         this.OnInit();
     }
 

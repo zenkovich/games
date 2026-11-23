@@ -14,6 +14,8 @@ import json
 import os
 import sys
 
+import safe_area
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ASSETS = os.path.join(ROOT, "Assets")
 SCENE = os.path.join(ASSETS, "WordFall.scn")
@@ -113,6 +115,7 @@ def main():
     write_json(SCENE, scene)
 
     game = read_json(GAME)
+    safe_area.unwrap_game_screen(game)  # the frame is Screen's, which sits in the safe area
     frame = frame_of(child(game["mActor"], "Screen"))
     target = min(screen[0]/frame[0], screen[1]/frame[1])
     factor = target/root_scale(game)
@@ -124,10 +127,14 @@ def main():
             emitters += scale_emitters(proto, factor)
             write_json(path, proto)
         set_root_scale(game, target)
-        write_json(GAME, game)
+    safe_area.wrap_game_screen(game, "WordFall/Prototypes/GameScreen.proto", frame)
+    write_json(GAME, game)
 
     editor = read_json(EDITOR)
     set_root_scale(editor, target)
+    safe_area.unwrap_game_screen(editor)
+    safe_area.wrap_game_screen(editor, "WordFall/Prototypes/LevelEditorScreen.proto",
+                               safe_area.GAME_SCREENS["WordFall/Prototypes/LevelEditorScreen.proto"])
     write_json(EDITOR, editor)
 
     print("camera %gx%g, game frame %gx%g scaled by %.6f, %d emitters rescaled by %.6f" %

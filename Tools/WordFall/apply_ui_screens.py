@@ -7,7 +7,7 @@ first copy keeps its uid, later copies are dropped and their uids rewritten in t
 (its backdrop, the season pass) stay in its _Resources; what no prototype draws any more is deleted, kit graphics
 included (the kit folder holds what the screens use; a screen that uses more brings it with its export). Then each
 prototype gets what the game needs: drawing depths above the game screen, its view script, a pressed state on its
-buttons, the main screen's counters, and its place in the ui camera.
+buttons, the main screen's counters, its place in the ui camera, and its interface in the safe area (safe_area.py).
 
 The screens live in the frame of the scene's ui camera, which is the screen of the UI kit's device (iPhone 16, 1179x2556,
 see apply_camera_units.py) and fits it into the window or the device. A layout made for 1179x2112 goes into that frame like
@@ -23,6 +23,8 @@ import json
 import os
 import shutil
 import sys
+
+import safe_area
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ASSETS = os.path.join(ROOT, "Assets")
@@ -358,6 +360,8 @@ def main():
 
     camera, reach = camera_size(), game_reach()
     protos = {s: read_json(os.path.join(ASSETS, UI, s + ".proto")) for s in SCREENS}
+    for screen, proto in protos.items():
+        safe_area.unwrap_screen(proto, UI + "/" + screen + ".proto")  # the paths below are the layout's own
     for proto in protos.values():
         relink(proto, uid_map, path_map)
     for screen, conf in SCREENS.items():
@@ -368,10 +372,12 @@ def main():
             spread(protos[screen]["mActor"], path)
         if screen in DIM and (dim := find(protos[screen]["mActor"], DIM[screen][0])):
             body(dim)["mTransparency"] = DIM[screen][1]
+        safe_area.wrap_screen(protos[screen], UI + "/" + screen + ".proto")
         write_json(os.path.join(ASSETS, UI, screen + ".proto"), protos[screen])
         drop_unused(screen, protos[screen])
         print("%s: %s" % (screen, "prepared" if fresh else "relinked"))
     drop_unused_kit(protos)
+    safe_area.fix_clips()
     print("kit: %d files moved or merged, %d uids rewritten" % (len(path_map), len(uid_map)))
     for note in notes:
         print("note: " + note)

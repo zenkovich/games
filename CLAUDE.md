@@ -87,6 +87,8 @@ or `GEMINI_API_KEY`.
 caption/icon, `Label`, `Image` и т.д.), а не на спрайтах с ручными хит-ректами и текстом. Спрайты —
 для игровых объектов и декора сцены. Внутри одного слоя сцены порядок отрисовки задавать явно
 (drawDepth у виджетов, отдельные слои для остального) — равные глубины сортируются непредсказуемо.
+Экраны живут в акторе камеры интерфейса; всё, что нажимают, — внутри `SafeArea` (o2::SafeArea: кадр камеры без
+выреза/островка, скруглений и полоски «домой» устройства), графика на весь экран (фоны, затемнения) — снаружи.
 
 ## Comments
 
@@ -315,6 +317,17 @@ Rules that hold there:
   English like the pipeline's windows (LilitaOne has no Cyrillic). The cross sits over the cheats' hidden long-press
   corner (depth 96 > 95).
 
+- Safe area: the screens are children of the ui camera (`WordFallBootstrap` is a component of the camera and instantiates
+  them into it), everything people touch is inside an `o2::SafeArea`. `Tools/WordFall/safe_area.py` (idempotent; the
+  screen generators call it) puts it there: GameScreen/LevelEditorScreen are `root -> Safe -> Screen`, the root's
+  `WordFallSafeFit` scales the root so the fixed design (868x1813, 768x1673) fits the safe area (on a phone with an
+  island the game screen is ~7% smaller than the camera's width; the camera's fill is the paper colour around it);
+  MainScreen `safe_area` holds top_hud, play_button and bottom_navigation (its wooden bar reaches down under the home
+  indicator), VictoryWindow `home_screen/safe_area` everything but the dimmer, ContinueWindow `safe_area/continue_dialog`,
+  the meta windows `safe_area/dialog` (their clips animate `child/safe_area/child/dialog/...`). Opened alone, a safe area
+  keeps the iPhone 16's insets (177 and 102 units), so the editor shows the screens as that phone does. UI tests find
+  the screens with `FindScreen(name)`; `WordFallMetaUI.InterfaceStaysInTheSafeArea` emulates the iPhone 16's safe area
+  (`o2Application.SetSafeAreaOverride`) and checks every button of every screen and window (shots 70-79).
 - The campaign is generated and balanced by LevelLab (`Tools/WordFall/LevelLab`, README there; `node
   Tools/WordFall/LevelLab/server.mjs --open` is the page, `lab/cli.mjs` the same from the shell). It loads the scripts
   of `Assets/Scripts/WordFall/Core` into Node and plays them: a change of the rules is a change of the simulator. The
