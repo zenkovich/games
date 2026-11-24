@@ -38660,7 +38660,7 @@
                                                                 "cellSizeX": 120.0,
                                                                 "doubledSprite": "Generated/UI/Screen_Resources/Sprites/icon_tile_yellow.png",
                                                                 "boardCenterX": 1.5,
-                                                                "reshuffleFlight": 1.0,
+                                                                "reshuffleFlight": 0.86,
                                                                 "reshuffleSpread": 0.25,
                                                                 "reshuffleLetter": {
                                                                     "Type": "o2::AssetRef<o2::ActorAsset>",

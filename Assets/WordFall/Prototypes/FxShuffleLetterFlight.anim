@@ -26,15 +26,15 @@
                                         "supportsType": "Broken",
                                         "leftSupportPosition": -0.04,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.16666666666666666,
+                                        "rightSupportPosition": 0.18000000000000002,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 17886891643208775412,
                                         "value": 1.0,
-                                        "position": 0.62,
+                                        "position": 0.66,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.16666666666666666,
+                                        "leftSupportPosition": -0.18000000000000002,
                                         "leftSupportValue": 0.0
                                     }
                                 ]
@@ -65,65 +65,25 @@
                                         "supportsType": "Broken",
                                         "leftSupportPosition": -0.04,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.16666666666666666,
+                                        "rightSupportPosition": 0.12666666666666668,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 7965949000275504121,
                                         "value": 14.0,
-                                        "position": 0.62,
+                                        "position": 0.5,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.16666666666666666,
+                                        "leftSupportPosition": -0.12666666666666668,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.013333333333333345,
+                                        "rightSupportPosition": 0.10000000000000002,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 11615020261487547716,
-                                        "value": 19.0,
-                                        "position": 0.66,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.013333333333333345,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.01999999999999998,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 10194770852946639897,
-                                        "value": -5.0,
-                                        "position": 0.72,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.01999999999999998,
-                                        "leftSupportValue": 8.0,
-                                        "rightSupportPosition": 0.02666666666666669,
-                                        "rightSupportValue": 2.6666666666666665
-                                    },
-                                    {
-                                        "uid": 14393205512738639322,
-                                        "value": 3.0,
+                                        "value": 0.0,
                                         "position": 0.8,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.02666666666666669,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 2381457622243892884,
-                                        "value": -1.0,
-                                        "position": 0.87,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 11962381743953937547,
-                                        "value": 0.0,
-                                        "position": 0.94,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
+                                        "leftSupportPosition": -0.10000000000000002,
                                         "leftSupportValue": 0.0
                                     }
                                 ]
@@ -154,85 +114,25 @@
                                         "supportsType": "Broken",
                                         "leftSupportPosition": -0.04,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.08,
+                                        "rightSupportPosition": 0.12666666666666668,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 1599155882275828430,
-                                        "value": 1.1300000000000001,
-                                        "position": 0.36,
+                                        "value": 1.1,
+                                        "position": 0.5,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.08,
+                                        "leftSupportPosition": -0.12666666666666668,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.04,
+                                        "rightSupportPosition": 0.10000000000000002,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 17818341078864649726,
-                                        "value": 1.1,
-                                        "position": 0.48,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.04,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.04666666666666667,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 13842405720727840457,
-                                        "value": 1.1,
-                                        "position": 0.62,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.04666666666666667,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.013333333333333345,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 3281765643366932279,
-                                        "value": 1.1300000000000001,
-                                        "position": 0.66,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.013333333333333345,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.01999999999999998,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 2156930937932531465,
-                                        "value": 0.9,
-                                        "position": 0.72,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.01999999999999998,
-                                        "leftSupportValue": 0.0766666666666667,
-                                        "rightSupportPosition": 0.02666666666666669,
-                                        "rightSupportValue": 0.04666666666666667
-                                    },
-                                    {
-                                        "uid": 8686500803880738972,
-                                        "value": 1.04,
+                                        "value": 1.0,
                                         "position": 0.8,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.02666666666666669,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 16707300478776329599,
-                                        "value": 0.985,
-                                        "position": 0.87,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 12173406416480243071,
-                                        "value": 1.0,
-                                        "position": 0.94,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
+                                        "leftSupportPosition": -0.10000000000000002,
                                         "leftSupportValue": 0.0
                                     }
                                 ]
@@ -263,85 +163,25 @@
                                         "supportsType": "Broken",
                                         "leftSupportPosition": -0.04,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.08,
+                                        "rightSupportPosition": 0.12666666666666668,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 14039566542968643111,
-                                        "value": 1.1300000000000001,
-                                        "position": 0.36,
+                                        "value": 1.1,
+                                        "position": 0.5,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.08,
+                                        "leftSupportPosition": -0.12666666666666668,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.04,
+                                        "rightSupportPosition": 0.10000000000000002,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 9867911023568427678,
-                                        "value": 1.1,
-                                        "position": 0.48,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.04,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.04666666666666667,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 8725750810074796403,
-                                        "value": 1.1,
-                                        "position": 0.62,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.04666666666666667,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.013333333333333345,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 6874101846872951216,
-                                        "value": 1.1300000000000001,
-                                        "position": 0.66,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.013333333333333345,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.01999999999999998,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 4161265212200277529,
-                                        "value": 0.9,
-                                        "position": 0.72,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.01999999999999998,
-                                        "leftSupportValue": 0.0766666666666667,
-                                        "rightSupportPosition": 0.02666666666666669,
-                                        "rightSupportValue": 0.04666666666666667
-                                    },
-                                    {
-                                        "uid": 3550877840206085896,
-                                        "value": 1.04,
+                                        "value": 1.0,
                                         "position": 0.8,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.02666666666666669,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 11761967842198502535,
-                                        "value": 0.985,
-                                        "position": 0.87,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
-                                        "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.023333333333333317,
-                                        "rightSupportValue": 0.0
-                                    },
-                                    {
-                                        "uid": 1864690066597386661,
-                                        "value": 1.0,
-                                        "position": 0.94,
-                                        "supportsType": "Broken",
-                                        "leftSupportPosition": -0.023333333333333317,
+                                        "leftSupportPosition": -0.10000000000000002,
                                         "leftSupportValue": 0.0
                                     }
                                 ]
@@ -372,25 +212,25 @@
                                         "supportsType": "Broken",
                                         "leftSupportPosition": -0.04,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.18000000000000002,
+                                        "rightSupportPosition": 0.12666666666666668,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 6485621906954604800,
                                         "value": 1.0,
-                                        "position": 0.66,
+                                        "position": 0.5,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.18000000000000002,
+                                        "leftSupportPosition": -0.12666666666666668,
                                         "leftSupportValue": 0.0,
-                                        "rightSupportPosition": 0.01999999999999998,
+                                        "rightSupportPosition": 0.10000000000000002,
                                         "rightSupportValue": 0.0
                                     },
                                     {
                                         "uid": 4308073915327199872,
                                         "value": 0.0,
-                                        "position": 0.72,
+                                        "position": 0.8,
                                         "supportsType": "Broken",
-                                        "leftSupportPosition": -0.01999999999999998,
+                                        "leftSupportPosition": -0.10000000000000002,
                                         "leftSupportValue": 0.0
                                     }
                                 ]
@@ -604,7 +444,7 @@
                     }
                 }
             ],
-            "mDuration": 1.0
+            "mDuration": 0.86
         }
     }
 }

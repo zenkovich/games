@@ -38,7 +38,7 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         // решафл: плитки поднимаются копиями-флаерами (прототип с клипом flight по своей траектории, буква меняется
         // в воздухе) и встают на поле, когда клип доиграл
         this.reshuffleLetter = new o2.AssetRefActorAsset();
-        this.reshuffleFlight = 1.0;      // длина клипа flight прототипа: тогда плитка встаёт на клетку
+        this.reshuffleFlight = 0.86;     // длина клипа flight прототипа: тогда плитка встаёт на клетку
         this.reshuffleSpread = 0.25;     // разброс стартов плиток, с
         this.reshuffleSpeedSpread = 0.15; // разброс скорости клипа у плиток: ±15% — садятся вразнобой
         this.reshuffleWarmPerFrame = 6;  // флаеров создаётся за кадр, пока открыто подтверждение
