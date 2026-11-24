@@ -126,16 +126,16 @@
                             {
                                 "Type": "o2::Widget",
                                 "Data": {
-                                    "mDrawingDepth": 60.005,
+                                    "mDrawingDepth": 60.003,
                                     "mInheritDrawingDepthFromParent": false,
-                                    "mName": "Body",
+                                    "mName": "Plate",
                                     "mSceneLayer": {
                                         "Type": "o2::SceneLayer",
                                         "Value": {
                                             "mName": "UI"
                                         }
                                     },
-                                    "Id": 623689519775385603,
+                                    "Id": 12237321964180205721,
                                     "Transform": {
                                         "anchorMin": {
                                             "x": 0.5,
@@ -219,7 +219,49 @@
                                                     }
                                                 }
                                             }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Type": "o2::Widget",
+                                "Data": {
+                                    "mDrawingDepth": 60.006,
+                                    "mInheritDrawingDepthFromParent": false,
+                                    "mName": "Face",
+                                    "mSceneLayer": {
+                                        "Type": "o2::SceneLayer",
+                                        "Value": {
+                                            "mName": "UI"
+                                        }
+                                    },
+                                    "Id": 14946833802876312467,
+                                    "Transform": {
+                                        "anchorMin": {
+                                            "x": 0.5,
+                                            "y": 0.5
                                         },
+                                        "anchorMax": {
+                                            "x": 0.5,
+                                            "y": 0.5
+                                        },
+                                        "offsetMin": {
+                                            "x": -55.5,
+                                            "y": -55.5
+                                        },
+                                        "offsetMax": {
+                                            "x": 55.5,
+                                            "y": 55.5
+                                        },
+                                        "pivot": {
+                                            "x": 0.5,
+                                            "y": 0.5,
+                                            "z": 0.0
+                                        }
+                                    },
+                                    "InternalWidgets": [],
+                                    "States": [],
+                                    "Layers": [
                                         {
                                             "Type": "o2::WidgetLayer",
                                             "Value": {
@@ -409,12 +451,11 @@
                                     },
                                     {
                                         "uid": 17493861954539419482,
-                                        "position": 200.0,
+                                        "position": 206.0,
                                         "value": {
                                             "x": 200.0,
-                                            "y": 0.0
+                                            "y": 50.0
                                         },
-                                        "valueRange": 90.0,
                                         "prevSupport": {
                                             "x": -70.0,
                                             "y": 0.0
@@ -426,7 +467,7 @@
                                     },
                                     {
                                         "uid": 7645197081682763137,
-                                        "position": 400.0,
+                                        "position": 412.0,
                                         "value": {
                                             "x": 400.0,
                                             "y": 0.0

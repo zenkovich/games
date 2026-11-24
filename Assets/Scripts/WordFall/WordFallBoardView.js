@@ -413,7 +413,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             var to = this._FlyerPos(flight.toC, flight.toR);
             this._StopFlyer(flyer);
             flyer.trajectory.SetPoints(from.x, from.y, to.x, to.y);
-            flyer.trajectory.ResetRandomOffset(); // своя дуга в коридоре сплайна
             flyer.trajectory.SetPosition(0);
             flyer.widget.SetEnabled(true);
             var start = Math.random()*this.reshuffleSpread;
@@ -462,24 +461,28 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
 
         this._actor.AddChild(root);
         root.SetEnabled(false);
-        // тень и плитка флаера — виджеты с неизменной раскладкой под акторами, которые их двигают (трансформ актора
-        // не округляется до целых единиц, как раскладка виджета); равные глубины сортируются как попало
+        // тень, подложка и буквы флаера — виджеты с неизменной раскладкой под акторами, которые их двигают (трансформ
+        // актора не округляется до целых единиц, как раскладка виджета); растёт при подъёме только подложка — растровый
+        // текст при масштабе перерисовывается на порогах плотности; равные глубины сортируются как попало
         var depth = this.reshuffleDepth + this._flyers.length*0.01;
-        var body = root.GetChild("Lift/Body");
+        var plate = root.GetChild("Lift/Plate"), face = root.GetChild("Lift/Face");
         root.GetChild("Shadow").SetDrawingDepth(depth);
-        body.SetDrawingDepth(depth + 0.005);
+        plate.SetDrawingDepth(depth + 0.003);
+        face.SetDrawingDepth(depth + 0.006);
         var half = this.tileSize*0.5;
-        var layout = body.GetLayout();
-        layout.SetOffsetMin(new Vec2(-half, -half*this.tileAspect));
-        layout.SetOffsetMax(new Vec2(half, half*this.tileAspect));
+        [plate, face].forEach(function(widget) {
+            var layout = widget.GetLayout();
+            layout.SetOffsetMin(new Vec2(-half, -half*this.tileAspect));
+            layout.SetOffsetMax(new Vec2(half, half*this.tileAspect));
+        }, this);
 
         var flyer = {
             widget: root,
-            back: body.GetLayer("back").drawable,
-            letter: body.GetLayer("letter").drawable,
-            points: body.GetLayer("points").drawable,
-            newLetter: body.GetLayer("newLetter").drawable,
-            newPoints: body.GetLayer("newPoints").drawable,
+            back: plate.GetLayer("back").drawable,
+            letter: face.GetLayer("letter").drawable,
+            points: face.GetLayer("points").drawable,
+            newLetter: face.GetLayer("newLetter").drawable,
+            newPoints: face.GetLayer("newPoints").drawable,
             trajectory: root.GetComponent("o2::FlightTrajectoryComponent"),
             anim: root.GetComponent("o2::AnimationComponent")
         };
