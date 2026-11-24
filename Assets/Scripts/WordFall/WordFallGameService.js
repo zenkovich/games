@@ -28,7 +28,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.lifeRegenSeconds = 1800;                // жизнь восстанавливается за это время
         this.continueMoves = 5;                      // ходов за продолжение уровня
         this.continuePrice = 900;                    // цена продолжения в монетах
-        this.startBoosters = [3, 3, 3, 3, 3];        // бустеры нового игрока: молоток, перемешать, подсказка, джокер, удвоитель
+        this.startBoosters = [3, 3, 3, 3, 3];        // бустеры нового игрока: молоток, перемешать, подсказка, джокер, решафл
         this.startBonuses = [1, 1, 1];               // бонусы на старт уровня у нового игрока: бомба, ракета, салют
         this.boosterPack = 3;                        // бустеров или бонусов в одной покупке
         this.boosterPrices = [600, 400, 300, 700, 500]; // цены покупки бустеров за монеты, по индексам WordLevel
@@ -468,7 +468,16 @@ WordFallGameService = class WordFallGameService extends o2.Component
         return this._BoosterSpent(this._level.UseHint(this._dictionary, search.Result()));
     }
     UseJoker(column, row) { this._EnsureStarted(); return this._BoosterSpent(this._level.UseJoker({ c: column, r: row })); }
-    UseDoubler(column, row) { this._EnsureStarted(); return this._BoosterSpent(this._level.UseDoubler({ c: column, r: row })); }
+
+    // Решафл: перелёты плиток [{fromC, fromR, toC, toR}] для анимации или null
+    UseReshuffle()
+    {
+        this._EnsureStarted();
+        var flights = this._level.UseReshuffle(this._dictionary);
+        if (!this._BoosterSpent(flights != null))
+            return null;
+        return flights.map(function(flight) { return { fromC: flight.from.c, fromR: flight.from.r, toC: flight.to.c, toR: flight.to.r }; });
+    }
 
     // --- отладка, читы и тесты ---
 

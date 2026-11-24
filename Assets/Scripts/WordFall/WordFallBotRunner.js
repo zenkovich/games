@@ -93,6 +93,7 @@ WordFallBotRunner = class WordFallBotRunner
             case "pick": this._PickNext(); break;
             case "accept": this._Accept(); break;
             case "aim": this._Aim(); break;
+            case "confirm": this._Confirm(); break;
             case "settle": this._Settle(); break;
             case "between": this._BeginAttempt(); break;
         }
@@ -101,7 +102,8 @@ WordFallBotRunner = class WordFallBotRunner
     _Busy()
     {
         var views = WordFallViews;
-        return (views.fx && views.fx.IsBusy()) || this._svc.IsCollapseAnimating() || views.board.IsSelecting();
+        return (views.fx && views.fx.IsBusy()) || this._svc.IsCollapseAnimating() || views.board.IsSelecting() ||
+            views.board.IsReshuffling();
     }
 
     _BeginAttempt()
@@ -232,10 +234,14 @@ WordFallBotRunner = class WordFallBotRunner
                 this._state = "think";
                 this._timer = this.boosterPause;
                 break;
+            case "reshuffle":
+                boosters.OnBooster(WordLevel.Reshuffle, "reshuffle");
+                this._state = "confirm";
+                this._timer = this.boosterPause;
+                break;
             case "hammer":
             case "joker":
-            case "doubler":
-                boosters.OnBooster(action.type == "hammer" ? WordLevel.Hammer : action.type == "joker" ? WordLevel.Joker : WordLevel.Doubler, action.type);
+                boosters.OnBooster(action.type == "hammer" ? WordLevel.Hammer : WordLevel.Joker, action.type);
                 this._state = "aim";
                 this._timer = this.boosterPause;
                 break;
@@ -285,6 +291,14 @@ WordFallBotRunner = class WordFallBotRunner
     {
         var cell = this._action.cell;
         WordFallViews.board.OnTileClick(cell.c, cell.r);
+        this._state = "settle";
+        this._timer = 0.2;
+    }
+
+    _Confirm()
+    {
+        if (WordFallViews.reshuffleConfirm)
+            WordFallViews.reshuffleConfirm.Confirm();
         this._state = "settle";
         this._timer = 0.2;
     }

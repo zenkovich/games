@@ -1,7 +1,7 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Вьюха панели бустеров: пять круглых кнопок с бейджами зарядов и режим
-// прицела (молоток/джокер/удвоитель применяются кликом по плитке)
+// прицела (молоток/джокер применяются кликом по плитке); решафл спрашивает подтверждение посреди экрана
 
 WordFallBoostersView = class WordFallBoostersView extends o2.Component
 {
@@ -11,7 +11,7 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
     {
         super();
         this._chargeLabels = [];
-        this._aimMode = null;   // null | "hammer" | "joker" | "doubler"
+        this._aimMode = null;   // null | "hammer" | "joker"
         this._lastRevision = -1;
     }
 
@@ -22,7 +22,7 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
 
         this._modeLabel = this._actor.GetChild("ModeLabel");
 
-        var modes = ["hammer", "shuffle", "hint", "joker", "doubler"];
+        var modes = ["hammer", "shuffle", "hint", "joker", "reshuffle"];
         var self = this;
         for (var i = 0; i < 5; i++)
         {
@@ -54,7 +54,8 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
     OnBooster(index, mode)
     {
         var svc = this._svc;
-        if (svc.GetGameState() != "playing")
+        var board = WordFallViews.board;
+        if (svc.GetGameState() != "playing" || (board && board.IsReshuffling()))
             return;
 
         if (this._aimMode == mode)
@@ -73,6 +74,8 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
 
         if (mode == "shuffle")
             svc.UseShuffle();
+        else if (mode == "reshuffle")
+            this._AskReshuffle();
         else if (mode == "hint")
         {
             // подсказка: сервис находит слово, вью разбирает выбор и
@@ -81,7 +84,6 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
             {
                 var cells = svc.GetSelection();
                 svc.ClearSelection();
-                var board = WordFallViews.board;
                 if (board)
                     board.SelectAnimated(cells);
             }
@@ -93,12 +95,31 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
         }
     }
 
+    // Решафл — после кнопки «Перемешать» посреди экрана; клик мимо неё отменяет
+    _AskReshuffle()
+    {
+        this.CancelAimMode();
+        var board = WordFallViews.board;
+        var confirm = WordFallViews.reshuffleConfirm;
+        if (!board)
+            return;
+        if (!confirm)
+        {
+            board.Reshuffle();
+            return;
+        }
+        board.PrepareReshuffle();
+        confirm.Open(function(confirmed) {
+            if (confirmed)
+                board.Reshuffle();
+        });
+    }
+
     _SyncModeLabel()
     {
         var texts = {
             hammer: "Молоток: кликните плитку",
-            joker: "Джокер: кликните плитку",
-            doubler: "Удвоитель: кликните плитку"
+            joker: "Джокер: кликните плитку"
         };
         this._modeLabel.SetText(this._aimMode ? texts[this._aimMode] : "");
         this._modeLabel.SetEnabled(this._aimMode != null); // плашка подсказки закрывает поле лотка, пока идёт прицел

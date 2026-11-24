@@ -10,7 +10,7 @@ WordLevel = class WordLevel
     static get Shuffle() { return 1; }
     static get Hint() { return 2; }
     static get Joker() { return 3; }
-    static get Doubler() { return 4; }
+    static get Reshuffle() { return 4; }
 
     constructor()
     {
@@ -315,13 +315,26 @@ WordLevel = class WordLevel
         return true;
     }
 
-    UseDoubler(cell)
+    // Решафл: буквы поля перелетают по клеткам друг друга и меняются на новые. Возвращает перелёты [{from, to}]
+    // или null
+    UseReshuffle(dictionary)
     {
-        if (this.state != "playing" || this._charges[WordLevel.Doubler] <= 0 || !this.board.MakeDoubled(cell))
-            return false;
+        if (this.state != "playing" || !this._TakeCharge(WordLevel.Reshuffle))
+            return null;
 
-        this._charges[WordLevel.Doubler]--;
-        return true;
+        var board = this.board;
+        var flights = board.ReshuffleLetters();
+        var tints = {};
+        flights.forEach(function(flight) { tints[flight.to.c + "," + flight.to.r] = board.GetTile(flight.to).tint; });
+
+        // подсев ставит на клетку новую плитку — плашка остаётся той, что туда прилетела
+        var repaired = this._EnsureTasksAchievable(dictionary);
+        repaired.forEach(function(cell) {
+            var tint = tints[cell.c + "," + cell.r];
+            if (tint !== undefined)
+                board.GetTile(cell).tint = tint;
+        });
+        return flights;
     }
 
     // Чего хочет уровень: цели ракет и буквы, которые надо беречь

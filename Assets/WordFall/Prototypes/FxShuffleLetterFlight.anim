@@ -1,0 +1,406 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "component/o2::FlightTrajectoryComponent/position",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 18415725652021217674,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.03333333333333333,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10718591471593681921,
+                                        "value": 0.0,
+                                        "position": 0.1,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.03333333333333333,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.20666666666666667,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 17886891643208775412,
+                                        "value": 1.0,
+                                        "position": 0.72,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.20666666666666667,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 17923255746651835776,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.03333333333333333,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9275869684674637963,
+                                        "value": 1.18,
+                                        "position": 0.1,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.03333333333333333,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.10000000000000002,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 12587009770144311848,
+                                        "value": 0.04,
+                                        "position": 0.4,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.10000000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.053333333333333344,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 11662222947738895201,
+                                        "value": 1.18,
+                                        "position": 0.56,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.053333333333333344,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.033333333333333326,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 16636114851671376088,
+                                        "value": 1.16,
+                                        "position": 0.66,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.033333333333333326,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 216917361305855682,
+                                        "value": 1.1,
+                                        "position": 0.78,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4224454096496773629,
+                                        "value": 1.0,
+                                        "position": 0.9,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 15076261053505790960,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.03333333333333333,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 16170191458285664570,
+                                        "value": 1.18,
+                                        "position": 0.1,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.03333333333333333,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.18666666666666668,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10613334744191840058,
+                                        "value": 1.16,
+                                        "position": 0.66,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.18666666666666668,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 15562529027607783345,
+                                        "value": 0.9,
+                                        "position": 0.78,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.04,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 13873670839561079372,
+                                        "value": 1.0,
+                                        "position": 0.9,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.04,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/letter/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 17681688393693121744,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.13,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7980011582790463047,
+                                        "value": 1.0,
+                                        "position": 0.39,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.13,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.006666666666666672,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4284958115979265412,
+                                        "value": 0.0,
+                                        "position": 0.41000000000000003,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.006666666666666672,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/points/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 15437112137238259341,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.13,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 4977165834221472994,
+                                        "value": 1.0,
+                                        "position": 0.39,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.13,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.006666666666666672,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2420346162038808949,
+                                        "value": 0.0,
+                                        "position": 0.41000000000000003,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.006666666666666672,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/newLetter/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 9702095366521868050,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.13,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 17544123349386930976,
+                                        "value": 0.0,
+                                        "position": 0.39,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.13,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.006666666666666672,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2875696875781083774,
+                                        "value": 1.0,
+                                        "position": 0.41000000000000003,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.006666666666666672,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/newPoints/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 17601833151785168559,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.13,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 14499904784714163957,
+                                        "value": 0.0,
+                                        "position": 0.39,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.13,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.006666666666666672,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 11501794643846271821,
+                                        "value": 1.0,
+                                        "position": 0.41000000000000003,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.006666666666666672,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "layer/glow/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 12863819798081539544,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "supportsType": "Broken",
+                                        "rightSupportPosition": 0.07333333333333333,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 14770420719025292431,
+                                        "value": 0.0,
+                                        "position": 0.22,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.07333333333333333,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.060000000000000005,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1721589909193960028,
+                                        "value": 0.85,
+                                        "position": 0.4,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.060000000000000005,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.07333333333333332,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 5783868174091562782,
+                                        "value": 0.0,
+                                        "position": 0.62,
+                                        "supportsType": "Broken",
+                                        "leftSupportPosition": -0.07333333333333332,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Swap/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.4
+                    }
+                },
+                {
+                    "Type": "o2::AnimationSubTrack",
+                    "Value": {
+                        "path": "child/Swap2/component/o2::ParticlesEmitterComponent",
+                        "mSubTrackBeginTime": 0.4
+                    }
+                }
+            ],
+            "mDuration": 0.9
+        }
+    }
+}
