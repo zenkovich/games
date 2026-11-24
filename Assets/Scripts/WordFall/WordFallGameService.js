@@ -30,6 +30,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.continuePrice = 900;                    // цена продолжения в монетах
         this.startBoosters = [3, 3, 3, 3, 3];        // бустеры нового игрока: молоток, перемешать, подсказка, джокер, решафл
         this.startBonuses = [1, 1, 1];               // бонусы на старт уровня у нового игрока: бомба, ракета, салют
+        this.reshuffleStayShare = WordLevel.ReshuffleStayShare; // решафл: доля плиток, что остаются на месте
+        this.reshuffleReach = WordLevel.ReshuffleReach;  // решафл: плитка меняется местами с соседом не дальше, клеток
         this.boosterPack = 3;                        // бустеров или бонусов в одной покупке
         this.boosterPrices = [600, 400, 300, 700, 500]; // цены покупки бустеров за монеты, по индексам WordLevel
         this.bonusPrices = [500, 700, 900];          // цены покупки бонусов на старт: бомба, ракета, салют
@@ -473,7 +475,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     UseReshuffle()
     {
         this._EnsureStarted();
-        var flights = this._level.UseReshuffle(this._dictionary);
+        var flights = this._level.UseReshuffle(this._dictionary, this.reshuffleStayShare, this.reshuffleReach);
         if (!this._BoosterSpent(flights != null))
             return null;
         return flights.map(function(flight) { return { fromC: flight.from.c, fromR: flight.from.r, toC: flight.to.c, toR: flight.to.r }; });

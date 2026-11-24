@@ -40,6 +40,252 @@
                 {
                     "Type": "o2::Widget",
                     "Data": {
+                        "mDrawingDepth": 60.005,
+                        "mInheritDrawingDepthFromParent": false,
+                        "mName": "Body",
+                        "mSceneLayer": {
+                            "Type": "o2::SceneLayer",
+                            "Value": {
+                                "mName": "UI"
+                            }
+                        },
+                        "Id": 623689519775385603,
+                        "Transform": {
+                            "anchorMin": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "anchorMax": {
+                                "x": 1.0,
+                                "y": 1.0
+                            },
+                            "offsetMin": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "offsetMax": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "pivot": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.0
+                            }
+                        },
+                        "InternalWidgets": [],
+                        "States": [],
+                        "Layers": [
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "glow",
+                                    "layout": {
+                                        "mAnchorMin": {
+                                            "x": 0.5,
+                                            "y": 0.5
+                                        },
+                                        "mAnchorMax": {
+                                            "x": 0.5,
+                                            "y": 0.5
+                                        },
+                                        "mOffsetMin": {
+                                            "x": -80.0,
+                                            "y": -80.0
+                                        },
+                                        "mOffsetMax": {
+                                            "x": 80.0,
+                                            "y": 80.0
+                                        }
+                                    },
+                                    "mUID": 1158924452758559763,
+                                    "mDepth": -1.0,
+                                    "mTransparency": 0.0,
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "006eeda86fc418c044e7d345f716b5d8",
+                                                "path": "WordFall/Sprites/vfx_glow.png"
+                                            },
+                                            "mColor": {
+                                                "r": 255,
+                                                "g": 236,
+                                                "b": 190,
+                                                "a": 255
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "name": "back",
+                                    "mUID": 5760497151408034793,
+                                    "mDrawable": {
+                                        "Type": "o2::Sprite",
+                                        "Value": {
+                                            "mImageAsset": {
+                                                "id": "1e72c9f06970d9858690b45a0785e479",
+                                                "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "layout": {
+                                        "mAnchorMin": {
+                                            "x": 0.0541,
+                                            "y": 0.1351
+                                        },
+                                        "mAnchorMax": {
+                                            "x": 0.9369,
+                                            "y": 0.9009
+                                        }
+                                    },
+                                    "name": "letter",
+                                    "mUID": 618191522628222036,
+                                    "mDepth": 1.0,
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mText": "",
+                                            "mColor": {
+                                                "r": 53,
+                                                "g": 26,
+                                                "b": 14,
+                                                "a": 255
+                                            },
+                                            "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                            "mHeight": 63,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle",
+                                            "mHorAlign": "Middle"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "layout": {
+                                        "mAnchorMin": {
+                                            "x": 0.7387,
+                                            "y": 0.0721
+                                        },
+                                        "mAnchorMax": {
+                                            "x": 0.9459,
+                                            "y": 0.3063
+                                        }
+                                    },
+                                    "name": "points",
+                                    "mUID": 14924406481707911078,
+                                    "mDepth": 2.0,
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mText": "",
+                                            "mColor": {
+                                                "r": 53,
+                                                "g": 26,
+                                                "b": 14,
+                                                "a": 255
+                                            },
+                                            "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                            "mHeight": 19,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle",
+                                            "mHorAlign": "Middle"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "layout": {
+                                        "mAnchorMin": {
+                                            "x": 0.0541,
+                                            "y": 0.1351
+                                        },
+                                        "mAnchorMax": {
+                                            "x": 0.9369,
+                                            "y": 0.9009
+                                        }
+                                    },
+                                    "name": "newLetter",
+                                    "mUID": 7575144548984799877,
+                                    "mDepth": 3.0,
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mText": "",
+                                            "mColor": {
+                                                "r": 53,
+                                                "g": 26,
+                                                "b": 14,
+                                                "a": 255
+                                            },
+                                            "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                            "mHeight": 63,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle",
+                                            "mHorAlign": "Middle"
+                                        }
+                                    },
+                                    "mTransparency": 0.0
+                                }
+                            },
+                            {
+                                "Type": "o2::WidgetLayer",
+                                "Value": {
+                                    "layout": {
+                                        "mAnchorMin": {
+                                            "x": 0.7387,
+                                            "y": 0.0721
+                                        },
+                                        "mAnchorMax": {
+                                            "x": 0.9459,
+                                            "y": 0.3063
+                                        }
+                                    },
+                                    "name": "newPoints",
+                                    "mUID": 2464619565014151187,
+                                    "mDepth": 4.0,
+                                    "mDrawable": {
+                                        "Type": "o2::Text",
+                                        "Value": {
+                                            "mText": "",
+                                            "mColor": {
+                                                "r": 53,
+                                                "g": 26,
+                                                "b": 14,
+                                                "a": 255
+                                            },
+                                            "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
+                                            "mHeight": 19,
+                                            "mSymbolsDistCoef": 1.0,
+                                            "mLinesDistanceCoef": 1.0,
+                                            "mVerAlign": "Middle",
+                                            "mHorAlign": "Middle"
+                                        }
+                                    },
+                                    "mTransparency": 0.0
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Type": "o2::Widget",
+                    "Data": {
                         "mDrawingDepth": 59.4,
                         "mInheritDrawingDepthFromParent": false,
                         "mName": "Ring",
@@ -189,48 +435,6 @@
                         "name": "shadow",
                         "layout": {
                             "mAnchorMin": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "mAnchorMax": {
-                                "x": 1.0,
-                                "y": 1.0
-                            },
-                            "mOffsetMin": {
-                                "x": 5.0,
-                                "y": -12.0
-                            },
-                            "mOffsetMax": {
-                                "x": 5.0,
-                                "y": -12.0
-                            }
-                        },
-                        "mUID": 875233858890086435,
-                        "mDepth": -2.0,
-                        "mTransparency": 0.0,
-                        "mDrawable": {
-                            "Type": "o2::Sprite",
-                            "Value": {
-                                "mImageAsset": {
-                                    "id": "1e72c9f06970d9858690b45a0785e479",
-                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
-                                },
-                                "mColor": {
-                                    "r": 40,
-                                    "g": 20,
-                                    "b": 5,
-                                    "a": 95
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "name": "glow",
-                        "layout": {
-                            "mAnchorMin": {
                                 "x": 0.5,
                                 "y": 0.5
                             },
@@ -239,16 +443,15 @@
                                 "y": 0.5
                             },
                             "mOffsetMin": {
-                                "x": -80.0,
+                                "x": -76.0,
                                 "y": -80.0
                             },
                             "mOffsetMax": {
-                                "x": 80.0,
-                                "y": 80.0
+                                "x": 76.0,
+                                "y": 64.0
                             }
                         },
-                        "mUID": 1158924452758559763,
-                        "mDepth": -1.0,
+                        "mUID": 875233858890086435,
                         "mTransparency": 0.0,
                         "mDrawable": {
                             "Type": "o2::Sprite",
@@ -258,175 +461,13 @@
                                     "path": "WordFall/Sprites/vfx_glow.png"
                                 },
                                 "mColor": {
-                                    "r": 255,
-                                    "g": 236,
-                                    "b": 190,
-                                    "a": 255
+                                    "r": 45,
+                                    "g": 22,
+                                    "b": 6,
+                                    "a": 105
                                 }
                             }
                         }
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "name": "back",
-                        "mUID": 5760497151408034793,
-                        "mDrawable": {
-                            "Type": "o2::Sprite",
-                            "Value": {
-                                "mImageAsset": {
-                                    "id": "1e72c9f06970d9858690b45a0785e479",
-                                    "path": "Generated/UI/Screen_Resources/Sprites/icon_tile_cream.png"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "layout": {
-                            "mAnchorMin": {
-                                "x": 0.0541,
-                                "y": 0.1351
-                            },
-                            "mAnchorMax": {
-                                "x": 0.9369,
-                                "y": 0.9009
-                            }
-                        },
-                        "name": "letter",
-                        "mUID": 618191522628222036,
-                        "mDepth": 1.0,
-                        "mDrawable": {
-                            "Type": "o2::Text",
-                            "Value": {
-                                "mText": "",
-                                "mColor": {
-                                    "r": 53,
-                                    "g": 26,
-                                    "b": 14,
-                                    "a": 255
-                                },
-                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
-                                "mHeight": 63,
-                                "mSymbolsDistCoef": 1.0,
-                                "mLinesDistanceCoef": 1.0,
-                                "mVerAlign": "Middle",
-                                "mHorAlign": "Middle"
-                            }
-                        }
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "layout": {
-                            "mAnchorMin": {
-                                "x": 0.7387,
-                                "y": 0.0721
-                            },
-                            "mAnchorMax": {
-                                "x": 0.9459,
-                                "y": 0.3063
-                            }
-                        },
-                        "name": "points",
-                        "mUID": 14924406481707911078,
-                        "mDepth": 2.0,
-                        "mDrawable": {
-                            "Type": "o2::Text",
-                            "Value": {
-                                "mText": "",
-                                "mColor": {
-                                    "r": 53,
-                                    "g": 26,
-                                    "b": 14,
-                                    "a": 255
-                                },
-                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
-                                "mHeight": 19,
-                                "mSymbolsDistCoef": 1.0,
-                                "mLinesDistanceCoef": 1.0,
-                                "mVerAlign": "Middle",
-                                "mHorAlign": "Middle"
-                            }
-                        }
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "layout": {
-                            "mAnchorMin": {
-                                "x": 0.0541,
-                                "y": 0.1351
-                            },
-                            "mAnchorMax": {
-                                "x": 0.9369,
-                                "y": 0.9009
-                            }
-                        },
-                        "name": "newLetter",
-                        "mUID": 7575144548984799877,
-                        "mDepth": 3.0,
-                        "mDrawable": {
-                            "Type": "o2::Text",
-                            "Value": {
-                                "mText": "",
-                                "mColor": {
-                                    "r": 53,
-                                    "g": 26,
-                                    "b": 14,
-                                    "a": 255
-                                },
-                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
-                                "mHeight": 63,
-                                "mSymbolsDistCoef": 1.0,
-                                "mLinesDistanceCoef": 1.0,
-                                "mVerAlign": "Middle",
-                                "mHorAlign": "Middle"
-                            }
-                        },
-                        "mTransparency": 0.0
-                    }
-                },
-                {
-                    "Type": "o2::WidgetLayer",
-                    "Value": {
-                        "layout": {
-                            "mAnchorMin": {
-                                "x": 0.7387,
-                                "y": 0.0721
-                            },
-                            "mAnchorMax": {
-                                "x": 0.9459,
-                                "y": 0.3063
-                            }
-                        },
-                        "name": "newPoints",
-                        "mUID": 2464619565014151187,
-                        "mDepth": 4.0,
-                        "mDrawable": {
-                            "Type": "o2::Text",
-                            "Value": {
-                                "mText": "",
-                                "mColor": {
-                                    "r": 53,
-                                    "g": 26,
-                                    "b": 14,
-                                    "a": 255
-                                },
-                                "mFontAssetId": "52656f68e975f0d31b362ff338edbbe3",
-                                "mHeight": 19,
-                                "mSymbolsDistCoef": 1.0,
-                                "mLinesDistanceCoef": 1.0,
-                                "mVerAlign": "Middle",
-                                "mHorAlign": "Middle"
-                            }
-                        },
-                        "mTransparency": 0.0
                     }
                 }
             ],

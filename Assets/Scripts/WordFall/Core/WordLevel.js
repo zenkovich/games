@@ -315,15 +315,20 @@ WordLevel = class WordLevel
         return true;
     }
 
-    // Решафл: буквы поля перелетают по клеткам друг друга и меняются на новые. Возвращает перелёты [{from, to}]
-    // или null
-    UseReshuffle(dictionary)
+    // Решафл по умолчанию: доля плиток, что остаются на месте, и дальность обмена соседей в клетках
+    static get ReshuffleStayShare() { return 0.35; }
+    static get ReshuffleReach() { return 2; }
+
+    // Решафл: буквы поля меняются на новые, часть плиток меняется местами с соседями. Возвращает перелёты
+    // [{from, to}] или null
+    UseReshuffle(dictionary, stayShare, reach)
     {
         if (this.state != "playing" || !this._TakeCharge(WordLevel.Reshuffle))
             return null;
 
         var board = this.board;
-        var flights = board.ReshuffleLetters();
+        var flights = board.ReshuffleLetters(stayShare !== undefined ? stayShare : WordLevel.ReshuffleStayShare,
+                                             reach !== undefined ? reach : WordLevel.ReshuffleReach);
         var tints = {};
         flights.forEach(function(flight) { tints[flight.to.c + "," + flight.to.r] = board.GetTile(flight.to).tint; });
 

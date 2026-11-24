@@ -35,8 +35,8 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this.bonusChargeScale = 0.35; // раздувание бонуса перед срабатыванием
         this.shakeFrequency = 46;    // частота колебаний тряски поля
 
-        // решафл: плитки улетают на новые клетки копиями-флаерами (прототип с клипом flight по своей траектории,
-        // буква меняется в полёте) и встают на поле, когда клип доиграл
+        // решафл: плитки поднимаются копиями-флаерами (прототип с клипом flight по своей траектории, буква меняется
+        // в воздухе) и встают на поле, когда клип доиграл
         this.reshuffleLetter = new o2.AssetRefActorAsset();
         this.reshuffleFlight = 1.0;      // длина клипа flight прототипа: тогда плитка встаёт на клетку
         this.reshuffleSpread = 0.25;     // разброс стартов плиток, с
@@ -378,8 +378,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this._flyersWanted = this._columns*this._rows;
     }
 
-    // Решафл: сервис меняет поле, плитки снимаются со старых клеток флаерами с прежними буквами, клип флаера
-    // переворачивает их в полёте новой буквой, плитка встаёт на новую клетку, когда клип доиграл.
+    // Решафл: сервис меняет поле, плитки снимаются со старых клеток флаерами с прежними буквами; клип флаера
+    // поднимает плитку над тенью, несёт к соседу, с которым она поменялась местами (или оставляет на своей клетке),
+    // меняет в воздухе букву и впечатывает плитку в клетку; плитка поля встаёт, когда клип доиграл.
     // false — бустер не сработал
     Reshuffle()
     {
@@ -452,7 +453,11 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
 
         this._actor.AddChild(widget);
         widget.SetEnabled(false);
-        widget.SetDrawingDepth(this.reshuffleDepth + this._flyers.length*0.01); // равные глубины сортируются как попало
+        // тень флаера на его корне, плитка — дочерний Body над ней; равные глубины сортируются как попало
+        var depth = this.reshuffleDepth + this._flyers.length*0.01;
+        var body = widget.GetChild("Body");
+        widget.SetDrawingDepth(depth);
+        body.SetDrawingDepth(depth + 0.005);
         var half = this.tileSize*0.5;
         var layout = widget.GetLayout();
         layout.SetOffsetMin(new Vec2(-half, -half*this.tileAspect));
@@ -460,11 +465,11 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
 
         var flyer = {
             widget: widget,
-            back: widget.GetLayer("back").drawable,
-            letter: widget.GetLayer("letter").drawable,
-            points: widget.GetLayer("points").drawable,
-            newLetter: widget.GetLayer("newLetter").drawable,
-            newPoints: widget.GetLayer("newPoints").drawable,
+            back: body.GetLayer("back").drawable,
+            letter: body.GetLayer("letter").drawable,
+            points: body.GetLayer("points").drawable,
+            newLetter: body.GetLayer("newLetter").drawable,
+            newPoints: body.GetLayer("newPoints").drawable,
             trajectory: widget.GetComponent("o2::FlightTrajectoryComponent"),
             anim: widget.GetComponent("o2::AnimationComponent")
         };
