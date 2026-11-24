@@ -58,7 +58,8 @@ String WebBridge::ViewInfoExtra()
     {
         if (auto view = gameWindow->GetGameViewWidget())
         {
-            RectF r = view->layout->GetWorldRect();
+            // where the game's picture is drawn: the whole view, or the emulated device's screen in it, zoomed and panned
+            RectF r = view->GetScreenRect();
             return ",\"gameView\":{\"left\":" + (String)r.left + ",\"top\":" + (String)r.top +
                    ",\"right\":" + (String)r.right + ",\"bottom\":" + (String)r.bottom + "}";
         }

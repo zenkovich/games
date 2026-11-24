@@ -559,7 +559,7 @@ protected:
 		EXPECT_TRUE(widget) << root.Data() << "/" << path.Data();
 		if (!widget)
 			return Vec2F();
-		return widget->layout->GetLayoutToWorldBasis().Transform(widget->layout->GetWorldRect().Center())/kGameScale;
+		return widget->layout->GetLayoutToWorldBasis().Transform(widget->layout->GetWorldRect().Center())/GameScale();
 	}
 
 	void TapMeta(Scenario& s, const String& root, const String& path) { Tap(s, MetaCenter(root, path)); }

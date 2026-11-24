@@ -250,14 +250,32 @@ namespace
 	const Vec2F kScreenSize(868, 1813);      // кадр экрана игры в его единицах (вёрстка Generated/UI/Screen.proto)
 	const float kGameScale = 1179.0f/868.0f; // корень экрана игры вписан в кадр камеры по ширине
 
+	// Масштаб корня экрана игры сейчас: kGameScale, а в безопасной области телефона меньше (WordFallSafeFit)
+	float GameScale()
+	{
+		auto root = FindScreen("WordFall");
+		return root ? root->transform->GetScale().x : kGameScale;
+	}
+
 	// Точка экрана игры (его прямоугольники раскладки) в мире, где рисуются слои и летят эффекты: корень в нуле, масштаб
-	Vec2F GameToWorld(const Vec2F& point) { return point*kGameScale; }
-	Vec2F WorldToGame(const Vec2F& point) { return point/kGameScale; }
+	Vec2F GameToWorld(const Vec2F& point) { return point*GameScale(); }
+	Vec2F WorldToGame(const Vec2F& point) { return point/GameScale(); }
 
 	// Пикселей окна (картинки размером size) на единицу экрана игры
 	float GameToWindowScale(const Vec2F& size)
 	{
-		return Math::Min(size.x/kCameraSize.x, size.y/kCameraSize.y)*kGameScale;
+		return Math::Min(size.x/kCameraSize.x, size.y/kCameraSize.y)*GameScale();
+	}
+
+	// WORDFALL_SAFE_AREA=phone: тесты идут в безопасной области iPhone 16 (островок 59 pt, полоска 34 pt из 852) —
+	// проверка, что эффекты и клики попадают, когда экран игры уменьшен под неё
+	void ApplyPhoneSafeAreaFromEnv()
+	{
+		const char* mode = getenv("WORDFALL_SAFE_AREA");
+		if (!mode || String(mode) != "phone")
+			return;
+		Vec2F resolution = (Vec2F)o2Render.GetResolution();
+		o2Application.SetSafeAreaOverride(BorderF(0, resolution.y*34.0f/852.0f, 0, resolution.y*59.0f/852.0f));
 	}
 
 	// Центр плитки в экранных координатах — как его считает вьюха поля
@@ -450,11 +468,13 @@ protected:
 				mService->MarkTutorialSeen(key);
 		}
 
+		ApplyPhoneSafeAreaFromEnv();
 		AppTestDriver::PumpFrames(10); // OnStart сервиса и вьюх + лэйауты
 	}
 
 	void TearDown() override
 	{
+		o2Application.ResetSafeAreaOverride();
 		mService = nullptr;
 		o2FileSystem.FileDelete(kTestLevelsPath);
 		o2Scene.Clear(true);

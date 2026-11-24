@@ -100169,7 +100169,8 @@
                                     "States": []
                                 }
                             }
-                        ]
+                        ],
+                        "symmetric": true
                     }
                 },
                 {

@@ -48,7 +48,7 @@ protected:
 	{
 		auto widget = DynamicCast<Widget>(Find(root, path));
 		ASSERT_TRUE(widget) << path.Data();
-		Click(Center(widget)/kGameScale); // Click берёт единицы экрана игры
+		Click(Center(widget)/GameScale()); // Click берёт единицы экрана игры
 		AppTestDriver::PumpFrames(3);
 	}
 
@@ -96,7 +96,7 @@ protected:
 	static void TapOutside(const String& root)
 	{
 		RectF dialog = WorldRect(DynamicCast<Widget>(Find(root, "safe_area/dialog")));
-		Click(Vec2F(dialog.Center().x, dialog.top + 60.0f)/kGameScale);
+		Click(Vec2F(dialog.Center().x, dialog.top + 60.0f)/GameScale());
 		AppTestDriver::PumpFrames(3);
 	}
 

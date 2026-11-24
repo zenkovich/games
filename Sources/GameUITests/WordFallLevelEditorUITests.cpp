@@ -17,11 +17,14 @@ protected:
 	Ref<Actor> Editor() { return FindScreen("LevelEditor"); }
 	Ref<Actor> Screen() { return Editor()->GetChild("Safe/Screen"); }
 
+	// Где виджет нарисован, в единицах экрана игры (их ждут Click и ToWindow): у корня редактора свой масштаб
 	Vec2F CenterOf(const Ref<Actor>& actor)
 	{
 		auto widget = DynamicCast<Widget>(actor);
 		EXPECT_TRUE(widget);
-		return widget ? widget->layout->GetWorldRect().Center() : Vec2F();
+		if (!widget)
+			return Vec2F();
+		return widget->layout->GetLayoutToWorldBasis().Transform(widget->layout->GetWorldRect().Center())/GameScale();
 	}
 
 	void Tap(const Ref<Actor>& actor)

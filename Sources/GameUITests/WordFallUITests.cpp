@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include "WordFallUITestSupport.h"
+#include "o2/Scene/UI/Widgets/SafeArea.h"
 
 TEST_F(WordFallUI, SceneBuildsScreenSectionsFromPrototypes)
 {
@@ -621,4 +622,87 @@ TEST_F(WordFallUI, LetterFlightSparksSimulateWithoutEditorBaking)
 	EXPECT_EQ(emitter->GetBakedFramesCount(), 0);
 #endif
 	AppTestDriver::Wait(2.5f);
+}
+
+// На телефоне с островком безопасная область несимметрична (сверху 59 pt, снизу 34): экран игры встаёт в неё, а эффекты
+// попадают в цели — буква принятого слова садится в звезду бара, буква с поля в лоток, искры горения — на плитки
+TEST_F(WordFallUI, EffectsHitTheirTargetsInAPhonesSafeArea)
+{
+	struct OverrideGuard { ~OverrideGuard() { o2Application.ResetSafeAreaOverride(); } } overrideGuard;
+	Vec2F resolution = (Vec2F)o2Render.GetResolution();
+	o2Application.SetSafeAreaOverride(BorderF(0, resolution.y*34.0f/852.0f, 0, resolution.y*59.0f/852.0f));
+	AppTestDriver::PumpFrames(4);
+
+	auto root = FindScreen("WordFall");
+	ASSERT_TRUE(root);
+	EXPECT_LT(root->transform->GetScale().x, kGameScale - 0.01f) << "the screen fits the safe area";
+
+	// где виджет нарисован: прямоугольник раскладки через мировой базис (корень экрана масштабирован)
+	auto drawn = [](const Ref<Widget>& widget) {
+		return widget->layout->GetLayoutToWorldBasis().Transform(widget->layout->GetWorldRect().Center());
+	};
+	auto tap = [&](const String& path) {
+		auto widget = DynamicCast<Widget>(root->GetChild(path));
+		ASSERT_TRUE(widget) << path.Data();
+		Click(drawn(widget)/GameScale());
+		AppTestDriver::PumpFrames(2);
+	};
+
+	// клик по виджету, нарисованному под курсором: экран игры масштабирован и сдвинут, а клики попадают
+	PlantKot();
+	tap("Safe/Screen/Board/Tile_1_0");
+
+	// буква с поля летит в первый слот лотка: перелёт ставится почти в конец — буква над слотом
+	auto flyer = DynamicCast<Widget>(root->GetChild("Safe/Screen/Flyer0"));
+	auto slot = DynamicCast<Widget>(root->GetChild("Safe/Screen/WordBar/Tray/Slot0"));
+	ASSERT_TRUE(flyer && slot);
+	Vec2F tile = drawn(DynamicCast<Widget>(root->GetChild("Safe/Screen/Board/Tile_1_0")));
+	o2Scripts.Eval("WordFallViews.wordPanel.flightDuration = 1000; WordFallViews.wordPanel._flights.forEach(function(f) { f.t = 0.9999; })");
+	AppTestDriver::PumpFrames(2);
+	ASSERT_TRUE(flyer->IsEnabled());
+	Vec2F arriving = drawn(flyer), slotCenter = drawn(slot);
+	EXPECT_NEAR(arriving.x, slotCenter.x, 4.0f) << "the letter lands in its tray slot";
+	EXPECT_NEAR(arriving.y, slotCenter.y, 4.0f) << "the letter lands in its tray slot";
+	o2Scripts.Eval("WordFallViews.wordPanel.flightDuration = 0.38; WordFallViews.wordPanel._flights.forEach(function(f) { f.t = 1; })");
+	AppTestDriver::PumpFrames(2);
+
+	tap("Safe/Screen/Board/Tile_2_0");
+	tap("Safe/Screen/Board/Tile_3_0");
+	AppTestDriver::Wait(0.6f);
+	EXPECT_EQ(mService->GetCurrentWord(), String("КОТ"));
+	EXPECT_TRUE(slot->IsEnabled());
+
+	auto star = DynamicCast<Widget>(root->GetChild("Safe/Screen/Hud/ScorePanel/Star"));
+	ASSERT_TRUE(star);
+	Vec2F aim = drawn(star);
+
+	tap("Safe/Screen/WordBar/AcceptBtn/Btn");
+	EXPECT_EQ(mService->GetScore(), 12);
+
+	// буква принятого слова садится в звезду бара
+	AppTestDriver::Wait(0.6f);
+	auto letter = DynamicCast<Widget>(root->GetChild("Safe/Screen/Fx/FxLetter0"));
+	ASSERT_TRUE(letter);
+	Vec2F landed = drawn(letter);
+	EXPECT_NEAR(landed.x, aim.x, 4.0f) << "the letter lands in the bar's star";
+	EXPECT_NEAR(landed.y, aim.y, 4.0f) << "the letter lands in the bar's star";
+	EXPECT_TRUE(AppTestDriver::SaveScreenshot(kScreenshotsDir + "80_safe_effects.png"));
+	AppTestDriver::Wait(3.0f);
+
+	// молоток: искры горения — на разбитой плитке
+	Vec2F hit = drawn(DynamicCast<Widget>(root->GetChild("Safe/Screen/Board/Tile_5_3")));
+	tap("Safe/Screen/Boosters/Booster0/Btn");
+	tap("Safe/Screen/Board/Tile_5_3");
+	auto vfx = root->GetChild("Vfx");
+	ASSERT_TRUE(vfx);
+	float nearest = 1e9f;
+	for (auto& child : vfx->GetChildren())
+	{
+		auto emitter = child->GetComponent<ParticlesEmitterComponent>();
+		if (!child->GetName().StartsWith("Burn") || !emitter || emitter->GetParticlesCount() == 0)
+			continue;
+		Vec3F p = child->transform->GetWorldPosition();
+		nearest = Math::Min(nearest, (Vec2F(p.x, p.y) - hit).Length());
+	}
+	EXPECT_LT(nearest, 4.0f) << "the hammer's burn plays on the tile it breaks";
 }

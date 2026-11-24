@@ -5,7 +5,8 @@ the graphics that fill the screen (backdrops, dimmers, the paper of the game scr
 
   GameScreen, LevelEditorScreen  root -> Safe -> Screen. The screen is a fixed design in its own units (868x1813,
                                  768x1673); the root's WordFallSafeFit scales the root so the design fits the safe area
-                                 (on a phone with an island it is a little smaller than the camera's width)
+                                 (on a phone with an island it is a little smaller than the camera's width). Safe is
+                                 symmetric: the screen stays centred on the root's origin, where its effects count from
   MainScreen                     safe_area: top_hud, play_button, bottom_navigation (its wooden bar reaches down under
                                  the home indicator)
   VictoryWindow                  home_screen/safe_area: everything but the dimmer
@@ -163,6 +164,8 @@ def wrap_game_screen(proto, key, design):
     w, h = design
     frame = transform((0.5, 0.5), (0.5, 0.5), (-w/2, -h/2), (w/2, h/2), (0.5, 0.5))
     area = wrap(root, ['Screen'], key, 'Safe', frame)
+    # centred in the camera's frame: the screen's effects count from its centre, which stays the root's origin
+    body(area)['symmetric'] = True
     screen = find(area, 'Screen')
     body(screen)['Transform'].update(transform((0.5, 0.5), (0.5, 0.5), (-w/2, -h/2), (w/2, h/2)))
 
