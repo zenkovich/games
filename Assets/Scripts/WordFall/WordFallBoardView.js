@@ -409,8 +409,8 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
                 break; // без прототипа флаера плитки просто встают на места
 
             this._DressFlyer(flyer, faces[flight.fromC][flight.fromR], this._TileFace(flight.toC, flight.toR));
-            var from = this.TileLocalPos(flight.fromC, flight.fromR);
-            var to = this.TileLocalPos(flight.toC, flight.toR);
+            var from = this._FlyerPos(flight.fromC, flight.fromR);
+            var to = this._FlyerPos(flight.toC, flight.toR);
             this._StopFlyer(flyer);
             flyer.trajectory.SetPoints(from.x, from.y, to.x, to.y);
             flyer.trajectory.ResetRandomOffset(); // своя дуга в коридоре сплайна
@@ -423,6 +423,15 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         }
         this._HideFlying();
         return true;
+    }
+
+    // Центр клетки для флаера: дети-акторы поля отсчитываются от его точки поворота, а не от центра, как плитки
+    _FlyerPos(c, r)
+    {
+        var transform = this._actor.GetTransform();
+        var size = transform.GetSize2D(), pivot = transform.GetSizePivot();
+        var local = this.TileLocalPos(c, r);
+        return new Vec2(local.x + size.x*0.5 - pivot.x, local.y + size.y*0.5 - pivot.y);
     }
 
     // Что показывает клетка: буква, номинал, их цвета и плашка
@@ -447,31 +456,32 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
     {
         if (!this.reshuffleLetter.IsValid())
             return null;
-        var widget = this.reshuffleLetter.Get().Instantiate();
-        if (!widget)
+        var root = this.reshuffleLetter.Get().Instantiate();
+        if (!root)
             return null;
 
-        this._actor.AddChild(widget);
-        widget.SetEnabled(false);
-        // тень флаера на его корне, плитка — дочерний Body над ней; равные глубины сортируются как попало
+        this._actor.AddChild(root);
+        root.SetEnabled(false);
+        // тень и плитка флаера — виджеты с неизменной раскладкой под акторами, которые их двигают (трансформ актора
+        // не округляется до целых единиц, как раскладка виджета); равные глубины сортируются как попало
         var depth = this.reshuffleDepth + this._flyers.length*0.01;
-        var body = widget.GetChild("Body");
-        widget.SetDrawingDepth(depth);
+        var body = root.GetChild("Lift/Body");
+        root.GetChild("Shadow").SetDrawingDepth(depth);
         body.SetDrawingDepth(depth + 0.005);
         var half = this.tileSize*0.5;
-        var layout = widget.GetLayout();
+        var layout = body.GetLayout();
         layout.SetOffsetMin(new Vec2(-half, -half*this.tileAspect));
         layout.SetOffsetMax(new Vec2(half, half*this.tileAspect));
 
         var flyer = {
-            widget: widget,
+            widget: root,
             back: body.GetLayer("back").drawable,
             letter: body.GetLayer("letter").drawable,
             points: body.GetLayer("points").drawable,
             newLetter: body.GetLayer("newLetter").drawable,
             newPoints: body.GetLayer("newPoints").drawable,
-            trajectory: widget.GetComponent("o2::FlightTrajectoryComponent"),
-            anim: widget.GetComponent("o2::AnimationComponent")
+            trajectory: root.GetComponent("o2::FlightTrajectoryComponent"),
+            anim: root.GetComponent("o2::AnimationComponent")
         };
         this._flyers.push(flyer);
         return flyer;
