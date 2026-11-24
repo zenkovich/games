@@ -1,0 +1,119 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ring/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 12317818819514294180,
+                                        "value": 0.6,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7062299280530767318,
+                                        "value": 1.0,
+                                        "position": 0.75,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8935782045842923619,
+                                        "value": 0.6,
+                                        "position": 1.5,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ring/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 5015357131890201668,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 587795036591034918,
+                                        "value": 1.035,
+                                        "position": 0.75,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9528615590725070083,
+                                        "value": 1.0,
+                                        "position": 1.5,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ring/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 6874597571445415986,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 13211238870280257889,
+                                        "value": 1.035,
+                                        "position": 0.75,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.30000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2934204135767766108,
+                                        "value": 1.0,
+                                        "position": 1.5,
+                                        "leftSupportPosition": -0.30000000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "mDuration": 1.5,
+            "mLoop": "Repeat"
+        }
+    }
+}

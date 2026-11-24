@@ -2,7 +2,10 @@ globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Туториал: серия шагов с плашкой текста и рукой-указателем. Базовая механика ведётся
 // по действиям игрока (выбор букв → принятие слова), бустеры и элементы поля показываются
-// при первом появлении. Показанные ключи хранит прогресс игрока
+// при первом появлении. Показанные ключи хранит прогресс игрока.
+// Вся анимация — в прототипе (Screen/Tutorial в GameScreen.proto): затемнение, плашка и рука проявляются своими
+// состояниями visible, плашка выскакивает клипом appear, кайма выреза дышит (pulse) и сходится на новый вырез
+// (focus), рука нажимает (tap). Скрипт только раскладывает куски по вырезам и запускает клипы
 
 WordFallTutorialView = class WordFallTutorialView extends o2.Component
 {
@@ -11,13 +14,34 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
     constructor()
     {
         super();
+        this.dimAlpha = 0.74;          // плотность затемнения (куски и скруглённые углы вырезов)
+        this.dimReach = 3000;          // затемнение от центра экрана во все стороны — с запасом за край любого телефона
+        this.cellPad = 10;             // поле выреза вокруг клетки, если рядом нет другого выреза
+        this.buttonPad = 10;           // поле выреза вокруг кнопки ✓
+        this.boostersPad = 6;          // поле выреза вокруг ряда бустеров
+        this.goalsPad = 8;             // поле вырезов вокруг шкалы очков с задачами и вокруг ходов
+        this.glowMargin = 20;          // кайма выходит за вырез на столько: линия tutorial_glow.png — в 20 px от его края
+        this.captionWidth = 780;
+        this.captionPadding = 30;      // от края плашки до текста по вертикали
+        this.captionLineHeight = 44;
+        this.captionAbove = 120;       // сова над плашкой
+        this.captionBelow = 64;        // «нажми, чтобы продолжить» под плашкой
+        this.captionCenters = [20, -300, -560]; // где может стоять плашка (центр по высоте): верх, середина, низ поля
+        this.captionCenter = -140;     // плашка шага без выреза
+        this.captionGap = 16;          // от плашки до каймы выреза и руки
+        this.handSize = 112;
+        this.handTipX = 0.17;          // кончик пальца в спрайте руки (доли размера, от левого нижнего угла)
+        this.handTipY = 0.95;
+        this.appearState = "appear";   // клипы AnimationComponent плашки и каймы
+        this.focusState = "focus";
+
         this._queue = [];      // шаги текущего показа
         this._step = null;
-        this._time = 0;
         this._levelIndex = -1;
         this._revision = -1;
         this._startMoves = 0;
         this._pendingCheck = 0;
+        this._holesKey = "";
     }
 
     OnStart()
@@ -27,31 +51,34 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
 
         var self = this;
         this._dim = this._actor.GetChild("Dim");
-        this._pieces = [];
-        this._glows = [];
-        for (var i = 0; i < 48; i++)
-        {
-            var piece = this._dim.GetChild("Piece" + i);
-            if (!piece)
-                break;
-            piece.onClick = function() { self.OnTap(); };
-            this._pieces.push(piece);
-        }
-        for (var i = 0; i < 8; i++)
-        {
-            var glow = this._dim.GetChild("Glow" + i);
-            if (!glow)
-                break;
-            this._glows.push(glow);
-        }
+        this._pieces = this._Numbered(this._dim, "Piece", 48);
+        this._holes = this._Numbered(this._dim, "Hole", 8);
+        this._glows = this._Numbered(this._dim, "Glow", 8).map(function(glow) {
+            return { widget: glow, anim: glow.GetComponent("o2::AnimationComponent") };
+        });
+        this._pieces.forEach(function(piece) { piece.onClick = function() { self.OnTap(); }; });
         this._caption = this._actor.GetChild("Caption");
-        this._text = this._actor.GetChild("Caption/Text");
-        this._shadow = this._actor.GetChild("Caption/Shadow");
-        this._tap = this._actor.GetChild("Caption/Tap");
+        this._captionAnim = this._caption.GetComponent("o2::AnimationComponent");
+        this._text = this._caption.GetChild("Text");
+        var textLayer = this._text.GetLayer("text");
+        this._textDrawable = textLayer ? textLayer.drawable : null;
+        this._tap = this._caption.GetChild("Tap");
         this._hand = this._actor.GetChild("Hand");
-        this._backdrop = this._actor.GetChild("../Backdrop"); // фон во весь экран: по нему — размер затемнения
 
         this._Hide();
+    }
+
+    _Numbered(parent, prefix, limit)
+    {
+        var list = [];
+        for (var i = 0; i < limit; i++)
+        {
+            var child = parent.GetChild(prefix + i);
+            if (!child)
+                break;
+            list.push(child);
+        }
+        return list;
     }
 
     IsActive() { return this._step != null; }
@@ -68,6 +95,13 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         var layout = widget.GetLayout();
         layout.SetOffsetMin(new Vec2(x - w*0.5, y - h*0.5));
         layout.SetOffsetMax(new Vec2(x + w*0.5, y + h*0.5));
+    }
+
+    _SetBox(widget, box, grow)
+    {
+        var layout = widget.GetLayout();
+        layout.SetOffsetMin(new Vec2(box.x - grow, box.y - grow));
+        layout.SetOffsetMax(new Vec2(box.x + box.w + grow, box.y + box.h + grow));
     }
 
     // Следующая ненабранная буква слова-задания (в порядке слова)
@@ -87,56 +121,139 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         return null;
     }
 
-    // Вырезы затемнения для шага: клетки цели, кнопка ✓ или ряд бустеров (мировые прямоугольники)
+    // Вырезы затемнения для шага: клетки поля и цели вне поля (прямоугольники экрана)
     _HolesFor(step)
     {
         var board = WordFallViews.board;
-        var holes = [];
-        var cell = function(c, r) {
-            var p = board.TileWorldPos(c, r);
-            var half = board.cellSize*0.52;
-            return { x: p.x - half, y: p.y - half, w: half*2, h: half*2 };
-        };
+        var cells = [];
         if (step.seeded && board)
         {
             var next = this._NextSeededCell(step);
             if (next)
-                holes.push(cell(next.cell.c, next.cell.r));
+                cells.push(next.cell);
         }
         else if (step.cells && board)
-            for (var i = 0; i < step.cells.length && i < 6; i++)
-                holes.push(cell(step.cells[i].c, step.cells[i].r));
+            cells = step.cells.slice(0, 6);
         else if (step.cell && board)
-            holes.push(cell(step.cell.c, step.cell.r));
-        if (step.target == "accept" || step.target == "boosters")
-        {
-            var rect = this._TargetRect(step.target);
-            if (rect)
-                holes.push(rect);
-        }
-        return holes;
+            cells.push(step.cell);
+        return this._CellHoles(cells).concat(step.target ? this._TargetRects(step.target) : []);
     }
 
-    // Мировой прямоугольник цели шага с полями: кнопка ✓ панели слова или ряд бустеров
-    _TargetRect(target)
+    // Соседние клетки сливаются в прямоугольники (отрезки строк, затем одинаковые отрезки соседних строк). Поле вокруг
+    // получает вырез, которому оно не наползает на другой: скруглённые углы не закрывают соседние клетки
+    _CellHoles(cells)
     {
-        var widget = this._actor.GetChild(target == "accept" ? "../WordBar/AcceptBtn" : "../Boosters");
-        if (!widget)
-            return null;
-        var r = widget.GetLayout().GetWorldRect();
-        var pad = target == "accept" ? 6 : 4;
-        return { x: r.left - pad, y: r.bottom - pad, w: r.right - r.left + pad*2, h: r.top - r.bottom + pad*2 };
+        if (cells.length == 0)
+            return [];
+        var board = WordFallViews.board;
+        var pitchX = board.cellSizeX || board.cellSize, pitchY = board.cellSize;
+
+        var sorted = cells.slice().sort(function(a, b) { return a.r != b.r ? a.r - b.r : a.c - b.c; });
+        var runs = [];
+        for (var i = 0; i < sorted.length; i++)
+        {
+            var cell = sorted[i], last = runs.length > 0 ? runs[runs.length - 1] : null;
+            if (last && last.r0 == cell.r && last.c1 + 1 == cell.c)
+                last.c1 = cell.c;
+            else if (!last || last.r0 != cell.r || last.c1 != cell.c)
+                runs.push({ c0: cell.c, c1: cell.c, r0: cell.r, r1: cell.r });
+        }
+        var rects = [];
+        for (var i = 0; i < runs.length; i++)
+        {
+            var run = runs[i], merged = false;
+            for (var k = 0; k < rects.length && !merged; k++)
+                if (rects[k].c0 == run.c0 && rects[k].c1 == run.c1 && rects[k].r1 + 1 == run.r0)
+                {
+                    rects[k].r1 = run.r0;
+                    merged = true;
+                }
+            if (!merged)
+                rects.push(run);
+        }
+
+        var holes = rects.map(function(rect) {
+            var from = board.TileWorldPos(rect.c0, rect.r0), to = board.TileWorldPos(rect.c1, rect.r1);
+            return { x: from.x - pitchX*0.5, y: from.y - pitchY*0.5, w: to.x - from.x + pitchX, h: to.y - from.y + pitchY,
+                     pad: 0 };
+        });
+        var pad = this.cellPad;
+        holes.forEach(function(h) { h.pad = pad; });
+        var overlaps = function(a, b) {
+            return a.x - a.pad < b.x + b.w + b.pad && b.x - b.pad < a.x + a.w + a.pad &&
+                   a.y - a.pad < b.y + b.h + b.pad && b.y - b.pad < a.y + a.h + a.pad;
+        };
+        for (var changed = true; changed;)
+        {
+            changed = false;
+            for (var i = 0; i < holes.length; i++)
+                for (var j = i + 1; j < holes.length; j++)
+                    if ((holes[i].pad > 0 || holes[j].pad > 0) && overlaps(holes[i], holes[j]))
+                    {
+                        holes[i].pad = 0;
+                        holes[j].pad = 0;
+                        changed = true;
+                    }
+        }
+        return holes.map(function(h) { return { x: h.x - h.pad, y: h.y - h.pad, w: h.w + h.pad*2, h: h.h + h.pad*2 }; });
+    }
+
+    // Вырезы цели шага с полями: слово в лотке вместе с кнопкой ✓, ряд бустеров или цели уровня (шкала очков вместе с
+    // задачами — одним вырезом, ходы — другим)
+    _TargetRects(target)
+    {
+        var self = this;
+        var box = function(paths, pad) {
+            var rects = paths.map(function(path) { return self._WidgetRect(path); }).filter(function(r) { return r != null; });
+            if (rects.length == 0)
+                return [];
+            var left = 1e9, bottom = 1e9, right = -1e9, top = -1e9;
+            rects.forEach(function(r) {
+                left = Math.min(left, r.left); bottom = Math.min(bottom, r.bottom);
+                right = Math.max(right, r.right); top = Math.max(top, r.top);
+            });
+            return [{ x: left - pad, y: bottom - pad, w: right - left + pad*2, h: top - bottom + pad*2 }];
+        };
+        if (target == "accept")
+            return box(["../WordBar/Tray", "../WordBar/AcceptBtn"], this.buttonPad);
+        if (target == "boosters")
+            return box(["../Boosters"], this.boostersPad);
+        if (target == "goals")
+        {
+            var goals = ["../Hud/ScorePanel"];
+            for (var i = 0; i < 6; i++)
+                goals.push("../Tasks/Objectives/Item" + i);
+            return box(goals, this.goalsPad).concat(box(["../Hud/MovesBox"], this.goalsPad));
+        }
+        return [];
+    }
+
+    _WidgetRect(path)
+    {
+        var widget = this._actor.GetChild(path);
+        return widget && widget.IsEnabled() ? widget.GetLayout().GetWorldRect() : null;
     }
 
     // Затемнение полосами: экран режется горизонтальными полосами по границам вырезов,
     // в каждой полосе смежные тёмные ячейки склеиваются в один прямоугольник — кусков
-    // хватает даже на шесть вырезов. Тап по затемнению ведёт дальше; на пояснительных
-    // шагах сверху лежит прозрачный кусок во весь экран, чтобы вырез не пропускал клики
+    // хватает даже на шесть вырезов. Сам вырез закрывает спрайт со скруглёнными мягкими углами того же цвета,
+    // поверх — кайма. Тап по затемнению ведёт дальше; на пояснительных шагах сверху лежит прозрачный
+    // кусок во весь экран, чтобы вырез не пропускал клики
     _ShowDim(holes, blockAll)
     {
-        var screen = this._backdrop ? this._backdrop.GetLayout().GetWorldRect() : { left: -434, right: 434, bottom: -906.5, top: 906.5 };
-        var W = screen.right - screen.left + 64, H = screen.top - screen.bottom + 64; // с запасом шире экрана
-        var xs = [-W/2, W/2], ys = [-H/2, H/2];
+        // раскладка округляет центр и размер виджета по отдельности: от нечётных размеров соседние куски расходились
+        // на единицу, и через весь экран светилась щель — у затемнения размер чётный, у кусков края чётные
+        var dimLayout = this._dim.GetLayout(), dimRect = dimLayout.GetWorldRect(), grown = dimLayout.GetOffsetMax();
+        var parentW = Math.round(dimRect.right - dimRect.left - grown.x), parentH = Math.round(dimRect.top - dimRect.bottom - grown.y);
+        if (dimRect.right - dimRect.left > 1 && (grown.x != parentW % 2 || grown.y != parentH % 2))
+            dimLayout.SetOffsetMax(new Vec2(parentW % 2, parentH % 2));
+        var even = function(v) { return Math.round(v*0.5)*2; };
+        holes = holes.map(function(h) {
+            var x = even(h.x), y = even(h.y);
+            return { x: x, y: y, w: even(h.x + h.w) - x, h: even(h.y + h.h) - y };
+        });
+        var R = even(this.dimReach);
+        var xs = [-R, R], ys = [-R, R];
         for (var i = 0; i < holes.length; i++)
         {
             var h = holes[i];
@@ -186,7 +303,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
                 {
                     if (runStart != null)
                     {
-                        place(runStart, y0, x0, y1, 150/255);
+                        place(runStart, y0, x0, y1, this.dimAlpha);
                         runStart = null;
                     }
                 }
@@ -194,26 +311,40 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
                     runStart = x0;
             }
             if (runStart != null)
-                place(runStart, y0, xs[xs.length - 1], y1, 150/255);
+                place(runStart, y0, xs[xs.length - 1], y1, this.dimAlpha);
         }
 
         if (blockAll)
-            place(-W/2, -H/2, W/2, H/2, 0.0);
+            place(-R, -R, R, R, 0.0);
 
         for (var i = used; i < this._pieces.length; i++)
             this._pieces[i].SetEnabled(false);
 
+        var key = JSON.stringify(holes);
+        var moved = key != this._holesKey;
+        this._holesKey = key;
+        for (var i = 0; i < this._holes.length; i++)
+        {
+            var corner = this._holes[i];
+            if (i < holes.length)
+            {
+                this._SetBox(corner, holes[i], 0);
+                corner.SetTransparency(this.dimAlpha);
+            }
+            corner.SetEnabled(i < holes.length);
+        }
         for (var i = 0; i < this._glows.length; i++)
         {
             var glow = this._glows[i];
             if (i < holes.length)
             {
-                var h = holes[i];
-                this._SetRect(glow, h.x + h.w*0.5, h.y + h.h*0.5, h.w + 26, h.h + 26);
-                glow.SetEnabled(true);
+                this._SetBox(glow.widget, holes[i], this.glowMargin);
+                glow.widget.SetEnabled(true);
+                if (moved && glow.anim)
+                    glow.anim.RewindAndPlay(this.focusState);
             }
             else
-                glow.SetEnabled(false);
+                glow.widget.SetEnabled(false);
         }
         this._dim.SetEnabled(true);
     }
@@ -221,6 +352,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
     _Hide()
     {
         this._step = null;
+        this._holesKey = "";
         this._dim.SetEnabled(false);
         this._caption.SetEnabled(false);
         this._hand.SetEnabled(false);
@@ -236,17 +368,6 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
                 if (cells.length < limit && pred(svc.GetTile(c, r)))
                     cells.push({ c: c, r: r });
         return cells;
-    }
-
-    // Первая клетка поля с нужным элементом
-    _FindCell(pred)
-    {
-        var svc = this._svc;
-        for (var r = svc.GetRows() - 1; r >= 0; r--)
-            for (var c = 0; c < svc.GetColumns(); c++)
-                if (pred(svc.GetTile(c, r)))
-                    return { c: c, r: r };
-        return null;
     }
 
     // Шаги для уровня: базовая механика, бустеры, элементы при первом появлении
@@ -267,20 +388,20 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
             steps.push({ key: "basics", block: false, target: "accept",
                          text: "Слово готово!\nНажми ✓, чтобы принять",
                          until: function(view) { return svc.GetMovesLeft() < view._startMoves; } });
-            steps.push({ key: "basics", block: true,
-                         text: "Буквы улетают в шкалу очков.\nЗаполни её и закрой задачи — ходы ограничены" });
+            steps.push({ key: "basics", block: true, target: "goals",
+                         text: "Буквы улетают в шкалу очков.\nЗаполни её и закрой задачи —\nходы ограничены!" });
         }
         if (!svc.IsTutorialSeen("boosters") && svc.GetLevelIndex() >= 1)
             steps.push({ key: "boosters", block: true, target: "boosters",
-                         text: "Бустеры: молоток, перемешать, подсказка,\nджокер — любая буква, ×2 — удвоить номинал" });
+                         text: "Бустеры: молоток, перемешать,\nподсказка, джокер — любая\nбуква, ×2 — удвоить номинал" });
 
         var elements = [
-            { key: "ice", pred: function(t) { return t.ice > 0; }, text: "Лёд: буква видна, но не выбирается.\nРазбей словом по соседству" },
+            { key: "ice", pred: function(t) { return t.ice > 0; }, text: "Лёд: буква видна,\nно не выбирается.\nРазбей словом по соседству" },
             { key: "stone", pred: function(t) { return t.stone > 0; }, text: "Камень ломают только бонусы:\nбомба, ракета, фейерверк" },
-            { key: "bonus", pred: function(t) { return t.powerup != ""; }, text: "Бонус срабатывает от слова по соседству.\nДлинные слова дают новые бонусы" },
+            { key: "bonus", pred: function(t) { return t.powerup != ""; }, text: "Бонус срабатывает от слова\nпо соседству. Длинные слова\nдают новые бонусы" },
             { key: "crate", pred: function(t) { return t.crate > 0; }, text: "Ящик падает вместе с буквами.\nСлово рядом снимает прочность" },
-            { key: "chain", pred: function(t) { return t.chained; }, text: "Цепь держит букву и всё над ней.\nИспользуй её в слове — цепь спадёт" },
-            { key: "snow", pred: function(t) { return t.snow; }, text: "Снежки сыплются сверху.\nСлово по соседству их растапливает" },
+            { key: "chain", pred: function(t) { return t.chained; }, text: "Цепь держит букву и всё\nнад ней. Используй её\nв слове — цепь спадёт" },
+            { key: "snow", pred: function(t) { return t.snow; }, text: "Снежки сыплются сверху.\nСлово по соседству\nих растапливает" },
             { key: "parcel", pred: function(t) { return t.parcel; }, text: "Конверт нужно спустить вниз:\nубирай буквы под ним" }
         ];
         for (var e = 0; e < elements.length; e++)
@@ -305,7 +426,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
             return "Слово «" + step.word + "» собрано!";
         if (next.index == 0)
             return "Собирай слова из букв на поле.\nНажми букву «" + step.word[0] + "» слова «" + step.word + "»";
-        return "Теперь букву «" + step.word[next.index] + "»";
+        return "Отлично! Теперь букву «" + step.word[next.index] + "»";
     }
 
     _Begin(steps)
@@ -324,44 +445,65 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         }
         var step = this._queue.shift();
         this._step = step;
-        this._time = 0;
         this._svc.MarkTutorialSeen(step.key);
 
         // на пояснительных шагах перекрыт весь экран (в том числе вырез): случайный
         // тап по подсвеченному бустеру не должен ломать обучение
-        this._selected = -1;
-        var holes = this._HolesFor(step);
-        this._ShowDim(holes, step.block);
-        this._caption.SetEnabled(true);
-        this._text.SetText(this._TextFor(step));
-        this._shadow.SetText(this._TextFor(step));
+        this._selected = this._svc.GetSelection().length;
         this._tap.SetEnabled(step.block);
-        this._SetRect(this._caption, 0, this._CaptionY(holes), 700, 148);
-        this._UpdateHand();
+        this._Show(step);
     }
 
-    // Подпись не ложится на HUD и не накрывает вырезы: если подсвеченное выше центра —
-    // текст внизу над бустерами, иначе — под панелью слова
-    _CaptionY(holes)
+    // Вырезы, плашка и рука под текущее состояние шага; плашка выскакивает заново
+    _Show(step)
+    {
+        var holes = this._HolesFor(step);
+        this._ShowDim(holes, step.block);
+        var text = this._TextFor(step);
+        this._text.SetText(text);
+        // по высоте плашка — по тексту: длинное слово задания или другой язык переносят строки
+        var measured = this._textDrawable ? this._textDrawable.GetRealSize().y : 0;
+        var height = this.captionPadding*2 + Math.max(measured, text.split("\n").length*this.captionLineHeight - 12);
+        var hand = this._PlaceHand(step);
+        this._SetRect(this._caption, 0, this._CaptionY(holes, hand, height), this.captionWidth, height);
+        this._caption.SetEnabled(true);
+        if (this._captionAnim)
+            this._captionAnim.RewindAndPlay(this.appearState);
+    }
+
+    // Плашка ставится на одно из мест поля: не накрывая вырезы и руку, а из свободных — ближе к подсвеченному
+    _CaptionY(holes, hand, height)
     {
         if (holes.length == 0)
-            return 0;
-        // подпись живёт в поле: HUD, задачи и лоток слова заняты. Из двух полос выбирается
-        // та, что меньше перекрывает подсвеченное
-        var bands = [150, -400, -120];
-        var best = bands[0], bestOverlap = 1e9;
-        for (var b = 0; b < bands.length; b++)
+            return this.captionCenter;
+        var boxes = holes.map(function(h) { return h; });
+        if (hand)
+            boxes.push(hand);
+        var margin = this.glowMargin + this.captionGap;
+        var halfWidth = this.captionWidth*0.5;
+        var focusY = 0;
+        for (var i = 0; i < holes.length; i++)
+            focusY += (holes[i].y + holes[i].h*0.5)/holes.length;
+
+        var best = this.captionCenters[0], bestScore = 1e18;
+        for (var b = 0; b < this.captionCenters.length; b++)
         {
-            var y0 = bands[b] - 74, y1 = bands[b] + 74, overlap = 0;
-            for (var i = 0; i < holes.length; i++)
+            var center = this.captionCenters[b];
+            var y0 = center - height*0.5 - this.captionBelow, y1 = center + height*0.5 + this.captionAbove;
+            var overlap = 0;
+            for (var i = 0; i < boxes.length; i++)
             {
-                var h = holes[i];
-                overlap += Math.max(0, Math.min(y1, h.y + h.h) - Math.max(y0, h.y))*h.w;
+                var box = boxes[i];
+                var w = Math.min(halfWidth, box.x + box.w + margin) - Math.max(-halfWidth, box.x - margin);
+                var h = Math.min(y1, box.y + box.h + margin) - Math.max(y0, box.y - margin);
+                if (w > 0 && h > 0)
+                    overlap += w*h;
             }
-            if (overlap < bestOverlap - 1)
+            var score = overlap*1000 + Math.abs(center - focusY);
+            if (score < bestScore)
             {
-                bestOverlap = overlap;
-                best = bands[b];
+                bestScore = score;
+                best = center;
             }
         }
         return best;
@@ -379,22 +521,23 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
             return board.TileWorldPos(step.cell.c, step.cell.r);
         if (step.target == "accept" || step.target == "boosters")
         {
-            var rect = this._TargetRect(step.target);
-            return rect ? { x: rect.x + rect.w*(step.target == "accept" ? 0.4 : 0.5), y: rect.y + rect.h*0.55 } : null;
+            var rect = this._WidgetRect(step.target == "accept" ? "../WordBar/AcceptBtn" : "../Boosters");
+            return rect ? { x: rect.left + (rect.right - rect.left)*(step.target == "accept" ? 0.45 : 0.5), y: (rect.bottom + rect.top)*0.5 } : null;
         }
         return null;
     }
 
-    _UpdateHand()
+    // Рука ставится кончиком пальца на цель; возвращает её прямоугольник (или null — руки нет)
+    _PlaceHand(step)
     {
-        var step = this._step;
         var pos = step ? this._TargetPos(step) : null;
         this._hand.SetEnabled(pos != null);
         if (!pos)
-            return;
-        var bob = Math.sin(this._time*6)*8;
-        // кончик пальца — в левом верхнем углу спрайта: сдвигаем руку вправо-вниз от цели
-        this._SetRect(this._hand, pos.x + 34 + bob*0.3, pos.y - 40 - bob, 96, 96);
+            return null;
+        var size = this.handSize;
+        var x = pos.x + (0.5 - this.handTipX)*size, y = pos.y - (this.handTipY - 0.5)*size;
+        this._SetRect(this._hand, x, y, size, size);
+        return { x: x - size*0.5, y: y - size*0.5, w: size, h: size };
     }
 
     OnTap()
@@ -445,20 +588,10 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
             if (selected != this._selected)
             {
                 this._selected = selected;
-                var holes = this._HolesFor(this._step);
-                this._ShowDim(holes, this._step.block);
-                this._text.SetText(this._TextFor(this._step));
-                this._shadow.SetText(this._TextFor(this._step));
-                this._SetRect(this._caption, 0, this._CaptionY(holes), 700, 148);
+                this._Show(this._step);
             }
         }
 
-        this._time += dt;
-        this._UpdateHand();
-        var pulse = 0.35 + 0.25*Math.sin(this._time*4);
-        for (var i = 0; i < this._glows.length; i++)
-            if (this._glows[i].IsEnabled())
-                this._glows[i].SetTransparency(pulse);
         if (this._step.until && this._step.until(this))
             this._Next();
     }

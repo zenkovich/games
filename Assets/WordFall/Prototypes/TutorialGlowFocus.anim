@@ -1,0 +1,118 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Focus/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 11293752080941105398,
+                                        "value": 1.8,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.126,
+                                        "rightSupportValue": -0.68
+                                    },
+                                    {
+                                        "uid": 875560267942201160,
+                                        "value": 1.0,
+                                        "position": 0.42,
+                                        "leftSupportPosition": -0.168,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.052000000000000025,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 6606082733599953213,
+                                        "value": 1.0,
+                                        "position": 0.55,
+                                        "leftSupportPosition": -0.052000000000000025,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Focus/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 1135950170251595821,
+                                        "value": 1.8,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.126,
+                                        "rightSupportValue": -0.68
+                                    },
+                                    {
+                                        "uid": 15504633814663516366,
+                                        "value": 1.0,
+                                        "position": 0.42,
+                                        "leftSupportPosition": -0.168,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.052000000000000025,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 678320034650981916,
+                                        "value": 1.0,
+                                        "position": 0.55,
+                                        "leftSupportPosition": -0.052000000000000025,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Focus/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 4185698604916690783,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.036,
+                                        "rightSupportValue": 0.85
+                                    },
+                                    {
+                                        "uid": 14723546222850980276,
+                                        "value": 1.0,
+                                        "position": 0.12,
+                                        "leftSupportPosition": -0.048,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.17200000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8730533874346415975,
+                                        "value": 0.0,
+                                        "position": 0.55,
+                                        "leftSupportPosition": -0.17200000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "mDuration": 0.55
+        }
+    }
+}
