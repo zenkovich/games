@@ -1,0 +1,326 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Finger/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 4116581594053024475,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.12,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3552183215339413687,
+                                        "value": 1.14,
+                                        "position": 0.3,
+                                        "leftSupportPosition": -0.12,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.072,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 2674653773922211985,
+                                        "value": 0.9,
+                                        "position": 0.48,
+                                        "leftSupportPosition": -0.072,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.048,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 12832565004665019564,
+                                        "value": 0.92,
+                                        "position": 0.6,
+                                        "leftSupportPosition": -0.048,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.13999999999999999,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10838967478194624971,
+                                        "value": 1.0,
+                                        "position": 0.95,
+                                        "leftSupportPosition": -0.13999999999999999,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.14000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7577785521623538534,
+                                        "value": 1.0,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.14000000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Finger/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 17467437363562125563,
+                                        "value": 1.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.12,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 1384128381196634407,
+                                        "value": 1.14,
+                                        "position": 0.3,
+                                        "leftSupportPosition": -0.12,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.072,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10740567424607104032,
+                                        "value": 0.9,
+                                        "position": 0.48,
+                                        "leftSupportPosition": -0.072,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.048,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 8301320704339123729,
+                                        "value": 0.92,
+                                        "position": 0.6,
+                                        "leftSupportPosition": -0.048,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.13999999999999999,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 13220904875101695282,
+                                        "value": 1.0,
+                                        "position": 0.95,
+                                        "leftSupportPosition": -0.13999999999999999,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.14000000000000004,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 925703943898568946,
+                                        "value": 1.0,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.14000000000000004,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Finger/transform/angleDegrees",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 12742145522280421959,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.12,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 14757539947716322368,
+                                        "value": -7.0,
+                                        "position": 0.3,
+                                        "leftSupportPosition": -0.12,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.072,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 11531133492577153736,
+                                        "value": 0.0,
+                                        "position": 0.48,
+                                        "leftSupportPosition": -0.072,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.32800000000000007,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7127884402418192787,
+                                        "value": 0.0,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.32800000000000007,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ripple/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 8144579649446305046,
+                                        "value": 0.3,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.188,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9102310112056690857,
+                                        "value": 0.3,
+                                        "position": 0.47,
+                                        "leftSupportPosition": -0.188,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.17400000000000002,
+                                        "rightSupportValue": 1.02
+                                    },
+                                    {
+                                        "uid": 11928613896236579899,
+                                        "value": 1.5,
+                                        "position": 1.05,
+                                        "leftSupportPosition": -0.23200000000000004,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.1,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10970936354975783449,
+                                        "value": 1.5,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.1,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ripple/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 10538494988246868426,
+                                        "value": 0.3,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.188,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 9278987303133282787,
+                                        "value": 0.3,
+                                        "position": 0.47,
+                                        "leftSupportPosition": -0.188,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.17400000000000002,
+                                        "rightSupportValue": 1.02
+                                    },
+                                    {
+                                        "uid": 694670373070720889,
+                                        "value": 1.5,
+                                        "position": 1.05,
+                                        "leftSupportPosition": -0.23200000000000004,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.1,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 17817723616665310748,
+                                        "value": 1.5,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.1,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Ripple/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 1406815186059244248,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.18400000000000002,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7217181692566191285,
+                                        "value": 0.0,
+                                        "position": 0.46,
+                                        "leftSupportPosition": -0.18400000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.013333333333333327,
+                                        "rightSupportValue": 0.2833333333333333
+                                    },
+                                    {
+                                        "uid": 2823581583873061567,
+                                        "value": 0.85,
+                                        "position": 0.5,
+                                        "leftSupportPosition": -0.013333333333333327,
+                                        "leftSupportValue": -0.2833333333333333,
+                                        "rightSupportPosition": 0.165,
+                                        "rightSupportValue": -0.7224999999999999
+                                    },
+                                    {
+                                        "uid": 7698524600957970505,
+                                        "value": 0.0,
+                                        "position": 1.05,
+                                        "leftSupportPosition": -0.22000000000000003,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.1,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 94190660309478005,
+                                        "value": 0.0,
+                                        "position": 1.3,
+                                        "leftSupportPosition": -0.1,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "mDuration": 1.3,
+            "mLoop": "Repeat"
+        }
+    }
+}
