@@ -38,8 +38,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         // решафл: плитки улетают на новые клетки копиями-флаерами (прототип с клипом flight по своей траектории,
         // буква меняется в полёте) и встают на поле, когда клип доиграл
         this.reshuffleLetter = new o2.AssetRefActorAsset();
-        this.reshuffleFlight = 0.9;      // длина клипа flight прототипа: тогда плитка встаёт на клетку
-        this.reshuffleSpread = 0.3;      // разброс стартов плиток, с
+        this.reshuffleFlight = 1.0;      // длина клипа flight прототипа: тогда плитка встаёт на клетку
+        this.reshuffleSpread = 0.25;     // разброс стартов плиток, с
+        this.reshuffleSpeedSpread = 0.15; // разброс скорости клипа у плиток: ±15% — садятся вразнобой
         this.reshuffleWarmPerFrame = 6;  // флаеров создаётся за кадр, пока открыто подтверждение
         this.reshuffleDepth = 60;        // глубина отрисовки первого флаера, следующие чуть выше
 
@@ -414,7 +415,10 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             flyer.trajectory.ResetRandomOffset(); // своя дуга в коридоре сплайна
             flyer.trajectory.SetPosition(0);
             flyer.widget.SetEnabled(true);
-            this._flights.push({ flyer: flyer, c: flight.toC, r: flight.toR, start: Math.random()*this.reshuffleSpread, started: false });
+            var start = Math.random()*this.reshuffleSpread;
+            var speed = 1 + (Math.random()*2 - 1)*this.reshuffleSpeedSpread;
+            this._flights.push({ flyer: flyer, c: flight.toC, r: flight.toR, start: start, speed: speed,
+                                 end: start + this.reshuffleFlight/speed, started: false });
         }
         this._HideFlying();
         return true;
@@ -494,11 +498,14 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             state.SetWeight(0);
     }
 
-    _StartFlyer(flyer)
+    _StartFlyer(flyer, speed)
     {
         var state = flyer.anim.GetState("flight");
         if (state)
+        {
             state.SetWeight(1);
+            state.SetSpeed(speed);
+        }
         flyer.anim.RewindAndPlay("flight");
     }
 
@@ -544,9 +551,9 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             if (!flight.started && this._flightTime >= flight.start)
             {
                 flight.started = true;
-                this._StartFlyer(flight.flyer);
+                this._StartFlyer(flight.flyer, flight.speed);
             }
-            if (this._flightTime >= flight.start + this.reshuffleFlight)
+            if (this._flightTime >= flight.end)
                 this._Land(flight);
             else
                 flying.push(flight);
