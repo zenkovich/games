@@ -100337,12 +100337,12 @@
                                                                                             "y": 0.5
                                                                                         },
                                                                                         "offsetMin": {
-                                                                                            "x": 44.0,
-                                                                                            "y": -60.0
+                                                                                            "x": 46.0,
+                                                                                            "y": -45.0
                                                                                         },
                                                                                         "offsetMax": {
-                                                                                            "x": 156.0,
-                                                                                            "y": 60.0
+                                                                                            "x": 164.0,
+                                                                                            "y": 53.0
                                                                                         }
                                                                                     },
                                                                                     "InternalWidgets": [],
@@ -100355,8 +100355,8 @@
                                                                                                     "Type": "o2::Sprite",
                                                                                                     "Value": {
                                                                                                         "mImageAsset": {
-                                                                                                            "id": "25bfa1e539464543de55f4545537c6dd",
-                                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/button_red.png"
+                                                                                                            "id": "b8ab3f86767cca558017dd87a1dd2437",
+                                                                                                            "path": "WordFall/ScreenUI/icon_shuffle_light.png"
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -100364,68 +100364,13 @@
                                                                                             }
                                                                                         }
                                                                                     ],
-                                                                                    "States": [],
-                                                                                    "Children": [
-                                                                                        {
-                                                                                            "Type": "o2::Image",
-                                                                                            "Data": {
-                                                                                                "mDrawingDepth": 92.0,
-                                                                                                "mInheritDrawingDepthFromParent": false,
-                                                                                                "mName": "glyph",
-                                                                                                "mSceneLayer": {
-                                                                                                    "Type": "o2::SceneLayer",
-                                                                                                    "Value": {
-                                                                                                        "mName": "UI"
-                                                                                                    }
-                                                                                                },
-                                                                                                "Id": 2731099103147188118,
-                                                                                                "Transform": {
-                                                                                                    "anchorMin": {
-                                                                                                        "x": 0.218,
-                                                                                                        "y": 0.3287
-                                                                                                    },
-                                                                                                    "anchorMax": {
-                                                                                                        "x": 0.782,
-                                                                                                        "y": 0.7692
-                                                                                                    },
-                                                                                                    "offsetMin": {
-                                                                                                        "x": 0.0,
-                                                                                                        "y": 0.0
-                                                                                                    },
-                                                                                                    "offsetMax": {
-                                                                                                        "x": 0.0,
-                                                                                                        "y": 0.0
-                                                                                                    }
-                                                                                                },
-                                                                                                "InternalWidgets": [],
-                                                                                                "Layers": [
-                                                                                                    {
-                                                                                                        "Type": "o2::WidgetLayer",
-                                                                                                        "Value": {
-                                                                                                            "name": "image",
-                                                                                                            "mDrawable": {
-                                                                                                                "Type": "o2::Sprite",
-                                                                                                                "Value": {
-                                                                                                                    "mImageAsset": {
-                                                                                                                        "id": "0208bcde4d8c2a56040c3b27f7f1bd70",
-                                                                                                                        "path": "Generated/UI/Screen_Resources/Sprites/icon_shuffle.png"
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            },
-                                                                                                            "mUID": 5594620058085053484
-                                                                                                        }
-                                                                                                    }
-                                                                                                ],
-                                                                                                "States": []
-                                                                                            }
-                                                                                        }
-                                                                                    ]
+                                                                                    "States": []
                                                                                 }
                                                                             },
                                                                             {
                                                                                 "Type": "o2::Label",
                                                                                 "Data": {
-                                                                                    "mDrawingDepth": 93.0,
+                                                                                    "mDrawingDepth": 92.0,
                                                                                     "mInheritDrawingDepthFromParent": false,
                                                                                     "mName": "label",
                                                                                     "mSceneLayer": {
@@ -100445,11 +100390,11 @@
                                                                                             "y": 1.0
                                                                                         },
                                                                                         "offsetMin": {
-                                                                                            "x": 160.0,
+                                                                                            "x": 172.0,
                                                                                             "y": 12.0
                                                                                         },
                                                                                         "offsetMax": {
-                                                                                            "x": -56.0,
+                                                                                            "x": -50.0,
                                                                                             "y": 0.0
                                                                                         }
                                                                                     },
