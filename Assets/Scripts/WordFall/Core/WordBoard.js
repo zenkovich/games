@@ -410,36 +410,6 @@ WordBoard = class WordBoard
         return result;
     }
 
-    // Перемешивание плиток, пригодных для слов
-    ShuffleLetters()
-    {
-        var cells = [];
-        for (var c = 0; c < this.config.columns; c++)
-        {
-            for (var r = 0; r < this.config.rows; r++)
-            {
-                if (WordBoard.IsTileUsable(this.grid[c][r]))
-                    cells.push({ c: c, r: r });
-            }
-        }
-
-        var self = this;
-        var tiles = cells.map(function(cell) { return self.grid[cell.c][cell.r]; });
-        for (var i = tiles.length - 1; i > 0; i--)
-        {
-            var j = this._random.NextInt(i + 1);
-            var tmp = tiles[i];
-            tiles[i] = tiles[j];
-            tiles[j] = tmp;
-        }
-
-        for (var i = 0; i < cells.length; i++)
-            this.grid[cells[i].c][cells[i].r] = tiles[i];
-
-        this.selection = [];
-        return true;
-    }
-
     MakeJoker(cell)
     {
         var tile = this.grid[cell.c][cell.r];
@@ -451,14 +421,82 @@ WordBoard = class WordBoard
         return true;
     }
 
-    MakeDoubled(cell)
+    // Решафл: пригодные для слов плитки получают новые буквы из полного мешка; доля stayShare из них остаётся на месте,
+    // остальные меняются местами парами с соседом не дальше reach клеток (кому пары не нашлось — тоже на месте).
+    // Плашка и джокер едут с плиткой, буква на цепи не трогается. Возвращает перелёты [{from: {c, r}, to: {c, r}}],
+    // у оставшихся from совпадает с to
+    ReshuffleLetters(stayShare, reach)
     {
-        var tile = this.grid[cell.c][cell.r];
-        if (!WordBoard.IsTileUsable(tile) || tile.joker || tile.doubled)
-            return false;
+        var cells = [];
+        for (var c = 0; c < this.config.columns; c++)
+        {
+            for (var r = 0; r < this.config.rows; r++)
+            {
+                var tile = this.grid[c][r];
+                if (WordBoard.IsTileUsable(tile) && !tile.chained)
+                    cells.push({ c: c, r: r });
+            }
+        }
 
-        tile.doubled = true;
-        return true;
+        var order = cells.map(function(cell, i) { return i; });
+        for (var i = order.length - 1; i > 0; i--)
+        {
+            var j = this._random.NextInt(i + 1);
+            var tmp = order[i];
+            order[i] = order[j];
+            order[j] = tmp;
+        }
+
+        // source[i] — клетка, чья плитка встаёт на клетку i
+        var source = cells.map(function() { return -1; });
+        for (var k = 0; k < order.length; k++)
+        {
+            if (this._random.Next01() < stayShare)
+                source[order[k]] = order[k];
+        }
+        for (var k = 0; k < order.length; k++)
+        {
+            var i = order[k];
+            if (source[i] >= 0)
+                continue;
+            source[i] = i;
+            var near = [];
+            for (var j = 0; j < cells.length; j++)
+            {
+                if (source[j] < 0 && Math.max(Math.abs(cells[j].c - cells[i].c), Math.abs(cells[j].r - cells[i].r)) <= reach)
+                    near.push(j);
+            }
+            if (near.length == 0)
+                continue;
+            var partner = near[this._random.NextInt(near.length)];
+            source[i] = partner;
+            source[partner] = i;
+        }
+
+        var self = this;
+        var tiles = cells.map(function(cell) { return self.grid[cell.c][cell.r]; });
+        var flights = [];
+        for (var i = 0; i < cells.length; i++)
+        {
+            var tile = tiles[source[i]];
+            if (!tile.joker)
+                tile.letter = "";
+            this.grid[cells[i].c][cells[i].r] = tile;
+            flights.push({ from: { c: cells[source[i]].c, r: cells[source[i]].r }, to: { c: cells[i].c, r: cells[i].r } });
+        }
+
+        this._RefillBag();
+        for (var i = 0; i < cells.length; i++)
+        {
+            var tile = this.grid[cells[i].c][cells[i].r];
+            if (tile.joker)
+                continue;
+            tile.letter = this._DrawLetter(this._NeedVowelAt(cells[i].c, cells[i].r));
+            tile.value = this._LetterValue(tile.letter);
+        }
+
+        this.selection = [];
+        return flights;
     }
 
     // Самое дорогое слово из букв поля; заполняет выбор при успехе

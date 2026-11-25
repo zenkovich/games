@@ -11,10 +11,9 @@ WordFallBoosterShopView = class WordFallBoosterShopView extends WordFallWindow
     {
         return [
             { key: "hammer", title: "HAMMER", text: "Breaks one tile\nor a layer of an obstacle" },
-            { key: "shuffle", title: "SHUFFLE", text: "Mixes the letters\non the board" },
+            { key: "shuffle", title: "SHUFFLE", text: "New letters on the board,\nsome tiles swap places" },
             { key: "hint", title: "HINT", text: "Shows a word\nthat helps the goals" },
-            { key: "joker", title: "JOKER", text: "Turns a tile\ninto any letter" },
-            { key: "doubler", title: "DOUBLER", text: "Doubles the points\nof a tile" }
+            { key: "joker", title: "JOKER", text: "Turns a tile\ninto any letter" }
         ];
     }
 

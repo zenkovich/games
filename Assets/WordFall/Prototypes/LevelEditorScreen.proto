@@ -9807,7 +9807,8 @@
                                                 "InternalWidgets": [],
                                                 "Layers": [],
                                                 "States": [],
-                                                "mDrawingDepth": 5.0
+                                                "mDrawingDepth": 5.0,
+                                                "mEnabled": false
                                             }
                                         },
                                         {

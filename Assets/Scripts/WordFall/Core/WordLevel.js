@@ -7,10 +7,10 @@ WordLevel = class WordLevel
 {
     // Индексы бустеров
     static get Hammer() { return 0; }
-    static get Shuffle() { return 1; }
+    static get Reshuffle() { return 1; }
     static get Hint() { return 2; }
     static get Joker() { return 3; }
-    static get Doubler() { return 4; }
+    static get BoosterCount() { return 4; }
 
     constructor()
     {
@@ -21,7 +21,7 @@ WordLevel = class WordLevel
         this.state = "playing";    // playing | won | lost
         this.score = 0;
         this.movesLeft = 0;
-        this._charges = [0, 0, 0, 0, 0];
+        this._charges = [0, 0, 0, 0];
         this._moveIndex = 0;
         this._usedWords = [];
         this._parcelsSpawned = 0;  // выпущено конвертов, включая стартовые
@@ -51,8 +51,8 @@ WordLevel = class WordLevel
         this._usedWords = [];
         this.state = "playing";
 
-        this._charges = config.boosterCharges.slice();
-        while (this._charges.length < 5)
+        this._charges = config.boosterCharges.slice(0, WordLevel.BoosterCount);
+        while (this._charges.length < WordLevel.BoosterCount)
             this._charges.push(0);
 
         this.tasks = config.tasks.map(function(task) { return { config: task, progress: 0, done: false }; });
@@ -126,7 +126,7 @@ WordLevel = class WordLevel
     // на всю игру и на старте следующего уровня не восстанавливается. Вызывается после Start
     UseCharges(charges)
     {
-        while (charges.length < 5)
+        while (charges.length < WordLevel.BoosterCount)
             charges.push(0);
         this._charges = charges;
     }
@@ -199,16 +199,6 @@ WordLevel = class WordLevel
         this._CheckWin();
         result.repaired = this._EnsureTasksAchievable(dictionary);
         return result;
-    }
-
-    UseShuffle(dictionary)
-    {
-        if (this.state != "playing" || !this._TakeCharge(WordLevel.Shuffle))
-            return false;
-
-        var ok = this.board.ShuffleLetters();
-        this._EnsureTasksAchievable(dictionary);
-        return ok;
     }
 
     // Подсказка ведёт к целям уровня и не предлагает ни использованных, ни громоздких, ни грубых слов, ни имён,
@@ -315,13 +305,31 @@ WordLevel = class WordLevel
         return true;
     }
 
-    UseDoubler(cell)
-    {
-        if (this.state != "playing" || this._charges[WordLevel.Doubler] <= 0 || !this.board.MakeDoubled(cell))
-            return false;
+    // Решафл по умолчанию: доля плиток, что остаются на месте, и дальность обмена соседей в клетках
+    static get ReshuffleStayShare() { return 0.35; }
+    static get ReshuffleReach() { return 2; }
 
-        this._charges[WordLevel.Doubler]--;
-        return true;
+    // Решафл: буквы поля меняются на новые, часть плиток меняется местами с соседями. Возвращает перелёты
+    // [{from, to}] или null
+    UseReshuffle(dictionary, stayShare, reach)
+    {
+        if (this.state != "playing" || !this._TakeCharge(WordLevel.Reshuffle))
+            return null;
+
+        var board = this.board;
+        var flights = board.ReshuffleLetters(stayShare !== undefined ? stayShare : WordLevel.ReshuffleStayShare,
+                                             reach !== undefined ? reach : WordLevel.ReshuffleReach);
+        var tints = {};
+        flights.forEach(function(flight) { tints[flight.to.c + "," + flight.to.r] = board.GetTile(flight.to).tint; });
+
+        // подсев ставит на клетку новую плитку — плашка остаётся той, что туда прилетела
+        var repaired = this._EnsureTasksAchievable(dictionary);
+        repaired.forEach(function(cell) {
+            var tint = tints[cell.c + "," + cell.r];
+            if (tint !== undefined)
+                board.GetTile(cell).tint = tint;
+        });
+        return flights;
     }
 
     // Чего хочет уровень: цели ракет и буквы, которые надо беречь

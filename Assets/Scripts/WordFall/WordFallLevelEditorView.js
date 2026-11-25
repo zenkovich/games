@@ -156,7 +156,7 @@ WordFallLevelEditorView = class WordFallLevelEditorView extends o2.Component
             Rare: { get: function(d) { return d.extraRare; }, set: function(d, v) { d.SetExtraRare(v); }, step: 1 }
         };
         this._BindSteppers(root, steppers, "");
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < WordLevel.BoosterCount; i++)
         {
             (function(index) {
                 self._charges.push(root.GetChild("Charge" + index + "/Btn"));

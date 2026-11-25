@@ -124,7 +124,7 @@ WordFallBot = class WordFallBot
     }
 
     // Следующее действие: {type, cells, word, cell, think} — type: word (выбрать cells и принять), hint (подсказка
-    // набирает слово), accept (принять набранное), hammer / joker / doubler (по клетке cell), shuffle, stuck
+    // набирает слово), accept (принять набранное), hammer / joker (по клетке cell), reshuffle, stuck
     // (слов не нашлось — попытка проиграна), none (уровень закончен). think — сколько секунд думал бы человек
     NextAction()
     {
@@ -165,9 +165,8 @@ WordFallBot = class WordFallBot
             case "accept": return level.AcceptWord(dictionary);
             case "hint": level.UseHint(dictionary); return null;
             case "hammer": return level.UseHammer(action.cell, dictionary);
-            case "shuffle": level.UseShuffle(dictionary); return null;
             case "joker": level.UseJoker(action.cell); return null;
-            case "doubler": level.UseDoubler(action.cell); return null;
+            case "reshuffle": level.UseReshuffle(dictionary); return null;
         }
         return null;
     }
@@ -788,11 +787,8 @@ WordFallBot = class WordFallBot
         {
             if (level.GetBoosterCharges(WordLevel.Hint) > 0 && random.Next01() < eager)
                 return this._Hint();
-            if (level.GetBoosterCharges(WordLevel.Shuffle) > 0 && view.usable > 3 && random.Next01() < eager*0.3)
-            {
-                this.stats.boosters++;
-                return { type: "shuffle", think: 4 };
-            }
+            if (level.GetBoosterCharges(WordLevel.Reshuffle) > 0 && view.usable > 3 && random.Next01() < eager*0.5)
+                return this._Reshuffle();
             return null;
         }
 
@@ -813,25 +809,10 @@ WordFallBot = class WordFallBot
 
         var average = this._moves > 0 ? this._gains/this._moves : 14;
         var behind = view.scoreLeft > 0 && view.pace > Math.max(average, best.outcome.score)*1.15;
-        if (behind && level.GetBoosterCharges(WordLevel.Doubler) > 0 && random.Next01() < (tight ? eager : eager*0.25))
-        {
-            var target = null, value = 0;
-            for (var i = 0; i < best.cells.length; i++)
-            {
-                var tile = view.board.grid[best.cells[i].c][best.cells[i].r];
-                if (!tile.joker && !tile.doubled && tile.value > value)
-                {
-                    value = tile.value;
-                    target = best.cells[i];
-                }
-            }
-            if (target)
-            {
-                this.stats.boosters++;
-                this._queue.push(this._WordAction(best));
-                return { type: "doubler", cell: { c: target.c, r: target.r }, think: 3 };
-            }
-        }
+        // лучший ход дешёвый, а очки отстают — новые буквы вместо слабого слова
+        if (behind && best.outcome.score < average*0.8 && level.GetBoosterCharges(WordLevel.Reshuffle) > 0 &&
+            random.Next01() < (tight ? eager : eager*0.25))
+            return this._Reshuffle();
 
         // слова нужной заданию длины не видно, а ходов мало — джокер вместо самой дешёвой плитки
         var lengthGoal = view.length || view.powerupLength;
@@ -867,6 +848,12 @@ WordFallBot = class WordFallBot
         this.stats.boosters++;
         this._queue.push({ type: "accept", think: 1 });
         return { type: "hint", think: 3 };
+    }
+
+    _Reshuffle()
+    {
+        this.stats.boosters++;
+        return { type: "reshuffle", think: 4 };
     }
 
     // Молоток — по препятствию задания: ящик послабее, лёд, снежок

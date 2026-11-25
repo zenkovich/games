@@ -35,6 +35,15 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this.bonusChargeScale = 0.35; // раздувание бонуса перед срабатыванием
         this.shakeFrequency = 46;    // частота колебаний тряски поля
 
+        // решафл: плитки поднимаются копиями-флаерами (прототип с клипом flight по своей траектории, буква меняется
+        // в воздухе) и встают на поле, когда клип доиграл
+        this.reshuffleLetter = new o2.AssetRefActorAsset();
+        this.reshuffleFlight = 0.86;     // длина клипа flight прототипа: тогда плитка встаёт на клетку
+        this.reshuffleSpread = 0.25;     // разброс стартов плиток, с
+        this.reshuffleSpeedSpread = 0.15; // разброс скорости клипа у плиток: ±15% — садятся вразнобой
+        this.reshuffleWarmPerFrame = 6;  // флаеров создаётся за кадр, пока открыто подтверждение
+        this.reshuffleDepth = 60;        // глубина отрисовки первого флаера, следующие чуть выше
+
         this._tiles = null;
         this._collapsing = false; // модель анимирует обвал — рисуем офсеты
         this._hintQueue = [];   // клетки подсказки, выбираются по одной
@@ -57,6 +66,10 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
         this._backShape = null; // форма поля, по которой разложена подложка
         this._kicks = [];       // толчки плиток: { c, r, dx, dy, dur, t }
         this._kickOffsets = {}; // "c,r" -> смещение от толчков в этом кадре
+        this._flyers = [];      // пул флаеров решафла
+        this._flyersWanted = 0;
+        this._flights = [];     // идущие перелёты решафла: { flyer, c, r, start, started }
+        this._flightTime = 0;
     }
 
     OnStart()
@@ -222,8 +235,6 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             }
             else if (mode == "joker")
                 svc.UseJoker(c, r);
-            else if (mode == "doubler")
-                svc.UseDoubler(c, r);
             return;
         }
 
@@ -357,6 +368,218 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
 
     // Подсказка ещё набирает своё слово
     IsSelecting() { return this._hintQueue.length > 0; }
+
+    // Плитки решафла ещё в полёте
+    IsReshuffling() { return this._flights.length > 0; }
+
+    // Подтверждение решафла на экране: флаеры на каждую клетку создаются заранее, по нескольку за кадр
+    PrepareReshuffle()
+    {
+        this._flyersWanted = this._columns*this._rows;
+    }
+
+    // Решафл: сервис меняет поле, плитки снимаются со старых клеток флаерами с прежними буквами; клип флаера
+    // поднимает плитку над тенью, несёт к соседу, с которым она поменялась местами (или оставляет на своей клетке),
+    // меняет в воздухе букву и впечатывает плитку в клетку; плитка поля встаёт, когда клип доиграл.
+    // false — бустер не сработал
+    Reshuffle()
+    {
+        var faces = [];
+        for (var c = 0; c < this._columns; c++)
+        {
+            faces[c] = [];
+            for (var r = 0; r < this._rows; r++)
+                faces[c][r] = this._TileFace(c, r);
+        }
+
+        var flights = this._svc.UseReshuffle();
+        if (!flights)
+            return false;
+
+        this._lastRevision = this._svc.GetRevision();
+        this.SyncBoard();
+        this.SyncSelection();
+
+        this._flightTime = 0;
+        for (var i = 0; i < flights.length; i++)
+        {
+            var flight = flights[i];
+            var flyer = this._Flyer(i);
+            if (!flyer)
+                break; // без прототипа флаера плитки просто встают на места
+
+            this._DressFlyer(flyer, faces[flight.fromC][flight.fromR], this._TileFace(flight.toC, flight.toR));
+            var from = this._FlyerPos(flight.fromC, flight.fromR);
+            var to = this._FlyerPos(flight.toC, flight.toR);
+            this._StopFlyer(flyer);
+            flyer.trajectory.SetPoints(from.x, from.y, to.x, to.y);
+            flyer.trajectory.SetPosition(0);
+            flyer.widget.SetEnabled(true);
+            var start = Math.random()*this.reshuffleSpread;
+            var speed = 1 + (Math.random()*2 - 1)*this.reshuffleSpeedSpread;
+            this._flights.push({ flyer: flyer, c: flight.toC, r: flight.toR, start: start, speed: speed,
+                                 end: start + this.reshuffleFlight/speed, started: false });
+        }
+        this._HideFlying();
+        return true;
+    }
+
+    // Центр клетки для флаера: дети-акторы поля отсчитываются от его точки поворота, а не от центра, как плитки
+    _FlyerPos(c, r)
+    {
+        var transform = this._actor.GetTransform();
+        var size = transform.GetSize2D(), pivot = transform.GetSizePivot();
+        var local = this.TileLocalPos(c, r);
+        return new Vec2(local.x + size.x*0.5 - pivot.x, local.y + size.y*0.5 - pivot.y);
+    }
+
+    // Что показывает клетка: буква, номинал, их цвета и плашка
+    _TileFace(c, r)
+    {
+        var view = this._tiles[c][r];
+        return { letter: view.letter.text, letterColor: view.letter.color, points: view.points.text,
+                 pointsColor: view.points.color, image: view.back.drawable.imageName };
+    }
+
+    _Flyer(index)
+    {
+        while (this._flyers.length <= index)
+        {
+            if (!this._MakeFlyer())
+                return null;
+        }
+        return this._flyers[index];
+    }
+
+    _MakeFlyer()
+    {
+        if (!this.reshuffleLetter.IsValid())
+            return null;
+        var root = this.reshuffleLetter.Get().Instantiate();
+        if (!root)
+            return null;
+
+        this._actor.AddChild(root);
+        root.SetEnabled(false);
+        // тень, подложка и буквы флаера — виджеты с неизменной раскладкой под акторами, которые их двигают (трансформ
+        // актора не округляется до целых единиц, как раскладка виджета); растёт при подъёме только подложка — растровый
+        // текст при масштабе перерисовывается на порогах плотности; равные глубины сортируются как попало
+        var depth = this.reshuffleDepth + this._flyers.length*0.01;
+        var plate = root.GetChild("Lift/Plate"), face = root.GetChild("Lift/Face");
+        root.GetChild("Shadow").SetDrawingDepth(depth);
+        plate.SetDrawingDepth(depth + 0.003);
+        face.SetDrawingDepth(depth + 0.006);
+        var half = this.tileSize*0.5;
+        [plate, face].forEach(function(widget) {
+            var layout = widget.GetLayout();
+            layout.SetOffsetMin(new Vec2(-half, -half*this.tileAspect));
+            layout.SetOffsetMax(new Vec2(half, half*this.tileAspect));
+        }, this);
+
+        var flyer = {
+            widget: root,
+            back: plate.GetLayer("back").drawable,
+            letter: face.GetLayer("letter").drawable,
+            points: face.GetLayer("points").drawable,
+            newLetter: face.GetLayer("newLetter").drawable,
+            newPoints: face.GetLayer("newPoints").drawable,
+            trajectory: root.GetComponent("o2::FlightTrajectoryComponent"),
+            anim: root.GetComponent("o2::AnimationComponent")
+        };
+        this._flyers.push(flyer);
+        return flyer;
+    }
+
+    _DressFlyer(flyer, from, to)
+    {
+        // загрузка картинки сбрасывает размер спрайта к её собственному — прямоугольник слоя возвращаем
+        var rect = flyer.back.rect;
+        flyer.back.imageName = from.image;
+        flyer.back.rect = rect;
+        flyer.letter.text = from.letter;
+        flyer.letter.color = from.letterColor;
+        flyer.points.text = from.points;
+        flyer.points.color = from.pointsColor;
+        flyer.newLetter.text = to.letter;
+        flyer.newLetter.color = to.letterColor;
+        flyer.newPoints.text = to.points;
+        flyer.newPoints.color = to.pointsColor;
+    }
+
+    // Стейт полёта глушится весом: остановленный, он каждый кадр пишет последние значения треков, а с нулевым
+    // весом микшер возвращает слоям и трансформу исходные значения прототипа
+    _StopFlyer(flyer)
+    {
+        flyer.anim.Stop("flight");
+        var state = flyer.anim.GetState("flight");
+        if (state)
+            state.SetWeight(0);
+    }
+
+    _StartFlyer(flyer, speed)
+    {
+        var state = flyer.anim.GetState("flight");
+        if (state)
+        {
+            state.SetWeight(1);
+            state.SetSpeed(speed);
+        }
+        flyer.anim.RewindAndPlay("flight");
+    }
+
+    _Land(flight)
+    {
+        this._StopFlyer(flight.flyer);
+        flight.flyer.widget.SetEnabled(false);
+        var view = this._tiles[flight.c][flight.r];
+        view.btn.SetEnabled(view.visible !== false);
+    }
+
+    // Клетки, куда плитки ещё летят, пустые до прилёта
+    _HideFlying()
+    {
+        for (var i = 0; i < this._flights.length; i++)
+            this._tiles[this._flights[i].c][this._flights[i].r].btn.SetEnabled(false);
+    }
+
+    _FinishReshuffle()
+    {
+        for (var i = 0; i < this._flights.length; i++)
+            this._Land(this._flights[i]);
+        this._flights = [];
+    }
+
+    _UpdateReshuffle(dt)
+    {
+        if (this._flights.length == 0)
+        {
+            for (var made = 0; this._flyers.length < this._flyersWanted && made < this.reshuffleWarmPerFrame; made++)
+            {
+                if (!this._MakeFlyer())
+                    this._flyersWanted = 0;
+            }
+            return;
+        }
+
+        this._flightTime += dt;
+        var flying = [];
+        for (var i = 0; i < this._flights.length; i++)
+        {
+            var flight = this._flights[i];
+            if (!flight.started && this._flightTime >= flight.start)
+            {
+                flight.started = true;
+                this._StartFlyer(flight.flyer, flight.speed);
+            }
+            if (this._flightTime >= flight.end)
+                this._Land(flight);
+            else
+                flying.push(flight);
+        }
+        this._flights = flying;
+    }
+
+    OnDisabled() { this._FinishReshuffle(); }
 
     // Буква и номинал, которые клетка показывает сейчас (до синка после хода)
     TileInfo(c, r)
@@ -707,8 +930,10 @@ WordFallBoardView = class WordFallBoardView extends o2.Component
             {
                 this.SyncBoard();
                 this.SyncSelection();
+                this._HideFlying();
             }
         }
+        this._UpdateReshuffle(dt);
 
         if (this._hintQueue.length > 0)
         {
