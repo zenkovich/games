@@ -170,7 +170,8 @@ the agent:
   built now (the Restart button does the same). Both faces stay loaded, so
   switching between them is instant and neither restarts; the one nobody looks at
   is paused (no frames, no sound) and wakes for as long as a tool runs — a client
-  that was already up needs `rebuild_assets` + `restart` to see new assets. The
+  that was already up needs `rebuild_assets` + `restart` to see new assets (when a person brings the game face back in
+  front, it builds what is pending and loads again by itself if the assets were built meanwhile). The
   pane emulates a window size or a device — drawn in its body, either orientation —
   and `view_info` reports which mode is on. The agent panel is resizable in both modes (a splitter when docked)
   and can be closed to give the game the whole pane.
