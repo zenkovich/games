@@ -48896,19 +48896,19 @@
                                                                                     "Type": "o2::Sprite",
                                                                                     "Value": {
                                                                                         "mImageAsset": {
-                                                                                            "id": "2ecca7568a81c16331c6c253e4f45fe0",
-                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/icon_search.png"
+                                                                                            "id": "60f0f888eef56edb95432100c977a214",
+                                                                                            "path": "WordFall/ScreenUI/icon_hammer.png"
                                                                                         }
                                                                                     }
                                                                                 },
                                                                                 "layout": {
                                                                                     "mAnchorMin": {
-                                                                                        "x": 0.2222,
-                                                                                        "y": 0.2797
+                                                                                        "x": 0.18,
+                                                                                        "y": 0.245
                                                                                     },
                                                                                     "mAnchorMax": {
-                                                                                        "x": 0.7778,
-                                                                                        "y": 0.7902
+                                                                                        "x": 0.82,
+                                                                                        "y": 0.835
                                                                                     }
                                                                                 },
                                                                                 "mDepth": 0.5
@@ -49478,19 +49478,19 @@
                                                                                     "Type": "o2::Sprite",
                                                                                     "Value": {
                                                                                         "mImageAsset": {
-                                                                                            "id": "4c09282ba207c6a9b90c263abed7f3ee",
-                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/icon_bulb_gold.png"
+                                                                                            "id": "f1c75864240f1fb509080a2ee1686a47",
+                                                                                            "path": "WordFall/ScreenUI/icon_joker.png"
                                                                                         }
                                                                                     }
                                                                                 },
                                                                                 "layout": {
                                                                                     "mAnchorMin": {
-                                                                                        "x": 0.3037,
-                                                                                        "y": 0.2657
+                                                                                        "x": 0.2222,
+                                                                                        "y": 0.2797
                                                                                     },
                                                                                     "mAnchorMax": {
-                                                                                        "x": 0.6889,
-                                                                                        "y": 0.8042
+                                                                                        "x": 0.7778,
+                                                                                        "y": 0.7902
                                                                                     }
                                                                                 },
                                                                                 "mDepth": 0.5
