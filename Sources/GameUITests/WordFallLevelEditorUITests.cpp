@@ -3,7 +3,7 @@
 
 #include "WordFallUITestSupport.h"
 
-#include "o2/Render/Text.h"
+#include "o2/Render/Text/Text.h"
 #include "o2/Scene/UI/Widgets/VerticalScrollBar.h"
 
 // Редактор уровней: отдельный экран из читов. Уровни с id и именами, список с бегунком, поле

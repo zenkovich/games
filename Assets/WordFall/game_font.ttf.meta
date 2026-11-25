@@ -1,6 +1,7 @@
 {
     "Type": "o2::VectorFontAsset::Meta",
     "Value": {
-        "mId": "8d8ed66fd6814bce8878d2824c90b746"
+        "mId": "8d8ed66fd6814bce8878d2824c90b746",
+        "distanceField": true
     }
 }

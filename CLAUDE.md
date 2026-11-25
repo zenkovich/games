@@ -90,6 +90,18 @@ caption/icon, `Label`, `Image` и т.д.), а не на спрайтах с ру
 Экраны живут в акторе камеры интерфейса; всё, что нажимают, — внутри `SafeArea` (o2::SafeArea: кадр камеры без
 выреза/островка, скруглений и полоски «домой» устройства), графика на весь экран (фоны, затемнения) — снаружи.
 
+## Fonts
+
+Все шрифты проекта рисуются полями расстояний (`o2::SdfFont`): в мете каждого `.ttf` `"distanceField": true`, сборка
+ассетов запекает поля символов в `<font>.sdf` рядом с собранным шрифтом (каждое поле сжато отдельно, глиф распаковывается
+при первом показе). Стили (`.fntstyle`) рисует шейдер, глифы не растеризуются заново ни для размера, ни для стиля, ни для
+зума. `effectsMode` стиля: `PerLetter` (по умолчанию движка, как у растра: обводка буквы ложится на предыдущую) или `WholeText`
+(тени всех букв под обводками под заливками, градиент на весь текст; draw call на слой) - все стили игры `WholeText`. Эффект, который тянется за глифом
+дальше половины `fieldDistanceRange`, обрезается, и текст пишет в лог, какой диапазон нужен: у LilitaOne (тяжёлые обводки
+и тени UI-кита) он 28. Символы готовятся заранее `label.WarmUp(chars)` (так делает окно победы). Сравнить с растровыми
+шрифтами: `O2_FONT_DISTANCE_FIELD=0` при запуске (игры, тестов); `O2_SDF_PERF=1 ./o2RenderTests
+--gtest_filter=SdfFontPerf*` - замеры, `O2_SDF_DEMO_DIR=<папка>` с фильтром `SdfFontDemo*` - кадры демо.
+
 ## Comments
 
 Default: no comment. No multi-line rationale/history/ABI essays above code — that goes in the PR. A
@@ -158,7 +170,8 @@ the agent:
   built now (the Restart button does the same). Both faces stay loaded, so
   switching between them is instant and neither restarts; the one nobody looks at
   is paused (no frames, no sound) and wakes for as long as a tool runs — a client
-  that was already up needs `rebuild_assets` + `restart` to see new assets. The
+  that was already up needs `rebuild_assets` + `restart` to see new assets (when a person brings the game face back in
+  front, it builds what is pending and loads again by itself if the assets were built meanwhile). The
   pane emulates a window size or a device — drawn in its body, either orientation —
   and `view_info` reports which mode is on. The agent panel is resizable in both modes (a splitter when docked)
   and can be closed to give the game the whole pane.
@@ -226,9 +239,8 @@ Rules that hold there:
   whole in a click frame: the hint is searched ahead by `WordFallGameService._PrepareHint` (`WordSearch.Step`,
   `hintWordsPerFrame` words per frame, restarted when anything but the selection changes — `_HintKey`), word-score
   checks use `WordBoard.AnyWordWorth` (`WordSearch.AnyWorth`: lengths whose best tiles cannot reach the threshold are
-  skipped). Styled glyphs (font styles with shadows and strokes) are rasterized on the CPU when first shown — the
-  victory window warms its number glyphs at load (`warmUpGlyphs`); the engine's `Bitmap::Blur`/`Outline` are the cost
-  (o2 `BitmapEffects` tests). `GetColumns`/`GetRows`/`GetLetterValue` read the level's board: `_BoardConfig()` rebuilds
+  skipped). New glyphs are put into the font's distance field atlas when first shown (see Fonts) — the
+  victory window warms its number glyphs at load (`warmUpGlyphs`, `label.WarmUp`). `GetColumns`/`GetRows`/`GetLetterValue` read the level's board: `_BoardConfig()` rebuilds
   the config on every call. A new `Sources/GameTests/Scripts/*.test.js` reaches ctest only
   after `GameTests` is relinked (or touched).
 - The in-game level editor (cheats → «Открыть редактор», prototype `LevelEditorScreen.proto`, view

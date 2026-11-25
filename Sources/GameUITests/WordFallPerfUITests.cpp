@@ -5,8 +5,9 @@
 
 #include "WordFallUITestSupport.h"
 #include "o2/Assets/Types/VectorImageAsset.h"
-#include "o2/Render/VectorRasterCache.h"
-#include "o2/Render/VectorSprite.h"
+#include "o2/Render/Text/SdfFont.h"
+#include "o2/Render/VectorGraphics/VectorRasterCache.h"
+#include "o2/Render/VectorGraphics/VectorSprite.h"
 #include "o2/Scene/CameraActor.h"
 #include "o2/Application/Input.h"
 #include "o2/Utils/Debug/Profiling/NanoProfiler.h"
@@ -86,6 +87,28 @@ TEST_F(WordFallPerfUI, VectorScreenCost)
 {
 	printf("PERF startup (scene + 10 frames)       %7.1f ms  tessellations %4u (%7.1f ms)\n",
 		   mStartupMs, mStartupTessellations, mStartupTessellationMs);
+
+	// The distance field fonts at startup: baked atlases loaded, glyphs generated, materials of the styles built
+	{
+		int fonts = 0, baked = 0, generated = 0;
+		float bakedMs = 0, generatedMs = 0;
+		for (auto& font : o2Render.GetFonts())
+		{
+			auto sdf = DynamicCast<SdfFont>(font);
+			if (!sdf)
+				continue;
+
+			fonts++;
+			baked += sdf->GetStatistics().bakedGlyphs;
+			bakedMs += sdf->GetStatistics().bakedLoadMs;
+			generated += sdf->GetStatistics().generatedGlyphs;
+			generatedMs += sdf->GetStatistics().generationMs;
+		}
+
+		auto materials = SdfFont::GetMaterialsStatistics();
+		printf("PERF distance field fonts at startup: %d fonts, baked %d glyphs (%.1f ms), generated %d (%.1f ms), "
+			   "materials %d (%.1f ms)\n", fonts, baked, bakedMs, generated, generatedMs, materials.first, materials.second);
+	}
 
 	auto rastersStart = Clock::now();
 	int rastersFrames = 0;
@@ -277,6 +300,20 @@ protected:
 					printf("%s", spike.js.Data());
 			}
 		}
+
+		// The atlases of the fonts the scenarios have shown: bitmap glyphs per size and style, or distance fields
+		int atlases = 0;
+		size_t bytes = 0;
+		for (auto& texture : o2Render.GetTextures())
+		{
+			if (!texture || !(texture->GetName().StartsWith("Font atlas") ||
+							  texture->GetName().StartsWith("Distance field font atlas")))
+				continue;
+
+			atlases++;
+			bytes += (size_t)texture->GetSize().x*texture->GetSize().y*4;
+		}
+		printf("\nPROFILE font atlases %d, %.1f MB\n", atlases, (double)bytes/1048576.0);
 	}
 
 	// Обёртки методов классов скриптов игры: время с вложенными вызовами и число вызовов. Date.now — миллисекунды,

@@ -1,0 +1,208 @@
+{
+    "animation": {
+        "Type": "o2::AnimationClip",
+        "Value": {
+            "mTracks": [
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 18096667937933710227,
+                                        "value": 0.86,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.15300000000000002
+                                    },
+                                    {
+                                        "uid": 17380652300988545446,
+                                        "value": 1.04,
+                                        "position": 0.2,
+                                        "leftSupportPosition": -0.08000000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.05600000000000001,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 12676912019196202243,
+                                        "value": 1.0,
+                                        "position": 0.34,
+                                        "leftSupportPosition": -0.05600000000000001,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 10546057781483815791,
+                                        "value": 0.86,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.15300000000000002
+                                    },
+                                    {
+                                        "uid": 5693250717489374060,
+                                        "value": 1.04,
+                                        "position": 0.2,
+                                        "leftSupportPosition": -0.08000000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.05600000000000001,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7334989726165989902,
+                                        "value": 1.0,
+                                        "position": 0.34,
+                                        "leftSupportPosition": -0.05600000000000001,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Owl/transform/scaleX",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 8384279702130737809,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.048,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 7336298324486407479,
+                                        "value": 0.0,
+                                        "position": 0.12,
+                                        "leftSupportPosition": -0.048,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.935
+                                    },
+                                    {
+                                        "uid": 13783390902097614970,
+                                        "value": 1.1,
+                                        "position": 0.32,
+                                        "leftSupportPosition": -0.08000000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.05600000000000001,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10786382439836903680,
+                                        "value": 1.0,
+                                        "position": 0.46,
+                                        "leftSupportPosition": -0.05600000000000001,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Owl/transform/scaleY",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 2259535925760637595,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.048,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 10290743150565753953,
+                                        "value": 0.0,
+                                        "position": 0.12,
+                                        "leftSupportPosition": -0.048,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.06,
+                                        "rightSupportValue": 0.935
+                                    },
+                                    {
+                                        "uid": 10388148365183323673,
+                                        "value": 1.1,
+                                        "position": 0.32,
+                                        "leftSupportPosition": -0.08000000000000002,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.05600000000000001,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3540944329333961761,
+                                        "value": 1.0,
+                                        "position": 0.46,
+                                        "leftSupportPosition": -0.05600000000000001,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "o2::AnimationTrack<float>",
+                    "Value": {
+                        "path": "child/Text/transparency",
+                        "curve": {
+                            "Type": "o2::Curve",
+                            "Value": {
+                                "mKeys": [
+                                    {
+                                        "uid": 16638301999122483621,
+                                        "value": 0.0,
+                                        "position": 0.0,
+                                        "rightSupportPosition": 0.04000000000000001,
+                                        "rightSupportValue": 0.0
+                                    },
+                                    {
+                                        "uid": 3209270413976859450,
+                                        "value": 0.0,
+                                        "position": 0.1,
+                                        "leftSupportPosition": -0.04000000000000001,
+                                        "leftSupportValue": 0.0,
+                                        "rightSupportPosition": 0.054000000000000006,
+                                        "rightSupportValue": 0.85
+                                    },
+                                    {
+                                        "uid": 11338512570338991446,
+                                        "value": 1.0,
+                                        "position": 0.28,
+                                        "leftSupportPosition": -0.07200000000000001,
+                                        "leftSupportValue": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "mDuration": 0.46
+        }
+    }
+}
