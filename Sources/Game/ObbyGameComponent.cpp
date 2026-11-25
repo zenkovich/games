@@ -7,7 +7,7 @@
 #include "o2/Assets/Assets.h"
 #include "o2/Integration.h"
 #include "o2/Render/Render.h"
-#include "o2/Render/Text.h"
+#include "o2/Render/Text/Text.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/Components/ImageComponent.h"
 #include "o2/Scene/Scene.h"
