@@ -11,7 +11,7 @@
 #include "o2/Integration.h"
 #include "o2/Render/Render.h"
 #include "o2/Render/Sprite.h"
-#include "o2/Render/Text.h"
+#include "o2/Render/Text/Text.h"
 #include "o2/Scene/Actor.h"
 #include "o2/Scene/CameraActor.h"
 #include "o2/Scene/Components/SkinnedMeshComponent.h"
