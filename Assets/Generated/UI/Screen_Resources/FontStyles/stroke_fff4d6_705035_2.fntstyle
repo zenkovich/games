@@ -1,4 +1,5 @@
 {
+    "mEffectsMode": "WholeText",
     "mEffects": [
         {
             "Type": "o2::FontColorEffect",
