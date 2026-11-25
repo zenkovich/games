@@ -5,9 +5,9 @@
 
 #include "WordFallUITestSupport.h"
 #include "o2/Assets/Types/VectorImageAsset.h"
-#include "o2/Render/SdfFont.h"
-#include "o2/Render/VectorRasterCache.h"
-#include "o2/Render/VectorSprite.h"
+#include "o2/Render/Text/SdfFont.h"
+#include "o2/Render/VectorGraphics/VectorRasterCache.h"
+#include "o2/Render/VectorGraphics/VectorSprite.h"
 #include "o2/Scene/CameraActor.h"
 #include "o2/Application/Input.h"
 #include "o2/Utils/Debug/Profiling/NanoProfiler.h"
