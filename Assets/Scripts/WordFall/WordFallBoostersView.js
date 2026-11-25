@@ -1,6 +1,6 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
-// Вьюха панели бустеров: пять круглых кнопок с бейджами зарядов и режим
+// Вьюха панели бустеров: круглые кнопки с бейджами зарядов и режим
 // прицела (молоток/джокер применяются кликом по плитке); решафл спрашивает подтверждение посреди экрана
 
 WordFallBoostersView = class WordFallBoostersView extends o2.Component
@@ -22,9 +22,9 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
 
         this._modeLabel = this._actor.GetChild("ModeLabel");
 
-        var modes = ["hammer", "shuffle", "hint", "joker", "reshuffle"];
+        var modes = ["hammer", "reshuffle", "hint", "joker"];
         var self = this;
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < WordLevel.BoosterCount; i++)
         {
             var booster = this._actor.GetChild("Booster" + i);
             this._chargeLabels.push(booster.GetChild("Charge"));
@@ -72,9 +72,7 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
             return;
         }
 
-        if (mode == "shuffle")
-            svc.UseShuffle();
-        else if (mode == "reshuffle")
+        if (mode == "reshuffle")
             this._AskReshuffle();
         else if (mode == "hint")
         {
@@ -127,7 +125,7 @@ WordFallBoostersView = class WordFallBoostersView extends o2.Component
 
     Sync()
     {
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < this._chargeLabels.length; i++)
             this._chargeLabels[i].SetText("" + this._svc.GetBoosterCharges(i));
     }
 

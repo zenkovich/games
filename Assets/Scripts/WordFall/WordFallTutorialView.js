@@ -272,7 +272,7 @@ WordFallTutorialView = class WordFallTutorialView extends o2.Component
         }
         if (!svc.IsTutorialSeen("boosters") && svc.GetLevelIndex() >= 1)
             steps.push({ key: "boosters", block: true, target: "boosters",
-                         text: "Бустеры: молоток, решафл — новые буквы,\nподсказка, джокер — любая буква, перемешать" });
+                         text: "Бустеры: молоток, подсказка,\nджокер — любая буква, перемешать — новые буквы" });
 
         var elements = [
             { key: "ice", pred: function(t) { return t.ice > 0; }, text: "Лёд: буква видна, но не выбирается.\nРазбей словом по соседству" },

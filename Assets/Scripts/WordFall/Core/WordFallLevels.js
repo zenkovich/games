@@ -16,7 +16,7 @@ WordFallLevels = class WordFallLevels
         var tier = Math.floor(index/10);
         config.moves = 12 + Math.min(4, Math.floor(index/25));
         config.targetScore = 250 + tier*50 + rng.NextInt(30);
-        config.boosterCharges = [3, 3, 30, 3, 3];
+        config.boosterCharges = [3, 3, 30, 3];
 
         var iceCount = Math.min(3 + Math.floor(index/12), 10);
         var usedCells = [];

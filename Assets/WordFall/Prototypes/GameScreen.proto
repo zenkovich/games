@@ -49412,11 +49412,11 @@
                                                                     "y": 0.5
                                                                 },
                                                                 "offsetMin": {
-                                                                    "x": -54.44,
+                                                                    "x": -170.11,
                                                                     "y": -58.63
                                                                 },
                                                                 "offsetMax": {
-                                                                    "x": 56.26,
+                                                                    "x": -59.41,
                                                                     "y": 58.63
                                                                 }
                                                             }
@@ -49441,11 +49441,11 @@
                                                                     "y": 0.5
                                                                 },
                                                                 "offsetMin": {
-                                                                    "x": 118.56,
+                                                                    "x": 60.23,
                                                                     "y": -58.63
                                                                 },
                                                                 "offsetMax": {
-                                                                    "x": 229.26,
+                                                                    "x": 170.93,
                                                                     "y": 58.63
                                                                 }
                                                             },
@@ -49590,200 +49590,6 @@
                                                                                     }
                                                                                 },
                                                                                 "mUID": 18060816855251566769,
-                                                                                "PrototypeLink": 4856538389499915139
-                                                                            }
-                                                                        ],
-                                                                        "Transform": {
-                                                                            "anchorMin": {
-                                                                                "x": 1.0,
-                                                                                "y": 1.0
-                                                                            },
-                                                                            "anchorMax": {
-                                                                                "x": 1.0,
-                                                                                "y": 1.0
-                                                                            },
-                                                                            "offsetMin": {
-                                                                                "x": -30.98,
-                                                                                "y": -32.61
-                                                                            },
-                                                                            "offsetMax": {
-                                                                                "x": 1.63,
-                                                                                "y": 0.0
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    },
-                                                    {
-                                                        "Type": "o2::Widget",
-                                                        "Data": {
-                                                            "Prototype": {
-                                                                "id": "15d40bee5a4026bb5edf65a2e93c8c7c",
-                                                                "path": "WordFall/Prototypes/Booster.proto"
-                                                            },
-                                                            "PrototypeLink": 13763150952764776502,
-                                                            "Id": 14412740917679359992,
-                                                            "Transform": {
-                                                                "anchorMin": {
-                                                                    "x": 0.5,
-                                                                    "y": 0.5
-                                                                },
-                                                                "anchorMax": {
-                                                                    "x": 0.5,
-                                                                    "y": 0.5
-                                                                },
-                                                                "offsetMin": {
-                                                                    "x": -227.44,
-                                                                    "y": -58.63
-                                                                },
-                                                                "offsetMax": {
-                                                                    "x": -116.74,
-                                                                    "y": 58.63
-                                                                }
-                                                            },
-                                                            "mDrawingDepth": 14.0,
-                                                            "mName": "Booster4",
-                                                            "Children": [
-                                                                {
-                                                                    "Type": "o2::Button",
-                                                                    "Data": {
-                                                                        "PrototypeLink": 11817802239235013094,
-                                                                        "Id": 15936391935250343749,
-                                                                        "Layers": [
-                                                                            {
-                                                                                "mDrawable": {
-                                                                                    "Type": "o2::Sprite",
-                                                                                    "Value": {
-                                                                                        "mImageAsset": {
-                                                                                            "id": "16096f2b1de7f2db1461eb19cb55ca37",
-                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/button_blue.png"
-                                                                                        }
-                                                                                    }
-                                                                                },
-                                                                                "mUID": 17985791940084585013,
-                                                                                "PrototypeLink": 13879726056123998788
-                                                                            },
-                                                                            {
-                                                                                "mUID": 7319085071249227567,
-                                                                                "PrototypeLink": 6505574914532780359,
-                                                                                "mDrawable": {
-                                                                                    "Type": "o2::Sprite",
-                                                                                    "Value": {
-                                                                                        "mImageAsset": {
-                                                                                            "id": "97ee660958e863a69721db38136dd740",
-                                                                                            "path": "WordFall/ScreenUI/icon_reshuffle.png"
-                                                                                        }
-                                                                                    }
-                                                                                },
-                                                                                "layout": {
-                                                                                    "mAnchorMin": {
-                                                                                        "x": 0.17,
-                                                                                        "y": 0.215
-                                                                                    },
-                                                                                    "mAnchorMax": {
-                                                                                        "x": 0.83,
-                                                                                        "y": 0.862
-                                                                                    }
-                                                                                },
-                                                                                "mDepth": 0.5
-                                                                            },
-                                                                            {
-                                                                                "mDrawable": {
-                                                                                    "Type": "o2::Sprite",
-                                                                                    "Value": {
-                                                                                        "mImageAsset": {
-                                                                                            "id": "16096f2b1de7f2db1461eb19cb55ca37",
-                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/button_blue.png"
-                                                                                        },
-                                                                                        "mColor": {
-                                                                                            "r": 24,
-                                                                                            "g": 30,
-                                                                                            "b": 52,
-                                                                                            "a": 0
-                                                                                        }
-                                                                                    }
-                                                                                },
-                                                                                "mUID": 6132480940510320174,
-                                                                                "PrototypeLink": 7607720896464213418,
-                                                                                "mDepth": 1.0,
-                                                                                "mTransparency": 0.0
-                                                                            }
-                                                                        ],
-                                                                        "States": [
-                                                                            {
-                                                                                "name": "pressed"
-                                                                            }
-                                                                        ]
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "Type": "o2::Image",
-                                                                    "Data": {
-                                                                        "PrototypeLink": 1207175036166356970,
-                                                                        "Id": 16565436300889187327,
-                                                                        "Layers": [
-                                                                            {
-                                                                                "mDrawable": {
-                                                                                    "Type": "o2::VectorSprite",
-                                                                                    "Value": {
-                                                                                        "mImageAsset": {
-                                                                                            "id": "48b0761c05983c897dca9eeb69453e24",
-                                                                                            "path": "WordFall/Svg/charge_badge.svg"
-                                                                                        }
-                                                                                    }
-                                                                                },
-                                                                                "mUID": 5726781885717248842,
-                                                                                "PrototypeLink": 14019394598770594242
-                                                                            }
-                                                                        ],
-                                                                        "Transform": {
-                                                                            "anchorMin": {
-                                                                                "x": 1.0,
-                                                                                "y": 1.0
-                                                                            },
-                                                                            "anchorMax": {
-                                                                                "x": 1.0,
-                                                                                "y": 1.0
-                                                                            },
-                                                                            "offsetMin": {
-                                                                                "x": -30.98,
-                                                                                "y": -32.61
-                                                                            },
-                                                                            "offsetMax": {
-                                                                                "x": 1.63,
-                                                                                "y": 0.0
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "Type": "o2::Label",
-                                                                    "Data": {
-                                                                        "PrototypeLink": 14651103957476121715,
-                                                                        "Id": 14909967742167047840,
-                                                                        "Layers": [
-                                                                            {
-                                                                                "mDrawable": {
-                                                                                    "Type": "o2::Text",
-                                                                                    "Value": {
-                                                                                        "mColor": {
-                                                                                            "r": 42,
-                                                                                            "g": 10,
-                                                                                            "b": 0,
-                                                                                            "a": 255
-                                                                                        },
-                                                                                        "mText": "3",
-                                                                                        "mFontAssetId": "149fa89fcbcebfe3409c478af2fac117",
-                                                                                        "mHeight": 15,
-                                                                                        "mSymbolsDistCoef": 1.0,
-                                                                                        "mLinesDistanceCoef": 1.0,
-                                                                                        "mVerAlign": "Middle",
-                                                                                        "mHorAlign": "Middle"
-                                                                                    }
-                                                                                },
-                                                                                "mUID": 8634406115493471196,
                                                                                 "PrototypeLink": 4856538389499915139
                                                                             }
                                                                         ],
@@ -100531,12 +100337,12 @@
                                                                                             "y": 0.5
                                                                                         },
                                                                                         "offsetMin": {
-                                                                                            "x": 56.0,
-                                                                                            "y": -54.0
+                                                                                            "x": 44.0,
+                                                                                            "y": -60.0
                                                                                         },
                                                                                         "offsetMax": {
-                                                                                            "x": 164.0,
-                                                                                            "y": 54.0
+                                                                                            "x": 156.0,
+                                                                                            "y": 60.0
                                                                                         }
                                                                                     },
                                                                                     "InternalWidgets": [],
@@ -100549,8 +100355,8 @@
                                                                                                     "Type": "o2::Sprite",
                                                                                                     "Value": {
                                                                                                         "mImageAsset": {
-                                                                                                            "id": "97ee660958e863a69721db38136dd740",
-                                                                                                            "path": "WordFall/ScreenUI/icon_reshuffle.png"
+                                                                                                            "id": "25bfa1e539464543de55f4545537c6dd",
+                                                                                                            "path": "Generated/UI/Screen_Resources/Sprites/button_red.png"
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -100558,13 +100364,68 @@
                                                                                             }
                                                                                         }
                                                                                     ],
-                                                                                    "States": []
+                                                                                    "States": [],
+                                                                                    "Children": [
+                                                                                        {
+                                                                                            "Type": "o2::Image",
+                                                                                            "Data": {
+                                                                                                "mDrawingDepth": 92.0,
+                                                                                                "mInheritDrawingDepthFromParent": false,
+                                                                                                "mName": "glyph",
+                                                                                                "mSceneLayer": {
+                                                                                                    "Type": "o2::SceneLayer",
+                                                                                                    "Value": {
+                                                                                                        "mName": "UI"
+                                                                                                    }
+                                                                                                },
+                                                                                                "Id": 2731099103147188118,
+                                                                                                "Transform": {
+                                                                                                    "anchorMin": {
+                                                                                                        "x": 0.218,
+                                                                                                        "y": 0.3287
+                                                                                                    },
+                                                                                                    "anchorMax": {
+                                                                                                        "x": 0.782,
+                                                                                                        "y": 0.7692
+                                                                                                    },
+                                                                                                    "offsetMin": {
+                                                                                                        "x": 0.0,
+                                                                                                        "y": 0.0
+                                                                                                    },
+                                                                                                    "offsetMax": {
+                                                                                                        "x": 0.0,
+                                                                                                        "y": 0.0
+                                                                                                    }
+                                                                                                },
+                                                                                                "InternalWidgets": [],
+                                                                                                "Layers": [
+                                                                                                    {
+                                                                                                        "Type": "o2::WidgetLayer",
+                                                                                                        "Value": {
+                                                                                                            "name": "image",
+                                                                                                            "mDrawable": {
+                                                                                                                "Type": "o2::Sprite",
+                                                                                                                "Value": {
+                                                                                                                    "mImageAsset": {
+                                                                                                                        "id": "0208bcde4d8c2a56040c3b27f7f1bd70",
+                                                                                                                        "path": "Generated/UI/Screen_Resources/Sprites/icon_shuffle.png"
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            },
+                                                                                                            "mUID": 5594620058085053484
+                                                                                                        }
+                                                                                                    }
+                                                                                                ],
+                                                                                                "States": []
+                                                                                            }
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             },
                                                                             {
                                                                                 "Type": "o2::Label",
                                                                                 "Data": {
-                                                                                    "mDrawingDepth": 92.0,
+                                                                                    "mDrawingDepth": 93.0,
                                                                                     "mInheritDrawingDepthFromParent": false,
                                                                                     "mName": "label",
                                                                                     "mSceneLayer": {
@@ -100584,7 +100445,7 @@
                                                                                             "y": 1.0
                                                                                         },
                                                                                         "offsetMin": {
-                                                                                            "x": 150.0,
+                                                                                            "x": 160.0,
                                                                                             "y": 12.0
                                                                                         },
                                                                                         "offsetMax": {

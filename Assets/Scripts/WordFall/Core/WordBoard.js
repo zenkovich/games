@@ -410,36 +410,6 @@ WordBoard = class WordBoard
         return result;
     }
 
-    // Перемешивание плиток, пригодных для слов
-    ShuffleLetters()
-    {
-        var cells = [];
-        for (var c = 0; c < this.config.columns; c++)
-        {
-            for (var r = 0; r < this.config.rows; r++)
-            {
-                if (WordBoard.IsTileUsable(this.grid[c][r]))
-                    cells.push({ c: c, r: r });
-            }
-        }
-
-        var self = this;
-        var tiles = cells.map(function(cell) { return self.grid[cell.c][cell.r]; });
-        for (var i = tiles.length - 1; i > 0; i--)
-        {
-            var j = this._random.NextInt(i + 1);
-            var tmp = tiles[i];
-            tiles[i] = tiles[j];
-            tiles[j] = tmp;
-        }
-
-        for (var i = 0; i < cells.length; i++)
-            this.grid[cells[i].c][cells[i].r] = tiles[i];
-
-        this.selection = [];
-        return true;
-    }
-
     MakeJoker(cell)
     {
         var tile = this.grid[cell.c][cell.r];

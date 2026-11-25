@@ -28,12 +28,12 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.lifeRegenSeconds = 1800;                // жизнь восстанавливается за это время
         this.continueMoves = 5;                      // ходов за продолжение уровня
         this.continuePrice = 900;                    // цена продолжения в монетах
-        this.startBoosters = [3, 3, 3, 3, 3];        // бустеры нового игрока: молоток, перемешать, подсказка, джокер, решафл
+        this.startBoosters = [3, 3, 3, 3];           // бустеры нового игрока: молоток, перемешать (решафл), подсказка, джокер
         this.startBonuses = [1, 1, 1];               // бонусы на старт уровня у нового игрока: бомба, ракета, салют
         this.reshuffleStayShare = WordLevel.ReshuffleStayShare; // решафл: доля плиток, что остаются на месте
         this.reshuffleReach = WordLevel.ReshuffleReach;  // решафл: плитка меняется местами с соседом не дальше, клеток
         this.boosterPack = 3;                        // бустеров или бонусов в одной покупке
-        this.boosterPrices = [600, 400, 300, 700, 500]; // цены покупки бустеров за монеты, по индексам WordLevel
+        this.boosterPrices = [600, 500, 300, 700];   // цены покупки бустеров за монеты, по индексам WordLevel
         this.bonusPrices = [500, 700, 900];          // цены покупки бонусов на старт: бомба, ракета, салют
         this.livesRefillPrice = 900;                 // полный запас жизней за монеты
         this.shopPacks = [                           // банк: пачки монет и их цены в магазине платформы
@@ -461,7 +461,6 @@ WordFallGameService = class WordFallGameService extends o2.Component
         return this._MoveToScript(result);
     }
 
-    UseShuffle() { this._EnsureStarted(); return this._BoosterSpent(this._level.UseShuffle(this._dictionary)); }
     UseHint()
     {
         this._EnsureStarted();
@@ -673,7 +672,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         this._EnsureStarted();
         var pack = this.boosterPack;
-        return booster >= 0 && booster < 5 &&
+        return booster >= 0 && booster < WordLevel.BoosterCount &&
             this._Spend(this.GetBoosterPrice(booster), function(progress) { progress.boosters[booster] += pack; });
     }
 

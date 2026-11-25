@@ -118,7 +118,7 @@ WordFallConfigs = class WordFallConfigs
             letterCells: [],
             extraVowels: 0,
             extraRare: 0,
-            boosterCharges: [3, 3, 3, 3, 3],
+            boosterCharges: [3, 3, 3, 3],
             tasks: []
         };
     }

@@ -229,11 +229,6 @@ WordFallBotRunner = class WordFallBotRunner
                 this._state = "think";
                 this._timer = this.boosterPause;
                 break;
-            case "shuffle":
-                boosters.OnBooster(WordLevel.Shuffle, "shuffle");
-                this._state = "think";
-                this._timer = this.boosterPause;
-                break;
             case "reshuffle":
                 boosters.OnBooster(WordLevel.Reshuffle, "reshuffle");
                 this._state = "confirm";

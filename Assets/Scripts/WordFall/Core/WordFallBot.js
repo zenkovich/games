@@ -124,7 +124,7 @@ WordFallBot = class WordFallBot
     }
 
     // Следующее действие: {type, cells, word, cell, think} — type: word (выбрать cells и принять), hint (подсказка
-    // набирает слово), accept (принять набранное), hammer / joker (по клетке cell), shuffle, reshuffle, stuck
+    // набирает слово), accept (принять набранное), hammer / joker (по клетке cell), reshuffle, stuck
     // (слов не нашлось — попытка проиграна), none (уровень закончен). think — сколько секунд думал бы человек
     NextAction()
     {
@@ -165,7 +165,6 @@ WordFallBot = class WordFallBot
             case "accept": return level.AcceptWord(dictionary);
             case "hint": level.UseHint(dictionary); return null;
             case "hammer": return level.UseHammer(action.cell, dictionary);
-            case "shuffle": level.UseShuffle(dictionary); return null;
             case "joker": level.UseJoker(action.cell); return null;
             case "reshuffle": level.UseReshuffle(dictionary); return null;
         }
@@ -790,11 +789,6 @@ WordFallBot = class WordFallBot
                 return this._Hint();
             if (level.GetBoosterCharges(WordLevel.Reshuffle) > 0 && view.usable > 3 && random.Next01() < eager*0.5)
                 return this._Reshuffle();
-            if (level.GetBoosterCharges(WordLevel.Shuffle) > 0 && view.usable > 3 && random.Next01() < eager*0.3)
-            {
-                this.stats.boosters++;
-                return { type: "shuffle", think: 4 };
-            }
             return null;
         }
 

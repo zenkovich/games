@@ -28,14 +28,14 @@ PlayerProgress = class PlayerProgress
         return this.bonuses;
     }
 
-    // Запас бустеров: пять неотрицательных целых; новому игроку — start
+    // Запас бустеров: неотрицательное целое на каждый бустер уровня; новому игроку — start
     EnsureBoosters(start)
     {
         if (!Array.isArray(this.boosters))
             this.boosters = (start || []).slice();
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < WordLevel.BoosterCount; i++)
             this.boosters[i] = Math.max(0, Math.floor(this.boosters[i] || 0));
-        this.boosters.length = 5;
+        this.boosters.length = WordLevel.BoosterCount;
         return this.boosters;
     }
 
