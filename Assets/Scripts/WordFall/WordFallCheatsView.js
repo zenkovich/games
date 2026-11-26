@@ -1,7 +1,7 @@
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
 // Читы: долгий тап по невидимой кнопке в правом верхнем углу открывает экран действий над
-// уровнем, ресурсами, полем, обучением и языком игрока; отсюда же открывается редактор уровней.
+// уровнем, ресурсами, полем, обучением, языком и сохранением игрока; отсюда же открывается редактор уровней.
 // Группы — вкладками сверху (листаются пальцем), действия группы — в прокручиваемом списке.
 // Отладочная кнопка LangToggle на главном экране переключает язык одним тапом — с телефона
 
@@ -46,6 +46,14 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
             EditorBtn: function() { if (WordFallGame.screens) WordFallGame.screens.ShowEditor(); },
             CloseBtn: function() {}
         };
+        var reset = this._Button("ResetProgressBtn");
+        if (reset)
+            reset.onClick = function() { self.Close(); self.ResetProgress(); };
+        var sync = this._Button("SyncBtn");
+        if (sync)
+            sync.onClick = function() { self.SyncProgress(); };
+        this._saveInfo = this._panel.FindChild("Info");
+
         for (var name in actions)
         {
             (function(action, button) {
@@ -79,6 +87,7 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
             this._tabs[i].GetLayer("back").drawable.color = active ? new Color4(238, 132, 38, 255) : new Color4(58, 64, 92, 255);
         }
         this._content.ScrollToStart();
+        this._UpdateSaveInfo("");
     }
 
     GetTab() { return this._tab; }
@@ -97,7 +106,52 @@ WordFallCheatsView = class WordFallCheatsView extends o2.Component
         this._open = !this._open;
         this._panel.SetEnabled(this._open);
         if (this._open)
+        {
             this._UpdateLanguageCaption();
+            this._UpdateSaveInfo("");
+        }
+    }
+
+    // Прогресс с нуля: новый игрок с первого уровня, обучение заново, главный экран
+    ResetProgress()
+    {
+        this._FinishFx();
+        this._svc.ResetProgress();
+        var t = WordFallViews.tutorial;
+        if (t) t.Restart();
+        var screens = WordFallGame.screens;
+        if (screens && screens.IsMetaFlow())
+            screens.ShowMain();
+        print("WordFall: progress reset by the cheat");
+    }
+
+    // Сохранение - в сервис сейчас; панель остаётся открытой и показывает, чем кончилось
+    SyncProgress()
+    {
+        var self = this;
+        this._UpdateSaveInfo("ОТПРАВКА...");
+        this._svc.SyncProgress(function(ok) { self._UpdateSaveInfo(ok ? "ОТПРАВЛЕНО" : "СЕРВЕР НЕДОСТУПЕН"); });
+    }
+
+    // id игрока - по нему сохранение находится на вкладке Saves портала
+    _UpdateSaveInfo(note)
+    {
+        if (!this._saveInfo || !this._svc)
+            return;
+
+        var status = this._svc.GetSaveStatus();
+        var lines = [];
+        if (status.file)
+            lines.push("ФАЙЛ: " + status.file);
+        else
+        {
+            lines.push("ИГРОК: " + status.player);
+            lines.push(!status.cloud ? "СЕРВЕР: НЕ ПОДКЛЮЧЁН, ТОЛЬКО НА УСТРОЙСТВЕ"
+                : "СЕРВЕР: РЕВИЗИЯ " + status.revision + (status.unsynced ? ", ЕСТЬ НЕОТПРАВЛЕННОЕ" : ", ВСЁ ОТПРАВЛЕНО"));
+        }
+        if (note)
+            lines.push(note);
+        this._saveInfo.SetText(lines.join("\n"));
     }
 
     Close()

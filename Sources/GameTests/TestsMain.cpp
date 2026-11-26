@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 	{
 		app = mmake<Application>();
 		app->Initialize();
-		O2LIBS_START;
+		O2LIBS_START_FOR_TESTS;
 	}
 
 	int result = RUN_ALL_TESTS();

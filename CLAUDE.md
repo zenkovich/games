@@ -317,6 +317,15 @@ Rules that hold there:
   task obstacles, then under the envelopes, then to any blocker, and only then to a random letter
   (`WordBoard._RocketTargetScore`). Tests: `GameTests/WordFallMeta`,
   `GameUITests/WordFallMetaUI` (shots `Work/ScreenShots/5x_meta_*.png`, `6x_meta_*.png`).
+- The player's progress (`PlayerProgress`) lives in the player's save of o2libs (`o2libs.Saves`, section `wordfall`,
+  `WordFallProgressStore.js`): the app's writable folder natively, cookies in the browser (mirrored to localStorage), and
+  the live-ops service of `Assets/LiveOps.json` - it is the project's Saves tab on the o2 portal, found by the player id.
+  Every change is written at once and sent ~30 s later; a new player is written at start; a save edited on the portal
+  replaces the progress on the next sync (`_OnProgressReplaced`). `progressPath` set (tests, tools) keeps a JSON file
+  instead; the old `wordfall_progress.json` next to the game moves into the save once. Test runners start o2libs with
+  `O2LIBS_START_FOR_TESTS` (memory, no service), the UI fixture keeps progress in `wordfall_test_progress.json`. Cheats →
+  ПРОГРЕСС: the player id and sync state, «Сбросить прогресс» (a new player; language and sound kept; sent at once),
+  «Отправить на сервер». Tests: `GameTests/WordFallSaves`, `WordFallFeaturesUI.CheatsResetProgressToANewPlayer`.
 - Meta windows from the UI kit's sprites, built by `Tools/WordFall/build_meta_windows.py` (rerun after editing it; it
   also adds `Screen/Hud/QuitButton` to GameScreen.proto and `lives_button` to MainScreen.proto): `WordFall/UI/`
   LevelStartWindow (PLAY: the level's goals, start bonuses bomb/rocket/fireworks from `PlayerProgress.bonuses`, placed by

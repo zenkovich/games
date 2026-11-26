@@ -1,4 +1,5 @@
 include("Scripts/WordFall/Core/WordFallCore.js");
+include("Scripts/WordFall/WordFallProgressStore.js");
 
 globalThis.WordFallGame = globalThis.WordFallGame || {};
 
@@ -15,7 +16,8 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this.campaignPath = "WordFall/campaign.json"; // кампания из data-ассета; пусто или нет файла — процедурная
         this.levels = [];                            // ручная кампания; пусто — campaignPath
         this.randomSeed = 0;                         // сид (0 — случайный)
-        this.progressPath = "wordfall_progress.json"; // файл сохранения прогресса
+        this.progressPath = "";                      // файл прогресса (тесты, инструменты); пусто - сохранение игрока o2libs.Saves
+        this.progressSection = "wordfall";           // секция прогресса в сохранении игрока
         this.editedLevelsPath = "wordfall_levels.json"; // правки редактора уровней поверх кампании
         this.campaignExportPath = "../../Assets/WordFall/campaign.json"; // куда редактор экспортирует кампанию
         this.match3ImportPath = "match3_level.xml";   // уровень «три в ряд» для импорта в нативной сборке
@@ -48,6 +50,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._store = null;
         this._level = new WordLevel();
         this._progress = new PlayerProgress();
+        this._progressStore = null;
         this._levelIndex = 0;
         this._revision = 0;
         this._lastMove = new WordMoveResult();
@@ -139,8 +142,7 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._EnsureStarted();
         var language = WordFallLanguages.SetCurrent(code);
         this._progress.language = language;
-        if (!this._progress.Save(this.progressPath))
-            print("WordFall: failed to save progress to " + this.progressPath);
+        this._SaveProgress();
         this._Dictionary();
         print("WordFall: language " + language + ", valid levels " + this.GetValidLevelCount() + "/" + this.GetLevelCount());
         this.StartLevel(this._levelIndex);
@@ -782,11 +784,35 @@ WordFallGameService = class WordFallGameService extends o2.Component
         this._SaveProgress();
     }
 
+    // Чит: прогресс с нуля, как у нового игрока (язык и настройки звука остаются); сохранение сразу уходит в сервис
+    ResetProgress()
+    {
+        this._EnsureStarted();
+        var progress = new PlayerProgress();
+        progress.language = this._progress.language;
+        progress.settings = this._progress.settings;
+        this._NewPlayerDefaults(progress);
+        this._progress = progress;
+        this._SaveProgress();
+        this._progressStore.Sync();
+        this.StartLevel(0);
+    }
+
+    // Отправить сохранение игрока в сервис сейчас; callback(ok)
+    SyncProgress(callback)
+    {
+        this._EnsureStarted();
+        this._progressStore.Sync(callback);
+    }
+
+    // id игрока (по нему сохранение находится на вкладке Saves портала) и состояние синхронизации
+    GetSaveStatus() { this._EnsureStarted(); return this._progressStore.Status(); }
+
     ResetTutorials()
     {
         this._EnsureStarted();
         this._progress.seenTutorials = [];
-        this._progress.Save(this.progressPath);
+        this._SaveProgress();
         this._revision++;
     }
 
@@ -850,12 +876,17 @@ WordFallGameService = class WordFallGameService extends o2.Component
 
         var self = this;
         o2.Profile("WordFall: progress", function() {
-            self._progress.Load(self.progressPath);
-            if (self._progress.coins < 0)
-                self._progress.coins = self.startCoins;
-            self._progress.EnsureBoosters(self.startBoosters);
-            self._progress.EnsureBonuses(self.startBonuses);
+            self._progressStore = new WordFallProgressStore(self.progressPath, self.progressSection);
+            var restored = self._progressStore.Load(self._progress);
+            self._NewPlayerDefaults(self._progress);
+            var status = self._progressStore.Status();
+            print("WordFall: " + (restored ? "progress restored" : "a new player") + ", level " + (self._progress.currentLevel + 1) +
+                  ", coins " + self._progress.coins + (status.file ? ", file " + status.file : ", player " + status.player +
+                  (status.cloud ? ", synced with the service" : ", on this device only")));
             WordFallLanguages.SetCurrent(self._progress.language);
+            if (!restored && self._progressStore.IsPlayerSave())
+                self._SaveProgress(); // новый игрок виден на портале с первого запуска
+            self._progressStore.OnReplaced(function() { if (WordFallGame.service === self) self._OnProgressReplaced(); });
         });
         o2.Profile("WordFall: dictionary", function() { self._Dictionary(); });
 
@@ -897,8 +928,42 @@ WordFallGameService = class WordFallGameService extends o2.Component
     {
         if (this._custom)
             return;
-        if (!this._progress.Save(this.progressPath))
-            print("WordFall: failed to save progress to " + this.progressPath);
+        if (!this._progressStore.Save(this._progress))
+            print("WordFall: failed to save progress to " + (this.progressPath || "the player's save"));
+    }
+
+    // Новому игроку - стартовые монеты, бустеры и бонусы
+    _NewPlayerDefaults(progress)
+    {
+        if (progress.coins < 0)
+            progress.coins = this.startCoins;
+        progress.EnsureBoosters(this.startBoosters);
+        progress.EnsureBonuses(this.startBonuses);
+    }
+
+    // Сохранение заменила копия сервиса (правка на портале): прогресс перечитывается. Начатый уровень доигрывается,
+    // новый текущий уровень берётся с главного экрана
+    _OnProgressReplaced()
+    {
+        var progress = new PlayerProgress();
+        this._progressStore.Load(progress);
+        this._NewPlayerDefaults(progress);
+        this._progress = progress;
+        print("WordFall: progress replaced by the service's copy, level " + (progress.currentLevel + 1) + ", coins " + progress.coins);
+        if (progress.language != WordFallLanguages.Current())
+        {
+            WordFallLanguages.SetCurrent(progress.language);
+            this._Dictionary();
+        }
+        if (!this._custom)
+        {
+            var screens = WordFallGame.screens;
+            if (!screens || !screens.IsMetaFlow() || screens.IsMainShown())
+                this.StartLevel(progress.currentLevel);
+            else
+                this._level.UseCharges(progress.boosters);
+        }
+        this._revision++;
     }
 
     _SaveStore()

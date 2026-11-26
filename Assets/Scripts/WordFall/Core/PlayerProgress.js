@@ -1,5 +1,5 @@
 // Прогресс игрока: текущий уровень кампании, лучшие результаты и звёзды, показанные туториалы, язык,
-// монеты, жизни, бустеры, бонусы на старт уровня и настройки. Хранится JSON-файлом; путь задаёт сервис
+// монеты, жизни, бустеры, бонусы на старт уровня и настройки. Где он хранится, решает WordFallProgressStore
 PlayerProgress = class PlayerProgress
 {
     constructor()
@@ -102,12 +102,33 @@ PlayerProgress = class PlayerProgress
         return levelIndex >= 0 && levelIndex < this.bestScores.length ? this.bestScores[levelIndex] : 0;
     }
 
+    // Прогресс как plain-объект: в файл, в сохранение игрока
+    ToData()
+    {
+        return { currentLevel: this.currentLevel, bestScores: this.bestScores, seenTutorials: this.seenTutorials, language: this.language,
+                 stars: this.stars, coins: this.coins, lives: this.lives, livesAt: this.livesAt, boosters: this.boosters,
+                 bonuses: this.bonuses, settings: this.settings };
+    }
+
+    FromData(data)
+    {
+        data = data && typeof data == "object" ? data : {};
+        this.currentLevel = typeof data.currentLevel == "number" ? data.currentLevel : 0;
+        this.bestScores = Array.isArray(data.bestScores) ? data.bestScores : [];
+        this.seenTutorials = Array.isArray(data.seenTutorials) ? data.seenTutorials : [];
+        this.language = typeof data.language == "string" ? data.language : "";
+        this.stars = Array.isArray(data.stars) ? data.stars : [];
+        this.coins = typeof data.coins == "number" ? data.coins : -1;
+        this.lives = typeof data.lives == "number" ? data.lives : -1;
+        this.livesAt = typeof data.livesAt == "number" ? data.livesAt : 0;
+        this.boosters = Array.isArray(data.boosters) ? data.boosters : null;
+        this.bonuses = Array.isArray(data.bonuses) ? data.bonuses : null;
+        this.settings = data.settings && typeof data.settings == "object" ? data.settings : {};
+    }
+
     Save(path)
     {
-        var data = { currentLevel: this.currentLevel, bestScores: this.bestScores, seenTutorials: this.seenTutorials, language: this.language,
-                     stars: this.stars, coins: this.coins, lives: this.lives, livesAt: this.livesAt, boosters: this.boosters,
-                     bonuses: this.bonuses, settings: this.settings };
-        return o2.FileSystem.WriteFile(path, JSON.stringify(data, null, 4));
+        return o2.FileSystem.WriteFile(path, JSON.stringify(this.ToData(), null, 4));
     }
 
     Load(path)
@@ -118,18 +139,7 @@ PlayerProgress = class PlayerProgress
 
         try
         {
-            var data = JSON.parse(text);
-            this.currentLevel = data.currentLevel || 0;
-            this.bestScores = Array.isArray(data.bestScores) ? data.bestScores : [];
-            this.seenTutorials = Array.isArray(data.seenTutorials) ? data.seenTutorials : [];
-            this.language = typeof data.language == "string" ? data.language : "";
-            this.stars = Array.isArray(data.stars) ? data.stars : [];
-            this.coins = typeof data.coins == "number" ? data.coins : -1;
-            this.lives = typeof data.lives == "number" ? data.lives : -1;
-            this.livesAt = typeof data.livesAt == "number" ? data.livesAt : 0;
-            this.boosters = Array.isArray(data.boosters) ? data.boosters : null;
-            this.bonuses = Array.isArray(data.bonuses) ? data.bonuses : null;
-            this.settings = data.settings && typeof data.settings == "object" ? data.settings : {};
+            this.FromData(JSON.parse(text));
             return true;
         }
         catch (e)

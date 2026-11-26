@@ -205,7 +205,7 @@
                                 "campaignPath": "WordFall/campaign.json",
                                 "levels": [],
                                 "randomSeed": 0.0,
-                                "progressPath": "wordfall_progress.json",
+                                "progressPath": "",
                                 "fallSpeedCells": 9.5,
                                 "fallCascadeDelay": 0.05000000074505806
                             }

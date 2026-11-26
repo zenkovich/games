@@ -527,6 +527,38 @@ TEST_F(WordFallFeaturesUI, CheatsPanelOpensAndActs)
 	EXPECT_FALSE(panel->IsEnabled()) << "после действия панель закрывается";
 }
 
+TEST_F(WordFallFeaturesUI, CheatsResetProgressToANewPlayer)
+{
+	SkipTutorials();
+	mService->StartLevel(0);
+	AppTestDriver::Wait(0.8f);
+	mService->DebugCompleteTasks();
+	mService->DebugAddScore(mService->GetTargetScore()*2);
+	mService->Call("WinLevel");
+	mService->Call("ClaimReward", { ScriptValue(5000) });
+	AppTestDriver::Wait(0.5f);
+	ASSERT_EQ(mService->GetLevelIndex(), 1);
+	int startCoins = mService->Call("GetProgress").GetProperty("coins").GetValue<int>() - 5000;
+
+	OpenCheats();
+	auto panel = Screen()->GetChild("Cheats/Panel");
+	ASSERT_TRUE(panel && panel->IsEnabled());
+	SelectCheatsTab(6);
+	EXPECT_TRUE(panel->GetChild("Content/Page6")->IsEnabled());
+	auto info = DynamicCast<Label>(panel->GetChild("Content/Page6/Info"));
+	ASSERT_TRUE(info);
+	EXPECT_TRUE(String(info->GetText()).Contains(kTestProgressPath)) << "тесты держат прогресс файлом: " << String(info->GetText()).Data();
+	Shot("feature_cheats_save");
+
+	Tap(panel->GetChild("Content/Page6/ResetProgressBtn/Btn"));
+	AppTestDriver::Wait(0.5f);
+	EXPECT_FALSE(panel->IsEnabled());
+	EXPECT_EQ(mService->GetLevelIndex(), 0);
+	EXPECT_EQ(mService->Call("GetCoins").GetValue<int>(), startCoins);
+	EXPECT_FALSE(mService->IsTutorialSeen("basics")) << "обучение заново";
+	EXPECT_EQ(SavedCurrentLevel(mService->GetProgressPath()), 0) << "сброс сохранён";
+}
+
 TEST_F(WordFallFeaturesUI, WinPopupLightsStarsAndCountsScore)
 {
 	SkipTutorials();

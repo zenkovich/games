@@ -245,6 +245,7 @@ namespace
 {
 	const String kScreenshotsDir = "../../Work/ScreenShots/";
 	const String kTestLevelsPath = "wordfall_test_levels.json"; // правки редактора уровней в тестах — не в файле игрока
+	const String kTestProgressPath = "wordfall_test_progress.json"; // прогресс в тестах — файлом, не в сохранении игрока
 
 	const Vec2F kCameraSize(1179, 2556);     // fitted-камера сцены WordFall.scn: экран iPhone 16, устройство UI kit пайплайна «Wordfall UI»
 	const Vec2F kScreenSize(868, 1813);      // кадр экрана игры в его единицах (вёрстка Generated/UI/Screen.proto)
@@ -450,7 +451,7 @@ protected:
 	void SetUp() override
 	{
 		o2Application.SetWindowSize(Vec2I((int)kScreenSize.x, (int)kScreenSize.y));
-		o2FileSystem.FileDelete("wordfall_progress.json"); // чистый прогресс для каждого теста
+		o2FileSystem.FileDelete(kTestProgressPath); // чистый прогресс для каждого теста
 		o2FileSystem.FileDelete(kTestLevelsPath);
 
 		LoadScene();
@@ -459,6 +460,7 @@ protected:
 		// фиксированный сид и свой файл правок уровней до старта сервиса
 		mService->Set("randomSeed", ScriptValue(42));
 		mService->Set("editedLevelsPath", ScriptValue(String(kTestLevelsPath)));
+		mService->Set("progressPath", ScriptValue(String(kTestProgressPath)));
 		if (!UseCampaign())
 		{
 			mService->Set("campaignPath", ScriptValue(String())); // старые сценарии рассчитаны на процедурный первый уровень
